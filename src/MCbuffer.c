@@ -1,5 +1,6 @@
 #include "MCbuffer.h"
 #include "MCtypes.h"
+#include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -9,6 +10,12 @@
 #define VARINT_SEGMENT_BITS 0x7F
 #define VARINT_CONTINUE_BIT 0x80
 #define DEFAULT_MAX_STRING_LENGTH INT16_MAX
+#define X_MASK 0x3FFFFFF
+#define X_SHIFT 38
+#define Y_MASK 0xFFF
+#define Y_SHIFT 26
+#define Z_MASK 0x3FFFFFF
+#define Z_SHIFT 0
 
 #define CHECK_ERRMSG                                                           \
   if (*errmsg != NULL)                                                         \
@@ -31,6 +38,7 @@ void MCbuffer_free(MCbuffer *buffer) {
   buffer->capacity = 0;
   buffer->length = 0;
   buffer->position = 0;
+  free(buffer);
 }
 
 void MCbuffer_pack(MCbuffer *buffer, const void *data, size_t dataSize,
@@ -189,25 +197,32 @@ const char *MCbuffer_unpack_string(MCbuffer *buff, char **errmsg) {
                                           errmsg);
 }
 
-#define X_MASK 0x3FFFFFF
-#define X_SHIFT 38
-#define Y_MASK 0xFFF
-#define Y_SHIFT 26
-#define Z_MASK 0x3FFFFFF
-#define Z_SHIFT 0
-
 void MCbuffer_pack_position(MCbuffer *buff, MCblockPos pos, char **errmsg) {
-  uint64_t encoded_pos = (pos.x & X_MASK) << X_SHIFT |
-                         (pos.y & Y_MASK) << Y_SHIFT | (pos.z & Z_MASK);
-  MCbuffer_pack_ulong(buff, encoded_pos, errmsg);
+  uint64_t encoded_pos = ((pos.x & 0x3FFFFFF) << 38) | ((pos.y & 0xFFF) << 26) |
+                         (pos.z & 0x3FFFFFF);
+  MCbuffer_pack_long(buff, encoded_pos, errmsg);
 }
 
 MCblockPos MCbuffer_unpack_position(MCbuffer *buff, char **errmsg) {
   uint64_t val = MCbuffer_unpack_long(buff, errmsg);
   MCblockPos pos;
-  if (*errmsg != NULL) return pos;
+
+  if (*errmsg != NULL)
+    return pos;
   pos.x = val >> 38;
-  pos.y = val << 52 >> 52;
-  pos.z = val << 26 >> 38;
+  pos.y = (val >> 26) & 0xFFF;
+  pos.z = val << 38 >> 38;
+
+  // this is for negatives
+  if (pos.x >= pow(2, 25)) {
+    pos.x -= pow(2, 26);
+  }
+  if (pos.y >= pow(2, 11)) {
+    pos.y -= pow(2, 12);
+  }
+  if (pos.z >= pow(2, 25)) {
+    pos.z -= pow(2, 26);
+  }
+
   return pos;
 }

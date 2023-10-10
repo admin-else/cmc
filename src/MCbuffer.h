@@ -1,6 +1,7 @@
 #ifndef MCBUFF_H
 #define MCBUFF_H
 
+#include "MCtypes.h"
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -53,5 +54,9 @@ void MCbuffer_pack_string(MCbuffer *buff, const char *value, char **errmsg);
 const char *MCbuffer_unpack_string_w_max_len(MCbuffer *buff, int max_len, char **errmsg);
 
 const char *MCbuffer_unpack_string(MCbuffer *buff, char **errmsg);
+
+void MCbuffer_pack_position(MCbuffer *buff, MCblockPos pos, char **errmsg);
+
+MCblockPos MCbuffer_unpack_position(MCbuffer *buff, char **errmsg);
 
 #endif

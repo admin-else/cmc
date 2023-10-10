@@ -1,6 +1,6 @@
 packet_name,mcpacket_expresion,mcpacket_naming_expresion
-keep_alive,v,keep_alive_id
-join_game,iBbBBs?,entity_id;gamemode;dimension;difficiulty;max_players;level_type;reduce_debug_info
+keep_alive,vkeep_alive_id
+join_game,iBbBBs?,entity_id;igamemode;Bdimension;bdifficiulty;Bmax_players;level_type;reduce_debug_info
 chat_message,jb,json_data;position
 time_update,ll,world_age;time_of_day
 entity_equipment,vhS,entity_id;slot;item
