@@ -1,5 +1,6 @@
 #include "MCbuffer.h"
 #include "MConn.h"
+#include "MCtypes.h"
 #include "textcolor.h"
 #include <ctype.h>
 #include <curses.h>
@@ -25,14 +26,23 @@ void MCbuffer_print_all_info(MCbuffer *buff) {
   MCbuffer_py_print(buff);
 }
 
-uint64_t pack_position(uint32_t x, uint32_t y, uint32_t z) {
-    uint64_t result = ((uint64_t)(x & 0x3FFFFFF) << 38) | ((uint64_t)(z & 0x3FFFFFF) << 12) | (y & 0xFFF);
-    return result;
-}
-
-
 int main() {
-  uint64_t packed_pos = pack_position(18357644, -20882616, 831);
-  printf("%lu", packed_pos);
+  char *errmsg = NULL;
+  MCblockPos pos;
+  pos.x = 10000000;
+  pos.y = 444;
+  pos.z = 100;
+  MCbuffer *buff = MCbuffer_init();
+  MCbuffer_pack_position(buff, pos, &errmsg);
+  buff->position = 0;
+  MCblockPos pos2 = MCbuffer_unpack_position(buff, &errmsg);
+  MCbuffer_free(buff);
+
+  if(errmsg != NULL) {
+    printf("Error while unpacking %s\n", errmsg);
+  }
+
+  printf("%ld %ld %ld\n", pos2.x, pos2.y, pos2.z);
+
   return 0;
 }
