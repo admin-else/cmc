@@ -1,0 +1,30 @@
+? boolean DONE
+b byte DONE
+B unsigned byte DONE
+h short DONE
+H unsigned short DONE
+i int DONE
+l long DONE
+f float DONE
+d double DONE
+s string DONE
+X chat (will to later)
+X identifier (use string instead)
+v varint DONE
+V varlong
+X ENTITY METADATA
+S SLOT
+n nbt
+p position
+A angle
+u uuid
+a array(of bytes)
+j json
+
+some packets ig:
+
+Keep Alive: v
+Join Game: iBbBBs?
+Chat Message: jb
+Time Update: ll
+Entity Equipment: vs
