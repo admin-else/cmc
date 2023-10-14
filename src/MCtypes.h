@@ -5,6 +5,9 @@ typedef struct {
     long x;
     long y;
     long z;
-} MCblockPos;
+} block_pos_t;
+
+typedef int varint_t;
+typedef unsigned char byte_t ;
 
 #endif
