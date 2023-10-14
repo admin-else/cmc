@@ -7,42 +7,29 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "FileUtils.h"
 
-void MCbuffer_py_print(MCbuffer *buff) {
-  for (int i = 0; i < buff->length; i++) {
-    if (isprint(buff->data[i])) {
-      printf("%c", buff->data[i]);
-    } else {
-      printf("\\x%02X", buff->data[i]);
+#define EXIT_IF_ERR(message) if(errmsg != NULL) {fprintf(stderr, message, errmsg); exit(1);}
+
+void print_bytes_hex(unsigned char *bytes, size_t len) {
+    for (int i = 0; i < len; i++) {
+        printf("%02X ", bytes[i]);
     }
-  }
-  printf("\n");
-}
-
-void MCbuffer_print_all_info(MCbuffer *buff) {
-  printf("Lenght: " TEXT_BOLD "%zu" NLR, buff->length);
-  printf("Position: " TEXT_BOLD "%zu" NLR, buff->position);
-  printf("Capacity: " TEXT_BOLD "%zu" NLR, buff->capacity);
-  MCbuffer_py_print(buff);
+    printf("\n");
 }
 
 int main() {
   char *errmsg = NULL;
-  MCblockPos pos;
-  pos.x = 10000000;
-  pos.y = 444;
-  pos.z = 100;
+
+  size_t file_size;
+  byte_t *nbt_file = read_binary_file("example-data/level.dat", &file_size, &errmsg);
+  EXIT_IF_ERR("Error while readig file: %s\n")
+
   MCbuffer *buff = MCbuffer_init();
-  MCbuffer_pack_position(buff, pos, &errmsg);
-  buff->position = 0;
-  MCblockPos pos2 = MCbuffer_unpack_position(buff, &errmsg);
-  MCbuffer_free(buff);
-
-  if(errmsg != NULL) {
-    printf("Error while unpacking %s\n", errmsg);
-  }
-
-  printf("%ld %ld %ld\n", pos2.x, pos2.y, pos2.z);
+  buff->data = nbt_file;
+  buff->length = file_size;
+  buff->length = file_size;
+  
 
   return 0;
 }

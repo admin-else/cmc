@@ -12,15 +12,14 @@ typedef struct{
   uint8_t state; // SEE MCONN_STATE_ macros
 } MConn;
 
-#define MCONN_STATE_HANDSHAKING 0
-#define MCONN_STATE_STATUS 1
-#define MCONN_STATE_LOGIN 2
-#define MCONN_STATE_PLAY 3
-#define MCONN_STATE_OFFLINE 4
-
-typedef enum { HANDSHAKING, STATUS, LOGIN, PLAY, OFFLINE } MConn_state;
+typedef enum { OFFLINE, STATUS, LOGIN, PLAY, HANDSHAKING } MConn_state;
 
 void MConn_send_buffer(MConn *conn, MCbuffer *buff, char **errmsg);
+
 MConn *MConn_init(char *ip, uint16_t port, char **errmsg);
+
+void MConn_send_and_free_buffer(MConn *conn, MCbuffer *buff, char **errmsg);
+
+MCbuffer *MConn_recive_packet(MConn *conn, char **errmsg);
 
 #endif

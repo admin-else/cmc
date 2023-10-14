@@ -58,8 +58,10 @@ void MCbuffer_pack(MCbuffer *buffer, const void *data, size_t dataSize,
     buffer->length = buffer->position + dataSize;
   }
 
-  memmove(buffer->data + buffer->position + dataSize,
-          buffer->data + buffer->position, buffer->length - buffer->position);
+  if (buffer->data == NULL) {
+    memmove(buffer->data + buffer->position + dataSize,
+            buffer->data + buffer->position, buffer->length - buffer->position);
+  }
   memcpy(buffer->data + buffer->position, data, dataSize);
   buffer->position += dataSize;
 }
@@ -173,8 +175,8 @@ void MCbuffer_pack_string(MCbuffer *buff, const char *value, char **errmsg) {
                                  errmsg);
 }
 
-const char *MCbuffer_unpack_string_w_max_len(MCbuffer *buff, int max_len,
-                                             char **errmsg) {
+char *MCbuffer_unpack_string_w_max_len(MCbuffer *buff, int max_len,
+                                       char **errmsg) {
   int str_len = MCbuffer_unpack_varint(buff, errmsg);
   CHECK_ERRMSG
   if (str_len > max_len) {
@@ -189,23 +191,23 @@ const char *MCbuffer_unpack_string_w_max_len(MCbuffer *buff, int max_len,
               "Weird string!";
     return NULL;
   }
-  return (const char *)MCbuffer_unpack(buff, str_len, errmsg);
+  return (char *)MCbuffer_unpack(buff, str_len, errmsg);
 }
 
-const char *MCbuffer_unpack_string(MCbuffer *buff, char **errmsg) {
+char *MCbuffer_unpack_string(MCbuffer *buff, char **errmsg) {
   return MCbuffer_unpack_string_w_max_len(buff, DEFAULT_MAX_STRING_LENGTH,
                                           errmsg);
 }
 
-void MCbuffer_pack_position(MCbuffer *buff, MCblockPos pos, char **errmsg) {
+void MCbuffer_pack_position(MCbuffer *buff, block_pos_t pos, char **errmsg) {
   uint64_t encoded_pos = ((pos.x & 0x3FFFFFF) << 38) | ((pos.y & 0xFFF) << 26) |
                          (pos.z & 0x3FFFFFF);
   MCbuffer_pack_long(buff, encoded_pos, errmsg);
 }
 
-MCblockPos MCbuffer_unpack_position(MCbuffer *buff, char **errmsg) {
+block_pos_t MCbuffer_unpack_position(MCbuffer *buff, char **errmsg) {
   uint64_t val = MCbuffer_unpack_long(buff, errmsg);
-  MCblockPos pos;
+  block_pos_t pos;
 
   if (*errmsg != NULL)
     return pos;
@@ -214,15 +216,9 @@ MCblockPos MCbuffer_unpack_position(MCbuffer *buff, char **errmsg) {
   pos.z = val << 38 >> 38;
 
   // this is for negatives
-  if (pos.x >= pow(2, 25)) {
-    pos.x -= pow(2, 26);
-  }
-  if (pos.y >= pow(2, 11)) {
-    pos.y -= pow(2, 12);
-  }
-  if (pos.z >= pow(2, 25)) {
-    pos.z -= pow(2, 26);
-  }
+  if (pos.x >= 33554432) pos.x -= 67108864;
+  if (pos.y >= 2048    ) pos.y -=     4096;
+  if (pos.z >= 33554432) pos.z -= 67108864;
 
   return pos;
 }

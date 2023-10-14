@@ -51,12 +51,12 @@ void MCbuffer_pack_string_w_max_len(MCbuffer *buff, const char *value, int max_l
 
 void MCbuffer_pack_string(MCbuffer *buff, const char *value, char **errmsg);
 
-const char *MCbuffer_unpack_string_w_max_len(MCbuffer *buff, int max_len, char **errmsg);
+char *MCbuffer_unpack_string_w_max_len(MCbuffer *buff, int max_len, char **errmsg);
 
-const char *MCbuffer_unpack_string(MCbuffer *buff, char **errmsg);
+char *MCbuffer_unpack_string(MCbuffer *buff, char **errmsg);
 
-void MCbuffer_pack_position(MCbuffer *buff, MCblockPos pos, char **errmsg);
+void MCbuffer_pack_position(MCbuffer *buff, block_pos_t pos, char **errmsg);
 
-MCblockPos MCbuffer_unpack_position(MCbuffer *buff, char **errmsg);
+block_pos_t MCbuffer_unpack_position(MCbuffer *buff, char **errmsg);
 
 #endif
