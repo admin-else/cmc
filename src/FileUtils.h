@@ -1,8 +1,6 @@
-// FileUtils.h (Header File)
+#pragma once
 
-#ifndef FILEUTILS_H
-#define FILEUTILS_H
-
+#include "MCbuffer.h"
 #include "MCtypes.h"
 #include <stdio.h>
 
@@ -18,4 +16,5 @@ int write_text_file(const char* filename, const char* text, char** errmsg);
 // Function to write an unsigned char array to a binary file
 int write_binary_file(const char* filename, const unsigned char* data, size_t length, char** errmsg);
 
-#endif // FILEUTILS_H
+MCbuffer *read_file_into_buffer(FILE *fp, char **errmsg);
+
