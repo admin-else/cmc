@@ -1,0 +1,11 @@
+{
+    "C_Cpp.errorSquiggles": "disabled",
+    "files.associations": {
+        "stddef.h": "c",
+        "nbt.h": "c",
+        "mcbuffer.h": "c",
+        "stdbool.h": "c",
+        "mctypes.h": "c",
+        "typeinfo": "c"
+    }
+}
