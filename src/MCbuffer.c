@@ -33,13 +33,13 @@ MCbuffer *MCbuffer_init() {
 
 void MCbuffer_free(MCbuffer *buffer) {
   if (buffer->capacity) {
-    free(buffer->data);
+    FREE(buffer->data);
   }
   buffer->data = NULL;
   buffer->capacity = 0;
   buffer->length = 0;
   buffer->position = 0;
-  free(buffer);
+  FREE(buffer);
 }
 
 void MCbuffer_pack(MCbuffer *buffer, const void *data, size_t dataSize,
@@ -92,7 +92,7 @@ unsigned char *MCbuffer_unpack(MCbuffer *buffer, size_t n, char **errmsg) {
     if (data == NULL)                                                          \
       return (type)0;                                                          \
     type result = *((type *)data);                                             \
-    free(data);                                                                \
+    FREE(data);                                                                \
     return result;                                                             \
   }                                                                            \
                                                                                \
@@ -128,7 +128,7 @@ bool MCbuffer_unpack_bool(MCbuffer *buffer, char **errmsg) {
   if (data == NULL)
     return false;
   unsigned char byte_val = *data;
-  free(data);
+  FREE(data);
   if (byte_val)
     return true;
   else

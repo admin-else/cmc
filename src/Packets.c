@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "heap-utils.h"
 
 /*
 If you ask yourself WHY THE FUCK is it that instead of this:
@@ -26,7 +27,7 @@ and i dont like that so made it "safer" ig...
   if (*errmsg != NULL) {                                                       \
     char error_message[256];                                                   \
     sprintf(error_message, "error while packing " #pack_name ": %s", *errmsg); \
-    free(buff);                                                                \
+    FREE(buff);                                                                \
     *errmsg = strdup(error_message);                                           \
     return;                                                                    \
   }

@@ -29,21 +29,24 @@ int main() {
   size_t file_size;
   byte_t *nbt_file =
       read_binary_file("example-data/hello_world.nbt", &file_size, &errmsg);
+
   EXIT_IF_ERR("Error while readig file: %s\n")
 
   MCbuffer *buff = MCbuffer_init();
   buff->data = nbt_file;
+  buff->capacity = file_size;
   buff->length = file_size;
-  buff->length = file_size;
-
+  
+  puts("parsing");
   nbt_node *nbt = nbt_parse_named_tag(buff, &errmsg);
+  puts("end parsing");
   if (errmsg != NULL) {
     fprintf(stderr, "%s\n", errmsg);
     exit(1);
   }
   nbt_free(nbt);
   EXIT_IF_ERR("%s\n")
-
+  
   MCbuffer_free(buff);
   EXIT_IF_ERR("%s\n")
 

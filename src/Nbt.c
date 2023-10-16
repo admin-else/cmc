@@ -1,25 +1,25 @@
 #include "Nbt.h"
 #include "MCbuffer.h"
 #include "err.h"
+#include "heap-utils.h"
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "heap-utils.h"
 
 #define ERR_CHECK(description)                                                 \
   if (*errmsg != NULL) {                                                       \
     char error_message[256];                                                   \
     sprintf(error_message, description, *errmsg);                              \
     *errmsg = strdup(error_message);                                           \
-    return ret;                                                         \
+    return ret;                                                                \
   }
 
 #define ERR_IF(condition, desctiption)                                         \
   if (condition) {                                                             \
     *errmsg = desctiption;                                                     \
-    return ret;                                                         \
+    return ret;                                                                \
   }
 
 #define READ_GENERIC(dest, n, scanner, on_failure)                             \
@@ -32,34 +32,27 @@
   } while (0)
 
 /* are we running on a little-endian system? */
-static int little_endian()
-{
-    uint16_t t = 0x0001;
-    char c[2];
-    memcpy(c, &t, sizeof t);
-    return c[0];
+static int little_endian() {
+  uint16_t t = 0x0001;
+  char c[2];
+  memcpy(c, &t, sizeof t);
+  return c[0];
 }
 
-static void* swap_bytes(void* s, size_t len)
-{
-    for(char* b = s,
-            * e = b + len - 1;
-        b < e;
-        b++, e--)
-    {
-        char t = *b;
+static void *swap_bytes(void *s, size_t len) {
+  for (char *b = s, *e = b + len - 1; b < e; b++, e--) {
+    char t = *b;
 
-        *b = *e;
-        *e = t;
-    }
+    *b = *e;
+    *e = t;
+  }
 
-    return s;
+  return s;
 }
 
 /* big endian to native endian. works in-place */
-static void* be2ne(void* s, size_t len)
-{
-    return little_endian() ? swap_bytes(s, len) : s;
+static void *be2ne(void *s, size_t len) {
+  return little_endian() ? swap_bytes(s, len) : s;
 }
 
 /* native endian to big endian. works the exact same as its inverse */
@@ -73,12 +66,11 @@ static char *nbt_read_string(MCbuffer *buff, char **errmsg) {
   be2ne(&str_len, sizeof(int16_t));
   ERR_IF(str_len < 0, "Nbt String len less than zero?")
 
-  char *string;
-  string = MALLOC(str_len + 1); //null terminator
+  char *string = MALLOC(str_len + 1); // null terminator
   char *heap_data = (char *)MCbuffer_unpack(buff, str_len, errmsg);
 
   memcpy(string, heap_data, str_len);
-  free(heap_data);
+  FREE(heap_data);
   string[str_len] = '\0';
 
   ERR_CHECK("Err while unpacking nbt string: \n%s");
@@ -98,11 +90,11 @@ void nbt_free_list(struct nbt_list *list) {
     struct nbt_list *entry = list_entry(current, struct nbt_list, entry);
 
     nbt_free(entry->data);
-    free(entry);
+    FREE(entry);
   }
 
-  free(list->data);
-  free(list);
+  FREE(list->data);
+  FREE(list);
 }
 
 void nbt_free(nbt_node *tree) {
@@ -117,19 +109,19 @@ void nbt_free(nbt_node *tree) {
     nbt_free_list(tree->payload.tag_compound);
 
   else if (tree->type == TAG_BYTE_ARRAY)
-    free(tree->payload.tag_byte_array.data);
+    FREE(tree->payload.tag_byte_array.data);
 
   else if (tree->type == TAG_INT_ARRAY)
-    free(tree->payload.tag_int_array.data);
+    FREE(tree->payload.tag_int_array.data);
 
   else if (tree->type == TAG_LONG_ARRAY)
-    free(tree->payload.tag_long_array.data);
+    FREE(tree->payload.tag_long_array.data);
 
   else if (tree->type == TAG_STRING)
-    free(tree->payload.tag_string);
+    FREE(tree->payload.tag_string);
 
-  free(tree->name);
-  free(tree);
+  FREE(tree->name);
+  FREE(tree);
 }
 
 nbt_node *parse_unnamed_tag(MCbuffer *buff, nbt_type type, char *name,
@@ -164,8 +156,8 @@ static struct nbt_list *read_compound(MCbuffer *buff, char **errmsg) {
     new_entry->data = parse_unnamed_tag(buff, (nbt_type)type, name, errmsg);
 
     if (new_entry->data == NULL) {
-      free(new_entry);
-      free(name);
+      FREE(new_entry);
+      FREE(name);
       goto err;
     }
 
@@ -210,7 +202,7 @@ static struct nbt_list *read_list(MCbuffer *buff, char **errmsg) {
     new->data = parse_unnamed_tag(buff, (nbt_type)type, NULL, errmsg);
 
     if (new->data == NULL) {
-      free(new);
+      FREE(new);
       goto err;
     }
 
@@ -224,40 +216,38 @@ err:
   return NULL;
 }
 
-static struct nbt_byte_array read_byte_array(MCbuffer *buff, char **errmsg)
-{
-    struct nbt_byte_array ret;
-    ret.data = NULL;
+static struct nbt_byte_array read_byte_array(MCbuffer *buff, char **errmsg) {
+  struct nbt_byte_array ret;
+  ret.data = NULL;
 
-    ret.length = MCbuffer_unpack_int(buff, errmsg);
-    ERR_CHECK("error while reading nbt byte arr: \n%s");
-    ERR_IF(ret.length < 0, "byte array length less than zero???")
+  ret.length = MCbuffer_unpack_int(buff, errmsg);
+  ERR_CHECK("error while reading nbt byte arr: \n%s");
+  ERR_IF(ret.length < 0, "byte array length less than zero???")
 
-    ret.data = MCbuffer_unpack(buff, ret.length, errmsg);
-    ERR_CHECK("error while reading nbt byte arr: \n%s");
+  ret.data = MCbuffer_unpack(buff, ret.length, errmsg);
+  ERR_CHECK("error while reading nbt byte arr: \n%s");
 
-    return ret;
+  return ret;
 }
 
-static struct nbt_int_array read_int_array(MCbuffer *buff, char **errmsg)
-{
-    struct nbt_int_array ret;
-    ret.data = NULL;
+static struct nbt_int_array read_int_array(MCbuffer *buff, char **errmsg) {
+  struct nbt_int_array ret;
+  ret.data = NULL;
 
-    ret.length = MCbuffer_unpack_int(buff, errmsg);
-    ERR_CHECK("Error while unpacking nbt int array len %s\n")
+  ret.length = MCbuffer_unpack_int(buff, errmsg);
+  ERR_CHECK("Error while unpacking nbt int array len %s\n")
 
-    ERR_IF(ret.length < 0, "nbt int array len less than zero????")
+  ERR_IF(ret.length < 0, "nbt int array len less than zero????")
 
-    ret.data = (int32_t *)MCbuffer_unpack(buff, sizeof(int32_t) * ret.length, errmsg);
-    ERR_CHECK("Error while unpacking nbt int array %s\n")
+  ret.data =
+      (int32_t *)MCbuffer_unpack(buff, sizeof(int32_t) * ret.length, errmsg);
+  ERR_CHECK("Error while unpacking nbt int array %s\n")
 
+  // Byteswap the whole array.
+  for (int32_t i = 0; i < ret.length; i++)
+    be2ne(ret.data + i, sizeof(int32_t));
 
-    // Byteswap the whole array.
-    for(int32_t i = 0; i < ret.length; i++)
-        be2ne(ret.data + i, sizeof(int32_t));
-
-    return ret;
+  return ret;
 }
 
 nbt_node *parse_unnamed_tag(MCbuffer *buff, nbt_type type, char *name,
@@ -277,7 +267,7 @@ nbt_node *parse_unnamed_tag(MCbuffer *buff, nbt_type type, char *name,
       return NULL;                                                             \
     /* the pointer must be valid if there is no error. */                      \
                                                                                \
-    ret->payload.payload_attrib_name = *pVal;                           \
+    ret->payload.payload_attrib_name = *pVal;                                  \
   } while (0)
   case TAG_BYTE:
     UNPACK_NUMBER(tag_byte, int8_t);
@@ -320,9 +310,10 @@ nbt_node *parse_unnamed_tag(MCbuffer *buff, nbt_type type, char *name,
     *errmsg = "invalid nbt tag type";
     goto err;
   }
+  return ret;
 
 err:
-  free(ret);
+  FREE(ret);
   return NULL;
 }
 
@@ -332,8 +323,10 @@ nbt_node *nbt_parse_named_tag(MCbuffer *buff, char **errmsg) {
   uint8_t type = MCbuffer_unpack_byte(buff, errmsg);
   ERR_CHECK("Error while parsing named nbt tag: \n%s")
 
+  puts("read string");
   name = nbt_read_string(buff, errmsg);
   ERR_CHECK("Err while parsing named tag \n%s");
+  puts("end read string");
 
   ret = parse_unnamed_tag(buff, type, name, errmsg);
   ERR_CHECK("%s")
