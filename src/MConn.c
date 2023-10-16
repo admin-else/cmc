@@ -13,7 +13,7 @@ MConn *MConn_init(char *ip, uint16_t port, char **errmsg) {
   conn->port = port;
 
   if ((conn->sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-    free(conn);
+    FREE(conn);
     *errmsg = "Socket creation error";
     return NULL;
   }
@@ -23,13 +23,13 @@ MConn *MConn_init(char *ip, uint16_t port, char **errmsg) {
   address.sin_port = htons(port);
 
   if (inet_pton(AF_INET, ip, &address.sin_addr) <= 0) {
-    free(conn);
+    FREE(conn);
     *errmsg = "Invalid address.";
     return NULL;
   }
 
   if (connect(conn->sockfd, (struct sockaddr *)&address, sizeof(address)) < 0) {
-    free(conn);
+    FREE(conn);
     *errmsg = "Connection Failed";
     return NULL;
   }
