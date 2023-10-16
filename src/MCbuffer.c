@@ -1,5 +1,6 @@
 #include "MCbuffer.h"
 #include "MCtypes.h"
+#include "heap-utils.h"
 #include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -22,7 +23,7 @@
     return 0;
 
 MCbuffer *MCbuffer_init() {
-  MCbuffer *buffer = malloc(sizeof(MCbuffer));
+  MCbuffer *buffer = MALLOC(sizeof(MCbuffer));
   buffer->data = NULL;
   buffer->capacity = 0;
   buffer->length = 0;
@@ -72,7 +73,7 @@ unsigned char *MCbuffer_unpack(MCbuffer *buffer, size_t n, char **errmsg) {
     return NULL;
   }
 
-  unsigned char *readData = (unsigned char *)malloc(n);
+  unsigned char *readData = (unsigned char *)MALLOC(n);
   if (readData == NULL) {
     *errmsg = "Failed to allocate memory for readData";
     return NULL;

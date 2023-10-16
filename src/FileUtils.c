@@ -2,6 +2,7 @@
 #include "FileUtils.h"
 #include "MCbuffer.h"
 #include "MCtypes.h"
+#include "heap-utils.h"
 #include <stdlib.h>
 
 char *read_text_file(const char *filename, char **errmsg) {
@@ -15,7 +16,7 @@ char *read_text_file(const char *filename, char **errmsg) {
   long file_size = ftell(file);
   rewind(file);
 
-  char *buffer = (char *)malloc(file_size + 1);
+  char *buffer = (char *)MALLOC(file_size + 1);
   if (buffer == NULL) {
     fclose(file);
     *errmsg = "Error: Memory allocation failed.";
@@ -40,7 +41,7 @@ byte_t *read_binary_file(const char *filename, size_t *length, char **errmsg) {
   long file_size = ftell(file);
   rewind(file);
 
-  byte_t *buffer = (byte_t *)malloc(file_size);
+  byte_t *buffer = (byte_t *)MALLOC(file_size);
   if (buffer == NULL) {
     fclose(file);
     *errmsg = "Error: Memory allocation failed.";
@@ -89,7 +90,7 @@ MCbuffer *read_file_into_buffer(FILE *fp, char **errmsg) {
   long file_size = ftell(fp);
   rewind(fp);
 
-  byte_t *data = (byte_t *)malloc(file_size);
+  byte_t *data = (byte_t *)MALLOC(file_size);
   if (data == NULL) {
     fclose(fp);
     *errmsg = "Error: Memory allocation failed.";

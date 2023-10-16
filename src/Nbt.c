@@ -6,25 +6,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "heap-utils.h"
 
 #define ERR_CHECK(description)                                                 \
   if (*errmsg != NULL) {                                                       \
     char error_message[256];                                                   \
     sprintf(error_message, description, *errmsg);                              \
     *errmsg = strdup(error_message);                                           \
-    return return_val;                                                         \
+    return ret;                                                         \
   }
 
 #define ERR_IF(condition, desctiption)                                         \
   if (condition) {                                                             \
     *errmsg = desctiption;                                                     \
-    return return_val;                                                         \
-  }
-
-#define MALLOC(val, n)                                                         \
-  if ((val = malloc(n)) == NULL) {                                             \
-    *errmsg = "out of memory.";                                                \
-    return return_val;                                                         \
+    return ret;                                                         \
   }
 
 #define READ_GENERIC(dest, n, scanner, on_failure)                             \
@@ -71,18 +66,24 @@ static void* be2ne(void* s, size_t len)
 #define ne2be be2ne
 
 static char *nbt_read_string(MCbuffer *buff, char **errmsg) {
-  char *return_val = NULL;
+  char *ret = NULL;
   int16_t str_len = MCbuffer_unpack_short(buff, errmsg);
+  ERR_CHECK("Error while unpacking nbt string len \n%s")
 
   be2ne(&str_len, sizeof(int16_t));
   ERR_IF(str_len < 0, "Nbt String len less than zero?")
 
-  return_val = (char *)MCbuffer_unpack(buff, str_len, errmsg);
-  ERR_CHECK("Err while unpacking nbt string: \n%s")
+  char *string;
+  string = MALLOC(str_len + 1); //null terminator
+  char *heap_data = (char *)MCbuffer_unpack(buff, str_len, errmsg);
 
-  return_val[str_len] = '\0'; //null terminate
+  memcpy(string, heap_data, str_len);
+  free(heap_data);
+  string[str_len] = '\0';
 
-  return return_val;
+  ERR_CHECK("Err while unpacking nbt string: \n%s");
+
+  return string;
 }
 
 void nbt_free(nbt_node *tree);
@@ -135,12 +136,12 @@ nbt_node *parse_unnamed_tag(MCbuffer *buff, nbt_type type, char *name,
                             char **errmsg);
 
 static struct nbt_list *read_compound(MCbuffer *buff, char **errmsg) {
-  struct nbt_list *return_val;
+  struct nbt_list *ret;
 
-  MALLOC(return_val, sizeof(struct nbt_list));
+  ret = MALLOC(sizeof(struct nbt_list));
 
-  return_val->data = NULL;
-  INIT_LIST_HEAD(&return_val->entry);
+  ret->data = NULL;
+  INIT_LIST_HEAD(&ret->entry);
 
   for (;;) {
     uint8_t type;
@@ -152,16 +153,13 @@ static struct nbt_list *read_compound(MCbuffer *buff, char **errmsg) {
       goto err;
 
     if (type == TAG_END)
-      break; /* TAG_END == 0. We've hit the end of the list when type ==
-                TAG_END. */
+      break;
 
     name = nbt_read_string(buff, errmsg);
     if (*errmsg != NULL)
       goto err;
 
-    new_entry = malloc(sizeof(struct nbt_list));
-    if (new_entry == NULL)
-      goto err;
+    new_entry = MALLOC(sizeof(struct nbt_list));
 
     new_entry->data = parse_unnamed_tag(buff, (nbt_type)type, name, errmsg);
 
@@ -171,13 +169,13 @@ static struct nbt_list *read_compound(MCbuffer *buff, char **errmsg) {
       goto err;
     }
 
-    list_add_tail(&new_entry->entry, &return_val->entry);
+    list_add_tail(&new_entry->entry, &ret->entry);
   }
 
-  return return_val;
+  return ret;
 
 err:
-  nbt_free_list(return_val);
+  nbt_free_list(ret);
 
   return NULL;
 }
@@ -185,23 +183,15 @@ err:
 static struct nbt_list *read_list(MCbuffer *buff, char **errmsg) {
   uint8_t type;
   int32_t elems;
-  struct nbt_list *return_val = NULL;
+  struct nbt_list *ret = NULL;
 
-  return_val = malloc(sizeof(struct nbt_list));
-  if (return_val == NULL) {
-    *errmsg = "out of memory";
-    return NULL;
-  }
+  ret = MALLOC(sizeof(struct nbt_list));
 
   /* we allocate the data pointer to store the type of the list in the first
    * sentinel element */
-  return_val->data = malloc(sizeof(struct nbt_list));
-  if (return_val->data == NULL) {
-    *errmsg = "out of memory";
-    goto err;
-  }
+  ret->data = MALLOC(sizeof(struct nbt_list));
 
-  INIT_LIST_HEAD(&return_val->entry);
+  INIT_LIST_HEAD(&ret->entry);
 
   type = MCbuffer_unpack_byte(buff, errmsg);
   if (*errmsg != NULL)
@@ -210,16 +200,12 @@ static struct nbt_list *read_list(MCbuffer *buff, char **errmsg) {
   if (*errmsg != NULL)
     goto err;
 
-  return_val->data->type = type == TAG_END ? TAG_COMPOUND : (nbt_type)type;
+  ret->data->type = type == TAG_END ? TAG_COMPOUND : (nbt_type)type;
 
   for (int32_t i = 0; i < elems; i++) {
     struct nbt_list *new;
 
-    new = malloc(sizeof(struct nbt_list));
-    if (new == NULL) {
-      *errmsg = "out of memory";
-      goto err;
-    }
+    new = MALLOC(sizeof(struct nbt_list));
 
     new->data = parse_unnamed_tag(buff, (nbt_type)type, NULL, errmsg);
 
@@ -228,23 +214,59 @@ static struct nbt_list *read_list(MCbuffer *buff, char **errmsg) {
       goto err;
     }
 
-    list_add_tail(&new->entry, &return_val->entry);
+    list_add_tail(&new->entry, &ret->entry);
   }
 
-  return return_val;
+  return ret;
 
 err:
-  nbt_free_list(return_val);
+  nbt_free_list(ret);
   return NULL;
+}
+
+static struct nbt_byte_array read_byte_array(MCbuffer *buff, char **errmsg)
+{
+    struct nbt_byte_array ret;
+    ret.data = NULL;
+
+    ret.length = MCbuffer_unpack_int(buff, errmsg);
+    ERR_CHECK("error while reading nbt byte arr: \n%s");
+    ERR_IF(ret.length < 0, "byte array length less than zero???")
+
+    ret.data = MCbuffer_unpack(buff, ret.length, errmsg);
+    ERR_CHECK("error while reading nbt byte arr: \n%s");
+
+    return ret;
+}
+
+static struct nbt_int_array read_int_array(MCbuffer *buff, char **errmsg)
+{
+    struct nbt_int_array ret;
+    ret.data = NULL;
+
+    ret.length = MCbuffer_unpack_int(buff, errmsg);
+    ERR_CHECK("Error while unpacking nbt int array len %s\n")
+
+    ERR_IF(ret.length < 0, "nbt int array len less than zero????")
+
+    ret.data = (int32_t *)MCbuffer_unpack(buff, sizeof(int32_t) * ret.length, errmsg);
+    ERR_CHECK("Error while unpacking nbt int array %s\n")
+
+
+    // Byteswap the whole array.
+    for(int32_t i = 0; i < ret.length; i++)
+        be2ne(ret.data + i, sizeof(int32_t));
+
+    return ret;
 }
 
 nbt_node *parse_unnamed_tag(MCbuffer *buff, nbt_type type, char *name,
                             char **errmsg) {
-  nbt_node *return_val = NULL;
-  MALLOC(return_val, sizeof(nbt_node))
+  nbt_node *ret = NULL;
+  ret = MALLOC(sizeof(nbt_node));
 
-  return_val->name = name;
-  return_val->type = type;
+  ret->name = name;
+  ret->type = type;
 
   switch (type) {
 // Numbers
@@ -255,7 +277,7 @@ nbt_node *parse_unnamed_tag(MCbuffer *buff, nbt_type type, char *name,
       return NULL;                                                             \
     /* the pointer must be valid if there is no error. */                      \
                                                                                \
-    return_val->payload.payload_attrib_name = *pVal;                           \
+    ret->payload.payload_attrib_name = *pVal;                           \
   } while (0)
   case TAG_BYTE:
     UNPACK_NUMBER(tag_byte, int8_t);
@@ -278,17 +300,20 @@ nbt_node *parse_unnamed_tag(MCbuffer *buff, nbt_type type, char *name,
 #undef UNPACK_NUMBER
 
   case TAG_COMPOUND:
-    return_val->payload.tag_compound = read_compound(buff, errmsg);
+    ret->payload.tag_compound = read_compound(buff, errmsg);
     break;
   case TAG_STRING:
-    return_val->payload.tag_string = nbt_read_string(buff, errmsg);
+    ret->payload.tag_string = nbt_read_string(buff, errmsg);
     break;
   case TAG_LIST:
-
+    ret->payload.tag_list = read_list(buff, errmsg);
+    break;
   case TAG_BYTE_ARRAY:
-
+    ret->payload.tag_byte_array = read_byte_array(buff, errmsg);
+    break;
   case TAG_INT_ARRAY:
-
+    ret->payload.tag_int_array = read_int_array(buff, errmsg);
+    break;
   case TAG_LONG_ARRAY:
 
   default:
@@ -297,12 +322,12 @@ nbt_node *parse_unnamed_tag(MCbuffer *buff, nbt_type type, char *name,
   }
 
 err:
-  free(return_val);
+  free(ret);
   return NULL;
 }
 
 nbt_node *nbt_parse_named_tag(MCbuffer *buff, char **errmsg) {
-  nbt_node *return_val = NULL;
+  nbt_node *ret = NULL;
   char *name = NULL;
   uint8_t type = MCbuffer_unpack_byte(buff, errmsg);
   ERR_CHECK("Error while parsing named nbt tag: \n%s")
@@ -310,8 +335,8 @@ nbt_node *nbt_parse_named_tag(MCbuffer *buff, char **errmsg) {
   name = nbt_read_string(buff, errmsg);
   ERR_CHECK("Err while parsing named tag \n%s");
 
-  return_val = parse_unnamed_tag(buff, type, name, errmsg);
+  ret = parse_unnamed_tag(buff, type, name, errmsg);
   ERR_CHECK("%s")
 
-  return return_val;
+  return ret;
 }
