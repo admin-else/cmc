@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -O2 -g -Ilib/libnbt/libnbt.h
-LDFLAGS = -lm -lz
+LDFLAGS =
 
 SRC  = $(wildcard src/*.c) $(wildcard src/**/*.c) $(wildcard src/**/**/*.c) $(wildcard src/**/**/**/*.c)
 OBJ  = $(SRC:.c=.o)

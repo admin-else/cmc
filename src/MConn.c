@@ -1,12 +1,13 @@
 #include "MConn.h"
 #include "MCbuffer.h"
+#include "heap-utils.h"
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <stdlib.h>
 #include <sys/socket.h>
 
 MConn *MConn_init(char *ip, uint16_t port, char **errmsg) {
-  MConn *conn = malloc(sizeof(MConn));
+  MConn *conn = MALLOC(sizeof(MConn));
   conn->state = OFFLINE;
   conn->addr = ip;
   conn->port = port;
@@ -104,7 +105,7 @@ MCbuffer *MConn_recive_packet(MConn *conn, char **errmsg) {
     return buff;
   }
 
-  buff->data = malloc(packet_len);
+  buff->data = MALLOC(packet_len);
   recv_all(conn->sockfd, buff->data, packet_len);
   buff->capacity = packet_len;
   buff->length = packet_len;
