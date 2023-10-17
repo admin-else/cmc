@@ -28,7 +28,6 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
   if (size == 0)
     return 0;
 
-
   char *errmsg = NULL;
   MCbuffer *buff = MCbuffer_init();
   buff->data = MALLOC(size);
@@ -37,19 +36,31 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
   buff->capacity = size;
 
   nbt_node *nbt = nbt_parse_named_tag(buff, &errmsg);
+
+  //if (errmsg == NULL) {
+  //  char *stuff = nbt_dump_ascii(nbt, &errmsg);
+  //  EXIT_IF_ERR("%s\n")
+
+  //  printf("%s", stuff);
+  //  FREE(stuff);
+  //}
+
   nbt_free(nbt);
   MCbuffer_free(buff);
-  if (errmsg != NULL)
-    fprintf(stderr, "Error: \n%s", errmsg);
+  if (errmsg != NULL) {
+    // fprintf(stderr, "Error: %s\n", errmsg);
+    return -1;
+  }
   return 0;
 }
 
-int main1() {
+int main
+() {
   char *errmsg = NULL;
 
   size_t file_size;
-  byte_t *nbt_file =
-      read_binary_file("example-data/bigtest.nbt", &file_size, &errmsg);
+  byte_t *nbt_file = read_binary_file(
+      "crash-9f482946417dff4c5416f2851abe12e9d69d43a0", &file_size, &errmsg);
 
   EXIT_IF_ERR("Error while readig file: %s\n")
 
@@ -63,10 +74,10 @@ int main1() {
   nbt_node *nbt = nbt_parse_named_tag(buff, &errmsg);
   if (errmsg != NULL) {
     fprintf(stderr, "Error while Parsing \n%s\n", errmsg);
+    nbt_free(nbt);
+    MCbuffer_free(buff);
     exit(1);
   }
-
-  puts("dumping");
 
   char *stuff = nbt_dump_ascii(nbt, &errmsg);
   EXIT_IF_ERR("%s\n")

@@ -4,7 +4,7 @@
 
 void *MALLOC(size_t n) {
   if (n == 0) {
-    fprintf(stderr, "Tried to mallocate 0 bytes");
+    fprintf(stderr, "Tried to mallocate 0 bytes\n");
     abort();
   }
   void *p = malloc(n);
