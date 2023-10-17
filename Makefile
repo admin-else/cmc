@@ -1,10 +1,11 @@
 CC = gcc
-CFLAGS = -Wall -O2 -g -Ilib/libnbt/libnbt.h
+CFLAGS = -Wall -O2 -g
 LDFLAGS =
 
 SRC  = $(wildcard src/*.c) $(wildcard src/**/*.c) $(wildcard src/**/**/*.c) $(wildcard src/**/**/**/*.c)
 OBJ  = $(SRC:.c=.o)
 BIN = bin
+FUZZ_DIR = fuzz_input  # Create a directory for fuzz test cases
 
 .PHONY: all clean
 
@@ -24,3 +25,10 @@ packeter: $(OBJ)
 
 clean:
 	rm -rf $(BIN) $(OBJ)
+
+fuzz: $(OBJ)
+	mkdir -p ./$(FUZZ_DIR)
+	# Copy your valid test cases to the fuzz directory if needed
+	# cp valid_test_case.bin ./$(FUZZ_DIR)/
+	clang -o ./$(BIN)/packeter-fuzz $^ $(CFLAGS) -fsanitize=fuzzer,address
+	./$(BIN)/packeter-fuzz ./$(FUZZ_DIR)
