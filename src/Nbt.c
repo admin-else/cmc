@@ -143,10 +143,11 @@ static char *nbt_read_string(MCbuffer *buff, char **errmsg) {
   ERR_CHECK;
 
   be2ne(&str_len, sizeof(int16_t));
-  ERR_IF(str_len < 0, "Nbt String len less than zero?")
+  ERR_IF(str_len <= 0, "Nbt String len less or equal to zero?")
 
   char *string = MALLOC(str_len + 1); // null terminator
   char *heap_data = (char *)MCbuffer_unpack(buff, str_len, errmsg);
+  ERR_CHECK;
 
   memcpy(string, heap_data, str_len);
   FREE(heap_data);
@@ -181,12 +182,12 @@ static struct nbt_list *read_compound(MCbuffer *buff, char **errmsg) {
       break;
 
     name = nbt_read_string(buff, errmsg);
-    if (*errmsg != NULL)
-      goto err;
+    ERR_CHECK;
 
     new_entry = MALLOC(sizeof(struct nbt_list));
 
     new_entry->data = parse_unnamed_tag(buff, (nbt_type)type, name, errmsg);
+    ERR_CHECK;
 
     if (new_entry->data == NULL) {
       FREE(new_entry);
@@ -262,7 +263,7 @@ static struct nbt_byte_array read_byte_array(MCbuffer *buff, char **errmsg) {
 
   be2ne(&ret.length, sizeof(int32_t));
 
-  ERR_IF(ret.length < 0, "byte array length less than zero???")
+  ERR_IF(ret.length <= 0, "byte array length less or equal to zero???")
 
   ret.data = MCbuffer_unpack(buff, ret.length, errmsg);
   ERR_CHECK;
@@ -276,8 +277,9 @@ static struct nbt_int_array read_int_array(MCbuffer *buff, char **errmsg) {
 
   ret.length = MCbuffer_unpack_int(buff, errmsg);
   ERR_CHECK;
+  be2ne(&ret.length, sizeof(int32_t));
 
-  ERR_IF(ret.length < 0, "nbt int array len less than zero????")
+  ERR_IF(ret.length <= 0, "nbt int array len less or equal to zero????")
 
   ret.data =
       (int32_t *)MCbuffer_unpack(buff, sizeof(int32_t) * ret.length, errmsg);
@@ -290,9 +292,31 @@ static struct nbt_int_array read_int_array(MCbuffer *buff, char **errmsg) {
   return ret;
 }
 
+static struct nbt_long_array read_long_array(MCbuffer *buff, char **errmsg) {
+  struct nbt_long_array ret;
+  ret.data = NULL;
+
+  ret.length = MCbuffer_unpack_int(buff, errmsg);
+  ERR_CHECK;
+  be2ne(&ret.length, sizeof(int64_t));
+
+  ERR_IF(ret.length <= 0, "nbt long array len less or equal to zero????")
+
+  ret.data =
+      (int64_t *)MCbuffer_unpack(buff, sizeof(int64_t) * ret.length, errmsg);
+  ERR_CHECK;
+
+  // Byteswap the whole array.
+  for (int32_t i = 0; i < ret.length; i++)
+    be2ne(ret.data + i, sizeof(int64_t));
+
+  return ret;
+}
+
 nbt_node *parse_unnamed_tag(MCbuffer *buff, nbt_type type, char *name,
                             char **errmsg) {
   nbt_node *ret = NULL;
+  ERR_CHECK;
   ret = MALLOC(sizeof(nbt_node));
 
   ret->name = name;
@@ -344,23 +368,18 @@ nbt_node *parse_unnamed_tag(MCbuffer *buff, nbt_type type, char *name,
     ret->payload.tag_int_array = read_int_array(buff, errmsg);
     break;
   case TAG_LONG_ARRAY:
-    puts("TODO IMPLEMENT THIS");
+    ret->payload.tag_long_array = read_long_array(buff, errmsg);
+    break;
   default:
     *errmsg = "invalid nbt tag type";
     goto err;
   }
 
-  if (*errmsg != ((void *)0)) {
-    char error_message[256];
-    sprintf(error_message, "Error while parsing NBT of type %s tag \n%s",
-            nbt_type_to_string(type), *errmsg);
-    *errmsg = strdup(error_message);
-    return ret;
-  }
+  ERR_CHECK;
 
   return ret;
 err:
-  FREE(ret);
+  nbt_free(ret);
   return NULL;
 }
 
