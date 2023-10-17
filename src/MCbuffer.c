@@ -208,7 +208,7 @@ void MCbuffer_pack_position(MCbuffer *buff, block_pos_t pos, char **errmsg) {
 
 block_pos_t MCbuffer_unpack_position(MCbuffer *buff, char **errmsg) {
   uint64_t val = MCbuffer_unpack_long(buff, errmsg);
-  block_pos_t pos;
+  block_pos_t pos = {0, 0, 0};
 
   if (*errmsg != NULL)
     return pos;
