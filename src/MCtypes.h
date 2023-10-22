@@ -1,5 +1,4 @@
-#ifndef MCTYPES_H
-#define MCTYPES_H
+#pragma once
 
 #include <stdint.h>
 #include "list.h"
@@ -100,5 +99,3 @@ typedef struct nbt_node {
          */
     } payload;
 } nbt_node;
-
-#endif

@@ -44,9 +44,7 @@ and i dont like that so made it "safer" ig...
 """
 
 H_BASE = """//This code is generated.
-
-#ifndef PACKET_H
-#define PACKET_H
+#pragma once
 
 #include "MCbuffer.h"
 #include "MConn.h"
@@ -54,7 +52,7 @@ H_BASE = """//This code is generated.
 #include <stdbool.h>
 #include <jansson.h>
 
-{}#endif"""
+{}"""
 
 # Define a dictionary to map type identifiers to their corresponding C types
 type_map = {
