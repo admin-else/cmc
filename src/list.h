@@ -1,6 +1,4 @@
-#ifndef LIST_H
-#define LIST_H
-
+#pragma once
 #include <stddef.h>
 
 /*
@@ -108,5 +106,3 @@ static inline size_t list_length(const struct list_head* head)
 
     return accum;
 }
-
-#endif

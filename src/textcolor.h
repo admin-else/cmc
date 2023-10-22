@@ -1,5 +1,4 @@
-#ifndef TEXTCOLOR_H
-#define TEXTCOLOR_H
+#pragma once
 
 // ANSI escape codes for text colors
 #define TEXT_COLOR_BLACK   "\033[0;30m"
@@ -31,5 +30,3 @@
 
 // Other nice stuff
 #define NLR "\033[0m\n" // this stands for NEW LINE RESET and its VERY convenient lol
-
-#endif // TEXTCOLOR_H

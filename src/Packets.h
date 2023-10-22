@@ -1,8 +1,6 @@
 //This code is generated.
 
-#ifndef PACKET_H
-#define PACKET_H
-
+#pragma once
 #include "MCbuffer.h"
 #include "MConn.h"
 #include "MCtypes.h"
@@ -29,5 +27,3 @@ typedef struct {
 void send_packet_status_response(MConn *conn, json_t * response, char **errmsg);
 
 status_response_packet_t unpack_status_response_packet(MCbuffer *buff, char **errmsg);
-
-#endif
