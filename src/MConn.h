@@ -28,4 +28,6 @@ void MConn_send_packet(MConn *conn, MCbuffer *buff, char **errmsg);
 
 MCbuffer *MConn_recive_packet(MConn *conn, char **errmsg);
 
+void MConn_free(MConn *conn, char **errmsg);
+
 #endif

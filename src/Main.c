@@ -7,6 +7,7 @@
 #include "heap-utils.h"
 #include "textcolor.h"
 #include <curses.h>
+#include <jansson.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,24 +19,36 @@
     exit(1);                                                                   \
   }
 
+#define CHECK_ERRMSG if(*errmsg != NULL) return NULL;
 
+json_t *get_server_status(char *ip, unsigned short port, char **errmsg) {
+  MConn *conn = MConn_init(ip, port, errmsg);
+
+  send_packet_handshake(conn, 47, ip, port, 1, errmsg);
+  send_packet_status_request(conn, errmsg);
+  MCbuffer *buff = MConn_recive_packet(conn, errmsg);
+
+  int packet_id = MCbuffer_unpack_varint(buff, errmsg);
+  printf("packet id: %i\n", packet_id);
+  status_response_packet_t packet =
+      unpack_status_response_packet(buff, errmsg);
+  MCbuffer_free(buff);
+
+  MConn_free(conn, errmsg);
+
+  return packet.response;
+}
 
 int main() {
   char *errmsg = NULL;
+  json_t *server_status = get_server_status("127.0.0.1", 25565, &errmsg);
+  EXIT_IF_ERR("getting server status failed %s\n")
 
-  MConn *conn = MConn_init("127.0.0.1", 25565, &errmsg);
+  char *str = json_dumps(server_status, 0);
 
-  send_packet_handshake(conn, 47, "127.0.0.1", 25565, 1, &errmsg);
-  send_packet_status_request(conn, &errmsg);
-  MCbuffer *buff = MConn_recive_packet(conn, &errmsg);
+  printf("status: %s\n", str);
 
-  MCbuffer_unpack_varint(buff, &errmsg);
+  FREE(str);
 
-  EXIT_IF_ERR("i sold my second son on ebay becouse: %s\n")
-
-  if (errmsg != NULL) {
-    printf("Error msg %s\n", errmsg);
-    return 1;
-  }
-  return 0;
+  json_decref(server_status);
 }

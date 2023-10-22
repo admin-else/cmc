@@ -3,11 +3,13 @@
 #include "MCtypes.h"
 #include "heap-utils.h"
 #include <arpa/inet.h>
+#include <limits.h>
 #include <netinet/in.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/socket.h>
+#include <unistd.h>
 #include <zlib.h>
 
 MConn *MConn_init(char *ip, uint16_t port, char **errmsg) {
@@ -42,6 +44,11 @@ MConn *MConn_init(char *ip, uint16_t port, char **errmsg) {
   conn->state = HANDSHAKING;
 
   return conn;
+}
+
+void MConn_free(MConn *conn, char **errmsg) {
+  if(close(conn->sockfd) != 0) *errmsg = "unable to close connection";
+  FREE(conn);
 }
 
 int send_all(int socket, const void *buffer, size_t length) {
@@ -103,17 +110,18 @@ MCbuffer *MConn_recive_packet(MConn *conn, char **errmsg) {
   }
   buff->capacity = packet_len;
   buff->length = packet_len;
+  buff->position = 0;
 
   if (conn->compression_threshold < 0)
     return buff;
-
-  int uncompressed_length = MCbuffer_unpack_varint(buff, errmsg);
-  if (uncompressed_length <= 0)
+  
+  int decompressed_length = MCbuffer_unpack_varint(buff, errmsg);
+  if (decompressed_length < 0)
     return buff;
 
-  byte_t *decompressed_data = MALLOC(uncompressed_length);
-  size_t real_uncompressed_length;
-  if (uncompress(decompressed_data, &real_uncompressed_length, buff->data,
+  byte_t *decompressed_data = MALLOC(decompressed_length);
+  size_t real_decompressed_length;
+  if (uncompress(decompressed_data, &real_decompressed_length, buff->data,
                  packet_len) != Z_OK) {
     *errmsg = "zlib decompression failed!";
     FREE(decompressed_data);
@@ -121,8 +129,8 @@ MCbuffer *MConn_recive_packet(MConn *conn, char **errmsg) {
     return NULL;
   }
 
-  if (real_uncompressed_length != uncompressed_length) {
-    *errmsg = "The sender lied about the uncompresed lenght of a packet";
+  if (real_decompressed_length != decompressed_length) {
+    *errmsg = "The sender lied about the decompresed lenght of a packet";
     FREE(decompressed_data);
     MCbuffer_free(buff);
     return NULL;
@@ -130,12 +138,12 @@ MCbuffer *MConn_recive_packet(MConn *conn, char **errmsg) {
 
   MCbuffer_free(buff);
 
-  MCbuffer *uncompressed_buff = MCbuffer_init();
-  uncompressed_buff->data = decompressed_data;
-  uncompressed_buff->capacity = uncompressed_length;
-  uncompressed_buff->length = uncompressed_length;
+  MCbuffer *decompressed_buff = MCbuffer_init();
+  decompressed_buff->data = decompressed_data;
+  decompressed_buff->capacity = decompressed_length;
+  decompressed_buff->length = decompressed_length;
 
-  return uncompressed_buff;
+  return decompressed_buff;
 
   // TODO: Encryption
 }
