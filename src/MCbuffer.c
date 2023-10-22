@@ -21,6 +21,7 @@
 void MCbuffer_print_info(MCbuffer *buff) {
   printf("Data      %p\n", buff->data);
   printf("Length    %li\n", buff->length);
+  printf("Position  %li\n", buff->position);
   printf("Capacity  %li\n", buff->capacity);
   printf("Hex: \n");
   for (int i = 0; i < buff->length; i++) {
@@ -37,7 +38,7 @@ MCbuffer *MCbuffer_init() {
   MCbuffer *buffer = MALLOC(sizeof(MCbuffer));
   buffer->data = NULL;
   buffer->capacity = 0;
-  buffer->length = 0;
+  buffer->position = 0;
   buffer->length = 0;
   return buffer;
 }
@@ -96,8 +97,8 @@ void MCbuffer_pack(MCbuffer *buffer, const void *data, size_t data_size,
 }
 
 unsigned char *MCbuffer_unpack(MCbuffer *buffer, size_t n, char **errmsg) {
-  if (buffer->position + n > buffer->length) {
-    *errmsg = "Read position exceeds buffer length";
+  if (buffer == NULL || buffer->position + n > buffer->length) {
+    *errmsg = "Invalid buffer or read position exceeds buffer length";
     return NULL;
   }
 
@@ -107,7 +108,10 @@ unsigned char *MCbuffer_unpack(MCbuffer *buffer, size_t n, char **errmsg) {
     return NULL;
   }
 
-  memcpy(readData, buffer->data + buffer->position, n);
+  if (n > 0) {
+    memcpy(readData, buffer->data + buffer->position, n);
+  }
+
   buffer->position += n;
   return readData;
 }
@@ -210,7 +214,7 @@ char *MCbuffer_unpack_string_w_max_len(MCbuffer *buff, int max_len,
   CHECK_ERRMSG
   if (str_len > max_len) {
     sprintf(*errmsg,
-            "The received encoded string buffer length is longer than maximum "
+            "The received encoded string buffer length is longer than maximum"
             "allowed (%i > %i)",
             str_len, max_len);
     return NULL;
