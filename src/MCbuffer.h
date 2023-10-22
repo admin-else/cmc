@@ -1,23 +1,16 @@
-#ifndef MCBUFF_H
-#define MCBUFF_H
+#pragma once
 
 #include "MCtypes.h"
+#include <jansson.h>
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
-
-typedef struct {
-  unsigned char *data;
-  size_t capacity;
-  size_t length;
-  size_t position;
-} MCbuffer;
 
 MCbuffer *MCbuffer_init();
 
 void MCbuffer_free(MCbuffer *buffer);
 
-void MCbuffer_pack(MCbuffer *buffer, const void *data, size_t dataSize,
+void MCbuffer_pack(MCbuffer *buffer, const void *data, size_t data_size,
                    char **errmsg);
 
 unsigned char *MCbuffer_unpack(MCbuffer *buffer, size_t n, char **errmsg);
@@ -59,4 +52,12 @@ void MCbuffer_pack_position(MCbuffer *buff, block_pos_t pos, char **errmsg);
 
 block_pos_t MCbuffer_unpack_position(MCbuffer *buff, char **errmsg);
 
-#endif
+nbt_node *MCbuffer_unpack_nbt(MCbuffer *buff, char **errmsg);
+
+json_t *MCbuffer_unpack_json(MCbuffer *buff, char **errmsg);
+
+void MCbuffer_pack_json(MCbuffer *buff, json_t *json, char **errmsg);
+
+void MCbuffer_print_info(MCbuffer *buff);
+
+MCbuffer *MCbuffer_combine(MCbuffer *buff1, MCbuffer *buff2, char **errmsg);

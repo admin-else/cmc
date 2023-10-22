@@ -7,45 +7,27 @@
 #include "MConn.h"
 #include "MCtypes.h"
 #include <stdbool.h>
+#include <jansson.h>
 
 typedef struct {
-  varint_t keep_alive_id;
-} keep_alive_packet_t;
+  varint_t protocole_version;
+  char * server_addr;
+  unsigned short port;
+  varint_t next_state;
+} handshake_packet_t;
 
-void send_packet_keep_alive(MConn *conn, varint_t keep_alive_id, char **errmsg);
+void send_packet_handshake(MConn *conn, varint_t protocole_version, char * server_addr, unsigned short port, varint_t next_state, char **errmsg);
 
-keep_alive_packet_t unpack_keep_alive_packet(MCbuffer *buff, char **errmsg);
+handshake_packet_t unpack_handshake_packet(MCbuffer *buff, char **errmsg);
 
-typedef struct {
-  int entity_id;
-  byte_t gamemode;
-  char dimension;
-  byte_t difficulty;
-  byte_t max_players;
-  char * level_type;
-  bool reduced_debug_info;
-} join_game_packet_t;
-
-void send_packet_join_game(MConn *conn, int entity_id, byte_t gamemode, char dimension, byte_t difficulty, byte_t max_players, char * level_type, bool reduced_debug_info, char **errmsg);
-
-join_game_packet_t unpack_join_game_packet(MCbuffer *buff, char **errmsg);
+void send_packet_status_request(MConn *conn, char **errmsg);
 
 typedef struct {
-  char * message;
-  char position;
-} chat_message_packet_t;
+  json_t * response;
+} status_response_packet_t;
 
-void send_packet_chat_message(MConn *conn, char * message, char position, char **errmsg);
+void send_packet_status_response(MConn *conn, json_t * response, char **errmsg);
 
-chat_message_packet_t unpack_chat_message_packet(MCbuffer *buff, char **errmsg);
-
-typedef struct {
-  long world_age;
-  long time_of_day;
-} time_update_packet_t;
-
-void send_packet_time_update(MConn *conn, long world_age, long time_of_day, char **errmsg);
-
-time_update_packet_t unpack_time_update_packet(MCbuffer *buff, char **errmsg);
+status_response_packet_t unpack_status_response_packet(MCbuffer *buff, char **errmsg);
 
 #endif

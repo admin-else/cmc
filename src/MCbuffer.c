@@ -1,7 +1,9 @@
 #include "MCbuffer.h"
 #include "MCtypes.h"
+#include "Nbt.h"
 #include "heap-utils.h"
-#include <math.h>
+#include "textcolor.h"
+#include <jansson.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -11,23 +13,32 @@
 #define VARINT_SEGMENT_BITS 0x7F
 #define VARINT_CONTINUE_BIT 0x80
 #define DEFAULT_MAX_STRING_LENGTH INT16_MAX
-#define X_MASK 0x3FFFFFF
-#define X_SHIFT 38
-#define Y_MASK 0xFFF
-#define Y_SHIFT 26
-#define Z_MASK 0x3FFFFFF
-#define Z_SHIFT 0
 
 #define CHECK_ERRMSG                                                           \
   if (*errmsg != NULL)                                                         \
     return 0;
+
+void MCbuffer_print_info(MCbuffer *buff) {
+  printf("Data      %p\n", buff->data);
+  printf("Length    %li\n", buff->length);
+  printf("Capacity  %li\n", buff->capacity);
+  printf("Hex: \n");
+  for (int i = 0; i < buff->length; i++) {
+    printf("%02X ", buff->data[i]);
+  }
+  printf("\nPython: \nb'");
+  for (int i = 0; i < buff->length; i++) {
+    printf("\\x%02x", buff->data[i]);
+  }
+  printf("'\n");
+}
 
 MCbuffer *MCbuffer_init() {
   MCbuffer *buffer = MALLOC(sizeof(MCbuffer));
   buffer->data = NULL;
   buffer->capacity = 0;
   buffer->length = 0;
-  buffer->position = 0;
+  buffer->length = 0;
   return buffer;
 }
 
@@ -38,33 +49,50 @@ void MCbuffer_free(MCbuffer *buffer) {
   buffer->data = NULL;
   buffer->capacity = 0;
   buffer->length = 0;
-  buffer->position = 0;
   FREE(buffer);
 }
 
-void MCbuffer_pack(MCbuffer *buffer, const void *data, size_t dataSize,
+MCbuffer *MCbuffer_combine(MCbuffer *buff1, MCbuffer *buff2, char **errmsg) {
+  MCbuffer_pack(buff1, buff2->data, buff2->length, errmsg);
+  MCbuffer_free(buff2);
+  return buff1;
+}
+
+void MCbuffer_pack(MCbuffer *buffer, const void *data, size_t data_size,
                    char **errmsg) {
-  if (buffer->position + dataSize > buffer->length) {
-    size_t newCapacity = buffer->position + dataSize;
-    if (newCapacity > buffer->capacity) {
-      unsigned char *newData =
-          (unsigned char *)realloc(buffer->data, newCapacity);
-      if (newData == NULL) {
-        *errmsg = "Failed to allocate memory for buffer";
-        return;
-      }
-      buffer->data = newData;
-      buffer->capacity = newCapacity;
-    }
-    buffer->length = buffer->position + dataSize;
+  if (buffer == NULL || data == NULL || errmsg == NULL || data_size == 0) {
+    *errmsg = "Invalid input arguments";
+    return;
   }
 
   if (buffer->data == NULL) {
-    memmove(buffer->data + buffer->position + dataSize,
-            buffer->data + buffer->position, buffer->length - buffer->position);
+    buffer->data = (unsigned char *)malloc(data_size);
+    if (buffer->data == NULL) {
+      *errmsg = "Memory allocation failed";
+      return;
+    }
+    buffer->capacity = data_size;
+    buffer->length = 0;
+  } else if (buffer->length + data_size > buffer->capacity) {
+    size_t new_capacity = buffer->capacity * 2;
+    while (buffer->length + data_size > new_capacity) {
+      new_capacity *= 2;
+    }
+
+    unsigned char *new_data =
+        (unsigned char *)realloc(buffer->data, new_capacity);
+    if (new_data == NULL) {
+      *errmsg = "Memory reallocation failed";
+      return;
+    }
+
+    buffer->data = new_data;
+    buffer->capacity = new_capacity;
   }
-  memcpy(buffer->data + buffer->position, data, dataSize);
-  buffer->position += dataSize;
+
+  memcpy(buffer->data + buffer->length, data, data_size);
+  buffer->length += data_size;
+  return;
 }
 
 unsigned char *MCbuffer_unpack(MCbuffer *buffer, size_t n, char **errmsg) {
@@ -217,9 +245,44 @@ block_pos_t MCbuffer_unpack_position(MCbuffer *buff, char **errmsg) {
   pos.z = val << 38 >> 38;
 
   // this is for negatives
-  if (pos.x >= 33554432) pos.x -= 67108864;
-  if (pos.y >= 2048    ) pos.y -=     4096;
-  if (pos.z >= 33554432) pos.z -= 67108864;
+  if (pos.x >= 33554432)
+    pos.x -= 67108864;
+  if (pos.y >= 2048)
+    pos.y -= 4096;
+  if (pos.z >= 33554432)
+    pos.z -= 67108864;
 
   return pos;
+}
+
+nbt_node *MCbuffer_unpack_nbt(MCbuffer *buff, char **errmsg) {
+  nbt_node *nbt = nbt_parse_named_tag(buff, errmsg);
+  if (*errmsg != NULL) {
+    nbt_free(nbt);
+    return NULL;
+  }
+  return nbt;
+}
+
+// Todo we also need a MCbuffer_pack_nbt yay more Strg+C and V from cNBT YAAAYYY
+
+json_t *MCbuffer_unpack_json(MCbuffer *buff, char **errmsg) {
+  json_t *root = NULL;
+  json_error_t error;
+
+  char *str = MCbuffer_unpack_string(buff, errmsg);
+  root = json_loads(str, 0, &error);
+  FREE(str);
+  if (!root) {
+    sprintf(*errmsg, "Error while reading json: %s", error.text);
+    return NULL;
+  }
+
+  return root;
+}
+
+void MCbuffer_pack_json(MCbuffer *buff, json_t *json, char **errmsg) {
+  char *jsonString = json_dumps(json, 0);
+  MCbuffer_pack_string(buff, jsonString, errmsg);
+  FREE(jsonString);
 }

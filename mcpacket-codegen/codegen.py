@@ -8,6 +8,7 @@ C_BASE = """//This code is generated.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <jansson.h>
 
 /*
 If you ask yourself WHY THE FUCK is it that instead of this:
@@ -51,6 +52,7 @@ H_BASE = """//This code is generated.
 #include "MConn.h"
 #include "MCtypes.h"
 #include <stdbool.h>
+#include <jansson.h>
 
 {}#endif"""
 
@@ -66,7 +68,8 @@ type_map = {
     "d": "double",
     "s": "char *",
     "v": "varint_t", 
-    "?": "bool"
+    "?": "bool",
+    "j": "json_t *"
 }
 
 buffer_methods_map = {
@@ -77,28 +80,38 @@ buffer_methods_map = {
     "b": "char",
     "s": "string",
     "l": "long",
-    
+    "H": "ushort",
+    "j": "json"
 }
 
 def parse(input_str):
     packet_name, symbol_str = input_str.split(":")
     struct_name = packet_name + "_packet_t"
     symbols = symbol_str.split(";")
+    packet_id = symbols[0]
+    symbols = symbols[1:]
 
     type_def_content = "".join(
         [f"  {type_map[symbol[0]]} {symbol[1:]};\n" for symbol in symbols])
-    args = ", ".join([f"{type_map[symbol[0]]} {symbol[1:]}" for symbol in symbols])
-    pack_methods = "".join([f"  MCbuffer_pack_{buffer_methods_map[symbol[0]]}(buff, {symbol[1:]}, errmsg);\n" for symbol in symbols])
+    args = ""
+    if symbols:
+      args = ", ".join([f"{type_map[symbol[0]]} {symbol[1:]}" for symbol in symbols]) + ", "
+    pack_methods = f"  MCbuffer_pack_varint(buff, {packet_id}, errmsg);\n" + "".join([f"  MCbuffer_pack_{buffer_methods_map[symbol[0]]}(buff, {symbol[1:]}, errmsg);\n" for symbol in symbols])
     unpack_methods = "".join([f"  packet.{symbol[1:]}=MCbuffer_unpack_{buffer_methods_map[symbol[0]]}(buff,errmsg);\n" for symbol in symbols])
-    send_method_define = f"void send_packet_{packet_name}(MConn *conn, {args}, char **errmsg)"
+    send_method_define = f"void send_packet_{packet_name}(MConn *conn, {args}char **errmsg)"
     unpack_method_define = f"{struct_name} unpack_{packet_name}_packet(MCbuffer *buff, char **errmsg)"
 
-
-    type_def = f"typedef struct {{\n{type_def_content}}} {struct_name};\n\n"
-    send_method = f"""{send_method_define} {{\n  MCbuffer *buff = MCbuffer_init();\n{pack_methods}  PACK_ERR_HANDELER({packet_name});\n  MConn_send_and_free_buffer(conn, buff, errmsg);\n}}\n\n"""
+    type_def = ""
+    if symbols:
+      type_def = f"typedef struct {{\n{type_def_content}}} {struct_name};\n\n"
+    send_method = f"""{send_method_define} {{\n  MCbuffer *buff = MCbuffer_init();\n{pack_methods}  PACK_ERR_HANDELER({packet_name});\n  MConn_send_packet(conn, buff, errmsg);\n}}\n\n"""
     send_method_h = f"{send_method_define};\n\n"
-    unpack_method = f"{unpack_method_define} {{\n  {struct_name} packet;\n{unpack_methods}  UNPACK_ERR_HANDELER({packet_name});\n  return packet;\n}}\n\n"
-    unpack_method_h = f"{unpack_method_define};\n\n"
+    unpack_method = ""
+    if symbols:
+      unpack_method = f"{unpack_method_define} {{\n  {struct_name} packet;\n{unpack_methods}  UNPACK_ERR_HANDELER({packet_name});\n  return packet;\n}}\n\n"
+    unpack_method_h = ""
+    if symbols:
+      unpack_method_h = f"{unpack_method_define};\n\n"
 
     return send_method + unpack_method, type_def + send_method_h + unpack_method_h
 

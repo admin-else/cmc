@@ -3,6 +3,7 @@
 #include "err.h"
 #include "heap-utils.h"
 #include <assert.h>
+#include <curses.h>
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -220,14 +221,10 @@ static struct nbt_list *read_list(MCbuffer *buff, char **errmsg) {
   INIT_LIST_HEAD(&ret->entry);
 
   type = MCbuffer_unpack_byte(buff, errmsg);
-  if (*errmsg != NULL) {
-    goto err;
-  }
+  ERR_CHECK;
 
   elems = MCbuffer_unpack_int(buff, errmsg);
-  if (*errmsg != NULL) {
-    goto err;
-  }
+  ERR_CHECK;
   be2ne(&elems, sizeof(int32_t));
 
   ret->data->type = type == TAG_END ? TAG_COMPOUND : (nbt_type)type;
