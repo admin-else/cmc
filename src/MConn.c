@@ -1,16 +1,21 @@
 #include "MConn.h"
 #include "MCbuffer.h"
+#include "MCtypes.h"
 #include "heap-utils.h"
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <sys/socket.h>
+#include <zlib.h>
 
 MConn *MConn_init(char *ip, uint16_t port, char **errmsg) {
   MConn *conn = MALLOC(sizeof(MConn));
   conn->state = OFFLINE;
   conn->addr = ip;
   conn->port = port;
+  conn->compression_threshold = -1;
 
   if ((conn->sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
     FREE(conn);
@@ -56,42 +61,27 @@ int send_all(int socket, const void *buffer, size_t length) {
 }
 
 int recv_all(int socket, void *buffer, int length) {
-  int total_received = 0;
+  ssize_t total_received = 0;
 
   while (total_received < length) {
-    int bytes_received =
+    ssize_t bytes_received =
         recv(socket, buffer + total_received, length - total_received, 0);
 
-    if (bytes_received < 0) {
+    if (bytes_received == -1)
       return -1;
-    } else if (bytes_received == 0) {
-      break;
-    } else {
-      total_received += bytes_received;
-    }
+    total_received += bytes_received;
   }
 
-  return total_received;
-}
-
-void MConn_send_buffer(MConn *conn, MCbuffer *buff, char **errmsg) {
-  if (send_all(conn->sockfd, buff->data, buff->length) == -1)
-    *errmsg = "encounter error while sending...";
-}
-
-void MConn_send_and_free_buffer(MConn *conn, MCbuffer *buff, char **errmsg) {
-  MConn_send_buffer(conn, buff, errmsg);
-  MCbuffer_free(buff);
+  return 0;
 }
 
 MCbuffer *MConn_recive_packet(MConn *conn, char **errmsg) {
-  MCbuffer *buff = MCbuffer_init();
   uint32_t packet_len_unsiged = 0;
   for (int i = 0; i < 5; i++) {
     uint8_t b;
-    if (recv(conn->sockfd, &b, 1, 0) == -1) {
+    if (recv(conn->sockfd, &b, 1, 0) != 1) {
       *errmsg = "coudlnt recive byte...";
-      return buff;
+      return NULL;
     }
 
     packet_len_unsiged |= (b & 0x7F) << (7 * i);
@@ -100,14 +90,105 @@ MCbuffer *MConn_recive_packet(MConn *conn, char **errmsg) {
   }
 
   int32_t packet_len = (int32_t)packet_len_unsiged;
-  if (0 > packet_len) {
-    *errmsg = "Packet len less than zero???";
-    return buff;
+  if (0 >= packet_len) {
+    *errmsg = "Packet len less or equal to zero???";
+    return NULL;
   }
 
+  MCbuffer *buff = MCbuffer_init();
   buff->data = MALLOC(packet_len);
-  recv_all(conn->sockfd, buff->data, packet_len);
+  if (recv_all(conn->sockfd, buff->data, packet_len) == -1) {
+    *errmsg = "recving data failed";
+    return NULL;
+  }
   buff->capacity = packet_len;
   buff->length = packet_len;
-  return buff;
+
+  if (conn->compression_threshold < 0)
+    return buff;
+
+  int uncompressed_length = MCbuffer_unpack_varint(buff, errmsg);
+  if (uncompressed_length <= 0)
+    return buff;
+
+  byte_t *decompressed_data = MALLOC(uncompressed_length);
+  size_t real_uncompressed_length;
+  if (uncompress(decompressed_data, &real_uncompressed_length, buff->data,
+                 packet_len) != Z_OK) {
+    *errmsg = "zlib decompression failed!";
+    FREE(decompressed_data);
+    MCbuffer_free(buff);
+    return NULL;
+  }
+
+  if (real_uncompressed_length != uncompressed_length) {
+    *errmsg = "The sender lied about the uncompresed lenght of a packet";
+    FREE(decompressed_data);
+    MCbuffer_free(buff);
+    return NULL;
+  }
+
+  MCbuffer_free(buff);
+
+  MCbuffer *uncompressed_buff = MCbuffer_init();
+  uncompressed_buff->data = decompressed_data;
+  uncompressed_buff->capacity = uncompressed_length;
+  uncompressed_buff->length = uncompressed_length;
+
+  return uncompressed_buff;
+
+  // TODO: Encryption
+}
+
+inline void print_bytes_py(unsigned char *bytes, size_t len) {
+  printf("b'");
+  for (int i = 0; i < len; i++) {
+    printf("\\x%02X", bytes[i]);
+  }
+  printf("'\n");
+}
+
+
+void MConn_send_packet(MConn *conn, MCbuffer *buff, char **errmsg) {
+  /*
+    if compression_threshold >= 0:
+        if len(data) >= compression_threshold:
+            data = cls.pack_varint(len(data)) + zlib.compress(data)
+        else:
+            data = cls.pack_varint(0) + data
+    return cls.pack_varint(len(data), max_bits=32) + data
+  */
+
+  MCbuffer *compressed_buffer = MCbuffer_init();
+  if (conn->compression_threshold >= 0) {
+    if (buff->length >= conn->compression_threshold) {
+      MCbuffer_pack_varint(compressed_buffer, buff->length, errmsg);
+      uLong compressedSize = compressBound(buff->length);
+      Bytef *compressedData = (Bytef *)malloc(compressedSize);
+      if (compress(compressedData, &compressedSize, buff->data, buff->length) !=
+          Z_OK) {
+        *errmsg = "zlib failed while unpacking";
+        FREE(compressedData);
+        MCbuffer_free(compressed_buffer);
+        MCbuffer_free(buff);
+        return;
+      }
+    } else {
+      MCbuffer_pack_varint(compressed_buffer, 0, errmsg);
+      MCbuffer_pack(compressed_buffer, buff->data, buff->length, errmsg);
+    }
+    MCbuffer_free(buff);
+  } else {
+    MCbuffer_pack(compressed_buffer, buff->data, buff->length, errmsg);
+    MCbuffer_free(buff);
+  }
+  
+  MCbuffer *tmp_buff = MCbuffer_init();
+  MCbuffer_pack_varint(tmp_buff, compressed_buffer->length, errmsg);
+
+  compressed_buffer = MCbuffer_combine(tmp_buff, compressed_buffer, errmsg);
+
+  if(send_all(conn->sockfd, compressed_buffer->data, compressed_buffer->length) != 0) *errmsg = "error cant send packet for some reason.";
+  MCbuffer_free(compressed_buffer);
+  return;
 }

@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <jansson.h>
 
 /*
 If you ask yourself WHY THE FUCK is it that instead of this:
@@ -40,75 +41,46 @@ and i dont like that so made it "safer" ig...
     return packet;                                                             \
   }
 
-void send_packet_keep_alive(MConn *conn, varint_t keep_alive_id, char **errmsg) {
+void send_packet_handshake(MConn *conn, varint_t protocole_version, char * server_addr, unsigned short port, varint_t next_state, char **errmsg) {
   MCbuffer *buff = MCbuffer_init();
-  MCbuffer_pack_varint(buff, keep_alive_id, errmsg);
-  PACK_ERR_HANDELER(keep_alive);
-  MConn_send_and_free_buffer(conn, buff, errmsg);
+  MCbuffer_pack_varint(buff, 0x0, errmsg);
+  MCbuffer_pack_varint(buff, protocole_version, errmsg);
+  MCbuffer_pack_string(buff, server_addr, errmsg);
+  MCbuffer_pack_ushort(buff, port, errmsg);
+  MCbuffer_pack_varint(buff, next_state, errmsg);
+  PACK_ERR_HANDELER(handshake);
+  MConn_send_packet(conn, buff, errmsg);
 }
 
-keep_alive_packet_t unpack_keep_alive_packet(MCbuffer *buff, char **errmsg) {
-  keep_alive_packet_t packet;
-  packet.keep_alive_id=MCbuffer_unpack_varint(buff,errmsg);
-  UNPACK_ERR_HANDELER(keep_alive);
+handshake_packet_t unpack_handshake_packet(MCbuffer *buff, char **errmsg) {
+  handshake_packet_t packet;
+  packet.protocole_version=MCbuffer_unpack_varint(buff,errmsg);
+  packet.server_addr=MCbuffer_unpack_string(buff,errmsg);
+  packet.port=MCbuffer_unpack_ushort(buff,errmsg);
+  packet.next_state=MCbuffer_unpack_varint(buff,errmsg);
+  UNPACK_ERR_HANDELER(handshake);
   return packet;
 }
 
-void send_packet_join_game(MConn *conn, int entity_id, byte_t gamemode, char dimension, byte_t difficulty, byte_t max_players, char * level_type, bool reduced_debug_info, char **errmsg) {
+void send_packet_status_request(MConn *conn, char **errmsg) {
   MCbuffer *buff = MCbuffer_init();
-  MCbuffer_pack_int(buff, entity_id, errmsg);
-  MCbuffer_pack_byte(buff, gamemode, errmsg);
-  MCbuffer_pack_char(buff, dimension, errmsg);
-  MCbuffer_pack_byte(buff, difficulty, errmsg);
-  MCbuffer_pack_byte(buff, max_players, errmsg);
-  MCbuffer_pack_string(buff, level_type, errmsg);
-  MCbuffer_pack_bool(buff, reduced_debug_info, errmsg);
-  PACK_ERR_HANDELER(join_game);
-  MConn_send_and_free_buffer(conn, buff, errmsg);
+  MCbuffer_pack_varint(buff, 0x0, errmsg);
+  PACK_ERR_HANDELER(status_request);
+  MConn_send_packet(conn, buff, errmsg);
 }
 
-join_game_packet_t unpack_join_game_packet(MCbuffer *buff, char **errmsg) {
-  join_game_packet_t packet;
-  packet.entity_id=MCbuffer_unpack_int(buff,errmsg);
-  packet.gamemode=MCbuffer_unpack_byte(buff,errmsg);
-  packet.dimension=MCbuffer_unpack_char(buff,errmsg);
-  packet.difficulty=MCbuffer_unpack_byte(buff,errmsg);
-  packet.max_players=MCbuffer_unpack_byte(buff,errmsg);
-  packet.level_type=MCbuffer_unpack_string(buff,errmsg);
-  packet.reduced_debug_info=MCbuffer_unpack_bool(buff,errmsg);
-  UNPACK_ERR_HANDELER(join_game);
-  return packet;
-}
-
-void send_packet_chat_message(MConn *conn, char * message, char position, char **errmsg) {
+void send_packet_status_response(MConn *conn, json_t * response, char **errmsg) {
   MCbuffer *buff = MCbuffer_init();
-  MCbuffer_pack_string(buff, message, errmsg);
-  MCbuffer_pack_char(buff, position, errmsg);
-  PACK_ERR_HANDELER(chat_message);
-  MConn_send_and_free_buffer(conn, buff, errmsg);
+  MCbuffer_pack_varint(buff, 0x0, errmsg);
+  MCbuffer_pack_json(buff, response, errmsg);
+  PACK_ERR_HANDELER(status_response);
+  MConn_send_packet(conn, buff, errmsg);
 }
 
-chat_message_packet_t unpack_chat_message_packet(MCbuffer *buff, char **errmsg) {
-  chat_message_packet_t packet;
-  packet.message=MCbuffer_unpack_string(buff,errmsg);
-  packet.position=MCbuffer_unpack_char(buff,errmsg);
-  UNPACK_ERR_HANDELER(chat_message);
-  return packet;
-}
-
-void send_packet_time_update(MConn *conn, long world_age, long time_of_day, char **errmsg) {
-  MCbuffer *buff = MCbuffer_init();
-  MCbuffer_pack_long(buff, world_age, errmsg);
-  MCbuffer_pack_long(buff, time_of_day, errmsg);
-  PACK_ERR_HANDELER(time_update);
-  MConn_send_and_free_buffer(conn, buff, errmsg);
-}
-
-time_update_packet_t unpack_time_update_packet(MCbuffer *buff, char **errmsg) {
-  time_update_packet_t packet;
-  packet.world_age=MCbuffer_unpack_long(buff,errmsg);
-  packet.time_of_day=MCbuffer_unpack_long(buff,errmsg);
-  UNPACK_ERR_HANDELER(time_update);
+status_response_packet_t unpack_status_response_packet(MCbuffer *buff, char **errmsg) {
+  status_response_packet_t packet;
+  packet.response=MCbuffer_unpack_json(buff,errmsg);
+  UNPACK_ERR_HANDELER(status_response);
   return packet;
 }
 

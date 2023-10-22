@@ -1,4 +1,3 @@
-keep_alive:vkeep_alive_id
-join_game:ientity_id;Bgamemode;bdimension;Bdifficulty;Bmax_players;slevel_type;?reduced_debug_info
-chat_message:smessage;bposition
-time_update:lworld_age;ltime_of_day
+handshake:0x0;vprotocole_version;sserver_addr;Hport;vnext_state
+status_request:0x0
+status_response:0x0;jresponse
