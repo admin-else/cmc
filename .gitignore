@@ -4,3 +4,5 @@ example-data/
 example-data/*
 fuzz/
 fuzz/*
+.vscode/*
+.vscode/

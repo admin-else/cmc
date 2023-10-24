@@ -1,14 +1,14 @@
-//This code is generated.
+// This code is generated.
 
 #include "Packets.h"
 #include "MCbuffer.h"
 #include "MConn.h"
 #include "MCtypes.h"
+#include <jansson.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <jansson.h>
 
 /*
 If you ask yourself WHY THE FUCK is it that instead of this:
@@ -33,6 +33,8 @@ and i dont like that so made it "safer" ig...
   }
 
 #define UNPACK_ERR_HANDELER(unpack_name)                                       \
+  if (buff->position == buff->length)                                          \
+    *errmsg = "buffer bigger then its supposed to be";                         \
   if (*errmsg != NULL) {                                                       \
     char error_message[256];                                                   \
     sprintf(error_message, "error while unpacking " #unpack_name ": %s",       \
@@ -41,46 +43,228 @@ and i dont like that so made it "safer" ig...
     return packet;                                                             \
   }
 
-void send_packet_handshake(MConn *conn, varint_t protocole_version, char * server_addr, unsigned short port, varint_t next_state, char **errmsg) {
+void send_packet_C2S_handshake(MConn *conn, varint_t protocole_version,
+                               char *server_addr, unsigned short server_port,
+                               varint_t next_state, char **errmsg) {
   MCbuffer *buff = MCbuffer_init();
-  MCbuffer_pack_varint(buff, 0x0, errmsg);
+  MCbuffer_pack_varint(buff, 0x00, errmsg);
   MCbuffer_pack_varint(buff, protocole_version, errmsg);
   MCbuffer_pack_string(buff, server_addr, errmsg);
-  MCbuffer_pack_ushort(buff, port, errmsg);
+  MCbuffer_pack_ushort(buff, server_port, errmsg);
   MCbuffer_pack_varint(buff, next_state, errmsg);
-  PACK_ERR_HANDELER(handshake);
+  PACK_ERR_HANDELER(C2S_handshake);
   MConn_send_packet(conn, buff, errmsg);
 }
 
-handshake_packet_t unpack_handshake_packet(MCbuffer *buff, char **errmsg) {
-  handshake_packet_t packet;
-  packet.protocole_version=MCbuffer_unpack_varint(buff,errmsg);
-  packet.server_addr=MCbuffer_unpack_string(buff,errmsg);
-  packet.port=MCbuffer_unpack_ushort(buff,errmsg);
-  packet.next_state=MCbuffer_unpack_varint(buff,errmsg);
-  UNPACK_ERR_HANDELER(handshake);
+C2S_handshake_packet_t unpack_C2S_handshake_packet(MCbuffer *buff,
+                                                   char **errmsg) {
+  C2S_handshake_packet_t packet;
+  packet.protocole_version = MCbuffer_unpack_varint(buff, errmsg);
+  packet.server_addr = MCbuffer_unpack_string(buff, errmsg);
+  packet.server_port = MCbuffer_unpack_ushort(buff, errmsg);
+  packet.next_state = MCbuffer_unpack_varint(buff, errmsg);
+  UNPACK_ERR_HANDELER(C2S_handshake);
   return packet;
 }
 
-void send_packet_status_request(MConn *conn, char **errmsg) {
+void send_packet_S2C_status_response(MConn *conn, json_t *response,
+                                     char **errmsg) {
   MCbuffer *buff = MCbuffer_init();
-  MCbuffer_pack_varint(buff, 0x0, errmsg);
-  PACK_ERR_HANDELER(status_request);
-  MConn_send_packet(conn, buff, errmsg);
-}
-
-void send_packet_status_response(MConn *conn, json_t * response, char **errmsg) {
-  MCbuffer *buff = MCbuffer_init();
-  MCbuffer_pack_varint(buff, 0x0, errmsg);
+  MCbuffer_pack_varint(buff, 0x00, errmsg);
   MCbuffer_pack_json(buff, response, errmsg);
-  PACK_ERR_HANDELER(status_response);
+  PACK_ERR_HANDELER(S2C_status_response);
   MConn_send_packet(conn, buff, errmsg);
 }
 
-status_response_packet_t unpack_status_response_packet(MCbuffer *buff, char **errmsg) {
-  status_response_packet_t packet;
-  packet.response=MCbuffer_unpack_json(buff,errmsg);
-  UNPACK_ERR_HANDELER(status_response);
+S2C_status_response_packet_t unpack_S2C_status_response_packet(MCbuffer *buff,
+                                                               char **errmsg) {
+  S2C_status_response_packet_t packet;
+  packet.response = MCbuffer_unpack_json(buff, errmsg);
+  UNPACK_ERR_HANDELER(S2C_status_response);
   return packet;
 }
 
+void send_packet_C2S_status_request(MConn *conn, char **errmsg) {
+  MCbuffer *buff = MCbuffer_init();
+  MCbuffer_pack_varint(buff, 0x00, errmsg);
+  PACK_ERR_HANDELER(C2S_status_request);
+  MConn_send_packet(conn, buff, errmsg);
+}
+
+void send_packet_S2C_login_disconnect(MConn *conn, json_t *reason,
+                                      char **errmsg) {
+  MCbuffer *buff = MCbuffer_init();
+  MCbuffer_pack_varint(buff, 0x00, errmsg);
+  MCbuffer_pack_json(buff, reason, errmsg);
+  PACK_ERR_HANDELER(S2C_login_disconnect);
+  MConn_send_packet(conn, buff, errmsg);
+}
+
+S2C_login_disconnect_packet_t
+unpack_S2C_login_disconnect_packet(MCbuffer *buff, char **errmsg) {
+  S2C_login_disconnect_packet_t packet;
+  packet.reason = MCbuffer_unpack_json(buff, errmsg);
+  UNPACK_ERR_HANDELER(S2C_login_disconnect);
+  return packet;
+}
+
+void send_packet_S2C_login_encryption_request(MConn *conn, char *server_id,
+                                              MCbuffer *public_key,
+                                              MCbuffer *verify_token,
+                                              char **errmsg) {
+  MCbuffer *buff = MCbuffer_init();
+  MCbuffer_pack_varint(buff, 0x01, errmsg);
+  MCbuffer_pack_string(buff, server_id, errmsg);
+  MCbuffer_pack_byte_array(buff, public_key, errmsg);
+  MCbuffer_pack_byte_array(buff, verify_token, errmsg);
+  PACK_ERR_HANDELER(S2C_login_encryption_request);
+  MConn_send_packet(conn, buff, errmsg);
+}
+
+S2C_login_encryption_request_packet_t
+unpack_S2C_login_encryption_request_packet(MCbuffer *buff, char **errmsg) {
+  S2C_login_encryption_request_packet_t packet;
+  packet.server_id = MCbuffer_unpack_string(buff, errmsg);
+  packet.public_key = MCbuffer_unpack_byte_array(buff, errmsg);
+  packet.verify_token = MCbuffer_unpack_byte_array(buff, errmsg);
+  UNPACK_ERR_HANDELER(S2C_login_encryption_request);
+  return packet;
+}
+
+void send_packet_S2C_login_success(MConn *conn, char *uuid, char *name,
+                                   char **errmsg) {
+  MCbuffer *buff = MCbuffer_init();
+  MCbuffer_pack_varint(buff, 0x02, errmsg);
+  MCbuffer_pack_string(buff, uuid, errmsg);
+  MCbuffer_pack_string(buff, name, errmsg);
+  PACK_ERR_HANDELER(S2C_login_success);
+  MConn_send_packet(conn, buff, errmsg);
+}
+
+S2C_login_success_packet_t unpack_S2C_login_success_packet(MCbuffer *buff,
+                                                           char **errmsg) {
+  S2C_login_success_packet_t packet;
+  packet.uuid = MCbuffer_unpack_string(buff, errmsg);
+  packet.name = MCbuffer_unpack_string(buff, errmsg);
+  UNPACK_ERR_HANDELER(S2C_login_success);
+  return packet;
+}
+
+void send_packet_S2C_login_set_compression(MConn *conn, varint_t threshold,
+                                           char **errmsg) {
+  MCbuffer *buff = MCbuffer_init();
+  MCbuffer_pack_varint(buff, 0x03, errmsg);
+  MCbuffer_pack_varint(buff, threshold, errmsg);
+  PACK_ERR_HANDELER(S2C_login_set_compression);
+  MConn_send_packet(conn, buff, errmsg);
+}
+
+S2C_login_set_compression_packet_t
+unpack_S2C_login_set_compression_packet(MCbuffer *buff, char **errmsg) {
+  S2C_login_set_compression_packet_t packet;
+  packet.threshold = MCbuffer_unpack_varint(buff, errmsg);
+  UNPACK_ERR_HANDELER(S2C_login_set_compression);
+  return packet;
+}
+
+void send_packet_C2S_login_start(MConn *conn, char *name, char **errmsg) {
+  MCbuffer *buff = MCbuffer_init();
+  MCbuffer_pack_varint(buff, 0x00, errmsg);
+  MCbuffer_pack_string(buff, name, errmsg);
+  PACK_ERR_HANDELER(C2S_login_start);
+  MConn_send_packet(conn, buff, errmsg);
+}
+
+C2S_login_start_packet_t unpack_C2S_login_start_packet(MCbuffer *buff,
+                                                       char **errmsg) {
+  C2S_login_start_packet_t packet;
+  packet.name = MCbuffer_unpack_string(buff, errmsg);
+  UNPACK_ERR_HANDELER(C2S_login_start);
+  return packet;
+}
+
+void send_packet_C2S_login_encryption_response(MConn *conn,
+                                               MCbuffer *shared_secret,
+                                               MCbuffer *verify_token,
+                                               char **errmsg) {
+  MCbuffer *buff = MCbuffer_init();
+  MCbuffer_pack_varint(buff, 0x01, errmsg);
+  MCbuffer_pack_byte_array(buff, shared_secret, errmsg);
+  MCbuffer_pack_byte_array(buff, verify_token, errmsg);
+  PACK_ERR_HANDELER(C2S_login_encryption_response);
+  MConn_send_packet(conn, buff, errmsg);
+}
+
+C2S_login_encryption_response_packet_t
+unpack_C2S_login_encryption_response_packet(MCbuffer *buff, char **errmsg) {
+  C2S_login_encryption_response_packet_t packet;
+  packet.shared_secret = MCbuffer_unpack_byte_array(buff, errmsg);
+  packet.verify_token = MCbuffer_unpack_byte_array(buff, errmsg);
+  UNPACK_ERR_HANDELER(C2S_login_encryption_response);
+  return packet;
+}
+
+void send_packet_S2C_play_keep_alive(MConn *conn, varint_t keep_alive_id,
+                                     char **errmsg) {
+  MCbuffer *buff = MCbuffer_init();
+  MCbuffer_pack_varint(buff, 0x00, errmsg);
+  MCbuffer_pack_varint(buff, keep_alive_id, errmsg);
+  PACK_ERR_HANDELER(S2C_play_keep_alive);
+  MConn_send_packet(conn, buff, errmsg);
+}
+
+S2C_play_keep_alive_packet_t unpack_S2C_play_keep_alive_packet(MCbuffer *buff,
+                                                               char **errmsg) {
+  S2C_play_keep_alive_packet_t packet;
+  packet.keep_alive_id = MCbuffer_unpack_varint(buff, errmsg);
+  UNPACK_ERR_HANDELER(S2C_play_keep_alive);
+  return packet;
+}
+
+void send_packet_S2C_play_join_game(MConn *conn, int entity_id, byte_t gamemode,
+                                    char dimension, byte_t difficulty,
+                                    byte_t max_players, char *level_type,
+                                    bool reduced_debug_info, char **errmsg) {
+  MCbuffer *buff = MCbuffer_init();
+  MCbuffer_pack_varint(buff, 0x02, errmsg);
+  MCbuffer_pack_int(buff, entity_id, errmsg);
+  MCbuffer_pack_byte(buff, gamemode, errmsg);
+  MCbuffer_pack_char(buff, dimension, errmsg);
+  MCbuffer_pack_byte(buff, difficulty, errmsg);
+  MCbuffer_pack_byte(buff, max_players, errmsg);
+  MCbuffer_pack_string(buff, level_type, errmsg);
+  MCbuffer_pack_bool(buff, reduced_debug_info, errmsg);
+  PACK_ERR_HANDELER(S2C_play_join_game);
+  MConn_send_packet(conn, buff, errmsg);
+}
+
+S2C_play_join_game_packet_t unpack_S2C_play_join_game_packet(MCbuffer *buff,
+                                                             char **errmsg) {
+  S2C_play_join_game_packet_t packet;
+  packet.entity_id = MCbuffer_unpack_int(buff, errmsg);
+  packet.gamemode = MCbuffer_unpack_byte(buff, errmsg);
+  packet.dimension = MCbuffer_unpack_char(buff, errmsg);
+  packet.difficulty = MCbuffer_unpack_byte(buff, errmsg);
+  packet.max_players = MCbuffer_unpack_byte(buff, errmsg);
+  packet.level_type = MCbuffer_unpack_string(buff, errmsg);
+  packet.reduced_debug_info = MCbuffer_unpack_bool(buff, errmsg);
+  UNPACK_ERR_HANDELER(S2C_play_join_game);
+  return packet;
+}
+
+void send_packet_C2S_play_keep_alive(MConn *conn, varint_t keep_alive_id,
+                                     char **errmsg) {
+  MCbuffer *buff = MCbuffer_init();
+  MCbuffer_pack_varint(buff, 0x00, errmsg);
+  MCbuffer_pack_varint(buff, keep_alive_id, errmsg);
+  PACK_ERR_HANDELER(C2S_play_keep_alive);
+  MConn_send_packet(conn, buff, errmsg);
+}
+
+C2S_play_keep_alive_packet_t unpack_C2S_play_keep_alive_packet(MCbuffer *buff,
+                                                               char **errmsg) {
+  C2S_play_keep_alive_packet_t packet;
+  packet.keep_alive_id = MCbuffer_unpack_varint(buff, errmsg);
+  UNPACK_ERR_HANDELER(C2S_play_keep_alive);
+  return packet;
+}

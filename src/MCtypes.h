@@ -17,7 +17,7 @@ typedef struct {
 } block_pos_t;
 
 typedef int varint_t;
-typedef unsigned char byte_t ;
+typedef unsigned char byte_t;
 
 typedef enum {
     TAG_END        = 0, 

@@ -184,8 +184,8 @@ int32_t MCbuffer_unpack_varint(MCbuffer *buff, char **errmsg) {
   for (int i = 0; i < 5; i++) {
     uint8_t b = MCbuffer_unpack_byte(buff, errmsg);
     CHECK_ERRMSG
-    number |= (b & 0x7F) << (7 * i);
-    if (!(b & 0x80))
+    number |= (b & VARINT_SEGMENT_BITS) << (7 * i);
+    if (!(b & VARINT_CONTINUE_BIT))
       break;
   }
   return (int32_t)number;
@@ -289,4 +289,18 @@ void MCbuffer_pack_json(MCbuffer *buff, json_t *json, char **errmsg) {
   char *jsonString = json_dumps(json, 0);
   MCbuffer_pack_string(buff, jsonString, errmsg);
   FREE(jsonString);
+}
+
+void MCbuffer_pack_byte_array(MCbuffer *buff, MCbuffer *byte_array, char **errmsg) {
+  MCbuffer_pack_varint(buff, byte_array->length, errmsg);
+  MCbuffer_pack(buff, byte_array->data, byte_array->length, errmsg);
+}
+
+MCbuffer *MCbuffer_unpack_byte_array(MCbuffer *buff, char **errmsg) {
+  int ret_buff_len = MCbuffer_unpack_varint(buff, errmsg);
+  MCbuffer *ret = MCbuffer_init();
+  ret->capacity = ret_buff_len;
+  ret->length   = ret_buff_len;
+  ret->data     = MCbuffer_unpack(buff, ret_buff_len, errmsg);
+  return ret;
 }

@@ -52,22 +52,24 @@ H_BASE = """//This code is generated.
 #include <stdbool.h>
 #include <jansson.h>
 
+{}
 {}"""
 
 # Define a dictionary to map type identifiers to their corresponding C types
 type_map = {
-    "b": "char",
-    "B": "byte_t",
-    "h": "short",
-    "H": "unsigned short",
-    "i": "int",
-    "l": "long",
-    "f": "float",
-    "d": "double",
+    "b": "char ",
+    "B": "byte_t ",
+    "h": "short ",
+    "H": "unsigned short ",
+    "i": "int ",
+    "l": "long ",
+    "f": "float ",
+    "d": "double ",
     "s": "char *",
-    "v": "varint_t", 
-    "?": "bool",
-    "j": "json_t *"
+    "v": "varint_t ", 
+    "?": "bool ",
+    "j": "json_t *",
+    "a": "MCbuffer *"
 }
 
 buffer_methods_map = {
@@ -79,7 +81,8 @@ buffer_methods_map = {
     "s": "string",
     "l": "long",
     "H": "ushort",
-    "j": "json"
+    "j": "json",
+    "a": "byte_array"
 }
 
 def parse(input_str):
@@ -90,10 +93,10 @@ def parse(input_str):
     symbols = symbols[1:]
 
     type_def_content = "".join(
-        [f"  {type_map[symbol[0]]} {symbol[1:]};\n" for symbol in symbols])
+        [f"  {type_map[symbol[0]]}{symbol[1:]};\n" for symbol in symbols])
     args = ""
     if symbols:
-      args = ", ".join([f"{type_map[symbol[0]]} {symbol[1:]}" for symbol in symbols]) + ", "
+      args = ", ".join([f"{type_map[symbol[0]]}{symbol[1:]}" for symbol in symbols]) + ", "
     pack_methods = f"  MCbuffer_pack_varint(buff, {packet_id}, errmsg);\n" + "".join([f"  MCbuffer_pack_{buffer_methods_map[symbol[0]]}(buff, {symbol[1:]}, errmsg);\n" for symbol in symbols])
     unpack_methods = "".join([f"  packet.{symbol[1:]}=MCbuffer_unpack_{buffer_methods_map[symbol[0]]}(buff,errmsg);\n" for symbol in symbols])
     send_method_define = f"void send_packet_{packet_name}(MConn *conn, {args}char **errmsg)"
@@ -113,10 +116,20 @@ def parse(input_str):
 
     return send_method + unpack_method, type_def + send_method_h + unpack_method_h
 
+"""
+typedef enum {
+  PACKET_ID_S2C_LOGIN_DISCONNECT = 0x00,
+  PACKET_ID_S2C_ENCRYPTION_REQUEST = 0x01
+} packet_id_S2C_login;
+"""
 if __name__=="__main__":
     with open("packets.txt", "r") as f:
-        mc_packet_exps = f.read().split("\n")
+        mc_packet_exps = f.read().replace(" ", "").split("\n")
 
+    packet_ids = ""
+    for mc_packet_exp in mc_packet_exps:
+      packet_ids += f"#define PACKETID_{mc_packet_exp.split(':')[0].upper()} {mc_packet_exp.split(':')[1].split(';')[0]}\n"
+    
     c_code = ""
     h_code = ""
 
@@ -126,7 +139,7 @@ if __name__=="__main__":
         h_code += h
 
     c_code = C_BASE    +   c_code
-    h_code = H_BASE.format(h_code)
+    h_code = H_BASE.format(packet_ids, h_code)
 
     with open("Packets.c", "w") as f:
         f.write(c_code)

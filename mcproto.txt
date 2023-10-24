@@ -14,8 +14,8 @@ v varint DONE
 V varlong
 X ENTITY METADATA
 S SLOT
-n nbt
-p position
+n nbt 
+p position DONE
 A angle
 u uuid
 a array(of bytes)
