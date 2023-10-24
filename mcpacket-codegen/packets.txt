@@ -1,3 +1,12 @@
-handshake:0x0;vprotocole_version;sserver_addr;Hport;vnext_state
-status_request:0x0
-status_response:0x0;jresponse
+C2S_handshake                    :0x00;vprotocole_version;sserver_addr;Hserver_port;vnext_state
+S2C_   status_           response:0x00;jresponse
+C2S_   status_            request:0x00
+S2C_    login_         disconnect:0x00;jreason
+S2C_    login_ encryption_request:0x01;sserver_id;apublic_key;averify_token
+S2C_    login_            success:0x02;suuid;sname
+S2C_    login_    set_compression:0x03;vthreshold
+C2S_    login_              start:0x00;sname
+C2S_    login_encryption_response:0x01;ashared_secret;averify_token
+S2C_     play_         keep_alive:0x00;vkeep_alive_id
+S2C_     play_          join_game:0x02;ientity_id;Bgamemode;bdimension;Bdifficulty;Bmax_players;slevel_type;?reduced_debug_info
+C2S_     play_         keep_alive:0x00;vkeep_alive_id

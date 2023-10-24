@@ -14,7 +14,7 @@
 
 MConn *MConn_init(char *ip, uint16_t port, char **errmsg) {
   MConn *conn = MALLOC(sizeof(MConn));
-  conn->state = OFFLINE;
+  conn->state = CONN_STATE_OFFLINE;
   conn->addr = ip;
   conn->port = port;
   conn->compression_threshold = -1;
@@ -41,7 +41,7 @@ MConn *MConn_init(char *ip, uint16_t port, char **errmsg) {
     return NULL;
   }
 
-  conn->state = HANDSHAKING;
+  conn->state = CONN_STATE_HANDSHAKING;
 
   return conn;
 }

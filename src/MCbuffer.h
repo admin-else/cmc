@@ -61,3 +61,7 @@ void MCbuffer_pack_json(MCbuffer *buff, json_t *json, char **errmsg);
 void MCbuffer_print_info(MCbuffer *buff);
 
 MCbuffer *MCbuffer_combine(MCbuffer *buff1, MCbuffer *buff2, char **errmsg);
+
+MCbuffer *MCbuffer_unpack_byte_array(MCbuffer *buff, char **errmsg);
+
+void MCbuffer_pack_byte_array(MCbuffer *buff, MCbuffer *byte_array, char **errmsg);

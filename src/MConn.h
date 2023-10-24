@@ -13,7 +13,7 @@ typedef struct{
   varint_t compression_threshold;
 } MConn;
 
-typedef enum { OFFLINE, STATUS, LOGIN, PLAY, HANDSHAKING } MConn_state;
+typedef enum { CONN_STATE_OFFLINE, CONN_STATE_STATUS, CONN_STATE_LOGIN, CONN_STATE_PLAY, CONN_STATE_HANDSHAKING } MConn_state;
 
 MConn *MConn_init(char *ip, uint16_t port, char **errmsg);
 
