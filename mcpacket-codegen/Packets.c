@@ -33,6 +33,8 @@ and i dont like that so made it "safer" ig...
   }
 
 #define UNPACK_ERR_HANDELER(unpack_name)                                       \
+  if (buff->position != buff->length)                                          \
+    *errmsg = "unpack function didnt do the entire buffer";                    \
   if (*errmsg != NULL) {                                                       \
     char error_message[256];                                                   \
     sprintf(error_message, "error while unpacking " #unpack_name ": %s",       \
