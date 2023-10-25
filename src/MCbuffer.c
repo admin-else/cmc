@@ -5,6 +5,7 @@
 #include "textcolor.h"
 #include <jansson.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,6 +41,15 @@ MCbuffer *MCbuffer_init() {
   buffer->capacity = 0;
   buffer->position = 0;
   buffer->length = 0;
+  return buffer;
+}
+
+MCbuffer *MCbuffer_init_w_size(size_t n) {
+  MCbuffer *buffer = MALLOC(sizeof(MCbuffer));
+  buffer->data = MALLOC(n);
+  buffer->capacity = n;
+  buffer->length = n;
+  buffer->position = 0;
   return buffer;
 }
 
@@ -220,10 +230,13 @@ char *MCbuffer_unpack_string_w_max_len(MCbuffer *buff, int max_len,
     return NULL;
   }
   if (str_len < 0) {
-    *errmsg = "The received encoded string buffer length is less than zero! "
-              "Weird string!";
+    *errmsg =
+        "The received encoded string buffer length is less or equal to zero! "
+        "Weird string!";
     return NULL;
   }
+  if (str_len == 0)
+    return "";
   return (char *)MCbuffer_unpack(buff, str_len, errmsg);
 }
 
@@ -276,9 +289,9 @@ json_t *MCbuffer_unpack_json(MCbuffer *buff, char **errmsg) {
 
   char *str = MCbuffer_unpack_string(buff, errmsg);
   root = json_loads(str, 0, &error);
-  FREE(str);
   if (!root) {
-    sprintf(*errmsg, "Error while reading json: %s", error.text);
+    FREE(str);
+    *errmsg = "Error while reading json";
     return NULL;
   }
 
@@ -291,16 +304,19 @@ void MCbuffer_pack_json(MCbuffer *buff, json_t *json, char **errmsg) {
   FREE(jsonString);
 }
 
-void MCbuffer_pack_byte_array(MCbuffer *buff, MCbuffer *byte_array, char **errmsg) {
+void MCbuffer_pack_byte_array(MCbuffer *buff, MCbuffer *byte_array,
+                              char **errmsg) {
   MCbuffer_pack_varint(buff, byte_array->length, errmsg);
   MCbuffer_pack(buff, byte_array->data, byte_array->length, errmsg);
 }
 
 MCbuffer *MCbuffer_unpack_byte_array(MCbuffer *buff, char **errmsg) {
   int ret_buff_len = MCbuffer_unpack_varint(buff, errmsg);
+
   MCbuffer *ret = MCbuffer_init();
   ret->capacity = ret_buff_len;
-  ret->length   = ret_buff_len;
-  ret->data     = MCbuffer_unpack(buff, ret_buff_len, errmsg);
+  ret->length = ret_buff_len;
+  if (ret_buff_len > 0)
+    ret->data = MCbuffer_unpack(buff, ret_buff_len, errmsg);
   return ret;
 }

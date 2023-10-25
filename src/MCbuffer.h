@@ -65,3 +65,5 @@ MCbuffer *MCbuffer_combine(MCbuffer *buff1, MCbuffer *buff2, char **errmsg);
 MCbuffer *MCbuffer_unpack_byte_array(MCbuffer *buff, char **errmsg);
 
 void MCbuffer_pack_byte_array(MCbuffer *buff, MCbuffer *byte_array, char **errmsg);
+
+MCbuffer *MCbuffer_init_w_size(size_t n);

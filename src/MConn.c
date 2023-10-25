@@ -3,6 +3,8 @@
 #include "MCtypes.h"
 #include "heap-utils.h"
 #include <arpa/inet.h>
+#include <assert.h>
+#include <inttypes.h>
 #include <limits.h>
 #include <netinet/in.h>
 #include <stdint.h>
@@ -18,7 +20,11 @@ MConn *MConn_init(char *ip, uint16_t port, char **errmsg) {
   conn->addr = ip;
   conn->port = port;
   conn->compression_threshold = -1;
+  conn->sockfd = -1;
+  return conn;
+}
 
+MConn *MConn_connect(MConn *conn, char **errmsg) {
   if ((conn->sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
     FREE(conn);
     *errmsg = "Socket creation error";
@@ -27,9 +33,9 @@ MConn *MConn_init(char *ip, uint16_t port, char **errmsg) {
 
   struct sockaddr_in address;
   address.sin_family = AF_INET;
-  address.sin_port = htons(port);
+  address.sin_port = htons(conn->port);
 
-  if (inet_pton(AF_INET, ip, &address.sin_addr) <= 0) {
+  if (inet_pton(AF_INET, conn->addr, &address.sin_addr) <= 0) {
     FREE(conn);
     *errmsg = "Invalid address.";
     return NULL;
@@ -47,8 +53,20 @@ MConn *MConn_init(char *ip, uint16_t port, char **errmsg) {
 }
 
 void MConn_free(MConn *conn, char **errmsg) {
-  if(close(conn->sockfd) != 0) *errmsg = "unable to close connection";
+  assert(conn->state == CONN_STATE_OFFLINE);
+  FREE(conn->shared_secret);
   FREE(conn);
+}
+
+void MConn_close(MConn *conn, char **errmsg) {
+  if (conn->state == CONN_STATE_OFFLINE)
+    return;
+  if (close(conn->sockfd) != 0)
+    *errmsg = "unable to close connection";
+  if (*errmsg != NULL)
+    return;
+  conn->state  = CONN_STATE_OFFLINE;
+  conn->sockfd = -1;
 }
 
 int send_all(int socket, const void *buffer, size_t length) {
@@ -74,7 +92,7 @@ int recv_all(int socket, void *buffer, int length) {
     ssize_t bytes_received =
         recv(socket, buffer + total_received, length - total_received, 0);
 
-    if (bytes_received == -1)
+    if (bytes_received <= 0)
       return -1;
     total_received += bytes_received;
   }
@@ -102,9 +120,11 @@ MCbuffer *MConn_recive_packet(MConn *conn, char **errmsg) {
     return NULL;
   }
 
-  MCbuffer *buff = MCbuffer_init();
-  buff->data = MALLOC(packet_len);
+  MCbuffer *buff = MCbuffer_init_w_size(packet_len);
   if (recv_all(conn->sockfd, buff->data, packet_len) == -1) {
+    MConn_close(conn, errmsg);
+    MConn_free(conn, errmsg);
+    MCbuffer_free(buff);
     *errmsg = "recving data failed";
     return NULL;
   }
@@ -114,7 +134,7 @@ MCbuffer *MConn_recive_packet(MConn *conn, char **errmsg) {
 
   if (conn->compression_threshold < 0)
     return buff;
-  
+
   int decompressed_length = MCbuffer_unpack_varint(buff, errmsg);
   if (decompressed_length < 0)
     return buff;
@@ -156,7 +176,6 @@ inline void print_bytes_py(unsigned char *bytes, size_t len) {
   printf("'\n");
 }
 
-
 void MConn_send_packet(MConn *conn, MCbuffer *buff, char **errmsg) {
   /*
     if compression_threshold >= 0:
@@ -190,13 +209,15 @@ void MConn_send_packet(MConn *conn, MCbuffer *buff, char **errmsg) {
     MCbuffer_pack(compressed_buffer, buff->data, buff->length, errmsg);
     MCbuffer_free(buff);
   }
-  
+
   MCbuffer *tmp_buff = MCbuffer_init();
   MCbuffer_pack_varint(tmp_buff, compressed_buffer->length, errmsg);
 
   compressed_buffer = MCbuffer_combine(tmp_buff, compressed_buffer, errmsg);
 
-  if(send_all(conn->sockfd, compressed_buffer->data, compressed_buffer->length) != 0) *errmsg = "error cant send packet for some reason.";
+  if (send_all(conn->sockfd, compressed_buffer->data,
+               compressed_buffer->length) != 0)
+    *errmsg = "error cant send packet for some reason.";
   MCbuffer_free(compressed_buffer);
   return;
 }
