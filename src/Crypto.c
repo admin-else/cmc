@@ -8,6 +8,7 @@ this file contains crypto and comprssion
 #include <openssl/evp.h>
 #include <openssl/rsa.h>
 #include <openssl/x509.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
 
@@ -46,4 +47,39 @@ byte_t *generate_random_bytes(int len) {
     generated_bytes[i] = rand() % 256;
   }
   return generated_bytes;
+}
+
+char *mc_sha_final(SHA_CTX *sha1) {
+  unsigned char hash[SHA_DIGEST_LENGTH];
+  SHA1_Final(hash, sha1);
+
+  bool negativ = false;
+  if (hash[0] & 0x80) {
+    negativ = true;
+    for (size_t i = 0; i < SHA_DIGEST_LENGTH; i++) {
+      hash[i] = ~hash[i]; // Bitwise NOT operation
+    } 
+    for (int i = SHA_DIGEST_LENGTH - 1; i >= 0; i--) {
+        hash[i] += 1;
+        if(hash[i] != 0) break;
+    }
+  }
+
+  char result[41];
+  for (int i = 0; i < SHA_DIGEST_LENGTH; i++) {
+    sprintf(&result[i * 2], "%02x", hash[i]);
+  }
+  int i = 0;
+  while (result[i] == '0' && result[i + 1] != '\0')
+    i++;
+
+  // Create a new string starting from the first non-zero character
+  size_t final_strlen = (41 + negativ) - i;
+  char *final_result = MALLOC(final_strlen);
+  strcpy(negativ + final_result, &result[i]);
+  if (negativ)
+    final_result[0] = '-';
+
+  final_result[final_strlen] = '\0';
+  return final_result;
 }

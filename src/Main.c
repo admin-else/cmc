@@ -3,6 +3,7 @@
 #include "MCbuffer.h"
 #include "MConn.h"
 #include "MCtypes.h"
+#include "MojangApi.h"
 #include "Nbt.h"
 #include "Packets.h"
 #include "heap-utils.h"
@@ -67,6 +68,18 @@ void S2C_login_encryption_request(MConn *conn, MCbuffer *buff, char **errmsg) {
 
   ERR_CHECK_VOID
 
+  conn->shared_secret = generate_random_bytes(16);
+  if(join_server(
+    "eyJraWQiOiJhYzg0YSIsImFsZyI6IkhTMjU2In0.eyJ4dWlkIjoiMjUzNTQwODczNjU4Mzg2NyIsImFnZyI6IkFkdWx0Iiwic3ViIjoiZmFjYWQ2NjYtNGFiYS00MDU3LTlmOWQtMzQ5NDI2NDQ2MzAzIiwiYXV0aCI6IlhCT1giLCJucyI6ImRlZmF1bHQiLCJyb2xlcyI6W10sImlzcyI6ImF1dGhlbnRpY2F0aW9uIiwiZmxhZ3MiOlsidHdvZmFjdG9yYXV0aCIsIm1pbmVjcmFmdF9uZXQiLCJtc2FtaWdyYXRpb25fc3RhZ2U0Iiwib3JkZXJzXzIwMjIiXSwicHJvZmlsZXMiOnsibWMiOiIzNjMyMzMwZC0zNzM3LTQyNzAtOGU4Zi0yNzBlNTgxYzQ1ZGIifSwicGxhdGZvcm0iOiJVTktOT1dOIiwieXVpZCI6ImRhYjRkNGQyZjA1NzQ3YWNmMTg5YTFlNTE1MDM5ZGNkIiwibmJmIjoxNjk4NDIyMzEwLCJleHAiOjE2OTg1MDg3MTAsImlhdCI6MTY5ODQyMjMxMH0._HssKVTuHy9b3NVTWQGVn3-mWPfP8oLR3Bx4Y5c4P2c", 
+    "3632330d373742708e8f270e581c45db", "", 
+    conn->shared_secret, 
+    packet.public_key->data, 
+    packet.public_key->length, 
+    errmsg) != 0) {
+      *errmsg = "Minecraft User invalid / banned etc...";
+      return;
+    }
+  ERR_CHECK_VOID
   RSA *rsa = pubkeyDER_to_RSA(packet.public_key->data,
                               packet.public_key->length, errmsg);
   ERR_CHECK_VOID
@@ -76,7 +89,6 @@ void S2C_login_encryption_request(MConn *conn, MCbuffer *buff, char **errmsg) {
                      RSA_PKCS1_PADDING);
   MCbuffer_free(packet.verify_token);
 
-  conn->shared_secret = generate_random_bytes(16);
   MCbuffer *shared_secred_enc = MCbuffer_init_w_size(RSA_size(rsa));
 
   RSA_public_encrypt(16, conn->shared_secret, shared_secred_enc->data, rsa,
@@ -104,6 +116,7 @@ int main() {
   char *errmsg = NULL;
   MConn *conn = MConn_init("127.0.0.1", 25565, &errmsg);
   MConn_connect(conn, &errmsg);
+  EXIT_IF_ERR("can connect: %s\n")
   send_packet_C2S_handshake(conn, 47, "127.0.0.1", 25565, CONN_STATE_LOGIN,
                             &errmsg);
   send_packet_C2S_login_start(conn, "Admin_Else", &errmsg);
@@ -125,6 +138,8 @@ int main() {
         break;
       case PACKETID_S2C_LOGIN_DISCONNECT:
         S2C_login_disconnect(conn, buff, &errmsg);
+        break;
+      case PACKETID_S2C_LOGIN_SUCCESS:
         break;
       }
     }
