@@ -6,3 +6,4 @@ fuzz/
 fuzz/*
 .vscode/*
 .vscode/
+src/*.o
