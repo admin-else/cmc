@@ -15,6 +15,7 @@
 #include "MCbuffer.h"
 #include "err.h"
 #include "heap-utils.h"
+#include "TextBuffer.h"
 #include <assert.h>
 #include <curses.h>
 #include <stdarg.h>
@@ -38,7 +39,7 @@
   }
 
 #define BUFFER_INIT                                                            \
-  (struct text_buffer) { NULL, 0, 0 }
+  (text_buffer) { NULL, 0, 0 }
 
 #ifdef __GNUC__
 #define likely(x) __builtin_expect(!!(x), 1)
@@ -408,141 +409,44 @@ nbt_node *nbt_parse_named_tag(MCbuffer *buff, char **errmsg) {
 }
 
 // Nbt printing utils
-
-struct text_buffer {
-  unsigned char
-      *data;  /* You can access the buffer's raw bytes through this pointer */
-  size_t len; /* Only accesses in the interval [data, data + len) are defined */
-  size_t cap; /* Internal use. The allocated size of the buffer. */
-};
-
-static int lazy_init(struct text_buffer *b) {
-  assert(b->data == NULL);
-
-  size_t cap = 1024;
-
-  *b = (struct text_buffer){.data = malloc(cap), .len = 0, .cap = cap};
-
-  if (unlikely(b->data == NULL))
-    return 1;
-
-  return 0;
-}
-
-void text_buffer_free(struct text_buffer *b) {
-  assert(b);
-
-  free(b->data);
-
-  b->data = NULL;
-  b->len = 0;
-  b->cap = 0;
-}
-
-int buffer_reserve(struct text_buffer *b, size_t reserved_amount) {
-  assert(b);
-
-  if (unlikely(b->data == NULL) && unlikely(lazy_init(b)))
-    return 1;
-
-  if (likely(b->cap >= reserved_amount))
-    return 0;
-
-  while (b->cap < reserved_amount)
-    b->cap *= 2;
-
-  unsigned char *temp = realloc(b->data, b->cap);
-
-  if (unlikely(temp == NULL))
-    return text_buffer_free(b), 1;
-
-  b->data = temp;
-
-  return 0;
-}
-
-int buffer_append(struct text_buffer *b, const void *data, size_t n) {
-  assert(b);
-
-  if (unlikely(b->data == NULL) && unlikely(lazy_init(b)))
-    return 1;
-
-  if (unlikely(buffer_reserve(b, b->len + n)))
-    return 1;
-
-  memcpy(b->data + b->len, data, n);
-  b->len += n;
-
-  return 0;
-}
-
-static void bprintf(struct text_buffer *b, const char *restrict format, ...) {
-  va_list args;
-  int siz;
-
-  va_start(args, format);
-  siz = vsnprintf(NULL, 0, format, args);
-  va_end(args);
-
-  buffer_reserve(b, b->len + siz + 1);
-
-  va_start(args, format);
-  vsnprintf((char *)(b->data + b->len), siz + 1, format, args);
-  va_end(args);
-
-  b->len += siz; // remember - no null terminator!
-}
-
-static void indent(struct text_buffer *b, size_t amount) {
-  size_t spaces = amount * 4; /* 4 spaces per indent */
-
-  char temp[spaces + 1];
-
-  for (size_t i = 0; i < spaces; ++i)
-    temp[i] = ' ';
-  temp[spaces] = '\0';
-
-  bprintf(b, "%s", temp);
-}
-
-static void __nbt_dump_ascii(const nbt_node *tree, struct text_buffer *b,
+static void __nbt_dump_ascii(const nbt_node *tree, text_buffer *b,
                              size_t ident, char **errmsg);
 
 /* prints the node's name, or (null) if it has none. */
 #define SAFE_NAME(node) ((node)->name ? (node)->name : "<null>")
 
 static void dump_byte_array(const struct nbt_byte_array ba,
-                            struct text_buffer *b) {
+                            text_buffer *b) {
   assert(ba.length >= 0);
 
-  bprintf(b, "[ ");
+  text_buffer_bprintf(b, "[ ");
   for (int32_t i = 0; i < ba.length; ++i)
-    bprintf(b, "%u ", +ba.data[i]);
-  bprintf(b, "]");
+    text_buffer_bprintf(b, "%u ", +ba.data[i]);
+  text_buffer_bprintf(b, "]");
 }
 
 static void dump_int_array(const struct nbt_int_array ia,
-                           struct text_buffer *b) {
+                           text_buffer *b) {
   assert(ia.length >= 0);
 
-  bprintf(b, "[ ");
+  text_buffer_bprintf(b, "[ ");
   for (int32_t i = 0; i < ia.length; ++i)
-    bprintf(b, "%u ", +ia.data[i]);
-  bprintf(b, "]");
+    text_buffer_bprintf(b, "%u ", +ia.data[i]);
+  text_buffer_bprintf(b, "]");
 }
 
 static void dump_long_array(const struct nbt_long_array la,
-                            struct text_buffer *b) {
+                            text_buffer *b) {
   assert(la.length >= 0);
 
-  bprintf(b, "[ ");
+  text_buffer_bprintf(b, "[ ");
   for (int32_t i = 0; i < la.length; ++i)
-    bprintf(b, "%u ", +la.data[i]);
-  bprintf(b, "]");
+    text_buffer_bprintf(b, "%u ", +la.data[i]);
+  text_buffer_bprintf(b, "]");
 }
 
 static void dump_list_contents_ascii(const struct nbt_list *list,
-                                     struct text_buffer *b, size_t ident,
+                                     text_buffer *b, size_t ident,
                                      char **errmsg) {
   const struct list_head *pos;
 
@@ -558,76 +462,76 @@ static void dump_list_contents_ascii(const struct nbt_list *list,
   return;
 }
 
-static void __nbt_dump_ascii(const nbt_node *tree, struct text_buffer *b,
+static void __nbt_dump_ascii(const nbt_node *tree, text_buffer *b,
                              size_t ident, char **errmsg) {
   if (tree == NULL)
     return;
 
-  indent(b, ident);
+  text_buffer_indent(b, ident);
 
   if (tree->type == TAG_BYTE)
-    bprintf(b, "TAG_Byte(\"%s\"): %i\n", SAFE_NAME(tree),
+    text_buffer_bprintf(b, "TAG_Byte(\"%s\"): %i\n", SAFE_NAME(tree),
             (int)tree->payload.tag_byte);
   else if (tree->type == TAG_SHORT)
-    bprintf(b, "TAG_Short(\"%s\"): %i\n", SAFE_NAME(tree),
+    text_buffer_bprintf(b, "TAG_Short(\"%s\"): %i\n", SAFE_NAME(tree),
             (int)tree->payload.tag_short);
   else if (tree->type == TAG_INT)
-    bprintf(b, "TAG_Int(\"%s\"): %i\n", SAFE_NAME(tree),
+    text_buffer_bprintf(b, "TAG_Int(\"%s\"): %i\n", SAFE_NAME(tree),
             (int)tree->payload.tag_int);
   else if (tree->type == TAG_LONG)
-    bprintf(b, "TAG_Long(\"%s\"): %li\n", SAFE_NAME(tree),
+    text_buffer_bprintf(b, "TAG_Long(\"%s\"): %li\n", SAFE_NAME(tree),
             tree->payload.tag_long);
   else if (tree->type == TAG_FLOAT)
-    bprintf(b, "TAG_Float(\"%s\"): %f\n", SAFE_NAME(tree),
+    text_buffer_bprintf(b, "TAG_Float(\"%s\"): %f\n", SAFE_NAME(tree),
             (double)tree->payload.tag_float);
   else if (tree->type == TAG_DOUBLE)
-    bprintf(b, "TAG_Double(\"%s\"): %f\n", SAFE_NAME(tree),
+    text_buffer_bprintf(b, "TAG_Double(\"%s\"): %f\n", SAFE_NAME(tree),
             tree->payload.tag_double);
   else if (tree->type == TAG_BYTE_ARRAY) {
-    bprintf(b, "TAG_Byte_Array(\"%s\"): ", SAFE_NAME(tree));
+    text_buffer_bprintf(b, "TAG_Byte_Array(\"%s\"): ", SAFE_NAME(tree));
     dump_byte_array(tree->payload.tag_byte_array, b);
-    bprintf(b, "\n");
+    text_buffer_bprintf(b, "\n");
   } else if (tree->type == TAG_INT_ARRAY) {
-    bprintf(b, "Tag_Int_Array(\"%s\"): ", SAFE_NAME(tree));
+    text_buffer_bprintf(b, "Tag_Int_Array(\"%s\"): ", SAFE_NAME(tree));
     dump_int_array(tree->payload.tag_int_array, b);
-    bprintf(b, "\n");
+    text_buffer_bprintf(b, "\n");
   } else if (tree->type == TAG_LONG_ARRAY) {
-    bprintf(b, "Tag_Long_Array(\"%s\"): ", SAFE_NAME(tree));
+    text_buffer_bprintf(b, "Tag_Long_Array(\"%s\"): ", SAFE_NAME(tree));
     dump_long_array(tree->payload.tag_long_array, b);
-    bprintf(b, "\n");
+    text_buffer_bprintf(b, "\n");
   } else if (tree->type == TAG_STRING) {
     if (tree->payload.tag_string == NULL) {
       *errmsg = "content of string that was null";
       return;
     }
-    bprintf(b, "TAG_String(\"%s\"): %s\n", SAFE_NAME(tree),
+    text_buffer_bprintf(b, "TAG_String(\"%s\"): %s\n", SAFE_NAME(tree),
             tree->payload.tag_string);
   } else if (tree->type == TAG_LIST) {
-    bprintf(b, "TAG_List(\"%s\") [%s]\n", SAFE_NAME(tree),
+    text_buffer_bprintf(b, "TAG_List(\"%s\") [%s]\n", SAFE_NAME(tree),
             nbt_type_to_string(tree->payload.tag_list->data->type));
-    indent(b, ident);
-    bprintf(b, "{\n");
+    text_buffer_indent(b, ident);
+    text_buffer_bprintf(b, "{\n");
 
     dump_list_contents_ascii(tree->payload.tag_list, b, ident + 1, errmsg);
     if (*errmsg != NULL)
       return;
 
-    indent(b, ident);
-    bprintf(b, "}\n");
+    text_buffer_indent(b, ident);
+    text_buffer_bprintf(b, "}\n");
 
     if (*errmsg != NULL)
       return;
   } else if (tree->type == TAG_COMPOUND) {
-    bprintf(b, "TAG_Compound(\"%s\")\n", SAFE_NAME(tree));
-    indent(b, ident);
-    bprintf(b, "{\n");
+    text_buffer_bprintf(b, "TAG_Compound(\"%s\")\n", SAFE_NAME(tree));
+    text_buffer_indent(b, ident);
+    text_buffer_bprintf(b, "{\n");
 
     dump_list_contents_ascii(tree->payload.tag_compound, b, ident + 1, errmsg);
     if (*errmsg != NULL)
       return;
 
-    indent(b, ident);
-    bprintf(b, "}\n");
+    text_buffer_indent(b, ident);
+    text_buffer_bprintf(b, "}\n");
 
     if (*errmsg != NULL)
       return;
@@ -643,16 +547,16 @@ static void __nbt_dump_ascii(const nbt_node *tree, struct text_buffer *b,
 char *nbt_dump_ascii(const nbt_node *tree, char **errmsg) {
   assert(tree);
 
-  struct text_buffer b = BUFFER_INIT;
+  text_buffer b = BUFFER_INIT;
 
   __nbt_dump_ascii(tree, &b, 0, errmsg);
   if (*errmsg != NULL)
     goto err;
-  buffer_reserve(&b, b.len + 1);
+  text_buffer_reserve(&b, b.len + 1);
   if (*errmsg != NULL)
     goto err;
 
-  b.data[b.len] = '\0'; /* null-terminate that biatch, since bprintf doesn't
+  b.data[b.len] = '\0'; /* null-terminate that biatch, since text_buffer_bprintf doesn't
                            do that for us. */
 
   return (char *)b.data;
