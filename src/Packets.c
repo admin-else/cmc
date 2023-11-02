@@ -43,6 +43,35 @@ and i dont like that so made it "safer" ig...
     return packet;                                                             \
   }
 
+char *packet_data_to_string(int packet_id, MConn_state state,
+                            packet_direction direction) {
+#define PACKET_DATA_TO_STRING_UTIL(packet_id, state, direction, packet_name)   \
+  case (packet_id & 0x00FFFFFF) | (state << 24) | (direction << 20):           \
+    return packet_name;
+
+  int combined_packet_data =
+      (packet_id & 0x00FFFFFF) | (state << 24) | (direction << 20);
+
+  switch (combined_packet_data) {
+  PACKET_DATA_TO_STRING_UTIL(0x00, CONN_STATE_HANDSHAKE, DIRECTION_C2S, "C2S_HANDSHAKE");
+  PACKET_DATA_TO_STRING_UTIL(0x00, CONN_STATE_STATUS, DIRECTION_S2C, "S2C_STATUS_RESPONSE");
+  PACKET_DATA_TO_STRING_UTIL(0x00, CONN_STATE_STATUS, DIRECTION_C2S, "C2S_STATUS_REQUEST");
+  PACKET_DATA_TO_STRING_UTIL(0x00, CONN_STATE_LOGIN, DIRECTION_S2C, "S2C_LOGIN_DISCONNECT");
+  PACKET_DATA_TO_STRING_UTIL(0x01, CONN_STATE_LOGIN, DIRECTION_S2C, "S2C_LOGIN_ENCRYPTION_REQUEST");
+  PACKET_DATA_TO_STRING_UTIL(0x02, CONN_STATE_LOGIN, DIRECTION_S2C, "S2C_LOGIN_SUCCESS");
+  PACKET_DATA_TO_STRING_UTIL(0x03, CONN_STATE_LOGIN, DIRECTION_S2C, "S2C_LOGIN_SET_COMPRESSION");
+  PACKET_DATA_TO_STRING_UTIL(0x00, CONN_STATE_LOGIN, DIRECTION_C2S, "C2S_LOGIN_START");
+  PACKET_DATA_TO_STRING_UTIL(0x01, CONN_STATE_LOGIN, DIRECTION_C2S, "C2S_LOGIN_ENCRYPTION_RESPONSE");
+  PACKET_DATA_TO_STRING_UTIL(0x00, CONN_STATE_PLAY, DIRECTION_S2C, "S2C_PLAY_KEEP_ALIVE");
+  PACKET_DATA_TO_STRING_UTIL(0x02, CONN_STATE_PLAY, DIRECTION_S2C, "S2C_PLAY_JOIN_GAME");
+  PACKET_DATA_TO_STRING_UTIL(0x00, CONN_STATE_PLAY, DIRECTION_C2S, "C2S_PLAY_KEEP_ALIVE");
+  default:
+    return "PACKET_UNKNOWN";
+  }
+
+#undef PACKET_DATA_TO_STRING_UTIL
+}
+
 void send_packet_C2S_handshake(MConn *conn, varint_t protocole_version, char *server_addr, unsigned short server_port, varint_t next_state, char **errmsg) {
   MCbuffer *buff = MCbuffer_init();
   MCbuffer_pack_varint(buff, 0x00, errmsg);
@@ -220,7 +249,7 @@ S2C_play_join_game_packet_t unpack_S2C_play_join_game_packet(MCbuffer *buff, cha
   packet.dimension=MCbuffer_unpack_char(buff,errmsg);
   packet.difficulty=MCbuffer_unpack_byte(buff,errmsg);
   packet.max_players=MCbuffer_unpack_byte(buff,errmsg);
-  packet.level_type=MCbuffer_unpack_string(buff,errmsg);
+  packet.level_type=MCbuffer_unpack_string(buff, errmsg);
   packet.reduced_debug_info=MCbuffer_unpack_bool(buff,errmsg);
   UNPACK_ERR_HANDELER(S2C_play_join_game);
   return packet;

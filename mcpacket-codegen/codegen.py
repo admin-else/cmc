@@ -55,7 +55,29 @@ H_BASE = """//This code is generated.
 #include <jansson.h>
 
 {}
+char *packet_data_to_string(int packet_id, MConn_state state,
+                            packet_direction direction);
+
 {}"""
+
+PACKET_ID_TO_STRING_METHOD_TEMPLATE = """char *packet_data_to_string(int packet_id, MConn_state state,
+                            packet_direction direction) {
+#define PACKET_DATA_TO_STRING_UTIL(packet_id, state, direction, packet_name)   \\
+  case (packet_id & 0x00FFFFFF) | (state << 24) | (direction << 23):           \\
+    return packet_name;
+
+  int combined_packet_data =
+      (packet_id & 0x00FFFFFF) | (state << 24) | (direction << 23);
+
+  switch (combined_packet_data) {
+{}  default:
+    return "PACKET_UNKNOWN";
+  }
+
+#undef PACKET_DATA_TO_STRING_UTIL
+}
+
+"""
 
 # Define a dictionary to map type identifiers to their corresponding C types
 type_map = {
@@ -118,12 +140,6 @@ def parse(input_str):
 
     return send_method + unpack_method, type_def + send_method_h + unpack_method_h
 
-"""
-typedef enum {
-  PACKET_ID_S2C_LOGIN_DISCONNECT = 0x00,
-  PACKET_ID_S2C_ENCRYPTION_REQUEST = 0x01
-} packet_id_S2C_login;
-"""
 if __name__=="__main__":
     with open("packets.txt", "r") as f:
         mc_packet_exps = f.read().replace(" ", "").split("\n")
@@ -140,7 +156,13 @@ if __name__=="__main__":
         c_code += c
         h_code += h
 
-    c_code = C_BASE    +   c_code
+    packet_id_to_string_method = ""
+    for mc_packet_exp in mc_packet_exps:
+      packet_id_to_string_method += f"  PACKET_DATA_TO_STRING_UTIL({mc_packet_exp.split(':')[1].split(';')[0]}, CONN_STATE_{mc_packet_exp.split(':')[0].split('_')[1].upper()}, DIRECTION_{mc_packet_exp.split(':')[0].split('_')[0].upper()}, \"{mc_packet_exp.split(':')[0].upper()}\");\n"
+
+    packet_id_to_string_method = PACKET_ID_TO_STRING_METHOD_TEMPLATE.replace("{}", packet_id_to_string_method) # this is why i didnt use format 'ValueError: unexpected '{' in field name'
+
+    c_code = C_BASE + packet_id_to_string_method + c_code
     h_code = H_BASE.format(packet_ids, h_code)
 
     with open("Packets.c", "w") as f:

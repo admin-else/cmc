@@ -20,6 +20,9 @@
 #define PACKETID_S2C_PLAY_JOIN_GAME 0x02
 #define PACKETID_C2S_PLAY_KEEP_ALIVE 0x00
 
+char *packet_data_to_string(int packet_id, MConn_state state,
+                            packet_direction direction);
+
 typedef struct {
   varint_t protocole_version;
   char *server_addr;
