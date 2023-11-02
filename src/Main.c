@@ -69,16 +69,13 @@ void S2C_login_encryption_request(MConn *conn, MCbuffer *buff, char **errmsg) {
   ERR_CHECK_VOID
 
   conn->shared_secret = generate_random_bytes(16);
-  if(join_server(
-    "eyJraWQiOiJhYzg0YSIsImFsZyI6IkhTMjU2In0.eyJ4dWlkIjoiMjUzNTQwODczNjU4Mzg2NyIsImFnZyI6IkFkdWx0Iiwic3ViIjoiZmFjYWQ2NjYtNGFiYS00MDU3LTlmOWQtMzQ5NDI2NDQ2MzAzIiwiYXV0aCI6IlhCT1giLCJucyI6ImRlZmF1bHQiLCJyb2xlcyI6W10sImlzcyI6ImF1dGhlbnRpY2F0aW9uIiwiZmxhZ3MiOlsidHdvZmFjdG9yYXV0aCIsIm1pbmVjcmFmdF9uZXQiLCJtc2FtaWdyYXRpb25fc3RhZ2U0Iiwib3JkZXJzXzIwMjIiXSwicHJvZmlsZXMiOnsibWMiOiIzNjMyMzMwZC0zNzM3LTQyNzAtOGU4Zi0yNzBlNTgxYzQ1ZGIifSwicGxhdGZvcm0iOiJVTktOT1dOIiwieXVpZCI6ImRhYjRkNGQyZjA1NzQ3YWNmMTg5YTFlNTE1MDM5ZGNkIiwibmJmIjoxNjk4NDIyMzEwLCJleHAiOjE2OTg1MDg3MTAsImlhdCI6MTY5ODQyMjMxMH0._HssKVTuHy9b3NVTWQGVn3-mWPfP8oLR3Bx4Y5c4P2c", 
-    "3632330d373742708e8f270e581c45db", "", 
-    conn->shared_secret, 
-    packet.public_key->data, 
-    packet.public_key->length, 
-    errmsg) != 0) {
-      *errmsg = "Minecraft User invalid / banned etc...";
-      return;
-    }
+  if (join_server(
+          "eyJraWQiOiJhYzg0YSIsImFsZyI6IkhTMjU2In0.eyJ4dWlkIjoiMjUzNTQwODczNjU4Mzg2NyIsImFnZyI6IkFkdWx0Iiwic3ViIjoiZmFjYWQ2NjYtNGFiYS00MDU3LTlmOWQtMzQ5NDI2NDQ2MzAzIiwiYXV0aCI6IlhCT1giLCJucyI6ImRlZmF1bHQiLCJyb2xlcyI6W10sImlzcyI6ImF1dGhlbnRpY2F0aW9uIiwiZmxhZ3MiOlsidHdvZmFjdG9yYXV0aCIsIm1pbmVjcmFmdF9uZXQiLCJtc2FtaWdyYXRpb25fc3RhZ2U0Iiwib3JkZXJzXzIwMjIiXSwicHJvZmlsZXMiOnsibWMiOiIzNjMyMzMwZC0zNzM3LTQyNzAtOGU4Zi0yNzBlNTgxYzQ1ZGIifSwicGxhdGZvcm0iOiJVTktOT1dOIiwieXVpZCI6ImRhYjRkNGQyZjA1NzQ3YWNmMTg5YTFlNTE1MDM5ZGNkIiwibmJmIjoxNjk4NzQ4MjMwLCJleHAiOjE2OTg4MzQ2MzAsImlhdCI6MTY5ODc0ODIzMH0.QEpbBZxhr7n10RLIFJR0T6px8xzOkhD1vgK2hHKsQjs",
+          "3632330d373742708e8f270e581c45db", "", conn->shared_secret,
+          packet.public_key->data, packet.public_key->length, errmsg) != 0) {
+    *errmsg = "Minecraft User invalid / banned etc...";
+    return;
+  }
   ERR_CHECK_VOID
   RSA *rsa = pubkeyDER_to_RSA(packet.public_key->data,
                               packet.public_key->length, errmsg);
@@ -95,7 +92,8 @@ void S2C_login_encryption_request(MConn *conn, MCbuffer *buff, char **errmsg) {
                      RSA_PKCS1_PADDING);
 
   RSA_free(rsa);
-  MCbuffer_free(packet.public_key); // this will cause all exits after this to segfault
+  MCbuffer_free(
+      packet.public_key); // this will cause all exits after this to segfault
   send_packet_C2S_login_encryption_response(conn, shared_secred_enc,
                                             verify_token_enc, errmsg);
   MCbuffer_free(shared_secred_enc);
@@ -126,7 +124,7 @@ int main() {
     EXIT_IF_ERR("err while reciving packet: %s\n")
     int packet_id = MCbuffer_unpack_varint(buff, &errmsg);
     EXIT_IF_ERR("err while looking at packet id: %s\n")
-    printf("packet_id %i\n", packet_id);
+    printf("Got Packet %s\n", packet_data_to_string(packet_id, conn->state, DIRECTION_S2C));
     switch (conn->state) {
     case CONN_STATE_LOGIN:
       switch (packet_id) {
@@ -140,10 +138,11 @@ int main() {
         S2C_login_disconnect(conn, buff, &errmsg);
         break;
       case PACKETID_S2C_LOGIN_SUCCESS:
+        MConn_close(conn, &errmsg);
         break;
       }
     }
-    printf("finished handeling packet id %i\n", packet_id);
     EXIT_IF_ERR("error in packet loop %s\n")
   }
+  return 0;
 }

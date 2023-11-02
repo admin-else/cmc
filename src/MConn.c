@@ -47,7 +47,7 @@ MConn *MConn_connect(MConn *conn, char **errmsg) {
     return NULL;
   }
 
-  conn->state = CONN_STATE_HANDSHAKING;
+  conn->state = CONN_STATE_HANDSHAKE;
 
   return conn;
 }
@@ -136,9 +136,9 @@ MCbuffer *MConn_recive_packet(MConn *conn, char **errmsg) {
     return buff;
 
   int decompressed_length = MCbuffer_unpack_varint(buff, errmsg);
-  if (decompressed_length < 0)
+  if (decompressed_length <= 0)
     return buff;
-
+  
   byte_t *decompressed_data = MALLOC(decompressed_length);
   size_t real_decompressed_length;
   if (uncompress(decompressed_data, &real_decompressed_length, buff->data,

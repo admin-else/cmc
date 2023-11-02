@@ -14,6 +14,9 @@
 #pragma once
 #include <stddef.h>
 
+#define TEXT_BUFFER_INIT                                                            \
+  (text_buffer) { NULL, 0, 0 }
+
 typedef struct{
   unsigned char
       *data;  /* You can access the buffer's raw bytes through this pointer */

@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "heap-utils.h"
 #include "TextBuffer.h"
 
 #ifdef __GNUC__
@@ -31,10 +32,7 @@ int text_buffer_lazy_init(text_buffer *b) {
 
   size_t cap = 1024;
 
-  *b = (text_buffer){.data = malloc(cap), .len = 0, .cap = cap};
-
-  if (unlikely(b->data == NULL))
-    return 1;
+  *b = (text_buffer){.data = MALLOC(cap), .len = 0, .cap = cap};
 
   return 0;
 }
