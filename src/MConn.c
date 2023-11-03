@@ -65,7 +65,7 @@ void MConn_close(MConn *conn, char **errmsg) {
     *errmsg = "unable to close connection";
   if (*errmsg != NULL)
     return;
-  conn->state  = CONN_STATE_OFFLINE;
+  conn->state = CONN_STATE_OFFLINE;
   conn->sockfd = -1;
 }
 
@@ -138,16 +138,38 @@ MCbuffer *MConn_recive_packet(MConn *conn, char **errmsg) {
   int decompressed_length = MCbuffer_unpack_varint(buff, errmsg);
   if (decompressed_length <= 0)
     return buff;
-  
+
   byte_t *decompressed_data = MALLOC(decompressed_length);
-  size_t real_decompressed_length;
-  if (uncompress(decompressed_data, &real_decompressed_length, buff->data,
-                 packet_len) != Z_OK) {
-    *errmsg = "zlib decompression failed!";
-    FREE(decompressed_data);
+
+  z_stream strm;
+  strm.zalloc = Z_NULL;
+  strm.zfree = Z_NULL;
+  strm.opaque = Z_NULL;
+  int ret;
+
+  strm.avail_in = buff->length - buff->position;
+  strm.next_in = (Bytef *)buff->data + buff->position;
+  strm.avail_out = decompressed_length;
+  strm.next_out = (Bytef *)decompressed_data;
+
+  ret = inflateInit(&strm);
+  if (ret != Z_OK) {
+    sprintf(*errmsg, "Decompression initialization error: %s\n", strm.msg);
     MCbuffer_free(buff);
     return NULL;
   }
+
+  ret = inflate(&strm, Z_FINISH);
+  if (ret != Z_STREAM_END) {
+    sprintf(*errmsg, "Decompression error: %s\n", strm.msg);
+    MCbuffer_free(buff);
+    inflateEnd(&strm);
+    return NULL;
+  }
+
+  size_t real_decompressed_length = strm.total_out;
+
+  inflateEnd(&strm);
 
   if (real_decompressed_length != decompressed_length) {
     *errmsg = "The sender lied about the decompresed lenght of a packet";
