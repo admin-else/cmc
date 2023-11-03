@@ -106,7 +106,10 @@ buffer_methods_map = {
     "l": "long",
     "H": "ushort",
     "j": "json",
-    "a": "byte_array"
+    "a": "byte_array",
+    "f": "float",
+    "d": "double",
+    "h": "short"
 }
 
 def parse(input_str):

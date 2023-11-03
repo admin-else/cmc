@@ -103,3 +103,7 @@ typedef struct nbt_node {
 typedef enum { CONN_STATE_OFFLINE, CONN_STATE_STATUS, CONN_STATE_LOGIN, CONN_STATE_PLAY, CONN_STATE_HANDSHAKE } MConn_state;
 
 typedef enum { DIRECTION_S2C, DIRECTION_C2S } packet_direction;
+
+typedef struct {
+    
+} player_t;

@@ -3,7 +3,6 @@
 #include "MCbuffer.h"
 #include "MConn.h"
 #include "MCtypes.h"
-#include "MojangApi.h"
 #include "Nbt.h"
 #include "Packets.h"
 #include "heap-utils.h"
@@ -69,13 +68,6 @@ void S2C_login_encryption_request(MConn *conn, MCbuffer *buff, char **errmsg) {
   ERR_CHECK_VOID
 
   conn->shared_secret = generate_random_bytes(16);
-  if (join_server(
-          "eyJraWQiOiJhYzg0YSIsImFsZyI6IkhTMjU2In0.eyJ4dWlkIjoiMjUzNTQwODczNjU4Mzg2NyIsImFnZyI6IkFkdWx0Iiwic3ViIjoiZmFjYWQ2NjYtNGFiYS00MDU3LTlmOWQtMzQ5NDI2NDQ2MzAzIiwiYXV0aCI6IlhCT1giLCJucyI6ImRlZmF1bHQiLCJyb2xlcyI6W10sImlzcyI6ImF1dGhlbnRpY2F0aW9uIiwiZmxhZ3MiOlsidHdvZmFjdG9yYXV0aCIsIm1pbmVjcmFmdF9uZXQiLCJtc2FtaWdyYXRpb25fc3RhZ2U0Iiwib3JkZXJzXzIwMjIiXSwicHJvZmlsZXMiOnsibWMiOiIzNjMyMzMwZC0zNzM3LTQyNzAtOGU4Zi0yNzBlNTgxYzQ1ZGIifSwicGxhdGZvcm0iOiJVTktOT1dOIiwieXVpZCI6ImRhYjRkNGQyZjA1NzQ3YWNmMTg5YTFlNTE1MDM5ZGNkIiwibmJmIjoxNjk4NzQ4MjMwLCJleHAiOjE2OTg4MzQ2MzAsImlhdCI6MTY5ODc0ODIzMH0.QEpbBZxhr7n10RLIFJR0T6px8xzOkhD1vgK2hHKsQjs",
-          "3632330d373742708e8f270e581c45db", "", conn->shared_secret,
-          packet.public_key->data, packet.public_key->length, errmsg) != 0) {
-    *errmsg = "Minecraft User invalid / banned etc...";
-    return;
-  }
   ERR_CHECK_VOID
   RSA *rsa = pubkeyDER_to_RSA(packet.public_key->data,
                               packet.public_key->length, errmsg);
@@ -110,6 +102,17 @@ void S2C_login_disconnect(MConn *conn, MCbuffer *buff, char **errmsg) {
   MConn_close(conn, errmsg);
 }
 
+void S2C_login_success(MConn *conn, MCbuffer *buff, char **errmsg) {
+  S2C_login_success_packet_t packet = unpack_S2C_login_success_packet(buff, errmsg);
+  printf("name: %s, uuid %s\n", packet.name, packet.uuid);
+  conn->state = CONN_STATE_PLAY;
+}
+
+void S2C_play_keep_alive(MConn *conn, MCbuffer *buff, char **errmsg) {
+  S2C_play_keep_alive_packet_t packet = unpack_S2C_play_keep_alive_packet(buff, errmsg);
+  send_packet_C2S_play_keep_alive(conn, packet.keep_alive_id, errmsg);
+}
+
 int main() {
   char *errmsg = NULL;
   MConn *conn = MConn_init("127.0.0.1", 25565, &errmsg);
@@ -123,8 +126,13 @@ int main() {
     MCbuffer *buff = MConn_recive_packet(conn, &errmsg);
     EXIT_IF_ERR("err while reciving packet: %s\n")
     int packet_id = MCbuffer_unpack_varint(buff, &errmsg);
-    EXIT_IF_ERR("err while looking at packet id: %s\n")
-    printf("Got Packet %s\n", packet_data_to_string(packet_id, conn->state, DIRECTION_S2C));
+    EXIT_IF_ERR("err while looking at packet id: %s\n");
+    char *packet_name = packet_data_to_string(packet_id, conn->state, DIRECTION_S2C);
+    if(!strcmp(packet_name, "PACKET_UNKNOWN")) {
+      printf("Packet unknown: 0x%02X, DIR: S2C, STATE: %hhu\n", packet_id, conn->state);
+    } else {
+      puts(packet_name);
+    }
     switch (conn->state) {
     case CONN_STATE_LOGIN:
       switch (packet_id) {
@@ -138,9 +146,15 @@ int main() {
         S2C_login_disconnect(conn, buff, &errmsg);
         break;
       case PACKETID_S2C_LOGIN_SUCCESS:
-        MConn_close(conn, &errmsg);
+        S2C_login_success(conn, buff, &errmsg);
         break;
       }
+    case CONN_STATE_PLAY:
+    switch (packet_id) {
+      case PACKETID_S2C_PLAY_KEEP_ALIVE:
+        S2C_play_keep_alive(conn, buff, &errmsg);
+        break;
+    }
     }
     EXIT_IF_ERR("error in packet loop %s\n")
   }
