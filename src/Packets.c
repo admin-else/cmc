@@ -78,6 +78,12 @@ char *packet_data_to_string(int packet_id, MConn_state state,
   PACKET_DATA_TO_STRING_UTIL(0x18, CONN_STATE_PLAY, DIRECTION_S2C, "S2C_PLAY_ENTITY_TELEPRT");
   PACKET_DATA_TO_STRING_UTIL(0x15, CONN_STATE_PLAY, DIRECTION_S2C, "S2C_PLAY_ENTITY_RELATIVE_MOVE");
   PACKET_DATA_TO_STRING_UTIL(0x19, CONN_STATE_PLAY, DIRECTION_S2C, "S2C_PLAY_ENTITY_HEAD_LOOK");
+  PACKET_DATA_TO_STRING_UTIL(0x16, CONN_STATE_PLAY, DIRECTION_S2C, "S2C_PLAY_ENTITY_LOOK");
+  PACKET_DATA_TO_STRING_UTIL(0x17, CONN_STATE_PLAY, DIRECTION_S2C, "S2C_PLAY_ENTITY_LOOK_AND_RELATIVE_MOVE");
+  PACKET_DATA_TO_STRING_UTIL(0x1A, CONN_STATE_PLAY, DIRECTION_S2C, "S2C_PLAY_ENTITY_STATUS");
+  PACKET_DATA_TO_STRING_UTIL(0x0B, CONN_STATE_PLAY, DIRECTION_S2C, "S2C_PLAY_ANIMATION");
+  PACKET_DATA_TO_STRING_UTIL(0x29, CONN_STATE_PLAY, DIRECTION_S2C, "S2C_PLAY_SOUND_EFFECT");
+  PACKET_DATA_TO_STRING_UTIL(0x40, CONN_STATE_PLAY, DIRECTION_S2C, "S2C_PLAY_DISCONNECT");
   default:
     return "PACKET_UNKNOWN";
   }
@@ -529,6 +535,128 @@ S2C_play_entity_head_look_packet_t unpack_S2C_play_entity_head_look_packet(MCbuf
   packet.entity_id=MCbuffer_unpack_varint(buff,errmsg);
   packet.head_yaw=MCbuffer_unpack_byte(buff,errmsg);
   UNPACK_ERR_HANDELER(S2C_play_entity_head_look);
+  return packet;
+}
+
+void send_packet_S2C_play_entity_look(MConn *conn, varint_t entity_id, byte_t yaw, byte_t pitch, bool on_ground, char **errmsg) {
+  MCbuffer *buff = MCbuffer_init();
+  MCbuffer_pack_varint(buff, 0x16, errmsg);
+  MCbuffer_pack_varint(buff, entity_id, errmsg);
+  MCbuffer_pack_byte(buff, yaw, errmsg);
+  MCbuffer_pack_byte(buff, pitch, errmsg);
+  MCbuffer_pack_bool(buff, on_ground, errmsg);
+  PACK_ERR_HANDELER(S2C_play_entity_look);
+  MConn_send_packet(conn, buff, errmsg);
+}
+
+S2C_play_entity_look_packet_t unpack_S2C_play_entity_look_packet(MCbuffer *buff, char **errmsg) {
+  S2C_play_entity_look_packet_t packet;
+  packet.entity_id=MCbuffer_unpack_varint(buff,errmsg);
+  packet.yaw=MCbuffer_unpack_byte(buff,errmsg);
+  packet.pitch=MCbuffer_unpack_byte(buff,errmsg);
+  packet.on_ground=MCbuffer_unpack_bool(buff,errmsg);
+  UNPACK_ERR_HANDELER(S2C_play_entity_look);
+  return packet;
+}
+
+void send_packet_S2C_play_entity_look_and_relative_move(MConn *conn, varint_t entity_id, char delta_x, char delta_y, char delta_z, byte_t yaw, byte_t pitch, bool on_ground, char **errmsg) {
+  MCbuffer *buff = MCbuffer_init();
+  MCbuffer_pack_varint(buff, 0x17, errmsg);
+  MCbuffer_pack_varint(buff, entity_id, errmsg);
+  MCbuffer_pack_char(buff, delta_x, errmsg);
+  MCbuffer_pack_char(buff, delta_y, errmsg);
+  MCbuffer_pack_char(buff, delta_z, errmsg);
+  MCbuffer_pack_byte(buff, yaw, errmsg);
+  MCbuffer_pack_byte(buff, pitch, errmsg);
+  MCbuffer_pack_bool(buff, on_ground, errmsg);
+  PACK_ERR_HANDELER(S2C_play_entity_look_and_relative_move);
+  MConn_send_packet(conn, buff, errmsg);
+}
+
+S2C_play_entity_look_and_relative_move_packet_t unpack_S2C_play_entity_look_and_relative_move_packet(MCbuffer *buff, char **errmsg) {
+  S2C_play_entity_look_and_relative_move_packet_t packet;
+  packet.entity_id=MCbuffer_unpack_varint(buff,errmsg);
+  packet.delta_x=MCbuffer_unpack_char(buff,errmsg);
+  packet.delta_y=MCbuffer_unpack_char(buff,errmsg);
+  packet.delta_z=MCbuffer_unpack_char(buff,errmsg);
+  packet.yaw=MCbuffer_unpack_byte(buff,errmsg);
+  packet.pitch=MCbuffer_unpack_byte(buff,errmsg);
+  packet.on_ground=MCbuffer_unpack_bool(buff,errmsg);
+  UNPACK_ERR_HANDELER(S2C_play_entity_look_and_relative_move);
+  return packet;
+}
+
+void send_packet_S2C_play_entity_status(MConn *conn, int entity_id, char entity_status, char **errmsg) {
+  MCbuffer *buff = MCbuffer_init();
+  MCbuffer_pack_varint(buff, 0x1A, errmsg);
+  MCbuffer_pack_int(buff, entity_id, errmsg);
+  MCbuffer_pack_char(buff, entity_status, errmsg);
+  PACK_ERR_HANDELER(S2C_play_entity_status);
+  MConn_send_packet(conn, buff, errmsg);
+}
+
+S2C_play_entity_status_packet_t unpack_S2C_play_entity_status_packet(MCbuffer *buff, char **errmsg) {
+  S2C_play_entity_status_packet_t packet;
+  packet.entity_id=MCbuffer_unpack_int(buff,errmsg);
+  packet.entity_status=MCbuffer_unpack_char(buff,errmsg);
+  UNPACK_ERR_HANDELER(S2C_play_entity_status);
+  return packet;
+}
+
+void send_packet_S2C_play_animation(MConn *conn, varint_t entity_id, byte_t animation, char **errmsg) {
+  MCbuffer *buff = MCbuffer_init();
+  MCbuffer_pack_varint(buff, 0x0B, errmsg);
+  MCbuffer_pack_varint(buff, entity_id, errmsg);
+  MCbuffer_pack_byte(buff, animation, errmsg);
+  PACK_ERR_HANDELER(S2C_play_animation);
+  MConn_send_packet(conn, buff, errmsg);
+}
+
+S2C_play_animation_packet_t unpack_S2C_play_animation_packet(MCbuffer *buff, char **errmsg) {
+  S2C_play_animation_packet_t packet;
+  packet.entity_id=MCbuffer_unpack_varint(buff,errmsg);
+  packet.animation=MCbuffer_unpack_byte(buff,errmsg);
+  UNPACK_ERR_HANDELER(S2C_play_animation);
+  return packet;
+}
+
+void send_packet_S2C_play_sound_effect(MConn *conn, char *sound_name, int x, int y, int z, float volume, byte_t pitch, char **errmsg) {
+  MCbuffer *buff = MCbuffer_init();
+  MCbuffer_pack_varint(buff, 0x29, errmsg);
+  MCbuffer_pack_string(buff, sound_name, errmsg);
+  MCbuffer_pack_int(buff, x, errmsg);
+  MCbuffer_pack_int(buff, y, errmsg);
+  MCbuffer_pack_int(buff, z, errmsg);
+  MCbuffer_pack_float(buff, volume, errmsg);
+  MCbuffer_pack_byte(buff, pitch, errmsg);
+  PACK_ERR_HANDELER(S2C_play_sound_effect);
+  MConn_send_packet(conn, buff, errmsg);
+}
+
+S2C_play_sound_effect_packet_t unpack_S2C_play_sound_effect_packet(MCbuffer *buff, char **errmsg) {
+  S2C_play_sound_effect_packet_t packet;
+  packet.sound_name=MCbuffer_unpack_string(buff,errmsg);
+  packet.x=MCbuffer_unpack_int(buff,errmsg);
+  packet.y=MCbuffer_unpack_int(buff,errmsg);
+  packet.z=MCbuffer_unpack_int(buff,errmsg);
+  packet.volume=MCbuffer_unpack_float(buff,errmsg);
+  packet.pitch=MCbuffer_unpack_byte(buff,errmsg);
+  UNPACK_ERR_HANDELER(S2C_play_sound_effect);
+  return packet;
+}
+
+void send_packet_S2C_play_disconnect(MConn *conn, char *reason, char **errmsg) {
+  MCbuffer *buff = MCbuffer_init();
+  MCbuffer_pack_varint(buff, 0x40, errmsg);
+  MCbuffer_pack_string(buff, reason, errmsg);
+  PACK_ERR_HANDELER(S2C_play_disconnect);
+  MConn_send_packet(conn, buff, errmsg);
+}
+
+S2C_play_disconnect_packet_t unpack_S2C_play_disconnect_packet(MCbuffer *buff, char **errmsg) {
+  S2C_play_disconnect_packet_t packet;
+  packet.reason=MCbuffer_unpack_string(buff,errmsg);
+  UNPACK_ERR_HANDELER(S2C_play_disconnect);
   return packet;
 }
 

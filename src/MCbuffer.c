@@ -3,6 +3,7 @@
 #include "Nbt.h"
 #include "heap-utils.h"
 #include "textcolor.h"
+#include <ctype.h>
 #include <jansson.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -30,7 +31,11 @@ void MCbuffer_print_info(MCbuffer *buff) {
   }
   printf("\nPython: \nb'");
   for (int i = 0; i < buff->length; i++) {
-    printf("\\x%02x", buff->data[i]);
+    if (isprint(buff->data[i])) {
+      printf("%c", buff->data[i]);
+    } else {
+      printf("\\x%02x", buff->data[i]);
+    }
   }
   printf("'\n");
 }
@@ -113,10 +118,6 @@ unsigned char *MCbuffer_unpack(MCbuffer *buffer, size_t n, char **errmsg) {
   }
 
   unsigned char *readData = (unsigned char *)MALLOC(n);
-  if (readData == NULL) {
-    *errmsg = "Failed to allocate memory for readData";
-    return NULL;
-  }
 
   if (n > 0) {
     memcpy(readData, buffer->data + buffer->position, n);
@@ -128,7 +129,7 @@ unsigned char *MCbuffer_unpack(MCbuffer *buffer, size_t n, char **errmsg) {
 
 // C types
 
-#define DATA_PACK_AND_UNPACK_FUNC_FACTORY(name, type)                          \
+#define NUM_PACK_AND_UNPACK_FUNC_FACTORY(name, type)                           \
   type MCbuffer_unpack_##name(MCbuffer *buffer, char **errmsg) {               \
     unsigned char *data = MCbuffer_unpack(buffer, sizeof(type), errmsg);       \
     if (data == NULL)                                                          \
@@ -142,18 +143,20 @@ unsigned char *MCbuffer_unpack(MCbuffer *buffer, size_t n, char **errmsg) {
     MCbuffer_pack(buffer, &data, sizeof(type), errmsg);                        \
   }
 
-DATA_PACK_AND_UNPACK_FUNC_FACTORY(char, char);
-DATA_PACK_AND_UNPACK_FUNC_FACTORY(byte, unsigned char);
-DATA_PACK_AND_UNPACK_FUNC_FACTORY(short, short);
-DATA_PACK_AND_UNPACK_FUNC_FACTORY(ushort, unsigned short);
-DATA_PACK_AND_UNPACK_FUNC_FACTORY(int, int);
-DATA_PACK_AND_UNPACK_FUNC_FACTORY(uint, unsigned int);
-DATA_PACK_AND_UNPACK_FUNC_FACTORY(long, long);
-DATA_PACK_AND_UNPACK_FUNC_FACTORY(ulong, unsigned long);
-DATA_PACK_AND_UNPACK_FUNC_FACTORY(float, float);
-DATA_PACK_AND_UNPACK_FUNC_FACTORY(double, double);
-DATA_PACK_AND_UNPACK_FUNC_FACTORY(llong, long long);
-DATA_PACK_AND_UNPACK_FUNC_FACTORY(ullong, unsigned long long);
+NUM_PACK_AND_UNPACK_FUNC_FACTORY(char, char);
+NUM_PACK_AND_UNPACK_FUNC_FACTORY(byte, unsigned char);
+NUM_PACK_AND_UNPACK_FUNC_FACTORY(short, short);
+NUM_PACK_AND_UNPACK_FUNC_FACTORY(ushort, unsigned short);
+NUM_PACK_AND_UNPACK_FUNC_FACTORY(int, int);
+NUM_PACK_AND_UNPACK_FUNC_FACTORY(uint, unsigned int);
+NUM_PACK_AND_UNPACK_FUNC_FACTORY(long, long);
+NUM_PACK_AND_UNPACK_FUNC_FACTORY(ulong, unsigned long);
+NUM_PACK_AND_UNPACK_FUNC_FACTORY(float, float);
+NUM_PACK_AND_UNPACK_FUNC_FACTORY(double, double);
+NUM_PACK_AND_UNPACK_FUNC_FACTORY(llong, long long);
+NUM_PACK_AND_UNPACK_FUNC_FACTORY(ullong, unsigned long long);
+
+#undef NUM_PACK_AND_UNPACK_FUNC_FACTORY
 
 // other types
 
@@ -222,22 +225,39 @@ char *MCbuffer_unpack_string_w_max_len(MCbuffer *buff, int max_len,
                                        char **errmsg) {
   int str_len = MCbuffer_unpack_varint(buff, errmsg);
   CHECK_ERRMSG
-  if (str_len > max_len) {
+  if (str_len > max_len * 4) {
     sprintf(*errmsg,
             "The received encoded string buffer length is longer than maximum"
             "allowed (%i > %i)",
             str_len, max_len);
     return NULL;
   }
+
   if (str_len < 0) {
-    *errmsg =
-        "The received encoded string buffer length is less or equal to zero! "
-        "Weird string!";
+    *errmsg = "The received encoded string buffer length is less than zero! "
+              "Weird string!";
     return NULL;
   }
-  if (str_len == 0)
-    return "";
-  return (char *)MCbuffer_unpack(buff, str_len, errmsg);
+
+  if (str_len == 0) {
+    char *str = MALLOC(1);
+    *str = '\0';
+    return str;
+  }
+
+  if (buff == NULL || buff->position + str_len > buff->length) {
+    *errmsg = "Invalid buffer or read position exceeds buffer length";
+    return NULL;
+  }
+
+  char *str = (char *)MALLOC(str_len + 1);
+
+  memcpy(str, buff->data + buff->position, str_len);
+  str[str_len] = '\0';
+
+  buff->position += str_len;
+
+  return str;
 }
 
 char *MCbuffer_unpack_string(MCbuffer *buff, char **errmsg) {
@@ -281,16 +301,33 @@ nbt_node *MCbuffer_unpack_nbt(MCbuffer *buff, char **errmsg) {
   return nbt;
 }
 
-// Todo we also need a MCbuffer_pack_nbt yay more Strg+C and V from cNBT YAAAYYY
+void MCbuffer_pack_nbt(MCbuffer *buff, nbt_node *nbt, char **errmsg) {
+  // Todo we also need a MCbuffer_pack_nbt yay more Strg+C and V from cNBT
+  // YAAAYYY
+  if (buff != NULL) {
+    MCbuffer_pack_varint(buff, 0, errmsg);
+    return;
+  }
+
+  MCbuffer *tmp_buff = nbt_dump_binary(nbt, errmsg);
+  if (*errmsg != NULL) {
+    MCbuffer_free(tmp_buff);
+    return;
+  }
+  MCbuffer_combine(buff, tmp_buff, errmsg);
+}
 
 json_t *MCbuffer_unpack_json(MCbuffer *buff, char **errmsg) {
   json_t *root = NULL;
   json_error_t error;
 
   char *str = MCbuffer_unpack_string(buff, errmsg);
+  puts(str);
   root = json_loads(str, 0, &error);
   if (!root) {
     FREE(str);
+    printf("%s\n", error.text);
+    printf("%s\n", error.source);
     *errmsg = "Error while reading json";
     return NULL;
   }
@@ -320,3 +357,28 @@ MCbuffer *MCbuffer_unpack_byte_array(MCbuffer *buff, char **errmsg) {
     ret->data = MCbuffer_unpack(buff, ret_buff_len, errmsg);
   return ret;
 }
+
+void MCbuffer_pack_slot(MCbuffer *buff, slot_t *slot, char **errmsg) {
+  if (slot == NULL) {
+    MCbuffer_pack_short(buff, -1, errmsg);
+    return;
+  }
+
+  MCbuffer_pack_short(buff, slot->item_id, errmsg);
+  MCbuffer_pack_char(buff, slot->slot_size, errmsg);
+  MCbuffer_pack_short(buff, slot->meta_data, errmsg);
+  MCbuffer_pack_nbt(buff, slot->tag_compound, errmsg);
+}
+
+slot_t *MCbuffer_unpack_slot(MCbuffer *buff, char **errmsg) {
+  short item_id = MCbuffer_unpack_short(buff, errmsg);
+  if (item_id < 0)
+    return NULL;
+  slot_t *slot = MALLOC(sizeof(slot_t));
+  slot->item_id = item_id;
+  slot->slot_size = MCbuffer_unpack_byte(buff, errmsg);
+  slot->meta_data = MCbuffer_unpack_short(buff, errmsg);
+  slot->tag_compound = MCbuffer_unpack_nbt(buff, errmsg);
+  return slot;
+}
+
