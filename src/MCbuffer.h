@@ -15,22 +15,24 @@ void MCbuffer_pack(MCbuffer *buffer, const void *data, size_t data_size,
 
 unsigned char *MCbuffer_unpack(MCbuffer *buffer, size_t n, char **errmsg);
 
-#define DATA_PACK_AND_UNPACK_FUNC_FACTORY_H(name, type)                        \
+#define NUM_PACK_AND_UNPACK_FUNC_FACTORY_H(name, type)                        \
   type MCbuffer_unpack_##name(MCbuffer *buffer, char **errmsg);                \
   void MCbuffer_pack_##name(MCbuffer *buffer, type data, char **errmsg);
 
-DATA_PACK_AND_UNPACK_FUNC_FACTORY_H(char, char);
-DATA_PACK_AND_UNPACK_FUNC_FACTORY_H(byte, unsigned char);
-DATA_PACK_AND_UNPACK_FUNC_FACTORY_H(short, short);
-DATA_PACK_AND_UNPACK_FUNC_FACTORY_H(ushort, unsigned short);
-DATA_PACK_AND_UNPACK_FUNC_FACTORY_H(int, int);
-DATA_PACK_AND_UNPACK_FUNC_FACTORY_H(uint, unsigned int);
-DATA_PACK_AND_UNPACK_FUNC_FACTORY_H(long, long);
-DATA_PACK_AND_UNPACK_FUNC_FACTORY_H(ulong, unsigned long);
-DATA_PACK_AND_UNPACK_FUNC_FACTORY_H(float, float);
-DATA_PACK_AND_UNPACK_FUNC_FACTORY_H(double, double);
-DATA_PACK_AND_UNPACK_FUNC_FACTORY_H(llong, long long);
-DATA_PACK_AND_UNPACK_FUNC_FACTORY_H(ullong, unsigned long long);
+NUM_PACK_AND_UNPACK_FUNC_FACTORY_H(char, char);
+NUM_PACK_AND_UNPACK_FUNC_FACTORY_H(byte, unsigned char);
+NUM_PACK_AND_UNPACK_FUNC_FACTORY_H(short, short);
+NUM_PACK_AND_UNPACK_FUNC_FACTORY_H(ushort, unsigned short);
+NUM_PACK_AND_UNPACK_FUNC_FACTORY_H(int, int);
+NUM_PACK_AND_UNPACK_FUNC_FACTORY_H(uint, unsigned int);
+NUM_PACK_AND_UNPACK_FUNC_FACTORY_H(long, long);
+NUM_PACK_AND_UNPACK_FUNC_FACTORY_H(ulong, unsigned long);
+NUM_PACK_AND_UNPACK_FUNC_FACTORY_H(float, float);
+NUM_PACK_AND_UNPACK_FUNC_FACTORY_H(double, double);
+NUM_PACK_AND_UNPACK_FUNC_FACTORY_H(llong, long long);
+NUM_PACK_AND_UNPACK_FUNC_FACTORY_H(ullong, unsigned long long);
+
+#undef NUM_PACK_AND_UNPACK_FUNC_FACTORY_H
 
 void MCbuffer_pack_bool(MCbuffer *buffer, bool value, char **errmsg);
 
@@ -67,3 +69,8 @@ MCbuffer *MCbuffer_unpack_byte_array(MCbuffer *buff, char **errmsg);
 void MCbuffer_pack_byte_array(MCbuffer *buff, MCbuffer *byte_array, char **errmsg);
 
 MCbuffer *MCbuffer_init_w_size(size_t n);
+
+void MCbuffer_pack_slot(MCbuffer *buff, slot_t *slot, char **errmsg);
+
+void MCbuffer_pack_byte_array(MCbuffer *buff, MCbuffer *byte_array,
+                              char **errmsg);

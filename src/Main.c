@@ -113,6 +113,24 @@ void S2C_play_keep_alive(MConn *conn, MCbuffer *buff, char **errmsg) {
   send_packet_C2S_play_keep_alive(conn, packet.keep_alive_id, errmsg);
 }
 
+void S2C_play_chat_message(MConn *conn, MCbuffer *buff, char **errmsg) {
+  S2C_play_chat_message_packet_t packet = unpack_S2C_play_chat_message_packet(buff, errmsg);
+  ERR_CHECK_VOID
+  char *bruh = json_dumps(packet.message, 0);
+  puts(bruh);
+  FREE(bruh);
+  json_decref(packet.message);
+}
+
+void S2C_play_disconnect(MConn *conn, MCbuffer *buff, char **errmsg) {
+  S2C_play_disconnect_packet_t packet = unpack_S2C_play_disconnect_packet(buff, errmsg);
+  ERR_CHECK_VOID
+  printf("Kicked becouse:" TEXT_COLOR_RED TEXT_BOLD " %s" NLR, packet.reason);
+  FREE(packet.reason);
+  MConn_close(conn, errmsg);
+}
+
+
 int main() {
   char *errmsg = NULL;
   MConn *conn = MConn_init("127.0.0.1", 25565, &errmsg);
@@ -120,7 +138,7 @@ int main() {
   EXIT_IF_ERR("can connect: %s\n")
   send_packet_C2S_handshake(conn, 47, "127.0.0.1", 25565, CONN_STATE_LOGIN,
                             &errmsg);
-  send_packet_C2S_login_start(conn, "Admin_Else", &errmsg);
+  send_packet_C2S_login_start(conn, "Bot33", &errmsg);
   conn->state = CONN_STATE_LOGIN;
   while (conn->state != CONN_STATE_OFFLINE) {
     MCbuffer *buff = MConn_recive_packet(conn, &errmsg);
@@ -149,13 +167,22 @@ int main() {
         S2C_login_success(conn, buff, &errmsg);
         break;
       }
+    break;
     case CONN_STATE_PLAY:
     switch (packet_id) {
       case PACKETID_S2C_PLAY_KEEP_ALIVE:
         S2C_play_keep_alive(conn, buff, &errmsg);
         break;
+      case PACKETID_S2C_PLAY_CHAT_MESSAGE:
+        S2C_play_chat_message(conn, buff, &errmsg);
+        break;
+      case PACKETID_S2C_PLAY_DISCONNECT:
+        S2C_play_disconnect(conn, buff, &errmsg);
+        break;
     }
+    break;
     }
+    MCbuffer_free(buff);
     EXIT_IF_ERR("error in packet loop %s\n")
   }
   return 0;

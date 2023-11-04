@@ -1,25 +1,32 @@
-C2S_handshake                         :0x00;vprotocole_version;sserver_addr;Hserver_port;vnext_state
-S2C_   status_                response:0x00;jresponse
-C2S_   status_                 request:0x00
-S2C_    login_              disconnect:0x00;jreason
-S2C_    login_      encryption_request:0x01;sserver_id;apublic_key;averify_token
-S2C_    login_                 success:0x02;suuid;sname
-S2C_    login_         set_compression:0x03;vthreshold
-C2S_    login_                   start:0x00;sname
-C2S_    login_     encryption_response:0x01;ashared_secret;averify_token
-S2C_     play_              keep_alive:0x00;vkeep_alive_id
-S2C_     play_               join_game:0x01;ientity_id;Bgamemode;bdimension;Bdifficulty;Bmax_players;slevel_type;?reduced_debug_info
-C2S_     play_              keep_alive:0x00;vkeep_alive_id
-S2C_     play_            chat_message:0x02;jmessage;bposition
-S2C_     play_          plugin_message:0x3F;schannel;adata
-S2C_     play_       change_difficulty:0x41;Bdifficulty
-S2C_     play_             player_look:0x05;fyaw;fpitch;?on_ground
-S2C_     play_        player_abilities:0x39;bflags;fflying_speed;ffov_modifier
-S2C_     play_        held_item_change:0x09;bslot
-S2C_     play_player_look_and_position:0x08;dx;dy;dz;fyaw;fpitch;Bflags
-S2C_     play_             time_update:0x03;lworld_age;ltime_of_day
-S2C_     play_       change_game_state:0x2B;Breason;fvalue
-S2C_     play_         entity_velocity:0x12;ventity_id;hx_vel;hy_vel;hz_vel
-S2C_     play_          entity_teleprt:0x18;ventity_id;ix;iy;iz;Byaw;Bpitch;?on_ground
-S2C_     play_    entity_relative_move:0x15;ventity_id;bdelta_x;bdelta_y;bdelta_z;?on_ground
-S2C_     play_        entity_head_look:0x19;ventity_id;Bhead_yaw
+C2S_handshake                              :0x00;vprotocole_version;sserver_addr;Hserver_port;vnext_state
+S2C_   status_                     response:0x00;jresponse
+C2S_   status_                      request:0x00
+S2C_    login_                   disconnect:0x00;jreason
+S2C_    login_           encryption_request:0x01;sserver_id;apublic_key;averify_token
+S2C_    login_                      success:0x02;suuid;sname
+S2C_    login_              set_compression:0x03;vthreshold
+C2S_    login_                        start:0x00;sname
+C2S_    login_          encryption_response:0x01;ashared_secret;averify_token
+S2C_     play_                   keep_alive:0x00;vkeep_alive_id
+S2C_     play_                    join_game:0x01;ientity_id;Bgamemode;bdimension;Bdifficulty;Bmax_players;slevel_type;?reduced_debug_info
+C2S_     play_                   keep_alive:0x00;vkeep_alive_id
+S2C_     play_                 chat_message:0x02;jmessage;bposition
+S2C_     play_               plugin_message:0x3F;schannel;adata
+S2C_     play_            change_difficulty:0x41;Bdifficulty
+S2C_     play_                  player_look:0x05;fyaw;fpitch;?on_ground
+S2C_     play_             player_abilities:0x39;bflags;fflying_speed;ffov_modifier
+S2C_     play_             held_item_change:0x09;bslot
+S2C_     play_     player_look_and_position:0x08;dx;dy;dz;fyaw;fpitch;Bflags
+S2C_     play_                  time_update:0x03;lworld_age;ltime_of_day
+S2C_     play_            change_game_state:0x2B;Breason;fvalue
+S2C_     play_              entity_velocity:0x12;ventity_id;hx_vel;hy_vel;hz_vel
+S2C_     play_               entity_teleprt:0x18;ventity_id;ix;iy;iz;Byaw;Bpitch;?on_ground
+S2C_     play_         entity_relative_move:0x15;ventity_id;bdelta_x;bdelta_y;bdelta_z;?on_ground
+S2C_     play_             entity_head_look:0x19;ventity_id;Bhead_yaw
+S2C_     play_                  entity_look:0x16;ventity_id;Byaw;Bpitch;?on_ground
+S2C_     play_entity_look_and_relative_move:0x17;ventity_id;bdelta_x;bdelta_y;bdelta_z;Byaw;Bpitch;?on_ground
+S2C_     play_                entity_status:0x1A;ientity_id;bentity_status
+S2C_     play_                    animation:0x0B;ventity_id;Banimation
+S2C_     play_                 sound_effect:0x29;ssound_name;ix;iy;iz;fvolume;Bpitch
+S2C_     play_                   disconnect:0x40;sreason
+S2C_     play_                update_health:0x06;fhealth;vfood;ffood_saturation

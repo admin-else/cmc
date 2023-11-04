@@ -32,6 +32,12 @@
 #define PACKETID_S2C_PLAY_ENTITY_TELEPRT 0x18
 #define PACKETID_S2C_PLAY_ENTITY_RELATIVE_MOVE 0x15
 #define PACKETID_S2C_PLAY_ENTITY_HEAD_LOOK 0x19
+#define PACKETID_S2C_PLAY_ENTITY_LOOK 0x16
+#define PACKETID_S2C_PLAY_ENTITY_LOOK_AND_RELATIVE_MOVE 0x17
+#define PACKETID_S2C_PLAY_ENTITY_STATUS 0x1A
+#define PACKETID_S2C_PLAY_ANIMATION 0x0B
+#define PACKETID_S2C_PLAY_SOUND_EFFECT 0x29
+#define PACKETID_S2C_PLAY_DISCONNECT 0x40
 
 char *packet_data_to_string(int packet_id, MConn_state state,
                             packet_direction direction);
@@ -269,4 +275,68 @@ typedef struct {
 void send_packet_S2C_play_entity_head_look(MConn *conn, varint_t entity_id, byte_t head_yaw, char **errmsg);
 
 S2C_play_entity_head_look_packet_t unpack_S2C_play_entity_head_look_packet(MCbuffer *buff, char **errmsg);
+
+typedef struct {
+  varint_t entity_id;
+  byte_t yaw;
+  byte_t pitch;
+  bool on_ground;
+} S2C_play_entity_look_packet_t;
+
+void send_packet_S2C_play_entity_look(MConn *conn, varint_t entity_id, byte_t yaw, byte_t pitch, bool on_ground, char **errmsg);
+
+S2C_play_entity_look_packet_t unpack_S2C_play_entity_look_packet(MCbuffer *buff, char **errmsg);
+
+typedef struct {
+  varint_t entity_id;
+  char delta_x;
+  char delta_y;
+  char delta_z;
+  byte_t yaw;
+  byte_t pitch;
+  bool on_ground;
+} S2C_play_entity_look_and_relative_move_packet_t;
+
+void send_packet_S2C_play_entity_look_and_relative_move(MConn *conn, varint_t entity_id, char delta_x, char delta_y, char delta_z, byte_t yaw, byte_t pitch, bool on_ground, char **errmsg);
+
+S2C_play_entity_look_and_relative_move_packet_t unpack_S2C_play_entity_look_and_relative_move_packet(MCbuffer *buff, char **errmsg);
+
+typedef struct {
+  int entity_id;
+  char entity_status;
+} S2C_play_entity_status_packet_t;
+
+void send_packet_S2C_play_entity_status(MConn *conn, int entity_id, char entity_status, char **errmsg);
+
+S2C_play_entity_status_packet_t unpack_S2C_play_entity_status_packet(MCbuffer *buff, char **errmsg);
+
+typedef struct {
+  varint_t entity_id;
+  byte_t animation;
+} S2C_play_animation_packet_t;
+
+void send_packet_S2C_play_animation(MConn *conn, varint_t entity_id, byte_t animation, char **errmsg);
+
+S2C_play_animation_packet_t unpack_S2C_play_animation_packet(MCbuffer *buff, char **errmsg);
+
+typedef struct {
+  char *sound_name;
+  int x;
+  int y;
+  int z;
+  float volume;
+  byte_t pitch;
+} S2C_play_sound_effect_packet_t;
+
+void send_packet_S2C_play_sound_effect(MConn *conn, char *sound_name, int x, int y, int z, float volume, byte_t pitch, char **errmsg);
+
+S2C_play_sound_effect_packet_t unpack_S2C_play_sound_effect_packet(MCbuffer *buff, char **errmsg);
+
+typedef struct {
+  char *reason;
+} S2C_play_disconnect_packet_t;
+
+void send_packet_S2C_play_disconnect(MConn *conn, char *reason, char **errmsg);
+
+S2C_play_disconnect_packet_t unpack_S2C_play_disconnect_packet(MCbuffer *buff, char **errmsg);
 
