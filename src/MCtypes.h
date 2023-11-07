@@ -129,3 +129,36 @@ typedef struct {
   short meta_data;
   nbt_node *tag_compound;
 } slot_t;
+
+typedef struct {
+  float x;
+  float y;
+  float z;
+} rotation_t;
+
+typedef enum {
+  ENTITY_METADATA_ENTRY_TYPE_BYTE,
+  ENTITY_METADATA_ENTRY_TYPE_SHORT,
+  ENTITY_METADATA_ENTRY_TYPE_INT,
+  ENTITY_METADATA_ENTRY_TYPE_FLOAT,
+  ENTITY_METADATA_ENTRY_TYPE_STRING,
+  ENTITY_METADATA_ENTRY_TYPE_SLOT,
+  ENTITY_METADATA_ENTRY_TYPE_POSITION,
+  ENTITY_METADATA_ENTRY_TYPE_ROTATION
+} entity_metadata_entry_types;
+
+typedef struct {
+  struct list_head list;
+  entity_metadata_entry_types type;
+  char index;
+  union {
+    char byte_data;
+    short short_data;
+    int int_data;
+    float float_data;
+    char *string_data;
+    slot_t *slot_data;
+    block_pos_t position_data;
+    rotation_t rotation_data;
+  } payload;
+} entity_metadata_t;
