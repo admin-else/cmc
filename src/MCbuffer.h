@@ -56,6 +56,8 @@ block_pos_t MCbuffer_unpack_position(MCbuffer *buff, char **errmsg);
 
 nbt_node *MCbuffer_unpack_nbt(MCbuffer *buff, char **errmsg);
 
+void MCbuffer_pack_nbt(MCbuffer *buff, nbt_node *nbt, char **errmsg);
+
 json_t *MCbuffer_unpack_json(MCbuffer *buff, char **errmsg);
 
 void MCbuffer_pack_json(MCbuffer *buff, json_t *json, char **errmsg);
@@ -71,6 +73,8 @@ void MCbuffer_pack_byte_array(MCbuffer *buff, MCbuffer *byte_array, char **errms
 MCbuffer *MCbuffer_init_w_size(size_t n);
 
 void MCbuffer_pack_slot(MCbuffer *buff, slot_t *slot, char **errmsg);
+
+slot_t *MCbuffer_unpack_slot(MCbuffer *buff, char **errmsg);
 
 void MCbuffer_pack_byte_array(MCbuffer *buff, MCbuffer *byte_array,
                               char **errmsg);

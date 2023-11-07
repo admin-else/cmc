@@ -302,8 +302,6 @@ nbt_node *MCbuffer_unpack_nbt(MCbuffer *buff, char **errmsg) {
 }
 
 void MCbuffer_pack_nbt(MCbuffer *buff, nbt_node *nbt, char **errmsg) {
-  // Todo we also need a MCbuffer_pack_nbt yay more Strg+C and V from cNBT
-  // YAAAYYY
   if (buff != NULL) {
     MCbuffer_pack_varint(buff, 0, errmsg);
     return;
