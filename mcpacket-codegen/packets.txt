@@ -1,32 +1,92 @@
-C2S_handshake                              :0x00;vprotocole_version;sserver_addr;Hserver_port;vnext_state
-S2C_   status_                     response:0x00;jresponse
-C2S_   status_                      request:0x00
-S2C_    login_                   disconnect:0x00;jreason
-S2C_    login_           encryption_request:0x01;sserver_id;apublic_key;averify_token
-S2C_    login_                      success:0x02;suuid;sname
-S2C_    login_              set_compression:0x03;vthreshold
-C2S_    login_                        start:0x00;sname
-C2S_    login_          encryption_response:0x01;ashared_secret;averify_token
-S2C_     play_                   keep_alive:0x00;vkeep_alive_id
-S2C_     play_                    join_game:0x01;ientity_id;Bgamemode;bdimension;Bdifficulty;Bmax_players;slevel_type;?reduced_debug_info
-C2S_     play_                   keep_alive:0x00;vkeep_alive_id
-S2C_     play_                 chat_message:0x02;jmessage;bposition
-S2C_     play_               plugin_message:0x3F;schannel;adata
-S2C_     play_            change_difficulty:0x41;Bdifficulty
-S2C_     play_                  player_look:0x05;fyaw;fpitch;?on_ground
-S2C_     play_             player_abilities:0x39;bflags;fflying_speed;ffov_modifier
-S2C_     play_             held_item_change:0x09;bslot
-S2C_     play_     player_look_and_position:0x08;dx;dy;dz;fyaw;fpitch;Bflags
-S2C_     play_                  time_update:0x03;lworld_age;ltime_of_day
-S2C_     play_            change_game_state:0x2B;Breason;fvalue
-S2C_     play_              entity_velocity:0x12;ventity_id;hx_vel;hy_vel;hz_vel
-S2C_     play_               entity_teleprt:0x18;ventity_id;ix;iy;iz;Byaw;Bpitch;?on_ground
-S2C_     play_         entity_relative_move:0x15;ventity_id;bdelta_x;bdelta_y;bdelta_z;?on_ground
-S2C_     play_             entity_head_look:0x19;ventity_id;Bhead_yaw
-S2C_     play_                  entity_look:0x16;ventity_id;Byaw;Bpitch;?on_ground
-S2C_     play_entity_look_and_relative_move:0x17;ventity_id;bdelta_x;bdelta_y;bdelta_z;Byaw;Bpitch;?on_ground
-S2C_     play_                entity_status:0x1A;ientity_id;bentity_status
-S2C_     play_                    animation:0x0B;ventity_id;Banimation
-S2C_     play_                 sound_effect:0x29;ssound_name;ix;iy;iz;fvolume;Bpitch
-S2C_     play_                   disconnect:0x40;sreason
-S2C_     play_                update_health:0x06;fhealth;vfood;ffood_saturation
+#  #-----------------+---+
+#  | type            |SYM|
+#  +-----------------#---+
+#  | char            | b |
+#  | byte            | B | # also used for Angles
+#  | short           | h |
+#  | ushort          | H |
+#  | int             | i |
+#  | uint            | I |
+#  | long            | l |
+#  | ulong           | L |
+#  | float           | f |
+#  | double          | d |
+#  | llong           | q |
+#  | ullong          | Q | # also used for uuids
+#  | bool            | ? |
+#  | varint          | v |
+#  | string          | s |
+#  | position        | p |
+#  | nbt             | n |
+#  | json            | j |
+#  | byte_array      | a |
+#  | slot            | S |
+#  | entity_metadata | m |
+#  | code            | c |
+#  | arrays          | A |
+#  +-----------------+---#
+
+C2S_handshake                              ;0x00;vprotocole_version;sserver_addr;Hserver_port;vnext_state
+S2C_   status_                     response;0x00;jresponse
+S2C_   status_                         pong;0x01;lpayload
+C2S_   status_                      request;0x00;
+C2S_   status_                         ping;0x01;lpayload
+S2C_    login_                   disconnect;0x00;jreason
+S2C_    login_           encryption_request;0x01;sserver_id;apublic_key;averify_token
+S2C_    login_                      success;0x02;suuid;sname
+S2C_    login_              set_compression;0x03;vthreshold
+C2S_    login_                        start;0x00;sname
+C2S_    login_          encryption_response;0x01;ashared_secret;averify_token
+S2C_     play_                   keep_alive;0x00;vkeep_alive_id
+S2C_     play_                    join_game;0x01;ientity_id;Bgamemode;bdimension;Bdifficulty;Bmax_players;slevel_type;?reduced_debug_info
+S2C_     play_                 chat_message;0x02;jmessage;bposition
+S2C_     play_                  time_update;0x03;lworld_age;ltime_of_day
+S2C_     play_             entity_equipment;0x04;ventity_id;hslot;Sitem
+S2C_     play_               spawn_position;0x05;plocation
+S2C_     play_                update_health;0x06;fhealth;vfood;ffood_saturation
+S2C_     play_                      respawn;0x07;idimesion;Bdifficulty;Bgamemode;slevel_type
+S2C_     play_     player_look_and_position;0x08;dx;dy;dz;fyaw;fpitch;Bflags
+S2C_     play_             held_item_change;0x09;bslot
+S2C_     play_                      use_bed;0x0A;ventity_id;plocation
+S2C_     play_                    animation;0x0B;ventity_id;Banimation
+S2C_     play_                 spawn_player;0x0C;ventity_id;Quuid;ix;iy;iz;Byaw;Bpitch;hshort;mmeta_data
+S2C_     play_                 collect_item;0x0D;vcollected_entity_id;vcollector_entity_id
+#S2C_     play_                 spawn_object;0x0E;ventity_id;btype;ix;iy;iz;Bpitch;Byaw;idata;cif(data != 0) {;hx_vel;hy_vel;hz_vel;c} # TODO; unimplemented feature arrays
+S2C_     play_                    spawn_mob;0x0F;ventity_id;Btype;ix;iy;iz;Byaw;Bpitch;Bhead_pitch;hx_vel;hy_vel;hz_vel;mmeta_data
+S2C_     play_               spawn_painting;0x10;ventity_id;stitle;plocation;Bdirection
+S2C_     play_         spawn_experience_orb;0x11;ventity_id;ix;iy;iz;hcount
+S2C_     play_              entity_velocity;0x12;ventity_id;hx_vel;hy_vel;hz_vel
+#S2C_     play_              destroy_entitys;0x13;vcount;Acount[ventity_id]
+S2C_     play_                       entity;0x14;ventity_id
+S2C_     play_         entity_relative_move;0x15;ventity_id;bdelta_x;bdelta_y;bdelta_z;?on_ground
+S2C_     play_                  entity_look;0x16;ventity_id;Byaw;Bpitch;?on_ground
+S2C_     play_entity_look_and_relative_move;0x17;ventity_id;bdelta_x;bdelta_y;bdelta_z;Byaw;Bpitch;?on_ground
+S2C_     play_               entity_teleprt;0x18;ventity_id;ix;iy;iz;Byaw;Bpitch;?on_ground
+S2C_     play_             entity_head_look;0x19;ventity_id;Bhead_yaw
+S2C_     play_                entity_status;0x1A;ientity_id;bentity_status
+S2C_     play_                attach_entity;0x1B;ientity_id;ivehicle_id;?leash
+S2C_     play_              entity_metadata;0x1C;ventity_id;mmeta_data
+S2C_     play_                entity_effect;0x1D;ventity_id;beffect_id;bamplifier;vduration;?hide_particles
+S2C_     play_         remove_entity_effect;0x1E;ventity_id;beffect_id
+S2C_     play_               set_experience;0x1F;fexperience_bar;vlevel;vtotal_experience
+#S2C_     play_            entity_properties;0x20;ventity_id;iproperties_count;Aproperties_count[skey;dvalue;vnum_of_modifiers;Anum_of_modifiers[damount;boperation]]
+S2C_     play_                   chunk_data;0x21;ichunk_x;ichunk_z;?ground_up_continuous;Hprimary_bitmask;achunk
+#S2C_     play_           multi_block_change;0x22;ichunk_x;ichunk_z;vrecord_count;Arecord_count[Bhorizontal_position;Bvertical_position;vblock_id]
+S2C_     play_                 block_change;0x23;plocation;vblock_id
+S2C_     play_                 block_action;0x24;plocation;Bblock_data_1;Bblock_data_2;vblock_type
+S2C_     play_        block_break_animation;0x25;ventity_id;plocation;bdestroy_stage
+#S2C_     play_               map_chunk_bulk;0x26;?sky_light_sent;vchunk_column_count;Achunk_column_count[ichunk_x;ichunk_z;Hbit_mask];achunk
+
+# not ordered yet
+
+S2C_     play_                 sound_effect;0x29;ssound_name;ix;iy;iz;fvolume;Bpitch
+S2C_     play_            change_game_state;0x2B;Breason;fvalue
+S2C_     play_             player_abilities;0x39;bflags;fflying_speed;ffov_modifier
+S2C_     play_               plugin_message;0x3F;schannel;adata
+S2C_     play_                   disconnect;0x40;sreason
+S2C_     play_            change_difficulty;0x41;Bdifficulty
+
+# C2S
+
+#S2C_     play_                  player_look;0x05;fyaw;fpitch;?on_ground # some data seems invalid
+C2S_     play_                   keep_alive;0x00;vkeep_alive_id
