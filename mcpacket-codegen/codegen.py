@@ -1,3 +1,5 @@
+import os
+
 C_BASE = """//This code is generated.
 
 #include "Packets.h"
@@ -129,43 +131,63 @@ buffer_methods_map = {
 }
 
 def parse(input_str):
-    packet_name, symbol_str = input_str.split(":")
-    struct_name = packet_name + "_packet_t"
-    symbols = symbol_str.split(";")
-    packet_id = symbols[0]
-    symbols = symbols[1:]
-
+  packet_name, packet_id, symbol_str = input_str.split(";", maxsplit=2)
+  struct_name = packet_name + "_packet_t"
+  symbols = symbol_str.split(";")
+  symbols = [sym for sym in symbols if sym != ""]
+  args = ""
+  if symbols:
+    args = ", ".join([f"{type_map[symbol[0]]}{symbol[1:]}" for symbol in symbols]) + ", "
     type_def_content = "".join(
-        [f"  {type_map[symbol[0]]}{symbol[1:]};\n" for symbol in symbols])
-    args = ""
-    if symbols:
-      args = ", ".join([f"{type_map[symbol[0]]}{symbol[1:]}" for symbol in symbols]) + ", "
-    pack_methods = f"  MCbuffer_pack_varint(buff, {packet_id}, errmsg);\n" + "".join([f"  MCbuffer_pack_{buffer_methods_map[symbol[0]]}(buff, {symbol[1:]}, errmsg);\n" for symbol in symbols])
-    unpack_methods = "".join([f"  packet.{symbol[1:]}=MCbuffer_unpack_{buffer_methods_map[symbol[0]]}(buff,errmsg);\n" for symbol in symbols])
-    send_method_define = f"void send_packet_{packet_name}(MConn *conn, {args}char **errmsg)"
-    unpack_method_define = f"{struct_name} unpack_{packet_name}_packet(MCbuffer *buff, char **errmsg)"
+      [f"  {type_map[symbol[0]]}{symbol[1:]};" for symbol in symbols])
+    type_def = f"typedef struct {{{type_def_content}}} {struct_name};"
+  pack_methods = f"  MCbuffer_pack_varint(buff, PACKETID_{mc_packet_exp.split(';')[0].upper()}, errmsg);" + "".join([f"MCbuffer_pack_{buffer_methods_map[symbol[0]]}(buff, {symbol[1:]}, errmsg);" for symbol in symbols])
+  unpack_methods = "".join([f"packet.{symbol[1:]}=MCbuffer_unpack_{buffer_methods_map[symbol[0]]}(buff,errmsg);" for symbol in symbols])
+  send_method_define = f"void send_packet_{packet_name}(MConn *conn, {args}char **errmsg)"
+  unpack_method_define = f"{struct_name} unpack_{packet_name}_packet(MCbuffer *buff, char **errmsg)"
+  type_def = ""
+  send_method = f"""{send_method_define} {{MCbuffer *buff = MCbuffer_init();{pack_methods}  PACK_ERR_HANDELER({packet_name});MConn_send_packet(conn, buff, errmsg);}}"""
+  send_method_h = f"{send_method_define};"
+  unpack_method = ""
+  if symbols:
+    unpack_method = f"{unpack_method_define} {{{struct_name} packet;{unpack_methods} UNPACK_ERR_HANDELER({packet_name});return packet;}}"
+  unpack_method_h = ""
+  if symbols:
+    unpack_method_h = f"{unpack_method_define};"
+  return send_method + unpack_method, type_def + send_method_h + unpack_method_h
 
-    type_def = ""
-    if symbols:
-      type_def = f"typedef struct {{\n{type_def_content}}} {struct_name};\n\n"
-    send_method = f"""{send_method_define} {{\n  MCbuffer *buff = MCbuffer_init();\n{pack_methods}  PACK_ERR_HANDELER({packet_name});\n  MConn_send_packet(conn, buff, errmsg);\n}}\n\n"""
-    send_method_h = f"{send_method_define};\n\n"
-    unpack_method = ""
-    if symbols:
-      unpack_method = f"{unpack_method_define} {{\n  {struct_name} packet;\n{unpack_methods}  UNPACK_ERR_HANDELER({packet_name});\n  return packet;\n}}\n\n"
-    unpack_method_h = ""
-    if symbols:
-      unpack_method_h = f"{unpack_method_define};\n\n"
+def comment_filter(raw):
+  out = ""
+  comment = False
+  for token in raw:
+    if token == "#":
+      comment = True
 
-    return send_method + unpack_method, type_def + send_method_h + unpack_method_h
+    if comment:
+      if token == "\n":
+        out += token
+        comment = False
+      continue
+
+    out += token
+  return out
 
 if __name__=="__main__":
     with open("packets.txt", "r") as f:
-        mc_packet_exps = f.read().replace(" ", "").split("\n")
+        raw = f.read()
+    
+    raw = comment_filter(raw)
+
+    raw = raw.replace(" ", "").split("\n")
+    tmp = []
+    for l in raw:
+      if not l == "":
+        tmp.append(l)
+    mc_packet_exps = tmp
 
     packet_ids = ""
     for mc_packet_exp in mc_packet_exps:
-      packet_ids += f"#define PACKETID_{mc_packet_exp.split(':')[0].upper()} {mc_packet_exp.split(':')[1].split(';')[0]}\n"
+      packet_ids += f"#define PACKETID_{mc_packet_exp.split(';')[0].upper()} {mc_packet_exp.split(';')[1]}\n"
     
     c_code = ""
     h_code = ""
@@ -177,7 +199,7 @@ if __name__=="__main__":
 
     packet_id_to_string_method = ""
     for mc_packet_exp in mc_packet_exps:
-      packet_id_to_string_method += f"  PACKET_DATA_TO_STRING_UTIL({mc_packet_exp.split(':')[1].split(';')[0]}, CONN_STATE_{mc_packet_exp.split(':')[0].split('_')[1].upper()}, DIRECTION_{mc_packet_exp.split(':')[0].split('_')[0].upper()}, \"{mc_packet_exp.split(':')[0].upper()}\");\n"
+      packet_id_to_string_method += f"PACKET_DATA_TO_STRING_UTIL({mc_packet_exp.split(';')[1]}, CONN_STATE_{mc_packet_exp.split(';')[0].split('_')[1].upper()}, DIRECTION_{mc_packet_exp.split(';')[0].split('_')[0].upper()}, \"{mc_packet_exp.split(';')[0].upper()}\");"
 
     packet_id_to_string_method = PACKET_ID_TO_STRING_METHOD_TEMPLATE.replace("{}", packet_id_to_string_method) # this is why i didnt use format 'ValueError: unexpected '{' in field name'
 
@@ -189,3 +211,10 @@ if __name__=="__main__":
 
     with open("Packets.h", "w") as f:
         f.write(h_code)
+
+    os.system("clang-format -i *.c *.h")
+    # The Zen of Python, by Tim Peters
+    # 
+    # Beautiful is better than ugly.
+
+    # i mean there is no zen of c ... would be funny tho
