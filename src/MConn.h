@@ -9,9 +9,16 @@ typedef struct{
   int sockfd;
   char *addr;
   uint16_t port;
-  uint8_t state; // SEE MCONN_STATE_ macros
+  MConn_state state; // SEE MCONN_STATE_ macros
   varint_t compression_threshold;
   byte_t *shared_secret;
+  struct {
+    void (*chat_message)(int);
+  } on_packet;
+  struct {
+    int eid;
+    float health;
+  } player;
 } MConn;
 
 MConn *MConn_init(char *ip, uint16_t port, char **errmsg);

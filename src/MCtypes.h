@@ -15,6 +15,7 @@
 #pragma once
 
 #include "list.h"
+#include <stddef.h>
 #include <stdint.h>
 
 typedef struct {
@@ -131,9 +132,7 @@ typedef struct {
 } slot_t;
 
 typedef struct {
-  float x;
-  float y;
-  float z;
+  float x, y, z;
 } rotation_t;
 
 typedef enum {
@@ -148,7 +147,6 @@ typedef enum {
 } entity_metadata_entry_types;
 
 typedef struct {
-  struct list_head list;
   entity_metadata_entry_types type;
   char index;
   union {
@@ -161,4 +159,9 @@ typedef struct {
     block_pos_t position_data;
     rotation_t rotation_data;
   } payload;
+} entity_metadata_entry_t;
+
+typedef struct {
+  size_t size;
+  entity_metadata_entry_t *entries;
 } entity_metadata_t;
