@@ -40,7 +40,7 @@
     return ret;                                                                \
   }
 
-#define BUFFER_INIT                                                            \
+#define TEXT_BUFFER_INIT                                                            \
   (text_buffer) { NULL, 0, 0 }
 
 #ifdef __GNUC__
@@ -578,7 +578,7 @@ static void __nbt_dump_ascii(const nbt_node *tree, text_buffer *b, size_t ident,
 char *nbt_dump_ascii(const nbt_node *tree, char **errmsg) {
   assert(tree);
 
-  text_buffer b = BUFFER_INIT;
+  text_buffer b = TEXT_BUFFER_INIT;
 
   __nbt_dump_ascii(tree, &b, 0, errmsg);
   if (*errmsg != NULL)

@@ -103,18 +103,21 @@ void S2C_login_disconnect(MConn *conn, MCbuffer *buff, char **errmsg) {
 }
 
 void S2C_login_success(MConn *conn, MCbuffer *buff, char **errmsg) {
-  S2C_login_success_packet_t packet = unpack_S2C_login_success_packet(buff, errmsg);
+  S2C_login_success_packet_t packet =
+      unpack_S2C_login_success_packet(buff, errmsg);
   printf("name: %s, uuid %s\n", packet.name, packet.uuid);
   conn->state = CONN_STATE_PLAY;
 }
 
 void S2C_play_keep_alive(MConn *conn, MCbuffer *buff, char **errmsg) {
-  S2C_play_keep_alive_packet_t packet = unpack_S2C_play_keep_alive_packet(buff, errmsg);
+  S2C_play_keep_alive_packet_t packet =
+      unpack_S2C_play_keep_alive_packet(buff, errmsg);
   send_packet_C2S_play_keep_alive(conn, packet.keep_alive_id, errmsg);
 }
 
 void S2C_play_chat_message(MConn *conn, MCbuffer *buff, char **errmsg) {
-  S2C_play_chat_message_packet_t packet = unpack_S2C_play_chat_message_packet(buff, errmsg);
+  S2C_play_chat_message_packet_t packet =
+      unpack_S2C_play_chat_message_packet(buff, errmsg);
   ERR_CHECK_VOID
   char *bruh = json_dumps(packet.message, 0);
   puts(bruh);
@@ -123,13 +126,62 @@ void S2C_play_chat_message(MConn *conn, MCbuffer *buff, char **errmsg) {
 }
 
 void S2C_play_disconnect(MConn *conn, MCbuffer *buff, char **errmsg) {
-  S2C_play_disconnect_packet_t packet = unpack_S2C_play_disconnect_packet(buff, errmsg);
+  S2C_play_disconnect_packet_t packet =
+      unpack_S2C_play_disconnect_packet(buff, errmsg);
   ERR_CHECK_VOID
   printf("Kicked becouse:" TEXT_COLOR_RED TEXT_BOLD " %s" NLR, packet.reason);
   FREE(packet.reason);
   MConn_close(conn, errmsg);
 }
 
+void S2C_play_entity_status(MConn *conn, MCbuffer *buff, char **errmsg) {
+  S2C_play_entity_status_packet_t packet =
+      unpack_S2C_play_entity_status_packet(buff, errmsg);
+  ERR_CHECK_VOID
+  // printf("entity status id: %i %d\n", packet.entity_id,
+  // packet.entity_status);
+}
+
+void S2C_play_join_game(MConn *conn, MCbuffer *buff, char **errmsg) {
+  MCbuffer_print_info(buff);
+  S2C_play_join_game_packet_t packet =
+      unpack_S2C_play_join_game_packet(buff, errmsg);
+  ERR_CHECK_VOID
+  conn->player.eid = packet.entity_id;
+  printf("join game: %i \n", packet.entity_id);
+  FREE(packet.level_type);
+}
+
+void S2C_play_entity_metadata(MConn *conn, MCbuffer *buff, char **errmsg) {
+  ERR_CHECK_VOID
+  MCbuffer_print_info(buff);
+  S2C_play_entity_metadata_packet_t packet;
+  packet.entity_id = MCbuffer_unpack_varint(buff, errmsg);
+  packet.meta_data = MCbuffer_unpack_entity_metadata(buff, errmsg);
+  ERR_CHECK_VOID
+
+  printf("meta data: %i %i\n", packet.entity_id, conn->player.eid);
+  if (packet.entity_id != conn->player.eid)
+    goto deffer;
+
+  entity_metadata_entry_t *current_element;
+
+  for (int i = 0; i < packet.meta_data.size; i++) {
+    current_element =
+        packet.meta_data.entries +
+        i; // No need to multiply by sizeof(entity_metadata_entry_t)
+
+    if (current_element->index == 6 &&
+        current_element->type ==
+            ENTITY_METADATA_ENTRY_TYPE_FLOAT) { // entity health
+      conn->player.health = current_element->payload.float_data;
+      printf("Health %f\n", conn->player.health);
+    }
+  }
+
+deffer:
+  FREE(packet.meta_data.entries);
+}
 
 int main() {
   char *errmsg = NULL;
@@ -138,16 +190,18 @@ int main() {
   EXIT_IF_ERR("can connect: %s\n")
   send_packet_C2S_handshake(conn, 47, "127.0.0.1", 25565, CONN_STATE_LOGIN,
                             &errmsg);
-  send_packet_C2S_login_start(conn, "Bot33", &errmsg);
+  send_packet_C2S_login_start(conn, "Bot55", &errmsg);
   conn->state = CONN_STATE_LOGIN;
   while (conn->state != CONN_STATE_OFFLINE) {
     MCbuffer *buff = MConn_recive_packet(conn, &errmsg);
     EXIT_IF_ERR("err while reciving packet: %s\n")
     int packet_id = MCbuffer_unpack_varint(buff, &errmsg);
     EXIT_IF_ERR("err while looking at packet id: %s\n");
-    char *packet_name = packet_data_to_string(packet_id, conn->state, DIRECTION_S2C);
-    if(!strcmp(packet_name, "PACKET_UNKNOWN")) {
-      printf("Packet unknown: 0x%02X, DIR: S2C, STATE: %hhu\n", packet_id, conn->state);
+    char *packet_name =
+        packet_data_to_string(packet_id, conn->state, DIRECTION_S2C);
+    if (!strcmp(packet_name, "PACKET_UNKNOWN")) {
+      printf("Packet unknown: 0x%02X, DIR: S2C, STATE: %hhu\n", packet_id,
+             conn->state);
     } else {
       puts(packet_name);
     }
@@ -167,9 +221,9 @@ int main() {
         S2C_login_success(conn, buff, &errmsg);
         break;
       }
-    break;
+      break;
     case CONN_STATE_PLAY:
-    switch (packet_id) {
+      switch (packet_id) {
       case PACKETID_S2C_PLAY_KEEP_ALIVE:
         S2C_play_keep_alive(conn, buff, &errmsg);
         break;
@@ -179,8 +233,22 @@ int main() {
       case PACKETID_S2C_PLAY_DISCONNECT:
         S2C_play_disconnect(conn, buff, &errmsg);
         break;
-    }
-    break;
+      case PACKETID_S2C_PLAY_ENTITY_STATUS:
+        S2C_play_entity_status(conn, buff, &errmsg);
+        break;
+      case PACKETID_S2C_PLAY_ENTITY_METADATA:
+        S2C_play_entity_metadata(conn, buff, &errmsg);
+        break;
+      case PACKETID_S2C_PLAY_JOIN_GAME:
+        S2C_play_join_game(conn, buff, &errmsg);
+        break;
+      }
+      break;
+    case CONN_STATE_OFFLINE:
+    case CONN_STATE_STATUS:
+    case CONN_STATE_HANDSHAKE:
+      fprintf(stderr, "invalid state");
+      break;
     }
     MCbuffer_free(buff);
     EXIT_IF_ERR("error in packet loop %s\n")

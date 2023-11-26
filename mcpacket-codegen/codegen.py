@@ -81,7 +81,6 @@ PACKET_ID_TO_STRING_METHOD_TEMPLATE = """char *packet_data_to_string(int packet_
 
 """
 
-# Define a dictionary to map type identifiers to their corresponding C types
 type_map = {
     "b": "char ",
     "B": "byte_t ",
@@ -103,7 +102,7 @@ type_map = {
     "j": "json_t *",
     "a": "MCbuffer *",
     "S": "slot_t *",
-    "m": "entity_metadata_t *",
+    "m": "entity_metadata_t ",
 }
 
 buffer_methods_map = {
@@ -136,6 +135,7 @@ def parse(input_str):
   symbols = symbol_str.split(";")
   symbols = [sym for sym in symbols if sym != ""]
   args = ""
+  type_def = ""
   if symbols:
     args = ", ".join([f"{type_map[symbol[0]]}{symbol[1:]}" for symbol in symbols]) + ", "
     type_def_content = "".join(
@@ -145,7 +145,6 @@ def parse(input_str):
   unpack_methods = "".join([f"packet.{symbol[1:]}=MCbuffer_unpack_{buffer_methods_map[symbol[0]]}(buff,errmsg);" for symbol in symbols])
   send_method_define = f"void send_packet_{packet_name}(MConn *conn, {args}char **errmsg)"
   unpack_method_define = f"{struct_name} unpack_{packet_name}_packet(MCbuffer *buff, char **errmsg)"
-  type_def = ""
   send_method = f"""{send_method_define} {{MCbuffer *buff = MCbuffer_init();{pack_methods}  PACK_ERR_HANDELER({packet_name});MConn_send_packet(conn, buff, errmsg);}}"""
   send_method_h = f"{send_method_define};"
   unpack_method = ""

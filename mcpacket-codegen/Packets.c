@@ -120,7 +120,7 @@ char *packet_data_to_string(int packet_id, MConn_state state,
     PACKET_DATA_TO_STRING_UTIL(0x17, CONN_STATE_PLAY, DIRECTION_S2C,
                                "S2C_PLAY_ENTITY_LOOK_AND_RELATIVE_MOVE");
     PACKET_DATA_TO_STRING_UTIL(0x18, CONN_STATE_PLAY, DIRECTION_S2C,
-                               "S2C_PLAY_ENTITY_TELEPRT");
+                               "S2C_PLAY_ENTITY_TELEPORT");
     PACKET_DATA_TO_STRING_UTIL(0x19, CONN_STATE_PLAY, DIRECTION_S2C,
                                "S2C_PLAY_ENTITY_HEAD_LOOK");
     PACKET_DATA_TO_STRING_UTIL(0x1A, CONN_STATE_PLAY, DIRECTION_S2C,
@@ -143,6 +143,8 @@ char *packet_data_to_string(int packet_id, MConn_state state,
                                "S2C_PLAY_BLOCK_ACTION");
     PACKET_DATA_TO_STRING_UTIL(0x25, CONN_STATE_PLAY, DIRECTION_S2C,
                                "S2C_PLAY_BLOCK_BREAK_ANIMATION");
+    PACKET_DATA_TO_STRING_UTIL(0x28, CONN_STATE_PLAY, DIRECTION_S2C,
+                               "S2C_PLAY_EFFECT");
     PACKET_DATA_TO_STRING_UTIL(0x29, CONN_STATE_PLAY, DIRECTION_S2C,
                                "S2C_PLAY_SOUND_EFFECT");
     PACKET_DATA_TO_STRING_UTIL(0x2B, CONN_STATE_PLAY, DIRECTION_S2C,
@@ -572,8 +574,8 @@ S2C_play_animation_packet_t unpack_S2C_play_animation_packet(MCbuffer *buff,
 void send_packet_S2C_play_spawn_player(MConn *conn, varint_t entity_id,
                                        unsigned long long uuid, int x, int y,
                                        int z, byte_t yaw, byte_t pitch,
-                                       short short,
-                                       entity_metadata_t *meta_data,
+                                       short current_item,
+                                       entity_metadata_t meta_data,
                                        char **errmsg) {
   MCbuffer *buff = MCbuffer_init();
   MCbuffer_pack_varint(buff, PACKETID_S2C_PLAY_SPAWN_PLAYER, errmsg);
@@ -584,7 +586,7 @@ void send_packet_S2C_play_spawn_player(MConn *conn, varint_t entity_id,
   MCbuffer_pack_int(buff, z, errmsg);
   MCbuffer_pack_byte(buff, yaw, errmsg);
   MCbuffer_pack_byte(buff, pitch, errmsg);
-  MCbuffer_pack_short(buff, short, errmsg);
+  MCbuffer_pack_short(buff, current_item, errmsg);
   MCbuffer_pack_entity_metadata(buff, meta_data, errmsg);
   PACK_ERR_HANDELER(S2C_play_spawn_player);
   MConn_send_packet(conn, buff, errmsg);
@@ -599,7 +601,7 @@ unpack_S2C_play_spawn_player_packet(MCbuffer *buff, char **errmsg) {
   packet.z = MCbuffer_unpack_int(buff, errmsg);
   packet.yaw = MCbuffer_unpack_byte(buff, errmsg);
   packet.pitch = MCbuffer_unpack_byte(buff, errmsg);
-  packet.short = MCbuffer_unpack_short(buff, errmsg);
+  packet.current_item = MCbuffer_unpack_short(buff, errmsg);
   packet.meta_data = MCbuffer_unpack_entity_metadata(buff, errmsg);
   UNPACK_ERR_HANDELER(S2C_play_spawn_player);
   return packet;
@@ -627,7 +629,7 @@ void send_packet_S2C_play_spawn_mob(MConn *conn, varint_t entity_id,
                                     byte_t type, int x, int y, int z,
                                     byte_t yaw, byte_t pitch, byte_t head_pitch,
                                     short x_vel, short y_vel, short z_vel,
-                                    entity_metadata_t *meta_data,
+                                    entity_metadata_t meta_data,
                                     char **errmsg) {
   MCbuffer *buff = MCbuffer_init();
   MCbuffer_pack_varint(buff, PACKETID_S2C_PLAY_SPAWN_MOB, errmsg);
@@ -824,11 +826,12 @@ unpack_S2C_play_entity_look_and_relative_move_packet(MCbuffer *buff,
   UNPACK_ERR_HANDELER(S2C_play_entity_look_and_relative_move);
   return packet;
 }
-void send_packet_S2C_play_entity_teleprt(MConn *conn, varint_t entity_id, int x,
-                                         int y, int z, byte_t yaw, byte_t pitch,
-                                         bool on_ground, char **errmsg) {
+void send_packet_S2C_play_entity_teleport(MConn *conn, varint_t entity_id,
+                                          int x, int y, int z, byte_t yaw,
+                                          byte_t pitch, bool on_ground,
+                                          char **errmsg) {
   MCbuffer *buff = MCbuffer_init();
-  MCbuffer_pack_varint(buff, PACKETID_S2C_PLAY_ENTITY_TELEPRT, errmsg);
+  MCbuffer_pack_varint(buff, PACKETID_S2C_PLAY_ENTITY_TELEPORT, errmsg);
   MCbuffer_pack_varint(buff, entity_id, errmsg);
   MCbuffer_pack_int(buff, x, errmsg);
   MCbuffer_pack_int(buff, y, errmsg);
@@ -836,12 +839,12 @@ void send_packet_S2C_play_entity_teleprt(MConn *conn, varint_t entity_id, int x,
   MCbuffer_pack_byte(buff, yaw, errmsg);
   MCbuffer_pack_byte(buff, pitch, errmsg);
   MCbuffer_pack_bool(buff, on_ground, errmsg);
-  PACK_ERR_HANDELER(S2C_play_entity_teleprt);
+  PACK_ERR_HANDELER(S2C_play_entity_teleport);
   MConn_send_packet(conn, buff, errmsg);
 }
-S2C_play_entity_teleprt_packet_t
-unpack_S2C_play_entity_teleprt_packet(MCbuffer *buff, char **errmsg) {
-  S2C_play_entity_teleprt_packet_t packet;
+S2C_play_entity_teleport_packet_t
+unpack_S2C_play_entity_teleport_packet(MCbuffer *buff, char **errmsg) {
+  S2C_play_entity_teleport_packet_t packet;
   packet.entity_id = MCbuffer_unpack_varint(buff, errmsg);
   packet.x = MCbuffer_unpack_int(buff, errmsg);
   packet.y = MCbuffer_unpack_int(buff, errmsg);
@@ -849,7 +852,7 @@ unpack_S2C_play_entity_teleprt_packet(MCbuffer *buff, char **errmsg) {
   packet.yaw = MCbuffer_unpack_byte(buff, errmsg);
   packet.pitch = MCbuffer_unpack_byte(buff, errmsg);
   packet.on_ground = MCbuffer_unpack_bool(buff, errmsg);
-  UNPACK_ERR_HANDELER(S2C_play_entity_teleprt);
+  UNPACK_ERR_HANDELER(S2C_play_entity_teleport);
   return packet;
 }
 void send_packet_S2C_play_entity_head_look(MConn *conn, varint_t entity_id,
@@ -907,7 +910,7 @@ unpack_S2C_play_attach_entity_packet(MCbuffer *buff, char **errmsg) {
   return packet;
 }
 void send_packet_S2C_play_entity_metadata(MConn *conn, varint_t entity_id,
-                                          entity_metadata_t *meta_data,
+                                          entity_metadata_t meta_data,
                                           char **errmsg) {
   MCbuffer *buff = MCbuffer_init();
   MCbuffer_pack_varint(buff, PACKETID_S2C_PLAY_ENTITY_METADATA, errmsg);
@@ -1070,6 +1073,54 @@ unpack_S2C_play_block_break_animation_packet(MCbuffer *buff, char **errmsg) {
   packet.location = MCbuffer_unpack_position(buff, errmsg);
   packet.destroy_stage = MCbuffer_unpack_char(buff, errmsg);
   UNPACK_ERR_HANDELER(S2C_play_block_break_animation);
+  return packet;
+}
+void send_packet_S2C_play_effect(MConn *conn, int effect_id,
+                                 block_pos_t location, int data, bool d,
+                                 int particle_id, bool long_distances, float x,
+                                 float y, float z, float x_offset,
+                                 float y_offset, float z_offset,
+                                 float particle_data, int particle_count,
+                                 int sable_relative_volume, char **errmsg) {
+  MCbuffer *buff = MCbuffer_init();
+  MCbuffer_pack_varint(buff, PACKETID_S2C_PLAY_EFFECT, errmsg);
+  MCbuffer_pack_int(buff, effect_id, errmsg);
+  MCbuffer_pack_position(buff, location, errmsg);
+  MCbuffer_pack_int(buff, data, errmsg);
+  MCbuffer_pack_bool(buff, d, errmsg);
+  MCbuffer_pack_int(buff, particle_id, errmsg);
+  MCbuffer_pack_bool(buff, long_distances, errmsg);
+  MCbuffer_pack_float(buff, x, errmsg);
+  MCbuffer_pack_float(buff, y, errmsg);
+  MCbuffer_pack_float(buff, z, errmsg);
+  MCbuffer_pack_float(buff, x_offset, errmsg);
+  MCbuffer_pack_float(buff, y_offset, errmsg);
+  MCbuffer_pack_float(buff, z_offset, errmsg);
+  MCbuffer_pack_float(buff, particle_data, errmsg);
+  MCbuffer_pack_int(buff, particle_count, errmsg);
+  MCbuffer_pack_int(buff, sable_relative_volume, errmsg);
+  PACK_ERR_HANDELER(S2C_play_effect);
+  MConn_send_packet(conn, buff, errmsg);
+}
+S2C_play_effect_packet_t unpack_S2C_play_effect_packet(MCbuffer *buff,
+                                                       char **errmsg) {
+  S2C_play_effect_packet_t packet;
+  packet.effect_id = MCbuffer_unpack_int(buff, errmsg);
+  packet.location = MCbuffer_unpack_position(buff, errmsg);
+  packet.data = MCbuffer_unpack_int(buff, errmsg);
+  packet.d = MCbuffer_unpack_bool(buff, errmsg);
+  packet.particle_id = MCbuffer_unpack_int(buff, errmsg);
+  packet.long_distances = MCbuffer_unpack_bool(buff, errmsg);
+  packet.x = MCbuffer_unpack_float(buff, errmsg);
+  packet.y = MCbuffer_unpack_float(buff, errmsg);
+  packet.z = MCbuffer_unpack_float(buff, errmsg);
+  packet.x_offset = MCbuffer_unpack_float(buff, errmsg);
+  packet.y_offset = MCbuffer_unpack_float(buff, errmsg);
+  packet.z_offset = MCbuffer_unpack_float(buff, errmsg);
+  packet.particle_data = MCbuffer_unpack_float(buff, errmsg);
+  packet.particle_count = MCbuffer_unpack_int(buff, errmsg);
+  packet.sable_relative_volume = MCbuffer_unpack_int(buff, errmsg);
+  UNPACK_ERR_HANDELER(S2C_play_effect);
   return packet;
 }
 void send_packet_S2C_play_sound_effect(MConn *conn, char *sound_name, int x,

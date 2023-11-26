@@ -20,6 +20,37 @@
   if (*errmsg != NULL)                                                         \
     return 0;
 
+// Endian Utils
+
+/* are we running on a little-endian system? */
+static int little_endian() {
+  uint16_t t = 0x0001;
+  char c[2];
+  memcpy(c, &t, sizeof t);
+  return c[0];
+}
+
+static void *swap_bytes(void *s, size_t len) {
+  for (char *b = s, *e = b + len - 1; b < e; b++, e--) {
+    char t = *b;
+
+    *b = *e;
+    *e = t;
+  }
+
+  return s;
+}
+
+/* big endian to native endian. works in-place */
+static void *be2ne(void *s, size_t len) {
+  return little_endian() ? swap_bytes(s, len) : s;
+}
+
+/* native endian to big endian. works the exact same as its inverse */
+#define ne2be be2ne
+
+#define BE2NE_UTIL(var) be2ne(&var, sizeof(var))
+
 void MCbuffer_print_info(MCbuffer *buff) {
   printf("Data      %p\n", buff->data);
   printf("Length    %li\n", buff->length);
@@ -143,12 +174,28 @@ unsigned char *MCbuffer_unpack(MCbuffer *buffer, size_t n, char **errmsg) {
     MCbuffer_pack(buffer, &data, sizeof(type), errmsg);                        \
   }
 
+#define NUM_PACK_AND_UNPACK_FUNC_FACTORY_WITH_ENDIAN(name, type)               \
+  type MCbuffer_unpack_##name(MCbuffer *buffer, char **errmsg) {               \
+    unsigned char *data = MCbuffer_unpack(buffer, sizeof(type), errmsg);       \
+    if (data == NULL)                                                          \
+      return (type)0;                                                          \
+    type result = *((type *)data);                                             \
+    FREE(data);                                                                \
+    be2ne(&result, sizeof(type));                                                \
+    return result;                                                             \
+  }                                                                            \
+                                                                               \
+  void MCbuffer_pack_##name(MCbuffer *buffer, type data, char **errmsg) {      \
+    ne2be(&data, sizeof(type));                                                \
+    MCbuffer_pack(buffer, &data, sizeof(type), errmsg);                        \
+  }
+
 NUM_PACK_AND_UNPACK_FUNC_FACTORY(char, char);
 NUM_PACK_AND_UNPACK_FUNC_FACTORY(byte, unsigned char);
 NUM_PACK_AND_UNPACK_FUNC_FACTORY(short, short);
 NUM_PACK_AND_UNPACK_FUNC_FACTORY(ushort, unsigned short);
-NUM_PACK_AND_UNPACK_FUNC_FACTORY(int, int);
-NUM_PACK_AND_UNPACK_FUNC_FACTORY(uint, unsigned int);
+NUM_PACK_AND_UNPACK_FUNC_FACTORY_WITH_ENDIAN(int, int);
+NUM_PACK_AND_UNPACK_FUNC_FACTORY(uint, unsigned int);   // when you see a weird number than just swap the func factory lmao
 NUM_PACK_AND_UNPACK_FUNC_FACTORY(long, long);
 NUM_PACK_AND_UNPACK_FUNC_FACTORY(ulong, unsigned long);
 NUM_PACK_AND_UNPACK_FUNC_FACTORY(float, float);
@@ -157,7 +204,6 @@ NUM_PACK_AND_UNPACK_FUNC_FACTORY(llong, long long);
 NUM_PACK_AND_UNPACK_FUNC_FACTORY(ullong, unsigned long long);
 
 #undef NUM_PACK_AND_UNPACK_FUNC_FACTORY
-
 // other types
 
 void MCbuffer_pack_bool(MCbuffer *buffer, bool value, char **errmsg) {
@@ -320,7 +366,6 @@ json_t *MCbuffer_unpack_json(MCbuffer *buff, char **errmsg) {
   json_error_t error;
 
   char *str = MCbuffer_unpack_string(buff, errmsg);
-  puts(str);
   root = json_loads(str, 0, &error);
   if (!root) {
     FREE(str);
@@ -380,100 +425,120 @@ slot_t *MCbuffer_unpack_slot(MCbuffer *buff, char **errmsg) {
   return slot;
 }
 
-void MCbuffer_pack_entity_metadata(MCbuffer *buff, entity_metadata_t *metadata, char **errmsg) {
-  struct list_head *pos;
-  list_for_each(pos, &metadata->list) {
-    entity_metadata_t *data = list_entry(pos, entity_metadata_t, list);
-    MCbuffer_pack_char(buff, data->type << 5 | data->index, errmsg);
-    switch (data->type) {
+void MCbuffer_pack_entity_metadata(MCbuffer *buff, entity_metadata_t metadata,
+                                   char **errmsg) {
+  for (int i; i < metadata.size; i++) {
+    entity_metadata_entry_t *entry =
+        metadata.entries + i * sizeof(entity_metadata_entry_t);
+    MCbuffer_pack_char(buff, entry->type << 5 | entry->index, errmsg);
+    switch (entry->type) {
     case ENTITY_METADATA_ENTRY_TYPE_BYTE:
-      MCbuffer_pack_byte(buff, data->payload.byte_data, errmsg);
+      MCbuffer_pack_byte(buff, entry->payload.byte_data, errmsg);
       break;
     case ENTITY_METADATA_ENTRY_TYPE_SHORT:
-      MCbuffer_pack_short(buff, data->payload.short_data, errmsg);
+      MCbuffer_pack_short(buff, entry->payload.short_data, errmsg);
       break;
     case ENTITY_METADATA_ENTRY_TYPE_INT:
-      MCbuffer_pack_int(buff, data->payload.int_data, errmsg);
+      MCbuffer_pack_int(buff, entry->payload.int_data, errmsg);
       break;
     case ENTITY_METADATA_ENTRY_TYPE_FLOAT:
-      MCbuffer_pack_float(buff, data->payload.float_data, errmsg);
+      MCbuffer_pack_float(buff, entry->payload.float_data, errmsg);
       break;
     case ENTITY_METADATA_ENTRY_TYPE_STRING:
-      MCbuffer_pack_string(buff, data->payload.string_data, errmsg);
+      MCbuffer_pack_string(buff, entry->payload.string_data, errmsg);
       break;
     case ENTITY_METADATA_ENTRY_TYPE_SLOT:
-      MCbuffer_pack_slot(buff, data->payload.slot_data, errmsg);
+      MCbuffer_pack_slot(buff, entry->payload.slot_data, errmsg);
       break;
     case ENTITY_METADATA_ENTRY_TYPE_POSITION:
-      MCbuffer_pack_int(buff, data->payload.position_data.x, errmsg);
-      MCbuffer_pack_int(buff, data->payload.position_data.y, errmsg);
-      MCbuffer_pack_int(buff, data->payload.position_data.z, errmsg);
+      MCbuffer_pack_int(buff, entry->payload.position_data.x, errmsg);
+      MCbuffer_pack_int(buff, entry->payload.position_data.y, errmsg);
+      MCbuffer_pack_int(buff, entry->payload.position_data.z, errmsg);
       break;
     case ENTITY_METADATA_ENTRY_TYPE_ROTATION:
-      MCbuffer_pack_float(buff, data->payload.rotation_data.x, errmsg);
-      MCbuffer_pack_float(buff, data->payload.rotation_data.y, errmsg);
-      MCbuffer_pack_float(buff, data->payload.rotation_data.z, errmsg);
+      MCbuffer_pack_float(buff, entry->payload.rotation_data.x, errmsg);
+      MCbuffer_pack_float(buff, entry->payload.rotation_data.y, errmsg);
+      MCbuffer_pack_float(buff, entry->payload.rotation_data.z, errmsg);
       break;
     }
   }
   MCbuffer_pack_byte(buff, 127, errmsg);
 }
 
-/*
-entity_metadata_t meta_data;
-INIT_LIST_HEAD(&meta_data.list);
-
-entity_metadata_t meta_data_entry;
-list_add_tail(&meta_data_entry.list, &meta_data.list);
-
-meta_data_entry.index = 2;
-meta_data_entry.type = ENTITY_METADATA_ENTRY_TYPE_SHORT;
-meta_data_entry.payload.short_data = 69;
-*/
-entity_metadata_t *MCbuffer_unpack_entity_metadata(MCbuffer *buff, char **errmsg) {
-  entity_metadata_t meta_data;
-  INIT_LIST_HEAD(&meta_data.list);
+entity_metadata_t MCbuffer_unpack_entity_metadata(MCbuffer *buff,
+                                                  char **errmsg) {
+  entity_metadata_t meta_data = {0, NULL};
 
   while (true) {
     int8_t type_and_index = MCbuffer_unpack_char(buff, errmsg);
-    if(type_and_index == 127) {
-      return NULL;
+
+    if (type_and_index == 127) {
+      break;
     }
-    entity_metadata_t meta_data_entry;
-    meta_data_entry.type = type_and_index >> 5;
+
+    entity_metadata_entry_t meta_data_entry;
+    meta_data_entry.type = abs(type_and_index >> 5);
     meta_data_entry.index = type_and_index & 0x1F;
 
     switch (meta_data_entry.type) {
     case ENTITY_METADATA_ENTRY_TYPE_BYTE:
       meta_data_entry.payload.byte_data = MCbuffer_unpack_byte(buff, errmsg);
+      BE2NE_UTIL(meta_data_entry.payload.byte_data);
       break;
     case ENTITY_METADATA_ENTRY_TYPE_SHORT:
       meta_data_entry.payload.short_data = MCbuffer_unpack_short(buff, errmsg);
+      BE2NE_UTIL(meta_data_entry.payload.short_data);
       break;
     case ENTITY_METADATA_ENTRY_TYPE_INT:
       meta_data_entry.payload.int_data = MCbuffer_unpack_int(buff, errmsg);
+      BE2NE_UTIL(meta_data_entry.payload.int_data);
       break;
     case ENTITY_METADATA_ENTRY_TYPE_FLOAT:
       meta_data_entry.payload.float_data = MCbuffer_unpack_float(buff, errmsg);
+      BE2NE_UTIL(meta_data_entry.payload.float_data);
       break;
     case ENTITY_METADATA_ENTRY_TYPE_STRING:
-      meta_data_entry.payload.string_data = MCbuffer_unpack_string(buff, errmsg);
+      meta_data_entry.payload.string_data =
+          MCbuffer_unpack_string(buff, errmsg);
       break;
     case ENTITY_METADATA_ENTRY_TYPE_SLOT:
       meta_data_entry.payload.slot_data = MCbuffer_unpack_slot(buff, errmsg);
       break;
     case ENTITY_METADATA_ENTRY_TYPE_POSITION:
-      meta_data_entry.payload.position_data.x = MCbuffer_unpack_int(buff, errmsg);
-      meta_data_entry.payload.position_data.y = MCbuffer_unpack_int(buff, errmsg);
-      meta_data_entry.payload.position_data.z = MCbuffer_unpack_int(buff, errmsg);
+      meta_data_entry.payload.position_data.x =
+          MCbuffer_unpack_int(buff, errmsg);
+      meta_data_entry.payload.position_data.y =
+          MCbuffer_unpack_int(buff, errmsg);
+      meta_data_entry.payload.position_data.z =
+          MCbuffer_unpack_int(buff, errmsg);
       break;
     case ENTITY_METADATA_ENTRY_TYPE_ROTATION:
-      meta_data_entry.payload.rotation_data.x = MCbuffer_unpack_float(buff, errmsg);
-      meta_data_entry.payload.rotation_data.y = MCbuffer_unpack_float(buff, errmsg);
-      meta_data_entry.payload.rotation_data.z = MCbuffer_unpack_float(buff, errmsg);
+      meta_data_entry.payload.rotation_data.x =
+          MCbuffer_unpack_float(buff, errmsg);
+      meta_data_entry.payload.rotation_data.y =
+          MCbuffer_unpack_float(buff, errmsg);
+      meta_data_entry.payload.rotation_data.z =
+          MCbuffer_unpack_float(buff, errmsg);
       break;
     }
 
-    list_add_tail(&meta_data_entry.list, &meta_data.list);
+    entity_metadata_entry_t *new_entries =
+        realloc(meta_data.entries,
+                (meta_data.size + 1) * sizeof(entity_metadata_entry_t));
+    if (new_entries == NULL) {
+      // Handle reallocation failure
+      free(meta_data.entries);
+      *errmsg = "Memory reallocation error";
+      meta_data.size = 0;
+      meta_data.entries = NULL;
+      return meta_data;
+    }
+
+    meta_data.entries = new_entries;
+
+    meta_data.entries[meta_data.size] = meta_data_entry;
+
+    meta_data.size++;
   }
+  return meta_data;
 }

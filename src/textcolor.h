@@ -29,4 +29,4 @@
 #define TEXT_REVERSE  "\033[7m"   // Reverse (swap foreground and background colors)
 
 // Other nice stuff
-#define NLR "\033[0m\n" // this stands for NEW LINE RESET and its VERY convenient lol
+#define NLR "\n\033[0m" // this stands for NEW LINE RESET and its VERY convenient lol
