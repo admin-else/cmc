@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MCtypes.h"
+#include "mctypes.h"
 #include <jansson.h>
 #include <stdbool.h>
 #include <stddef.h>

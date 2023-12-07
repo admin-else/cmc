@@ -1,8 +1,8 @@
 #pragma once
 
-#include "MCbuffer.h"
-#include "MCtypes.h"
-#include "packetTypes.h"
+#include "mcbuffer.h"
+#include "mctypes.h"
+#include "packet_types.h"
 #include <stddef.h>
 #include <stdint.h>
 

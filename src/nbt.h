@@ -14,8 +14,8 @@
 
 #pragma once
 
-#include "MCbuffer.h"
-#include "MCtypes.h"
+#include "mcbuffer.h"
+#include "mctypes.h"
 #include "list.h"
 #include <stdint.h>
 

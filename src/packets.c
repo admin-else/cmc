@@ -1,7 +1,7 @@
-#include "Packets.h"
-#include "MCbuffer.h"
-#include "MConn.h"
-#include "MCtypes.h"
+#include "packets.h"
+#include "mcbuffer.h"
+#include "mconn.h"
+#include "mctypes.h"
 #include <jansson.h>
 #include <stdbool.h>
 #include <stdio.h>

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "MCbuffer.h"
-#include "MConn.h"
-#include "packetTypes.h"
-#include "MCtypes.h"
+#include "mcbuffer.h"
+#include "mconn.h"
+#include "packet_types.h"
+#include "mctypes.h"
 #include <jansson.h>
 #include <stdbool.h>
 
