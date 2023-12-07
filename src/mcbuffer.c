@@ -1,8 +1,8 @@
-#include "MCbuffer.h"
-#include "MCtypes.h"
-#include "Nbt.h"
-#include "heap-utils.h"
-#include "textcolor.h"
+#include "mcbuffer.h"
+#include "mctypes.h"
+#include "nbt.h"
+#include "heap_utils.h"
+#include "text_color.h"
 #include <ctype.h>
 #include <jansson.h>
 #include <stdbool.h>

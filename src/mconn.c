@@ -1,7 +1,7 @@
-#include "MConn.h"
-#include "MCbuffer.h"
-#include "MCtypes.h"
-#include "heap-utils.h"
+#include "mconn.h"
+#include "mcbuffer.h"
+#include "mctypes.h"
+#include "heap_utils.h"
 #include <arpa/inet.h>
 #include <assert.h>
 #include <inttypes.h>

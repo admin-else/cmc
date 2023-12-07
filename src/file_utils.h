@@ -1,7 +1,7 @@
 #pragma once
 
-#include "MCbuffer.h"
-#include "MCtypes.h"
+#include "mcbuffer.h"
+#include "mctypes.h"
 #include <stdio.h>
 
 // Function to read a text file and return its content as a string
