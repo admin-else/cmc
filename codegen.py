@@ -26,12 +26,7 @@ type_map = {
     "m": ["entity_metadata_t ",  "entity_metadata", True ]
 }
 
-"""
-ok this will generate the on_packet structs content that contains function pointers that will be called with packet info
 
-
-
-"""
 def replace_code_segments(replacement_code, tag):
   start_tag = f"// CGSS: {tag}" # Code Generator Segment Start
   end_tag = f"// CGSE: {tag}"   # Code Generator Segment End
@@ -44,42 +39,35 @@ def replace_code_segments(replacement_code, tag):
         file_content = file.read()
 
       pattern = re.compile(f'({re.escape(start_tag)}).*?({re.escape(end_tag)})', re.DOTALL)
-      if pattern.search(file_content):
-        return
+      if not pattern.search(file_content):
+        continue
       file_content = pattern.sub(rf'\1\n{replacement_code}\n\2', file_content)
 
       with open(file_path, 'w') as file:
         file.write(file_content)
+        
+      return
 
-  raise ValueError(f"didnt find tag {tag}")  
-  
-def parse(input_str):
-  packet_name, packet_id, symbol_str = input_str.split(";", maxsplit=2)
-  struct_name = packet_name + "_packet_t"
-  symbols = [sym for sym in symbol_str.split(";") if sym != ""]
-  args = ""
-  type_def = ""
-  if symbols:
-    args = ", ".join([f"{type_map[symbol[0]][0]}{symbol[1:]}" for symbol in symbols]) + ", "
-    type_def_content = "".join(
-      [f"  {type_map[symbol[0]][0]}{symbol[1:]};" for symbol in symbols])
-    type_def = f"typedef struct {{{type_def_content}}} {struct_name};"
-  pack_methods = f"  MCbuffer_pack_varint(buff, PACKETID_{packet_name.upper()}, errmsg);" + "".join([f"MCbuffer_pack_{type_map[symbol[0]][1]}(buff, {symbol[1:]}, errmsg);" for symbol in symbols])
-  unpack_methods = "".join([f"packet.{symbol[1:]}=MCbuffer_unpack_{type_map[symbol[0]][1]}(buff,errmsg);" for symbol in symbols])
-  send_method_define = f"void send_packet_{packet_name}(MConn *conn, {args}char **errmsg)"
-  unpack_method_define = f"{struct_name} unpack_{packet_name}_packet(MCbuffer *buff, char **errmsg)"
-  send_method = f"{send_method_define} {{MCbuffer *buff = MCbuffer_init();{pack_methods}  PACK_ERR_HANDELER({packet_name});MConn_send_packet(conn, buff, errmsg);}}"
-  send_method_h = f"{send_method_define};"
-  unpack_method = f"{unpack_method_define} {{{struct_name} packet;{unpack_methods} UNPACK_ERR_HANDELER({packet_name});return packet;}}" if symbols else ""
-  unpack_method_h = f"{unpack_method_define};" if symbols else ""
-  return send_method + unpack_method, type_def + send_method_h + unpack_method_h
+  raise ValueError(f"didnt find tag {tag}")
 
 def type_def(input_str):
   packet_name, packet_id, symbol_str = input_str.split(";", maxsplit=2)
   symbols = [sym for sym in symbol_str.split(";") if sym != ""]
-  type_def = f"typedef struct {{{''.join([f'{type_map[symbol[0]][0]}{symbol[1:]};' for symbol in symbols])}}} {packet_name}_packet_t;" if symbols else ""
-  return type_def
+  return f"typedef struct {{{''.join([f'{type_map[symbol[0]][0]}{symbol[1:]};' for symbol in symbols])}}} {packet_name}_packet_t;\n\n" if symbols else ""
 
+def unpack_method(input_str):
+  packet_name, packet_id, symbol_str = input_str.split(";", maxsplit=2)
+  symbols = [sym for sym in symbol_str.split(";") if sym != ""]
+  unpack_method_define = f"{packet_name}_packet_t unpack_{packet_name}_packet(MCbuffer *buff, char **errmsg)"
+  unpack_methods = "".join([f"packet.{symbol[1:]}=MCbuffer_unpack_{type_map[symbol[0]][1]}(buff,errmsg);" for symbol in symbols])
+  unpack_method = f"{unpack_method_define} {{{packet_name}_packet_t packet;{unpack_methods} UNPACK_ERR_HANDELER({packet_name});return packet;}}\n\n" if symbols else ""
+  return unpack_method
+  
+def unpack_method_h(input_str):
+  packet_name, packet_id, symbol_str = input_str.split(";", maxsplit=2)
+  symbols = [sym for sym in symbol_str.split(";") if sym != ""]
+  return f"{packet_name}_packet_t unpack_{packet_name}_packet(MCbuffer *buff, char **errmsg);\n\n" if symbols else ""
+  
 def send_method(input_str):
   packet_name, packet_id, symbol_str = input_str.split(";", maxsplit=2)
   symbols = [sym for sym in symbol_str.split(";") if sym != ""]
@@ -91,8 +79,7 @@ def send_method(input_str):
 def send_method_h(input_str):
   packet_name, packet_id, symbol_str = input_str.split(";", maxsplit=2)
   symbols = [sym for sym in symbol_str.split(";") if sym != ""]
-  send_method_define = f"void send_packet_{packet_name}(MConn *conn, {', '.join([f'{type_map[symbol[0]][0]}{symbol[1:]}' for symbol in symbols]) + ', ' if symbols else ''}char **errmsg)"
-  return send_method_define
+  return f"void send_packet_{packet_name}(MConn *conn, {', '.join([f'{type_map[symbol[0]][0]}{symbol[1:]}' for symbol in symbols]) + ', ' if symbols else ''}char **errmsg);\n\n"
 
 def comment_filter(raw):
   out = ""
@@ -117,28 +104,32 @@ def main():
     raw = comment_filter(raw)
 
     raw = raw.replace(" ", "").split("\n")
-    tmp = []
+    mc_packet_exps = []
     for l in raw:
       if not l == "":
-        tmp.append(l)
-    mc_packet_exps = tmp
+        mc_packet_exps.append(l)
+        
+    # packet unpack methods
+    replace_code_segments("".join([unpack_method(mc_packet_exps) for mc_packet_exps in mc_packet_exps]), "unpack_methods")
     
-    c_code = ""
-    h_code = ""
-
-    for mc_packet_exp in mc_packet_exps:
-        c, h = parse(mc_packet_exp)
-        c_code += c
-        h_code += h
-
+    # packet unpack methods header
+    replace_code_segments("".join([unpack_method_h(mc_packet_exps) for mc_packet_exps in mc_packet_exps]), "unpack_methods_h")
     
+    # packet send methods
+    replace_code_segments("".join([send_method(mc_packet_exp) for mc_packet_exp in mc_packet_exps]), "send_methods")
     
+    # packet send methods header
+    replace_code_segments("".join([send_method_h(mc_packet_exp) for mc_packet_exp in mc_packet_exps]), "send_methods_h")
+        
     # packet id to string
     replace_code_segments("".join([
       f"PACKET_DATA_TO_STRING_UTIL({mc_packet_exp.split(';')[1]}, CONN_STATE_{mc_packet_exp.split(';')[0].split('_')[1].upper()}, DIRECTION_{mc_packet_exp.split(';')[0].split('_')[0].upper()}, \"{mc_packet_exp.split(';')[0].upper()}\");"for mc_packet_exp in mc_packet_exps]), "packet_data_to_string")
     
     # packet ids
     replace_code_segments("\n".join([f"#define PACKETID_{mc_packet_exp.split(';')[0].upper()} {mc_packet_exp.split(';')[1]}\n" for mc_packet_exp in mc_packet_exps]), "packet_ids")
+    
+    # type defs
+    replace_code_segments("".join([type_def(mc_packet_exp) for mc_packet_exp in mc_packet_exps]), "packet_types")
     
     os.system("clang-format -i ./src/*.c ./src/*.h")
     # The Zen of Python, by Tim Peters
@@ -149,6 +140,4 @@ def main():
     # i mean there is no zen of c ... would be funny tho
 
 if __name__=='__main__':
-  print(send_method("C2S_login_start;0x00;ltime"))
-  
-  #main()
+  main()
