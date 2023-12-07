@@ -12,8 +12,8 @@
  * https://github.dev/chmod222/cNBT.
  */
 
-#include "TextBuffer.h"
-#include "heap-utils.h"
+#include "text_buffer.h"
+#include "heap_utils.h"
 #include <assert.h>
 #include <stdarg.h>
 #include <stdio.h>
