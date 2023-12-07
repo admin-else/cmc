@@ -41,6 +41,7 @@ def replace_code_segments(replacement_code, tag):
       pattern = re.compile(f'({re.escape(start_tag)}).*?({re.escape(end_tag)})', re.DOTALL)
       if not pattern.search(file_content):
         continue
+      
       file_content = pattern.sub(rf'\1\n{replacement_code}\n\2', file_content)
 
       with open(file_path, 'w') as file:

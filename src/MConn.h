@@ -2,6 +2,7 @@
 
 #include "MCbuffer.h"
 #include "MCtypes.h"
+#include "packetTypes.h"
 #include <stddef.h>
 #include <stdint.h>
 
@@ -13,7 +14,9 @@ typedef struct {
   varint_t compression_threshold;
   byte_t *shared_secret;
   struct {
-    void (*chat_message)(int);
+    // CGSS: on_packet_fuction_pointers
+    void (*keep_alive)(const S2C_play_keep_alive_packet_t packet);
+    // CGSE: on_packet_fuction_pointers
   } on_packet;
   struct {
     int eid;
