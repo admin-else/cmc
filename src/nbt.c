@@ -12,12 +12,12 @@
  * https://github.dev/chmod222/cNBT.
  */
 
-#include "Nbt.h"
-#include "MCbuffer.h"
-#include "MCtypes.h"
-#include "TextBuffer.h"
+#include "nbt.h"
+#include "mcbuffer.h"
+#include "mctypes.h"
+#include "text_buffer.h"
 #include "err.h"
-#include "heap-utils.h"
+#include "heap_utils.h"
 #include <assert.h>
 #include <curses.h>
 #include <stdarg.h>

@@ -2,8 +2,8 @@
 this file contains crypto and comprssion
 
 */
-#include "MCtypes.h"
-#include "heap-utils.h"
+#include "mctypes.h"
+#include "heap_utils.h"
 #include <openssl/bio.h>
 #include <openssl/evp.h>
 #include <openssl/rsa.h>
