@@ -8,16 +8,17 @@
  */
 
 /*
- * NOTICE: Some functions may be modifyed or copied from this repo https://github.dev/chmod222/cNBT.
+ * NOTICE: Some functions may be modifyed or copied from this repo
+ * https://github.dev/chmod222/cNBT.
  */
 
+#include "TextBuffer.h"
+#include "heap-utils.h"
 #include <assert.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "heap-utils.h"
-#include "TextBuffer.h"
 
 #ifdef __GNUC__
 #define likely(x) __builtin_expect(!!(x), 1)

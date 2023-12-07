@@ -8,15 +8,16 @@
  */
 
 /*
- * NOTICE: Some functions may be modifyed or copied from this repo https://github.dev/chmod222/cNBT.
+ * NOTICE: Some functions may be modifyed or copied from this repo
+ * https://github.dev/chmod222/cNBT.
  */
 
 #pragma once
 
-#include <stdint.h>
 #include "MCbuffer.h"
-#include "list.h"
 #include "MCtypes.h"
+#include "list.h"
+#include <stdint.h>
 
 nbt_node *nbt_parse_named_tag(MCbuffer *buff, char **errmsg);
 

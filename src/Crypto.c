@@ -1,4 +1,4 @@
-/* 
+/*
 this file contains crypto and comprssion
 
 */
@@ -15,7 +15,7 @@ this file contains crypto and comprssion
 RSA *pubkeyDER_to_RSA(uint8_t *pubkeyDER, size_t pubkeyDER_len, char **errmsg) {
   byte_t *malloced_buffer = MALLOC(pubkeyDER_len);
   memcpy(malloced_buffer, pubkeyDER, pubkeyDER_len);
-  
+
   BIO *pubkeyBIO = BIO_new_mem_buf(malloced_buffer, pubkeyDER_len);
 
   if (pubkeyBIO == NULL) {
@@ -58,10 +58,11 @@ char *mc_sha_final(SHA_CTX *sha1) {
     negativ = true;
     for (size_t i = 0; i < SHA_DIGEST_LENGTH; i++) {
       hash[i] = ~hash[i]; // Bitwise NOT operation
-    } 
+    }
     for (int i = SHA_DIGEST_LENGTH - 1; i >= 0; i--) {
-        hash[i] += 1;
-        if(hash[i] != 0) break;
+      hash[i] += 1;
+      if (hash[i] != 0)
+        break;
     }
   }
 

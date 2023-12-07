@@ -96,7 +96,7 @@ typedef struct nbt_node {
     struct nbt_list {
       struct nbt_node *data; /* A single node's data. */
       struct list_head entry;
-    } *tag_list, *tag_compound;
+    } * tag_list, *tag_compound;
 
     /*
      * The primary difference between a tag_list and a tag_compound is the

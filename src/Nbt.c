@@ -40,7 +40,7 @@
     return ret;                                                                \
   }
 
-#define TEXT_BUFFER_INIT                                                            \
+#define TEXT_BUFFER_INIT                                                       \
   (text_buffer) { NULL, 0, 0 }
 
 #ifdef __GNUC__
@@ -614,41 +614,40 @@ static void dump_byte_array_binary(const struct nbt_byte_array ba,
   MCbuffer_pack(buff, ba.data, ba.length, errmsg);
 }
 
-static void dump_int_array_binary(const struct nbt_int_array ia, MCbuffer *buff, char **errmsg)
-{
-    int32_t dumped_length = ia.length;
+static void dump_int_array_binary(const struct nbt_int_array ia, MCbuffer *buff,
+                                  char **errmsg) {
+  int32_t dumped_length = ia.length;
 
-    ne2be(&dumped_length, sizeof dumped_length);
+  ne2be(&dumped_length, sizeof dumped_length);
 
-    MCbuffer_pack_int(buff, dumped_length, errmsg);
+  MCbuffer_pack_int(buff, dumped_length, errmsg);
 
-    if(ia.length) assert(ia.data);
+  if (ia.length)
+    assert(ia.data);
 
-    for(int32_t i = 0; i < ia.length; i++)
-    {
-        int32_t swappedElem = ia.data[i];
-        ne2be(&swappedElem, sizeof(swappedElem));
-        MCbuffer_pack_int(buff, swappedElem, errmsg);
-    }
-
+  for (int32_t i = 0; i < ia.length; i++) {
+    int32_t swappedElem = ia.data[i];
+    ne2be(&swappedElem, sizeof(swappedElem));
+    MCbuffer_pack_int(buff, swappedElem, errmsg);
+  }
 }
 
-static void dump_long_array_binary(const struct nbt_long_array la, MCbuffer *buff, char **errmsg)
-{
-    int32_t dumped_length = la.length;
+static void dump_long_array_binary(const struct nbt_long_array la,
+                                   MCbuffer *buff, char **errmsg) {
+  int32_t dumped_length = la.length;
 
-    ne2be(&dumped_length, sizeof dumped_length);
+  ne2be(&dumped_length, sizeof dumped_length);
 
-    MCbuffer_pack_int(buff, dumped_length, errmsg);
+  MCbuffer_pack_int(buff, dumped_length, errmsg);
 
-    if(la.length) assert(la.data);
+  if (la.length)
+    assert(la.data);
 
-    for(int32_t i = 0; i < la.length; i++)
-    {
-        int64_t swappedElem = la.data[i];
-        ne2be(&swappedElem, sizeof(swappedElem));
-        MCbuffer_pack_long(buff, swappedElem, errmsg);
-    }
+  for (int32_t i = 0; i < la.length; i++) {
+    int64_t swappedElem = la.data[i];
+    ne2be(&swappedElem, sizeof(swappedElem));
+    MCbuffer_pack_long(buff, swappedElem, errmsg);
+  }
 }
 
 static void dump_string_binary(const char *name, MCbuffer *buff,

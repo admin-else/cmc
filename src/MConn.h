@@ -5,7 +5,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-typedef struct{
+typedef struct {
   int sockfd;
   char *addr;
   uint16_t port;
