@@ -2,8 +2,8 @@
 
 #include "MCtypes.h"
 #include <jansson.h>
-#include <stddef.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 MCbuffer *MCbuffer_init();
@@ -15,7 +15,7 @@ void MCbuffer_pack(MCbuffer *buffer, const void *data, size_t data_size,
 
 unsigned char *MCbuffer_unpack(MCbuffer *buffer, size_t n, char **errmsg);
 
-#define NUM_PACK_AND_UNPACK_FUNC_FACTORY_H(name, type)                        \
+#define NUM_PACK_AND_UNPACK_FUNC_FACTORY_H(name, type)                         \
   type MCbuffer_unpack_##name(MCbuffer *buffer, char **errmsg);                \
   void MCbuffer_pack_##name(MCbuffer *buffer, type data, char **errmsg);
 
@@ -42,11 +42,13 @@ void MCbuffer_pack_varint(MCbuffer *buff, int value, char **errmsg);
 
 int32_t MCbuffer_unpack_varint(MCbuffer *buff, char **errmsg);
 
-void MCbuffer_pack_string_w_max_len(MCbuffer *buff, const char *value, int max_len, char **errmsg);
+void MCbuffer_pack_string_w_max_len(MCbuffer *buff, const char *value,
+                                    int max_len, char **errmsg);
 
 void MCbuffer_pack_string(MCbuffer *buff, const char *value, char **errmsg);
 
-char *MCbuffer_unpack_string_w_max_len(MCbuffer *buff, int max_len, char **errmsg);
+char *MCbuffer_unpack_string_w_max_len(MCbuffer *buff, int max_len,
+                                       char **errmsg);
 
 char *MCbuffer_unpack_string(MCbuffer *buff, char **errmsg);
 
@@ -68,7 +70,8 @@ MCbuffer *MCbuffer_combine(MCbuffer *buff1, MCbuffer *buff2, char **errmsg);
 
 MCbuffer *MCbuffer_unpack_byte_array(MCbuffer *buff, char **errmsg);
 
-void MCbuffer_pack_byte_array(MCbuffer *buff, MCbuffer *byte_array, char **errmsg);
+void MCbuffer_pack_byte_array(MCbuffer *buff, MCbuffer *byte_array,
+                              char **errmsg);
 
 MCbuffer *MCbuffer_init_w_size(size_t n);
 
@@ -79,6 +82,8 @@ slot_t *MCbuffer_unpack_slot(MCbuffer *buff, char **errmsg);
 void MCbuffer_pack_byte_array(MCbuffer *buff, MCbuffer *byte_array,
                               char **errmsg);
 
-void MCbuffer_pack_entity_metadata(MCbuffer *buff, entity_metadata_t metadata, char **errmsg);
+void MCbuffer_pack_entity_metadata(MCbuffer *buff, entity_metadata_t metadata,
+                                   char **errmsg);
 
-entity_metadata_t MCbuffer_unpack_entity_metadata(MCbuffer *buff, char **errmsg);
+entity_metadata_t MCbuffer_unpack_entity_metadata(MCbuffer *buff,
+                                                  char **errmsg);

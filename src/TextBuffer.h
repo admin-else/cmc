@@ -8,16 +8,17 @@
  */
 
 /*
- * NOTICE: Some functions may be modifyed or copied from this repo https://github.dev/chmod222/cNBT.
+ * NOTICE: Some functions may be modifyed or copied from this repo
+ * https://github.dev/chmod222/cNBT.
  */
 
 #pragma once
 #include <stddef.h>
 
-#define TEXT_BUFFER_INIT                                                            \
+#define TEXT_BUFFER_INIT                                                       \
   (text_buffer) { NULL, 0, 0 }
 
-typedef struct{
+typedef struct {
   unsigned char
       *data;  /* You can access the buffer's raw bytes through this pointer */
   size_t len; /* Only accesses in the interval [data, data + len) are defined */

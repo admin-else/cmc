@@ -181,7 +181,7 @@ unsigned char *MCbuffer_unpack(MCbuffer *buffer, size_t n, char **errmsg) {
       return (type)0;                                                          \
     type result = *((type *)data);                                             \
     FREE(data);                                                                \
-    be2ne(&result, sizeof(type));                                                \
+    be2ne(&result, sizeof(type));                                              \
     return result;                                                             \
   }                                                                            \
                                                                                \
@@ -195,7 +195,9 @@ NUM_PACK_AND_UNPACK_FUNC_FACTORY(byte, unsigned char);
 NUM_PACK_AND_UNPACK_FUNC_FACTORY(short, short);
 NUM_PACK_AND_UNPACK_FUNC_FACTORY(ushort, unsigned short);
 NUM_PACK_AND_UNPACK_FUNC_FACTORY_WITH_ENDIAN(int, int);
-NUM_PACK_AND_UNPACK_FUNC_FACTORY(uint, unsigned int);   // when you see a weird number than just swap the func factory lmao
+NUM_PACK_AND_UNPACK_FUNC_FACTORY(
+    uint, unsigned int); // when you see a weird number than just swap the func
+                         // factory lmao
 NUM_PACK_AND_UNPACK_FUNC_FACTORY(long, long);
 NUM_PACK_AND_UNPACK_FUNC_FACTORY(ulong, unsigned long);
 NUM_PACK_AND_UNPACK_FUNC_FACTORY(float, float);

@@ -15,6 +15,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/select.h>
+#include <sys/wait.h>
+#include <time.h>
+#include <unistd.h>
 
 #define EXIT_IF_ERR(message)                                                   \
   if (errmsg != NULL) {                                                        \
@@ -93,19 +96,18 @@ void S2C_login_encryption_request(MConn *conn, MCbuffer *buff, char **errmsg) {
 }
 
 void S2C_login_disconnect(MConn *conn, MCbuffer *buff, char **errmsg) {
-  S2C_login_disconnect_packet_t packet =
-      unpack_S2C_login_disconnect_packet(buff, errmsg);
-  char *json_str = json_dumps(packet.reason, 0);
+  char *json_str = MCbuffer_unpack_string(buff, errmsg);
   printf("Server kicked you while loging in becouse %s\n", json_str);
   FREE(json_str);
-  json_decref(packet.reason);
   MConn_close(conn, errmsg);
 }
+
+void on_S2C_login_success(MConn *conn, const S2C_login_success_packet_t packet,
+                          char **errmsg) {}
 
 void S2C_login_success(MConn *conn, MCbuffer *buff, char **errmsg) {
   S2C_login_success_packet_t packet =
       unpack_S2C_login_success_packet(buff, errmsg);
-  printf("name: %s, uuid %s\n", packet.name, packet.uuid);
   conn->state = CONN_STATE_PLAY;
 }
 
@@ -148,7 +150,6 @@ void S2C_play_join_game(MConn *conn, MCbuffer *buff, char **errmsg) {
       unpack_S2C_play_join_game_packet(buff, errmsg);
   ERR_CHECK_VOID
   conn->player.eid = packet.entity_id;
-  printf("join game: %i \n", packet.entity_id);
   FREE(packet.level_type);
 }
 
@@ -183,14 +184,21 @@ deffer:
   FREE(packet.meta_data.entries);
 }
 
-int main() {
+int main2() {
+  srand(time(NULL));
   char *errmsg = NULL;
   MConn *conn = MConn_init("127.0.0.1", 25565, &errmsg);
+
   MConn_connect(conn, &errmsg);
   EXIT_IF_ERR("can connect: %s\n")
+
+  char *name = MALLOC(7); // BotXXX\0
+  sprintf(name, "Bot%03d", rand() % 999);
   send_packet_C2S_handshake(conn, 47, "127.0.0.1", 25565, CONN_STATE_LOGIN,
                             &errmsg);
-  send_packet_C2S_login_start(conn, "Bot55", &errmsg);
+  send_packet_C2S_login_start(conn, name, &errmsg);
+  FREE(name);
+
   conn->state = CONN_STATE_LOGIN;
   while (conn->state != CONN_STATE_OFFLINE) {
     MCbuffer *buff = MConn_recive_packet(conn, &errmsg);
@@ -247,11 +255,104 @@ int main() {
     case CONN_STATE_OFFLINE:
     case CONN_STATE_STATUS:
     case CONN_STATE_HANDSHAKE:
-      fprintf(stderr, "invalid state");
+      fprintf(stderr, "invalid state\n");
       break;
     }
     MCbuffer_free(buff);
     EXIT_IF_ERR("error in packet loop %s\n")
   }
+  return 0;
+}
+
+int packet_loop(MConn *conn, char **errmsg) {
+  while (conn->state != CONN_STATE_OFFLINE) {
+    MCbuffer *buff = MConn_recive_packet(conn, errmsg);
+    if (*errmsg != ((void *)0)) {
+      fprintf(stderr, "err while reciving packet: %s\n", *errmsg);
+      return 1;
+    }
+
+    int packet_id = MCbuffer_unpack_varint(buff, errmsg);
+    if (*errmsg != ((void *)0)) {
+      fprintf(stderr, "err while looking at packet id: %s\n", *errmsg);
+      return 1;
+    }
+    switch (conn->state) {
+    case CONN_STATE_LOGIN:
+      switch (packet_id) {
+      case PACKETID_S2C_LOGIN_SET_COMPRESSION:
+        S2C_login_set_compression(conn, buff, errmsg);
+        break;
+      case PACKETID_S2C_LOGIN_DISCONNECT:
+        S2C_login_disconnect(conn, buff, errmsg);
+        break;
+      case PACKETID_S2C_LOGIN_SUCCESS:
+        S2C_login_success(conn, buff, errmsg);
+        break;
+      }
+      break;
+    case CONN_STATE_PLAY:
+      switch (packet_id) {
+      case PACKETID_S2C_PLAY_KEEP_ALIVE:
+        S2C_play_keep_alive(conn, buff, errmsg);
+        break;
+      }
+      break;
+    case CONN_STATE_OFFLINE:
+    case CONN_STATE_STATUS:
+    case CONN_STATE_HANDSHAKE:
+      *errmsg = "invalid state";
+      return 1;
+    }
+  }
+
+  return 0;
+}
+
+int main() {
+  char *errmsg = NULL;
+  MConn *conn = MConn_init("193.123.108.138", 25565, &errmsg);
+
+  int processes_created = 0;
+
+  while (processes_created < 100) {
+    pid_t pid = fork();
+
+    if (pid < 0) {
+      perror("Fork failed");
+      exit(EXIT_FAILURE);
+    } else if (pid == 0) {
+      // Name gen
+      srand(time(NULL) ^ getpid());
+      char *name = MALLOC(9); // BotXXX\0
+      sprintf(name, "Bot%06d", rand() % 999999);
+
+      MConn_connect(conn, &errmsg);
+      EXIT_IF_ERR("cant connect: %s\n");
+
+      send_packet_C2S_handshake(conn, 47, "127.0.0.1", 25565, CONN_STATE_LOGIN,
+                                &errmsg);
+      send_packet_C2S_login_start(conn, name, &errmsg);
+      EXIT_IF_ERR("handshake went wrong: %s\n");
+
+      FREE(name);
+      conn->state = CONN_STATE_LOGIN;
+
+      packet_loop(conn, &errmsg);
+
+      exit(EXIT_SUCCESS);
+    } else {
+      processes_created++;
+      printf("[SPAWNER] created child process %d (PID %d)\n", processes_created,
+             pid);
+    }
+  }
+
+  // Parent process waits for all child processes to exit
+  while (wait(NULL) > 0)
+    ;
+
+  printf("All processes have exited.\n");
+
   return 0;
 }

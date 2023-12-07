@@ -53,6 +53,7 @@ char *packet_data_to_string(int packet_id, MConn_state state,
       (packet_id & 0x00FFFFFF) | (state << 24) | (direction << 23);
 
   switch (combined_packet_data) {
+    // CGSS: packet_data_to_string
     PACKET_DATA_TO_STRING_UTIL(0x00, CONN_STATE_HANDSHAKE, DIRECTION_C2S,
                                "C2S_HANDSHAKE");
     PACKET_DATA_TO_STRING_UTIL(0x00, CONN_STATE_STATUS, DIRECTION_S2C,
@@ -159,6 +160,7 @@ char *packet_data_to_string(int packet_id, MConn_state state,
                                "S2C_PLAY_CHANGE_DIFFICULTY");
     PACKET_DATA_TO_STRING_UTIL(0x00, CONN_STATE_PLAY, DIRECTION_C2S,
                                "C2S_PLAY_KEEP_ALIVE");
+    // CGSE: packet_data_to_string
   default:
     return "PACKET_UNKNOWN";
   }
