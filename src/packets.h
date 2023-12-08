@@ -2,8 +2,8 @@
 
 #include "mcbuffer.h"
 #include "mconn.h"
-#include "packet_types.h"
 #include "mctypes.h"
+#include "packet_types.h"
 #include <jansson.h>
 #include <stdbool.h>
 

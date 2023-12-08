@@ -13,11 +13,11 @@
  */
 
 #include "nbt.h"
+#include "err.h"
+#include "heap_utils.h"
 #include "mcbuffer.h"
 #include "mctypes.h"
 #include "text_buffer.h"
-#include "err.h"
-#include "heap_utils.h"
 #include <assert.h>
 #include <curses.h>
 #include <stdarg.h>

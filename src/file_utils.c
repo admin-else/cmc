@@ -1,7 +1,7 @@
 #include "file_utils.h"
+#include "heap_utils.h"
 #include "mcbuffer.h"
 #include "mctypes.h"
-#include "heap_utils.h"
 #include <stdlib.h>
 
 char *read_text_file(const char *filename, char **errmsg) {

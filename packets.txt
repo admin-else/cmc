@@ -1,6 +1,6 @@
 #  #-----------------+---+
 #  | type            |SYM|
-#  +-----------------#---+
+#  +-----------------+---+
 #  | char            | b |
 #  | byte            | B | # also used for Angles
 #  | short           | h |
@@ -24,7 +24,7 @@
 #  | entity_metadata | m |
 #  | code            | c |
 #  | arrays          | A |
-#  +-----------------+---#
+#  +-----------------+---+
 
 C2S_handshake                              ;0x00;vprotocole_version;sserver_addr;Hserver_port;vnext_state
 S2C_   status_                     response;0x00;jresponse

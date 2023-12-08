@@ -1,7 +1,7 @@
 #include "mcbuffer.h"
+#include "heap_utils.h"
 #include "mctypes.h"
 #include "nbt.h"
-#include "heap_utils.h"
 #include "text_color.h"
 #include <ctype.h>
 #include <jansson.h>
