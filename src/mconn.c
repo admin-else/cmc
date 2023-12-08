@@ -1,7 +1,7 @@
 #include "mconn.h"
+#include "heap_utils.h"
 #include "mcbuffer.h"
 #include "mctypes.h"
-#include "heap_utils.h"
 #include <arpa/inet.h>
 #include <assert.h>
 #include <inttypes.h>
@@ -10,17 +10,19 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
 #include <zlib.h>
 
-MConn *MConn_init(char *ip, uint16_t port, char **errmsg) {
+MConn *MConn_init(char **errmsg) {
   MConn *conn = MALLOC(sizeof(MConn));
   conn->state = CONN_STATE_OFFLINE;
-  conn->addr = ip;
-  conn->port = port;
+  conn->addr = "127.0.0.1";
+  conn->port = 25565;
   conn->compression_threshold = -1;
   conn->sockfd = -1;
+  memset(&conn->on_packet, 0, sizeof(conn->on_packet));
   return conn;
 }
 

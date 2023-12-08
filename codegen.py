@@ -111,13 +111,13 @@ def main():
         mc_packet_exps.append(l)
         
     # packet unpack methods
-    replace_code_segments("".join([unpack_method(mc_packet_exps) for mc_packet_exps in mc_packet_exps]), "unpack_methods")
+    replace_code_segments("".join([unpack_method(mc_packet_exps) for mc_packet_exps in mc_packet_exps]), "unpack_methods_c")
     
     # packet unpack methods header
     replace_code_segments("".join([unpack_method_h(mc_packet_exps) for mc_packet_exps in mc_packet_exps]), "unpack_methods_h")
     
     # packet send methods
-    replace_code_segments("".join([send_method(mc_packet_exp) for mc_packet_exp in mc_packet_exps]), "send_methods")
+    replace_code_segments("".join([send_method(mc_packet_exp) for mc_packet_exp in mc_packet_exps]), "send_methods_c")
     
     # packet send methods header
     replace_code_segments("".join([send_method_h(mc_packet_exp) for mc_packet_exp in mc_packet_exps]), "send_methods_h")
@@ -131,6 +131,9 @@ def main():
     
     # type defs
     replace_code_segments("".join([type_def(mc_packet_exp) for mc_packet_exp in mc_packet_exps]), "packet_types")
+    
+    # on_packet_fuction_pointers
+    replace_code_segments("\n".join([f"void (*{'_'.join(mc_packet_exp.split(';')[0].split('_')[2:])})(const {mc_packet_exp.split(';')[0]}_packet_t packet);" for mc_packet_exp in mc_packet_exps if mc_packet_exp.split(';')[0].startswith("S2C_play_")]), "on_packet_fuction_pointers")
     
     os.system("clang-format -i ./src/*.c ./src/*.h")
     # The Zen of Python, by Tim Peters

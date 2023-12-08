@@ -14,9 +14,9 @@
 
 #pragma once
 
+#include "list.h"
 #include "mcbuffer.h"
 #include "mctypes.h"
-#include "list.h"
 #include <stdint.h>
 
 nbt_node *nbt_parse_named_tag(MCbuffer *buff, char **errmsg);

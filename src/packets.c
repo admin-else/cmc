@@ -166,7 +166,7 @@ char *packet_data_to_string(int packet_id, MConn_state state,
 #undef PACKET_DATA_TO_STRING_UTIL
 }
 
-// CGSS: send_methods
+// CGSS: send_methods_c
 void send_packet_C2S_handshake(MConn *conn, varint_t protocole_version,
                                char *server_addr, unsigned short server_port,
                                varint_t next_state, char **errmsg) {
@@ -813,9 +813,9 @@ void send_packet_C2S_play_keep_alive(MConn *conn, varint_t keep_alive_id,
   MConn_send_packet(conn, buff, errmsg);
 }
 
-// CGSE: send_methods
+// CGSE: send_methods_c
 
-// CGSS: unpack_methods
+// CGSS: unpack_methods_c
 C2S_handshake_packet_t unpack_C2S_handshake_packet(MCbuffer *buff,
                                                    char **errmsg) {
   C2S_handshake_packet_t packet;
@@ -1356,4 +1356,4 @@ C2S_play_keep_alive_packet_t unpack_C2S_play_keep_alive_packet(MCbuffer *buff,
   return packet;
 }
 
-// CGSE: unpack_methods
+// CGSE: unpack_methods_c
