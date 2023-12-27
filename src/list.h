@@ -7,6 +7,11 @@
  * ----------------------------------------------------------------------------
  */
 
+/*
+ * NOTICE: Some or all functions may be modifyed or copied from this repo
+ * https://github.dev/chmod222/cNBT.
+ */
+
 #pragma once
 #include <stddef.h>
 

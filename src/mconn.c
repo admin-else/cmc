@@ -2,6 +2,7 @@
 #include "heap_utils.h"
 #include "mcbuffer.h"
 #include "mctypes.h"
+#include "packets.h"
 #include <arpa/inet.h>
 #include <assert.h>
 #include <inttypes.h>
@@ -15,43 +16,65 @@
 #include <unistd.h>
 #include <zlib.h>
 
-MConn *MConn_init(char **errmsg) {
+MConn *MConn_init() {
   MConn *conn = MALLOC(sizeof(MConn));
   conn->state = CONN_STATE_OFFLINE;
-  conn->addr = "127.0.0.1";
-  conn->port = 25565;
+  struct sockaddr_in addr = {AF_INET, htons(25565), inet_addr("127.0.0.1")};
+  conn->addr = addr; // 127.0.0.1
   conn->compression_threshold = -1;
   conn->sockfd = -1;
   memset(&conn->on_packet, 0, sizeof(conn->on_packet));
   return conn;
 }
 
-MConn *MConn_connect(MConn *conn, char **errmsg) {
+void MConn_login_and_packet_loop(MConn *conn, char **errmsg) {
   if ((conn->sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-    FREE(conn);
     *errmsg = "Socket creation error";
-    return NULL;
+    return;
   }
 
-  struct sockaddr_in address;
-  address.sin_family = AF_INET;
-  address.sin_port = htons(conn->port);
-
-  if (inet_pton(AF_INET, conn->addr, &address.sin_addr) <= 0) {
-    FREE(conn);
-    *errmsg = "Invalid address.";
-    return NULL;
-  }
-
-  if (connect(conn->sockfd, (struct sockaddr *)&address, sizeof(address)) < 0) {
-    FREE(conn);
+  if (connect(conn->sockfd, (struct sockaddr *)&conn->addr, sizeof(conn->addr)) < 0) {
     *errmsg = "Connection Failed";
-    return NULL;
+    return;
   }
 
   conn->state = CONN_STATE_HANDSHAKE;
+  // maybe soon changed to act more like a vanninla client
+  send_packet_C2S_handshake(conn, 47, "cmc", 25565, CONN_STATE_LOGIN, errmsg);
+  send_packet_C2S_login_start(conn, "cmc", errmsg);
+  conn->state = CONN_STATE_LOGIN;
 
-  return conn;
+  while (conn->state != CONN_STATE_OFFLINE) {
+    MCbuffer *buff = MConn_recive_packet(conn, errmsg);
+    varint_t packet_id = MCbuffer_unpack_varint(buff, errmsg);
+    switch (conn->state) {
+      case CONN_STATE_LOGIN:
+      switch (packet_id) {
+        case PACKETID_S2C_LOGIN_DISCONNECT:
+          conn->state = CONN_STATE_OFFLINE;
+          break;
+        case PACKETID_S2C_LOGIN_ENCRYPTION_REQUEST:
+          // Online mode is not implemented ):
+          conn->state = CONN_STATE_OFFLINE;
+          break;
+        case PACKETID_S2C_LOGIN_SET_COMPRESSION:
+          conn->compression_threshold = unpack_S2C_login_set_compression_packet(buff, errmsg).threshold;
+          break;
+        case PACKETID_S2C_LOGIN_SUCCESS:
+          // TODO: implement player entity data
+          conn->state = CONN_STATE_PLAY;
+          break;
+      }
+      break;
+      case CONN_STATE_PLAY:
+      break;
+      default: // HANDSHAKE OFFLINE AND STATUS
+      break;
+    }
+    MCbuffer_free(buff);
+  }
+
+  return;
 }
 
 void MConn_free(MConn *conn, char **errmsg) {
