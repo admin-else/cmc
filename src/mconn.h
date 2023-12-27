@@ -3,14 +3,15 @@
 #include "mcbuffer.h"
 #include "mctypes.h"
 #include "packet_types.h"
+#include <netinet/in.h>
 #include <stddef.h>
 #include <stdint.h>
 
 typedef struct {
   int sockfd;
-  char *addr;
-  uint16_t port;
+  struct sockaddr_in addr;
   MConn_state state; // SEE MCONN_STATE_ macros
+  MConn_state next_state;
   varint_t compression_threshold;
   byte_t *shared_secret;
   struct {
@@ -64,13 +65,9 @@ typedef struct {
     void (*change_difficulty)(const S2C_play_change_difficulty_packet_t packet);
     // CGSE: on_packet_fuction_pointers
   } on_packet;
-  struct {
-    int eid;
-    float health;
-  } player;
 } MConn;
 
-MConn *MConn_init(char **errmsg);
+MConn *MConn_init();
 
 MCbuffer *MConn_recive_packet(MConn *conn, char **errmsg);
 
@@ -86,4 +83,4 @@ void MConn_free(MConn *conn, char **errmsg);
 
 void MConn_close(MConn *conn, char **errmsg);
 
-MConn *MConn_connect(MConn *conn, char **errmsg);
+void MConn_loop(MConn *conn, char **errmsg);
