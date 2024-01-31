@@ -8,7 +8,7 @@
 char *read_text_file(const char *filename, char **errmsg);
 
 // Function to read a binary file and return the result as an unsigned int array
-byte_t *read_binary_file(const char *filename, size_t *length, char **errmsg);
+unsigned char *read_binary_file(const char *filename, size_t *length, char **errmsg);
 
 // Function to write a string to a text file
 int write_text_file(const char *filename, const char *text, char **errmsg);

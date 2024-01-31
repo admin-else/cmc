@@ -29,7 +29,7 @@ char *read_text_file(const char *filename, char **errmsg) {
   return buffer;
 }
 
-byte_t *read_binary_file(const char *filename, size_t *length, char **errmsg) {
+unsigned char *read_binary_file(const char *filename, size_t *length, char **errmsg) {
   FILE *file = fopen(filename, "rb");
   if (file == NULL) {
     *errmsg = "Error: Unable to open binary file for reading.";
@@ -40,7 +40,7 @@ byte_t *read_binary_file(const char *filename, size_t *length, char **errmsg) {
   long file_size = ftell(file);
   rewind(file);
 
-  byte_t *buffer = (byte_t *)MALLOC(file_size);
+  unsigned char *buffer = (unsigned char *)MALLOC(file_size);
   if (buffer == NULL) {
     fclose(file);
     *errmsg = "Error: Memory allocation failed.";
@@ -48,11 +48,11 @@ byte_t *read_binary_file(const char *filename, size_t *length, char **errmsg) {
   }
 
   size_t items_read =
-      fread(buffer, sizeof(byte_t), file_size / sizeof(byte_t), file);
+      fread(buffer, sizeof(unsigned char), file_size / sizeof(unsigned char), file);
   fclose(file);
 
   if (length != NULL) {
-    *length = items_read * sizeof(byte_t);
+    *length = items_read * sizeof(unsigned char);
   }
 
   return buffer;
@@ -89,14 +89,14 @@ MCbuffer *read_file_into_buffer(FILE *fp, char **errmsg) {
   long file_size = ftell(fp);
   rewind(fp);
 
-  byte_t *data = (byte_t *)MALLOC(file_size);
+  unsigned char *data = (unsigned char *)MALLOC(file_size);
   if (data == NULL) {
     fclose(fp);
     *errmsg = "Error: Memory allocation failed.";
     return NULL;
   }
 
-  size_t length = fread(data, sizeof(byte_t), file_size / sizeof(byte_t), fp);
+  size_t length = fread(data, 1, file_size, fp);
   fclose(fp);
 
   MCbuffer *buffer = MCbuffer_init();

@@ -157,9 +157,10 @@ void send_packet_C2S_login_encryption_response(MConn *conn,
 void send_packet_S2C_play_keep_alive(MConn *conn, varint_t keep_alive_id,
                                      char **errmsg);
 
-void send_packet_S2C_play_join_game(MConn *conn, int entity_id, byte_t gamemode,
-                                    char dimension, byte_t difficulty,
-                                    byte_t max_players, char *level_type,
+void send_packet_S2C_play_join_game(MConn *conn, int entity_id,
+                                    unsigned char gamemode, char dimension,
+                                    unsigned char difficulty,
+                                    unsigned char max_players, char *level_type,
                                     bool reduced_debug_info, char **errmsg);
 
 void send_packet_S2C_play_chat_message(MConn *conn, json_t *message,
@@ -179,14 +180,16 @@ void send_packet_S2C_play_update_health(MConn *conn, float health,
                                         varint_t food, float food_saturation,
                                         char **errmsg);
 
-void send_packet_S2C_play_respawn(MConn *conn, int dimesion, byte_t difficulty,
-                                  byte_t gamemode, char *level_type,
+void send_packet_S2C_play_respawn(MConn *conn, int dimesion,
+                                  unsigned char difficulty,
+                                  unsigned char gamemode, char *level_type,
                                   char **errmsg);
 
 void send_packet_S2C_play_player_look_and_position(MConn *conn, double x,
                                                    double y, double z,
                                                    float yaw, float pitch,
-                                                   byte_t flags, char **errmsg);
+                                                   unsigned char flags,
+                                                   char **errmsg);
 
 void send_packet_S2C_play_held_item_change(MConn *conn, char slot,
                                            char **errmsg);
@@ -195,12 +198,12 @@ void send_packet_S2C_play_use_bed(MConn *conn, varint_t entity_id,
                                   block_pos_t location, char **errmsg);
 
 void send_packet_S2C_play_animation(MConn *conn, varint_t entity_id,
-                                    byte_t animation, char **errmsg);
+                                    unsigned char animation, char **errmsg);
 
 void send_packet_S2C_play_spawn_player(MConn *conn, varint_t entity_id,
                                        unsigned long long uuid, int x, int y,
-                                       int z, byte_t yaw, byte_t pitch,
-                                       short current_item,
+                                       int z, unsigned char yaw,
+                                       unsigned char pitch, short current_item,
                                        entity_metadata_t meta_data,
                                        char **errmsg);
 
@@ -210,14 +213,16 @@ void send_packet_S2C_play_collect_item(MConn *conn,
                                        char **errmsg);
 
 void send_packet_S2C_play_spawn_mob(MConn *conn, varint_t entity_id,
-                                    byte_t type, int x, int y, int z,
-                                    byte_t yaw, byte_t pitch, byte_t head_pitch,
-                                    short x_vel, short y_vel, short z_vel,
+                                    unsigned char type, int x, int y, int z,
+                                    unsigned char yaw, unsigned char pitch,
+                                    unsigned char head_pitch, short x_vel,
+                                    short y_vel, short z_vel,
                                     entity_metadata_t meta_data, char **errmsg);
 
 void send_packet_S2C_play_spawn_painting(MConn *conn, varint_t entity_id,
                                          char *title, block_pos_t location,
-                                         byte_t direction, char **errmsg);
+                                         unsigned char direction,
+                                         char **errmsg);
 
 void send_packet_S2C_play_spawn_experience_orb(MConn *conn, varint_t entity_id,
                                                int x, int y, int z, short count,
@@ -236,20 +241,22 @@ void send_packet_S2C_play_entity_relative_move(MConn *conn, varint_t entity_id,
                                                char **errmsg);
 
 void send_packet_S2C_play_entity_look(MConn *conn, varint_t entity_id,
-                                      byte_t yaw, byte_t pitch, bool on_ground,
-                                      char **errmsg);
+                                      unsigned char yaw, unsigned char pitch,
+                                      bool on_ground, char **errmsg);
 
 void send_packet_S2C_play_entity_look_and_relative_move(
     MConn *conn, varint_t entity_id, char delta_x, char delta_y, char delta_z,
-    byte_t yaw, byte_t pitch, bool on_ground, char **errmsg);
+    unsigned char yaw, unsigned char pitch, bool on_ground, char **errmsg);
 
 void send_packet_S2C_play_entity_teleport(MConn *conn, varint_t entity_id,
-                                          int x, int y, int z, byte_t yaw,
-                                          byte_t pitch, bool on_ground,
+                                          int x, int y, int z,
+                                          unsigned char yaw,
+                                          unsigned char pitch, bool on_ground,
                                           char **errmsg);
 
 void send_packet_S2C_play_entity_head_look(MConn *conn, varint_t entity_id,
-                                           byte_t head_yaw, char **errmsg);
+                                           unsigned char head_yaw,
+                                           char **errmsg);
 
 void send_packet_S2C_play_entity_status(MConn *conn, int entity_id,
                                         char entity_status, char **errmsg);
@@ -284,7 +291,8 @@ void send_packet_S2C_play_block_change(MConn *conn, block_pos_t location,
                                        varint_t block_id, char **errmsg);
 
 void send_packet_S2C_play_block_action(MConn *conn, block_pos_t location,
-                                       byte_t block_data_1, byte_t block_data_2,
+                                       unsigned char block_data_1,
+                                       unsigned char block_data_2,
                                        varint_t block_type, char **errmsg);
 
 void send_packet_S2C_play_block_break_animation(MConn *conn, varint_t entity_id,
@@ -301,10 +309,10 @@ void send_packet_S2C_play_effect(MConn *conn, int effect_id,
                                  int sable_relative_volume, char **errmsg);
 
 void send_packet_S2C_play_sound_effect(MConn *conn, char *sound_name, int x,
-                                       int y, int z, float volume, byte_t pitch,
-                                       char **errmsg);
+                                       int y, int z, float volume,
+                                       unsigned char pitch, char **errmsg);
 
-void send_packet_S2C_play_change_game_state(MConn *conn, byte_t reason,
+void send_packet_S2C_play_change_game_state(MConn *conn, unsigned char reason,
                                             float value, char **errmsg);
 
 void send_packet_S2C_play_player_abilities(MConn *conn, char flags,
@@ -316,7 +324,8 @@ void send_packet_S2C_play_plugin_message(MConn *conn, char *channel,
 
 void send_packet_S2C_play_disconnect(MConn *conn, char *reason, char **errmsg);
 
-void send_packet_S2C_play_change_difficulty(MConn *conn, byte_t difficulty,
+void send_packet_S2C_play_change_difficulty(MConn *conn,
+                                            unsigned char difficulty,
                                             char **errmsg);
 
 void send_packet_C2S_play_keep_alive(MConn *conn, varint_t keep_alive_id,
