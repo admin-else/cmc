@@ -2,7 +2,6 @@
 #include "heap_utils.h"
 #include "mctypes.h"
 #include "nbt.h"
-#include "text_color.h"
 #include <ctype.h>
 #include <jansson.h>
 #include <stdbool.h>
@@ -195,9 +194,7 @@ NUM_PACK_AND_UNPACK_FUNC_FACTORY(byte, unsigned char);
 NUM_PACK_AND_UNPACK_FUNC_FACTORY(short, short);
 NUM_PACK_AND_UNPACK_FUNC_FACTORY(ushort, unsigned short);
 NUM_PACK_AND_UNPACK_FUNC_FACTORY_WITH_ENDIAN(int, int);
-NUM_PACK_AND_UNPACK_FUNC_FACTORY(
-    uint, unsigned int); // when you see a weird number than just swap the func
-                         // factory lmao
+NUM_PACK_AND_UNPACK_FUNC_FACTORY(uint, unsigned int);
 NUM_PACK_AND_UNPACK_FUNC_FACTORY(long, long);
 NUM_PACK_AND_UNPACK_FUNC_FACTORY(ulong, unsigned long);
 NUM_PACK_AND_UNPACK_FUNC_FACTORY(float, float);
@@ -274,10 +271,8 @@ char *MCbuffer_unpack_string_w_max_len(MCbuffer *buff, int max_len,
   int str_len = MCbuffer_unpack_varint(buff, errmsg);
   CHECK_ERRMSG
   if (str_len > max_len * 4) {
-    sprintf(*errmsg,
-            "The received encoded string buffer length is longer than maximum"
-            "allowed (%i > %i)",
-            str_len, max_len);
+    *errmsg = "The received encoded string buffer length is longer than "
+              "maximum allowed";
     return NULL;
   }
 
@@ -429,7 +424,7 @@ slot_t *MCbuffer_unpack_slot(MCbuffer *buff, char **errmsg) {
 
 void MCbuffer_pack_entity_metadata(MCbuffer *buff, entity_metadata_t metadata,
                                    char **errmsg) {
-  for (int i; i < metadata.size; i++) {
+  for (int i = 0; i < metadata.size; i++) {
     entity_metadata_entry_t *entry =
         metadata.entries + i * sizeof(entity_metadata_entry_t);
     MCbuffer_pack_char(buff, entry->type << 5 | entry->index, errmsg);

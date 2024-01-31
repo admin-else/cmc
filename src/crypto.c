@@ -13,7 +13,7 @@ this file contains crypto and comprssion
 #include <string.h>
 
 RSA *pubkeyDER_to_RSA(uint8_t *pubkeyDER, size_t pubkeyDER_len, char **errmsg) {
-  byte_t *malloced_buffer = MALLOC(pubkeyDER_len);
+  unsigned char *malloced_buffer = MALLOC(pubkeyDER_len);
   memcpy(malloced_buffer, pubkeyDER, pubkeyDER_len);
 
   BIO *pubkeyBIO = BIO_new_mem_buf(malloced_buffer, pubkeyDER_len);
@@ -40,11 +40,11 @@ RSA *pubkeyDER_to_RSA(uint8_t *pubkeyDER, size_t pubkeyDER_len, char **errmsg) {
   return pubkeyRSA;
 }
 
-byte_t *generate_random_bytes(int len) {
-  byte_t *generated_bytes = malloc(len);
+unsigned char *generate_random_bytes(int len) {
+  unsigned char *generated_bytes = malloc(len);
 
   for (int i = 0; i < len; i++) {
-    generated_bytes[i] = rand() % 256;
+    generated_bytes[i] = rand() % 0xFF;
   }
   return generated_bytes;
 }

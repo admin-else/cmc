@@ -9,11 +9,13 @@
 
 typedef struct {
   int sockfd;
-  struct sockaddr_in addr;
+  struct sockaddr addr;
   MConn_state state; // SEE MCONN_STATE_ macros
   MConn_state next_state;
   varint_t compression_threshold;
-  byte_t *shared_secret;
+  unsigned char *shared_secret;
+  /* string literal not in the heap */
+  char *name;
   struct {
     // CGSS: on_packet_fuction_pointers
     void (*keep_alive)(const S2C_play_keep_alive_packet_t packet);

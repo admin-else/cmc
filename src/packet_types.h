@@ -59,10 +59,10 @@ typedef struct {
 
 typedef struct {
   int entity_id;
-  byte_t gamemode;
+  unsigned char gamemode;
   char dimension;
-  byte_t difficulty;
-  byte_t max_players;
+  unsigned char difficulty;
+  unsigned char max_players;
   char *level_type;
   bool reduced_debug_info;
 } S2C_play_join_game_packet_t;
@@ -95,8 +95,8 @@ typedef struct {
 
 typedef struct {
   int dimesion;
-  byte_t difficulty;
-  byte_t gamemode;
+  unsigned char difficulty;
+  unsigned char gamemode;
   char *level_type;
 } S2C_play_respawn_packet_t;
 
@@ -106,7 +106,7 @@ typedef struct {
   double z;
   float yaw;
   float pitch;
-  byte_t flags;
+  unsigned char flags;
 } S2C_play_player_look_and_position_packet_t;
 
 typedef struct {
@@ -120,7 +120,7 @@ typedef struct {
 
 typedef struct {
   varint_t entity_id;
-  byte_t animation;
+  unsigned char animation;
 } S2C_play_animation_packet_t;
 
 typedef struct {
@@ -129,8 +129,8 @@ typedef struct {
   int x;
   int y;
   int z;
-  byte_t yaw;
-  byte_t pitch;
+  unsigned char yaw;
+  unsigned char pitch;
   short current_item;
   entity_metadata_t meta_data;
 } S2C_play_spawn_player_packet_t;
@@ -142,13 +142,13 @@ typedef struct {
 
 typedef struct {
   varint_t entity_id;
-  byte_t type;
+  unsigned char type;
   int x;
   int y;
   int z;
-  byte_t yaw;
-  byte_t pitch;
-  byte_t head_pitch;
+  unsigned char yaw;
+  unsigned char pitch;
+  unsigned char head_pitch;
   short x_vel;
   short y_vel;
   short z_vel;
@@ -159,7 +159,7 @@ typedef struct {
   varint_t entity_id;
   char *title;
   block_pos_t location;
-  byte_t direction;
+  unsigned char direction;
 } S2C_play_spawn_painting_packet_t;
 
 typedef struct {
@@ -191,8 +191,8 @@ typedef struct {
 
 typedef struct {
   varint_t entity_id;
-  byte_t yaw;
-  byte_t pitch;
+  unsigned char yaw;
+  unsigned char pitch;
   bool on_ground;
 } S2C_play_entity_look_packet_t;
 
@@ -201,8 +201,8 @@ typedef struct {
   char delta_x;
   char delta_y;
   char delta_z;
-  byte_t yaw;
-  byte_t pitch;
+  unsigned char yaw;
+  unsigned char pitch;
   bool on_ground;
 } S2C_play_entity_look_and_relative_move_packet_t;
 
@@ -211,14 +211,14 @@ typedef struct {
   int x;
   int y;
   int z;
-  byte_t yaw;
-  byte_t pitch;
+  unsigned char yaw;
+  unsigned char pitch;
   bool on_ground;
 } S2C_play_entity_teleport_packet_t;
 
 typedef struct {
   varint_t entity_id;
-  byte_t head_yaw;
+  unsigned char head_yaw;
 } S2C_play_entity_head_look_packet_t;
 
 typedef struct {
@@ -271,8 +271,8 @@ typedef struct {
 
 typedef struct {
   block_pos_t location;
-  byte_t block_data_1;
-  byte_t block_data_2;
+  unsigned char block_data_1;
+  unsigned char block_data_2;
   varint_t block_type;
 } S2C_play_block_action_packet_t;
 
@@ -306,11 +306,11 @@ typedef struct {
   int y;
   int z;
   float volume;
-  byte_t pitch;
+  unsigned char pitch;
 } S2C_play_sound_effect_packet_t;
 
 typedef struct {
-  byte_t reason;
+  unsigned char reason;
   float value;
 } S2C_play_change_game_state_packet_t;
 
@@ -330,7 +330,7 @@ typedef struct {
 } S2C_play_disconnect_packet_t;
 
 typedef struct {
-  byte_t difficulty;
+  unsigned char difficulty;
 } S2C_play_change_difficulty_packet_t;
 
 typedef struct {
