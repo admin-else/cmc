@@ -71,18 +71,18 @@ typedef struct {
 
 MConn *MConn_init();
 
-MCbuffer *MConn_recive_packet(MConn *conn, char **errmsg);
+MCbuffer *MConn_recive_packet(MConn *conn);
 
-void MConn_send_buffer(MConn *conn, MCbuffer *buff, char **errmsg);
+void MConn_send_buffer(MConn *conn, MCbuffer *buff);
 
-void MConn_send_and_free_buffer(MConn *conn, MCbuffer *buff, char **errmsg);
+void MConn_send_and_free_buffer(MConn *conn, MCbuffer *buff);
 
-void MConn_send_packet(MConn *conn, MCbuffer *buff, char **errmsg);
+void MConn_send_packet(MConn *conn, MCbuffer *buff);
 
-MCbuffer *MConn_recive_packet(MConn *conn, char **errmsg);
+MCbuffer *MConn_recive_packet(MConn *conn);
 
-void MConn_free(MConn *conn, char **errmsg);
+void MConn_free(MConn *conn);
 
-void MConn_close(MConn *conn, char **errmsg);
+void MConn_close(MConn *conn);
 
-void MConn_loop(MConn *conn, char **errmsg);
+void MConn_loop(MConn *conn);

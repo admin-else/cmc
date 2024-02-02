@@ -14,7 +14,7 @@ typedef struct {
 } C2S_handshake_packet_t;
 
 typedef struct {
-  json_t *response;
+  char *response;
 } S2C_status_response_packet_t;
 
 typedef struct {
@@ -26,7 +26,7 @@ typedef struct {
 } C2S_status_ping_packet_t;
 
 typedef struct {
-  json_t *reason;
+  char *reason;
 } S2C_login_disconnect_packet_t;
 
 typedef struct {
@@ -68,7 +68,7 @@ typedef struct {
 } S2C_play_join_game_packet_t;
 
 typedef struct {
-  json_t *message;
+  char *message;
   char position;
 } S2C_play_chat_message_packet_t;
 

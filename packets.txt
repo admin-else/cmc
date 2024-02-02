@@ -27,11 +27,11 @@
 #  +-----------------+---+
 
 C2S_handshake                              ;0x00;vprotocole_version;sserver_addr;Hserver_port;vnext_state
-S2C_   status_                     response;0x00;jresponse
+S2C_   status_                     response;0x00;sresponse
 S2C_   status_                         pong;0x01;lpayload
 C2S_   status_                      request;0x00;
 C2S_   status_                         ping;0x01;lpayload
-S2C_    login_                   disconnect;0x00;jreason
+S2C_    login_                   disconnect;0x00;sreason
 S2C_    login_           encryption_request;0x01;sserver_id;apublic_key;averify_token
 S2C_    login_                      success;0x02;suuid;sname
 S2C_    login_              set_compression;0x03;vthreshold
@@ -39,7 +39,7 @@ C2S_    login_                        start;0x00;sname
 C2S_    login_          encryption_response;0x01;ashared_secret;averify_token
 S2C_     play_                   keep_alive;0x00;vkeep_alive_id
 S2C_     play_                    join_game;0x01;ientity_id;Bgamemode;bdimension;Bdifficulty;Bmax_players;slevel_type;?reduced_debug_info
-S2C_     play_                 chat_message;0x02;jmessage;bposition
+S2C_     play_                 chat_message;0x02;smessage;bposition
 S2C_     play_                  time_update;0x03;lworld_age;ltime_of_day
 S2C_     play_             entity_equipment;0x04;ventity_id;hslot;Sitem
 S2C_     play_               spawn_position;0x05;plocation

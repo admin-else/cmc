@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -O2 -g -Wno-missing-braces
-LDFLAGS = -lz -lcrypto -lssl -ljansson -lcurl
+LDFLAGS = -lz -lcrypto -lssl -lcurl
 
 SRC  = $(wildcard src/*.c) $(wildcard src/**/*.c) $(wildcard src/**/**/*.c) $(wildcard src/**/**/**/*.c)
 OBJ  = $(SRC:.c=.o)

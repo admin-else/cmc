@@ -67,15 +67,15 @@ def type_def(input_str):
 def unpack_method(input_str):
     packet_name, packet_id, symbol_str = input_str.split(";", maxsplit=2)
     symbols = [sym for sym in symbol_str.split(";") if sym != ""]
-    unpack_method_define = f"{packet_name}_packet_t unpack_{packet_name}_packet(MCbuffer *buff, char **errmsg)"
+    unpack_method_define = f"{packet_name}_packet_t unpack_{packet_name}_packet(MCbuffer *buff)"
     unpack_methods = "".join(
         [
-            f"packet.{symbol[1:]}=MCbuffer_unpack_{type_map[symbol[0]][1]}(buff,errmsg);"
+            f"packet.{symbol[1:]}=MCbuffer_unpack_{type_map[symbol[0]][1]}(buff);"
             for symbol in symbols
         ]
     )
     unpack_method = (
-        f"{unpack_method_define} {{{packet_name}_packet_t packet;{unpack_methods} UNPACK_ERR_HANDELER({packet_name});return packet;}}\n\n"
+        f"{unpack_method_define} {{{packet_name}_packet_t packet;{unpack_methods} UNPACK_ERR_HANDELER;return packet;}}\n\n"
         if symbols
         else ""
     )
@@ -86,7 +86,7 @@ def unpack_method_h(input_str):
     packet_name, packet_id, symbol_str = input_str.split(";", maxsplit=2)
     symbols = [sym for sym in symbol_str.split(";") if sym != ""]
     return (
-        f"{packet_name}_packet_t unpack_{packet_name}_packet(MCbuffer *buff, char **errmsg);\n\n"
+        f"{packet_name}_packet_t unpack_{packet_name}_packet(MCbuffer *buff);\n\n"
         if symbols
         else ""
     )
@@ -96,23 +96,23 @@ def send_method(input_str):
     packet_name, packet_id, symbol_str = input_str.split(";", maxsplit=2)
     symbols = [sym for sym in symbol_str.split(";") if sym != ""]
     pack_methods = (
-        f"  MCbuffer_pack_varint(buff, PACKETID_{packet_name.upper()}, errmsg);"
+        f"MCbuffer_pack_varint(buff, PACKETID_{packet_name.upper()});"
         + "".join(
             [
-                f"MCbuffer_pack_{type_map[symbol[0]][1]}(buff, {symbol[1:]}, errmsg);"
+                f"MCbuffer_pack_{type_map[symbol[0]][1]}(buff, {symbol[1:]});"
                 for symbol in symbols
             ]
         )
     )
-    send_method_define = f"void send_packet_{packet_name}(MConn *conn, {', '.join([f'{type_map[symbol[0]][0]}{symbol[1:]}' for symbol in symbols]) + ', ' if symbols else ''}char **errmsg)"
-    send_method = f"{send_method_define} {{MCbuffer *buff = MCbuffer_init();{pack_methods}  PACK_ERR_HANDELER({packet_name});MConn_send_packet(conn, buff, errmsg);}}\n\n"
+    send_method_define = f"void send_packet_{packet_name}(MConn *conn{', ' if symbols else ''} {', '.join([f'{type_map[symbol[0]][0]}{symbol[1:]}' for symbol in symbols])})"
+    send_method = f"{send_method_define} {{MCbuffer *buff = MCbuffer_init();{pack_methods}  ERR_CHECK; MConn_send_packet(conn, buff);}}\n\n"
     return send_method
 
 
 def send_method_h(input_str):
     packet_name, packet_id, symbol_str = input_str.split(";", maxsplit=2)
     symbols = [sym for sym in symbol_str.split(";") if sym != ""]
-    return f"void send_packet_{packet_name}(MConn *conn, {', '.join([f'{type_map[symbol[0]][0]}{symbol[1:]}' for symbol in symbols]) + ', ' if symbols else ''}char **errmsg);\n\n"
+    return f"void send_packet_{packet_name}(MConn *conn{',' if symbols else ''} {', '.join([f'{type_map[symbol[0]][0]}{symbol[1:]}' for symbol in symbols])});\n\n"
 
 
 def comment_filter(raw):
@@ -211,7 +211,7 @@ def main():
     replace_code_segments(
         "\n".join(
             [
-                f"case PACKETID_{mc_packet_exp.split(';')[0].upper()}: {{{mc_packet_exp.split(';')[0]}_packet_t data = unpack_{mc_packet_exp.split(';')[0]}_packet(packet, errmsg);if(*errmsg) break;conn->on_packet.{'_'.join(mc_packet_exp.split(';')[0].split('_')[2:])}(data);}}"
+                f"case PACKETID_{mc_packet_exp.split(';')[0].upper()}: {{{mc_packet_exp.split(';')[0]}_packet_t data = unpack_{mc_packet_exp.split(';')[0]}_packet(packet);ERR_CHECK;conn->on_packet.{'_'.join(mc_packet_exp.split(';')[0].split('_')[2:])}(data);}}"
                 for mc_packet_exp in mc_packet_exps
                 if mc_packet_exp.split(';')[0].startswith('S2C_play_')
             ]
