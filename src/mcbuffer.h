@@ -59,7 +59,7 @@ void MCbuffer_pack_nbt(MCbuffer *buff, nbt_node *nbt);
 
 void MCbuffer_print_info(MCbuffer *buff);
 
-void MCbuffer_combine(MCbuffer *buff1, MCbuffer *buff2);
+MCbuffer *MCbuffer_combine(MCbuffer *buff1, MCbuffer *buff2);
 
 MCbuffer *MCbuffer_unpack_byte_array(MCbuffer *buff);
 

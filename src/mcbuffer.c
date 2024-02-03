@@ -95,9 +95,10 @@ void MCbuffer_free(MCbuffer *buffer) {
   FREE(buffer);
 }
 
-void MCbuffer_combine(MCbuffer *buff1, MCbuffer *buff2) {
+MCbuffer *MCbuffer_combine(MCbuffer *buff1, MCbuffer *buff2) {
   MCbuffer_pack(buff1, buff2->data, buff2->length);
   MCbuffer_free(buff2);
+  return buff1;
 }
 
 void MCbuffer_pack(MCbuffer *buffer, const void *data, size_t data_size) {
@@ -106,7 +107,6 @@ void MCbuffer_pack(MCbuffer *buffer, const void *data, size_t data_size) {
     ERR(ERR_INVALID_ARGUMENTS);
     return;
   }
-#define ERR_ACTION
   if (buffer->data == NULL) {
     buffer->data = MALLOC(data_size);
     buffer->capacity = data_size;
@@ -121,7 +121,6 @@ void MCbuffer_pack(MCbuffer *buffer, const void *data, size_t data_size) {
         (unsigned char *)realloc(buffer->data, new_capacity);
     if (new_data == NULL)
       ERR(ERR_MEM);
-    ;
 
     buffer->data = new_data;
     buffer->capacity = new_capacity;
@@ -133,7 +132,8 @@ void MCbuffer_pack(MCbuffer *buffer, const void *data, size_t data_size) {
 }
 
 unsigned char *MCbuffer_unpack(MCbuffer *buffer, size_t n) {
-  if (n >= 0 || buffer == NULL)
+#define ERR_ACTION return NULL;
+  if (n <= 0 || buffer == NULL)
     ERR(ERR_INVALID_ARGUMENTS);
   if (buffer->position + n > buffer->length)
     ERR(ERR_BUFFER_OVERFLOW);
@@ -213,6 +213,7 @@ bool MCbuffer_unpack_bool(MCbuffer *buffer) {
 }
 
 void MCbuffer_pack_varint(MCbuffer *buff, int signed_number) {
+#define ERR_ACTION return;
   unsigned int number = (unsigned int)signed_number;
   for (int i = 0; i < 5; i++) {
     uint8_t b = number & 0x7F;
@@ -226,6 +227,7 @@ void MCbuffer_pack_varint(MCbuffer *buff, int signed_number) {
 }
 
 int32_t MCbuffer_unpack_varint(MCbuffer *buff) {
+#define ERR_ACTION return 0;
   uint32_t number = 0;
   for (int i = 0; i < 5; i++) {
     uint8_t b = MCbuffer_unpack_byte(buff);
@@ -239,6 +241,7 @@ int32_t MCbuffer_unpack_varint(MCbuffer *buff) {
 
 void MCbuffer_pack_string_w_max_len(MCbuffer *buff, const char *value,
                                     int max_len) {
+#define ERR_ACTION return;
   int str_len = strlen(value);
   if (str_len > max_len)
     ERR(ERR_STRING_LENGHT);
