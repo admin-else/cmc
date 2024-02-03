@@ -23,6 +23,7 @@ and i dont like that so made it "safer" ig...
 */
 
 #define UNPACK_ERR_HANDELER                                                    \
+  ERR_CHECK;                                                                   \
   if (buff->position != buff->length)                                          \
     ERR(ERR_BUFFER_UNDERUN);
 
@@ -897,6 +898,7 @@ unpack_S2C_play_time_update_packet(MCbuffer *buff) {
   S2C_play_time_update_packet_t packet;
   packet.world_age = MCbuffer_unpack_long(buff);
   packet.time_of_day = MCbuffer_unpack_long(buff);
+  MCbuffer_print_info(buff);
   UNPACK_ERR_HANDELER;
   return packet;
 }

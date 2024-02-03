@@ -7,3 +7,4 @@ fuzz/*
 .vscode/*
 .vscode/
 src/*.o
+.venv/

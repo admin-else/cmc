@@ -9,7 +9,7 @@
 
 typedef struct {
   int sockfd;
-  struct sockaddr addr;
+  struct sockaddr_in addr;
   MConn_state state; // SEE MCONN_STATE_ macros
   MConn_state next_state;
   varint_t compression_threshold;

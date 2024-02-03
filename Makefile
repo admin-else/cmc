@@ -1,5 +1,5 @@
-CC = gcc
-CFLAGS = -Wall -O2 -g -Wno-missing-braces
+CC = clang
+CFLAGS = -O2 -ggdb -Wno-macro-redefined
 LDFLAGS = -lz -lcrypto -lssl -lcurl
 
 SRC  = $(wildcard src/*.c) $(wildcard src/**/*.c) $(wildcard src/**/**/*.c) $(wildcard src/**/**/**/*.c)

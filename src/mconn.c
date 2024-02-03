@@ -6,11 +6,6 @@
 #include "packets.h"
 #include <arpa/inet.h>
 #include <assert.h>
-#include <inttypes.h>
-#include <limits.h>
-#include <netinet/in.h>
-#include <stdbool.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,13 +15,15 @@
 
 MConn *MConn_init() {
   MConn *conn = MALLOC(sizeof(MConn));
+
+  struct sockaddr_in server_addr;
+  server_addr.sin_family = AF_INET;
+  server_addr.sin_port = htons(25565); // Replace 8080 with your server's port
+  inet_pton(AF_INET, "127.0.0.1", &(server_addr.sin_addr));
+  
+  conn->addr = server_addr;
   conn->name = "Bot";
   conn->state = CONN_STATE_OFFLINE;
-  struct sockaddr_in localhost =
-      (struct sockaddr_in){.sin_family = AF_INET,
-                           .sin_port = htons(25565),
-                           .sin_addr = inet_addr("127.0.0.1")};
-  memcpy(&conn->addr, &localhost, sizeof(localhost));
   conn->compression_threshold = -1;
   conn->sockfd = -1;
   memset(&conn->on_packet, 0, sizeof(conn->on_packet));
@@ -193,12 +190,14 @@ on_error:
 }
 
 void MConn_loop(MConn *conn) {
-#define ERR_ACTION goto err_close_conn;
-
+#define ERR_ACTION return;
   conn->sockfd = socket(AF_INET, SOCK_STREAM, 0);
   ERR_IF_NOT(conn->sockfd, ERR_SOCKET);
-  ERR_IF_NOT(connect(conn->sockfd, &conn->addr, sizeof(conn->addr)),
-             ERR_CONNETING);
+#define ERR_ACTION goto err_close_conn;
+
+  ERR_IF_LESS_THAN_ZERO(
+      connect(conn->sockfd, (struct sockaddr *)&conn->addr, sizeof(conn->addr)),
+      ERR_CONNETING);
   ERR_ABLE(send_packet_C2S_handshake(conn, 47, "cmc", 25565, CONN_STATE_LOGIN));
   ERR_ABLE(send_packet_C2S_login_start(conn, conn->name));
   conn->state = CONN_STATE_LOGIN;
@@ -206,6 +205,7 @@ void MConn_loop(MConn *conn) {
     MCbuffer *packet = ERR_ABLE(MConn_recive_packet(conn));
 #define ERR_ACTION goto err_free_packet;
     int packet_id = ERR_ABLE(MCbuffer_unpack_varint(packet));
+    printf("packet id %i\n", packet_id);
     switch (conn->state) {
     case CONN_STATE_LOGIN: {
       switch (packet_id) {

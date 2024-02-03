@@ -1,6 +1,5 @@
 #pragma once
 #include "mctypes.h"
-#include <jansson.h>
 
 // there are some circular include shenanigans with mconn and packets header
 // that the reason for the existence of this file
