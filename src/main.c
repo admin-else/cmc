@@ -15,6 +15,7 @@ void on_join_game(const S2C_play_join_game_packet_t data) {
   printf("%s\n", data.level_type);
 }
 
+
 int main() {
 #define ERR_ACTION return;
 
@@ -22,7 +23,7 @@ int main() {
   conn->on_packet.join_game = on_join_game;
   MConn_loop(conn);
   if (cmc_err.type) {
-    printf("%s at %s:%d \n", err_id2str(cmc_err.type), cmc_err.file, cmc_err.line);
+    printf("%s at %s:%d\n", err_id2str(cmc_err.type), cmc_err.file, cmc_err.line);
   }
   return 0;
 }

@@ -10,7 +10,7 @@ typedef struct {
   char *server_addr;
   unsigned short server_port;
   varint_t next_state;
-} C2S_handshake_packet_t;
+} C2S_handshake_handshake_packet_t;
 
 typedef struct {
   char *response;

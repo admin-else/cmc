@@ -20,7 +20,7 @@ MConn *MConn_init() {
   server_addr.sin_family = AF_INET;
   server_addr.sin_port = htons(25565); // Replace 8080 with your server's port
   inet_pton(AF_INET, "127.0.0.1", &(server_addr.sin_addr));
-  
+
   conn->addr = server_addr;
   conn->name = "Bot";
   conn->state = CONN_STATE_OFFLINE;
@@ -198,283 +198,99 @@ void MConn_loop(MConn *conn) {
   ERR_IF_LESS_THAN_ZERO(
       connect(conn->sockfd, (struct sockaddr *)&conn->addr, sizeof(conn->addr)),
       ERR_CONNETING);
-  ERR_ABLE(send_packet_C2S_handshake(conn, 47, "cmc", 25565, CONN_STATE_LOGIN));
+  ERR_ABLE(send_packet_C2S_handshake_handshake(conn, 47, "cmc", 25565,
+                                               CONN_STATE_LOGIN));
   ERR_ABLE(send_packet_C2S_login_start(conn, conn->name));
   conn->state = CONN_STATE_LOGIN;
   while (conn->state != CONN_STATE_OFFLINE) {
     MCbuffer *packet = ERR_ABLE(MConn_recive_packet(conn));
 #define ERR_ACTION goto err_free_packet;
     int packet_id = ERR_ABLE(MCbuffer_unpack_varint(packet));
-    printf("packet id %i\n", packet_id);
     switch (conn->state) {
     case CONN_STATE_LOGIN: {
       switch (packet_id) {
-      case PACKETID_S2C_LOGIN_DISCONNECT:
+      case packetid_S2C_login_disconnect:
         ERR(ERR_KICKED_WHILE_LOGIN);
-      case PACKETID_S2C_LOGIN_ENCRYPTION_REQUEST:
+        break;
+      case packetid_S2C_login_encryption_request:
         ERR(ERR_SERVER_ONLINE_MODE);
         break;
-      case PACKETID_S2C_LOGIN_SET_COMPRESSION: {
+      case packetid_S2C_login_set_compression: {
         S2C_login_set_compression_packet_t compression_packet =
             unpack_S2C_login_set_compression_packet(packet);
         conn->compression_threshold = compression_packet.threshold;
         break;
       }
-      case PACKETID_S2C_LOGIN_SUCCESS:
+      case packetid_S2C_login_success:
         conn->state = CONN_STATE_PLAY;
         break;
       default:
         ERR(ERR_INVALID_PACKET_ID_WHILE_LOGGING_IN);
         break;
       }
+      break;
     }
     case CONN_STATE_PLAY:
       switch (packet_id) {
+#define PACKER_HANDLER_HELPER(packet_name)                                     \
+  case packetid_S2C_play_##packet_name: {                                      \
+    if (!conn->on_packet.packet_name)                                          \
+      break;                                                                   \
+    S2C_play_##packet_name##_packet_t data =                                   \
+        unpack_S2C_play_##packet_name##_packet(packet);                        \
+    if (cmc_err.type) {                                                        \
+      printf("ERR_CHECKED %s:%d\n", __FILE__, __LINE__);                       \
+      goto err_free_packet;                                                    \
+    }                                                                          \
+    conn->on_packet.packet_name(data);                                         \
+    break;                                                                     \
+  }
+
         // CGSS: loop_handler
-      case PACKETID_S2C_PLAY_KEEP_ALIVE: {
-        S2C_play_keep_alive_packet_t data =
-            unpack_S2C_play_keep_alive_packet(packet);
-        ERR_CHECK;
-        conn->on_packet.keep_alive(data);
-      }
-      case PACKETID_S2C_PLAY_JOIN_GAME: {
-        S2C_play_join_game_packet_t data =
-            unpack_S2C_play_join_game_packet(packet);
-        ERR_CHECK;
-        conn->on_packet.join_game(data);
-      }
-      case PACKETID_S2C_PLAY_CHAT_MESSAGE: {
-        S2C_play_chat_message_packet_t data =
-            unpack_S2C_play_chat_message_packet(packet);
-        ERR_CHECK;
-        conn->on_packet.chat_message(data);
-      }
-      case PACKETID_S2C_PLAY_TIME_UPDATE: {
-        S2C_play_time_update_packet_t data =
-            unpack_S2C_play_time_update_packet(packet);
-        ERR_CHECK;
-        conn->on_packet.time_update(data);
-      }
-      case PACKETID_S2C_PLAY_ENTITY_EQUIPMENT: {
-        S2C_play_entity_equipment_packet_t data =
-            unpack_S2C_play_entity_equipment_packet(packet);
-        ERR_CHECK;
-        conn->on_packet.entity_equipment(data);
-      }
-      case PACKETID_S2C_PLAY_SPAWN_POSITION: {
-        S2C_play_spawn_position_packet_t data =
-            unpack_S2C_play_spawn_position_packet(packet);
-        ERR_CHECK;
-        conn->on_packet.spawn_position(data);
-      }
-      case PACKETID_S2C_PLAY_UPDATE_HEALTH: {
-        S2C_play_update_health_packet_t data =
-            unpack_S2C_play_update_health_packet(packet);
-        ERR_CHECK;
-        conn->on_packet.update_health(data);
-      }
-      case PACKETID_S2C_PLAY_RESPAWN: {
-        S2C_play_respawn_packet_t data = unpack_S2C_play_respawn_packet(packet);
-        ERR_CHECK;
-        conn->on_packet.respawn(data);
-      }
-      case PACKETID_S2C_PLAY_PLAYER_LOOK_AND_POSITION: {
-        S2C_play_player_look_and_position_packet_t data =
-            unpack_S2C_play_player_look_and_position_packet(packet);
-        ERR_CHECK;
-        conn->on_packet.player_look_and_position(data);
-      }
-      case PACKETID_S2C_PLAY_HELD_ITEM_CHANGE: {
-        S2C_play_held_item_change_packet_t data =
-            unpack_S2C_play_held_item_change_packet(packet);
-        ERR_CHECK;
-        conn->on_packet.held_item_change(data);
-      }
-      case PACKETID_S2C_PLAY_USE_BED: {
-        S2C_play_use_bed_packet_t data = unpack_S2C_play_use_bed_packet(packet);
-        ERR_CHECK;
-        conn->on_packet.use_bed(data);
-      }
-      case PACKETID_S2C_PLAY_ANIMATION: {
-        S2C_play_animation_packet_t data =
-            unpack_S2C_play_animation_packet(packet);
-        ERR_CHECK;
-        conn->on_packet.animation(data);
-      }
-      case PACKETID_S2C_PLAY_SPAWN_PLAYER: {
-        S2C_play_spawn_player_packet_t data =
-            unpack_S2C_play_spawn_player_packet(packet);
-        ERR_CHECK;
-        conn->on_packet.spawn_player(data);
-      }
-      case PACKETID_S2C_PLAY_COLLECT_ITEM: {
-        S2C_play_collect_item_packet_t data =
-            unpack_S2C_play_collect_item_packet(packet);
-        ERR_CHECK;
-        conn->on_packet.collect_item(data);
-      }
-      case PACKETID_S2C_PLAY_SPAWN_MOB: {
-        S2C_play_spawn_mob_packet_t data =
-            unpack_S2C_play_spawn_mob_packet(packet);
-        ERR_CHECK;
-        conn->on_packet.spawn_mob(data);
-      }
-      case PACKETID_S2C_PLAY_SPAWN_PAINTING: {
-        S2C_play_spawn_painting_packet_t data =
-            unpack_S2C_play_spawn_painting_packet(packet);
-        ERR_CHECK;
-        conn->on_packet.spawn_painting(data);
-      }
-      case PACKETID_S2C_PLAY_SPAWN_EXPERIENCE_ORB: {
-        S2C_play_spawn_experience_orb_packet_t data =
-            unpack_S2C_play_spawn_experience_orb_packet(packet);
-        ERR_CHECK;
-        conn->on_packet.spawn_experience_orb(data);
-      }
-      case PACKETID_S2C_PLAY_ENTITY_VELOCITY: {
-        S2C_play_entity_velocity_packet_t data =
-            unpack_S2C_play_entity_velocity_packet(packet);
-        ERR_CHECK;
-        conn->on_packet.entity_velocity(data);
-      }
-      case PACKETID_S2C_PLAY_ENTITY: {
-        S2C_play_entity_packet_t data = unpack_S2C_play_entity_packet(packet);
-        ERR_CHECK;
-        conn->on_packet.entity(data);
-      }
-      case PACKETID_S2C_PLAY_ENTITY_RELATIVE_MOVE: {
-        S2C_play_entity_relative_move_packet_t data =
-            unpack_S2C_play_entity_relative_move_packet(packet);
-        ERR_CHECK;
-        conn->on_packet.entity_relative_move(data);
-      }
-      case PACKETID_S2C_PLAY_ENTITY_LOOK: {
-        S2C_play_entity_look_packet_t data =
-            unpack_S2C_play_entity_look_packet(packet);
-        ERR_CHECK;
-        conn->on_packet.entity_look(data);
-      }
-      case PACKETID_S2C_PLAY_ENTITY_LOOK_AND_RELATIVE_MOVE: {
-        S2C_play_entity_look_and_relative_move_packet_t data =
-            unpack_S2C_play_entity_look_and_relative_move_packet(packet);
-        ERR_CHECK;
-        conn->on_packet.entity_look_and_relative_move(data);
-      }
-      case PACKETID_S2C_PLAY_ENTITY_TELEPORT: {
-        S2C_play_entity_teleport_packet_t data =
-            unpack_S2C_play_entity_teleport_packet(packet);
-        ERR_CHECK;
-        conn->on_packet.entity_teleport(data);
-      }
-      case PACKETID_S2C_PLAY_ENTITY_HEAD_LOOK: {
-        S2C_play_entity_head_look_packet_t data =
-            unpack_S2C_play_entity_head_look_packet(packet);
-        ERR_CHECK;
-        conn->on_packet.entity_head_look(data);
-      }
-      case PACKETID_S2C_PLAY_ENTITY_STATUS: {
-        S2C_play_entity_status_packet_t data =
-            unpack_S2C_play_entity_status_packet(packet);
-        ERR_CHECK;
-        conn->on_packet.entity_status(data);
-      }
-      case PACKETID_S2C_PLAY_ATTACH_ENTITY: {
-        S2C_play_attach_entity_packet_t data =
-            unpack_S2C_play_attach_entity_packet(packet);
-        ERR_CHECK;
-        conn->on_packet.attach_entity(data);
-      }
-      case PACKETID_S2C_PLAY_ENTITY_METADATA: {
-        S2C_play_entity_metadata_packet_t data =
-            unpack_S2C_play_entity_metadata_packet(packet);
-        ERR_CHECK;
-        conn->on_packet.entity_metadata(data);
-      }
-      case PACKETID_S2C_PLAY_ENTITY_EFFECT: {
-        S2C_play_entity_effect_packet_t data =
-            unpack_S2C_play_entity_effect_packet(packet);
-        ERR_CHECK;
-        conn->on_packet.entity_effect(data);
-      }
-      case PACKETID_S2C_PLAY_REMOVE_ENTITY_EFFECT: {
-        S2C_play_remove_entity_effect_packet_t data =
-            unpack_S2C_play_remove_entity_effect_packet(packet);
-        ERR_CHECK;
-        conn->on_packet.remove_entity_effect(data);
-      }
-      case PACKETID_S2C_PLAY_SET_EXPERIENCE: {
-        S2C_play_set_experience_packet_t data =
-            unpack_S2C_play_set_experience_packet(packet);
-        ERR_CHECK;
-        conn->on_packet.set_experience(data);
-      }
-      case PACKETID_S2C_PLAY_CHUNK_DATA: {
-        S2C_play_chunk_data_packet_t data =
-            unpack_S2C_play_chunk_data_packet(packet);
-        ERR_CHECK;
-        conn->on_packet.chunk_data(data);
-      }
-      case PACKETID_S2C_PLAY_BLOCK_CHANGE: {
-        S2C_play_block_change_packet_t data =
-            unpack_S2C_play_block_change_packet(packet);
-        ERR_CHECK;
-        conn->on_packet.block_change(data);
-      }
-      case PACKETID_S2C_PLAY_BLOCK_ACTION: {
-        S2C_play_block_action_packet_t data =
-            unpack_S2C_play_block_action_packet(packet);
-        ERR_CHECK;
-        conn->on_packet.block_action(data);
-      }
-      case PACKETID_S2C_PLAY_BLOCK_BREAK_ANIMATION: {
-        S2C_play_block_break_animation_packet_t data =
-            unpack_S2C_play_block_break_animation_packet(packet);
-        ERR_CHECK;
-        conn->on_packet.block_break_animation(data);
-      }
-      case PACKETID_S2C_PLAY_EFFECT: {
-        S2C_play_effect_packet_t data = unpack_S2C_play_effect_packet(packet);
-        ERR_CHECK;
-        conn->on_packet.effect(data);
-      }
-      case PACKETID_S2C_PLAY_SOUND_EFFECT: {
-        S2C_play_sound_effect_packet_t data =
-            unpack_S2C_play_sound_effect_packet(packet);
-        ERR_CHECK;
-        conn->on_packet.sound_effect(data);
-      }
-      case PACKETID_S2C_PLAY_CHANGE_GAME_STATE: {
-        S2C_play_change_game_state_packet_t data =
-            unpack_S2C_play_change_game_state_packet(packet);
-        ERR_CHECK;
-        conn->on_packet.change_game_state(data);
-      }
-      case PACKETID_S2C_PLAY_PLAYER_ABILITIES: {
-        S2C_play_player_abilities_packet_t data =
-            unpack_S2C_play_player_abilities_packet(packet);
-        ERR_CHECK;
-        conn->on_packet.player_abilities(data);
-      }
-      case PACKETID_S2C_PLAY_PLUGIN_MESSAGE: {
-        S2C_play_plugin_message_packet_t data =
-            unpack_S2C_play_plugin_message_packet(packet);
-        ERR_CHECK;
-        conn->on_packet.plugin_message(data);
-      }
-      case PACKETID_S2C_PLAY_DISCONNECT: {
-        S2C_play_disconnect_packet_t data =
-            unpack_S2C_play_disconnect_packet(packet);
-        ERR_CHECK;
-        conn->on_packet.disconnect(data);
-      }
-      case PACKETID_S2C_PLAY_CHANGE_DIFFICULTY: {
-        S2C_play_change_difficulty_packet_t data =
-            unpack_S2C_play_change_difficulty_packet(packet);
-        ERR_CHECK;
-        conn->on_packet.change_difficulty(data);
-      }
+        PACKER_HANDLER_HELPER(keep_alive);
+        PACKER_HANDLER_HELPER(join_game);
+        PACKER_HANDLER_HELPER(chat_message);
+        PACKER_HANDLER_HELPER(time_update);
+        PACKER_HANDLER_HELPER(entity_equipment);
+        PACKER_HANDLER_HELPER(spawn_position);
+        PACKER_HANDLER_HELPER(update_health);
+        PACKER_HANDLER_HELPER(respawn);
+        PACKER_HANDLER_HELPER(player_look_and_position);
+        PACKER_HANDLER_HELPER(held_item_change);
+        PACKER_HANDLER_HELPER(use_bed);
+        PACKER_HANDLER_HELPER(animation);
+        PACKER_HANDLER_HELPER(spawn_player);
+        PACKER_HANDLER_HELPER(collect_item);
+        PACKER_HANDLER_HELPER(spawn_mob);
+        PACKER_HANDLER_HELPER(spawn_painting);
+        PACKER_HANDLER_HELPER(spawn_experience_orb);
+        PACKER_HANDLER_HELPER(entity_velocity);
+        PACKER_HANDLER_HELPER(entity);
+        PACKER_HANDLER_HELPER(entity_relative_move);
+        PACKER_HANDLER_HELPER(entity_look);
+        PACKER_HANDLER_HELPER(entity_look_and_relative_move);
+        PACKER_HANDLER_HELPER(entity_teleport);
+        PACKER_HANDLER_HELPER(entity_head_look);
+        PACKER_HANDLER_HELPER(entity_status);
+        PACKER_HANDLER_HELPER(attach_entity);
+        PACKER_HANDLER_HELPER(entity_metadata);
+        PACKER_HANDLER_HELPER(entity_effect);
+        PACKER_HANDLER_HELPER(remove_entity_effect);
+        PACKER_HANDLER_HELPER(set_experience);
+        PACKER_HANDLER_HELPER(chunk_data);
+        PACKER_HANDLER_HELPER(block_change);
+        PACKER_HANDLER_HELPER(block_action);
+        PACKER_HANDLER_HELPER(block_break_animation);
+        PACKER_HANDLER_HELPER(effect);
+        PACKER_HANDLER_HELPER(sound_effect);
+        PACKER_HANDLER_HELPER(change_game_state);
+        PACKER_HANDLER_HELPER(player_abilities);
+        PACKER_HANDLER_HELPER(plugin_message);
+        PACKER_HANDLER_HELPER(disconnect);
+        PACKER_HANDLER_HELPER(change_difficulty);
         // CGSE: loop_handler
       }
+      break;
     err_free_packet:
       MCbuffer_free(packet);
       goto err_close_conn;
@@ -482,7 +298,6 @@ void MConn_loop(MConn *conn) {
       break;
     }
   }
-
 #define ERR_ACTION return;
 err_close_conn:
   MConn_close(conn);

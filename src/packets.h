@@ -11,118 +11,81 @@ char *packet_data_to_string(int packet_id, MConn_state state,
                             packet_direction direction);
 
 // CGSS: packet_ids
-#define PACKETID_C2S_HANDSHAKE 0x00
-
-#define PACKETID_S2C_STATUS_RESPONSE 0x00
-
-#define PACKETID_S2C_STATUS_PONG 0x01
-
-#define PACKETID_C2S_STATUS_REQUEST 0x00
-
-#define PACKETID_C2S_STATUS_PING 0x01
-
-#define PACKETID_S2C_LOGIN_DISCONNECT 0x00
-
-#define PACKETID_S2C_LOGIN_ENCRYPTION_REQUEST 0x01
-
-#define PACKETID_S2C_LOGIN_SUCCESS 0x02
-
-#define PACKETID_S2C_LOGIN_SET_COMPRESSION 0x03
-
-#define PACKETID_C2S_LOGIN_START 0x00
-
-#define PACKETID_C2S_LOGIN_ENCRYPTION_RESPONSE 0x01
-
-#define PACKETID_S2C_PLAY_KEEP_ALIVE 0x00
-
-#define PACKETID_S2C_PLAY_JOIN_GAME 0x01
-
-#define PACKETID_S2C_PLAY_CHAT_MESSAGE 0x02
-
-#define PACKETID_S2C_PLAY_TIME_UPDATE 0x03
-
-#define PACKETID_S2C_PLAY_ENTITY_EQUIPMENT 0x04
-
-#define PACKETID_S2C_PLAY_SPAWN_POSITION 0x05
-
-#define PACKETID_S2C_PLAY_UPDATE_HEALTH 0x06
-
-#define PACKETID_S2C_PLAY_RESPAWN 0x07
-
-#define PACKETID_S2C_PLAY_PLAYER_LOOK_AND_POSITION 0x08
-
-#define PACKETID_S2C_PLAY_HELD_ITEM_CHANGE 0x09
-
-#define PACKETID_S2C_PLAY_USE_BED 0x0A
-
-#define PACKETID_S2C_PLAY_ANIMATION 0x0B
-
-#define PACKETID_S2C_PLAY_SPAWN_PLAYER 0x0C
-
-#define PACKETID_S2C_PLAY_COLLECT_ITEM 0x0D
-
-#define PACKETID_S2C_PLAY_SPAWN_MOB 0x0F
-
-#define PACKETID_S2C_PLAY_SPAWN_PAINTING 0x10
-
-#define PACKETID_S2C_PLAY_SPAWN_EXPERIENCE_ORB 0x11
-
-#define PACKETID_S2C_PLAY_ENTITY_VELOCITY 0x12
-
-#define PACKETID_S2C_PLAY_ENTITY 0x14
-
-#define PACKETID_S2C_PLAY_ENTITY_RELATIVE_MOVE 0x15
-
-#define PACKETID_S2C_PLAY_ENTITY_LOOK 0x16
-
-#define PACKETID_S2C_PLAY_ENTITY_LOOK_AND_RELATIVE_MOVE 0x17
-
-#define PACKETID_S2C_PLAY_ENTITY_TELEPORT 0x18
-
-#define PACKETID_S2C_PLAY_ENTITY_HEAD_LOOK 0x19
-
-#define PACKETID_S2C_PLAY_ENTITY_STATUS 0x1A
-
-#define PACKETID_S2C_PLAY_ATTACH_ENTITY 0x1B
-
-#define PACKETID_S2C_PLAY_ENTITY_METADATA 0x1C
-
-#define PACKETID_S2C_PLAY_ENTITY_EFFECT 0x1D
-
-#define PACKETID_S2C_PLAY_REMOVE_ENTITY_EFFECT 0x1E
-
-#define PACKETID_S2C_PLAY_SET_EXPERIENCE 0x1F
-
-#define PACKETID_S2C_PLAY_CHUNK_DATA 0x21
-
-#define PACKETID_S2C_PLAY_BLOCK_CHANGE 0x23
-
-#define PACKETID_S2C_PLAY_BLOCK_ACTION 0x24
-
-#define PACKETID_S2C_PLAY_BLOCK_BREAK_ANIMATION 0x25
-
-#define PACKETID_S2C_PLAY_EFFECT 0x28
-
-#define PACKETID_S2C_PLAY_SOUND_EFFECT 0x29
-
-#define PACKETID_S2C_PLAY_CHANGE_GAME_STATE 0x2B
-
-#define PACKETID_S2C_PLAY_PLAYER_ABILITIES 0x39
-
-#define PACKETID_S2C_PLAY_PLUGIN_MESSAGE 0x3F
-
-#define PACKETID_S2C_PLAY_DISCONNECT 0x40
-
-#define PACKETID_S2C_PLAY_CHANGE_DIFFICULTY 0x41
-
-#define PACKETID_C2S_PLAY_KEEP_ALIVE 0x00
-
+enum packetids_C2S_handshake_t {
+  packetid_C2S_handshake_handshake = 0x00,
+};
+enum packetids_S2C_status_t {
+  packetid_S2C_status_response = 0x00,
+  packetid_S2C_status_pong = 0x01,
+};
+enum packetids_C2S_status_t {
+  packetid_C2S_status_request = 0x00,
+  packetid_C2S_status_ping = 0x01,
+};
+enum packetids_S2C_login_t {
+  packetid_S2C_login_disconnect = 0x00,
+  packetid_S2C_login_encryption_request = 0x01,
+  packetid_S2C_login_success = 0x02,
+  packetid_S2C_login_set_compression = 0x03,
+};
+enum packetids_C2S_login_t {
+  packetid_C2S_login_start = 0x00,
+  packetid_C2S_login_encryption_response = 0x01,
+};
+enum packetids_S2C_play_t {
+  packetid_S2C_play_keep_alive = 0x00,
+  packetid_S2C_play_join_game = 0x01,
+  packetid_S2C_play_chat_message = 0x02,
+  packetid_S2C_play_time_update = 0x03,
+  packetid_S2C_play_entity_equipment = 0x04,
+  packetid_S2C_play_spawn_position = 0x05,
+  packetid_S2C_play_update_health = 0x06,
+  packetid_S2C_play_respawn = 0x07,
+  packetid_S2C_play_player_look_and_position = 0x08,
+  packetid_S2C_play_held_item_change = 0x09,
+  packetid_S2C_play_use_bed = 0x0A,
+  packetid_S2C_play_animation = 0x0B,
+  packetid_S2C_play_spawn_player = 0x0C,
+  packetid_S2C_play_collect_item = 0x0D,
+  packetid_S2C_play_spawn_mob = 0x0F,
+  packetid_S2C_play_spawn_painting = 0x10,
+  packetid_S2C_play_spawn_experience_orb = 0x11,
+  packetid_S2C_play_entity_velocity = 0x12,
+  packetid_S2C_play_entity = 0x14,
+  packetid_S2C_play_entity_relative_move = 0x15,
+  packetid_S2C_play_entity_look = 0x16,
+  packetid_S2C_play_entity_look_and_relative_move = 0x17,
+  packetid_S2C_play_entity_teleport = 0x18,
+  packetid_S2C_play_entity_head_look = 0x19,
+  packetid_S2C_play_entity_status = 0x1A,
+  packetid_S2C_play_attach_entity = 0x1B,
+  packetid_S2C_play_entity_metadata = 0x1C,
+  packetid_S2C_play_entity_effect = 0x1D,
+  packetid_S2C_play_remove_entity_effect = 0x1E,
+  packetid_S2C_play_set_experience = 0x1F,
+  packetid_S2C_play_chunk_data = 0x21,
+  packetid_S2C_play_block_change = 0x23,
+  packetid_S2C_play_block_action = 0x24,
+  packetid_S2C_play_block_break_animation = 0x25,
+  packetid_S2C_play_effect = 0x28,
+  packetid_S2C_play_sound_effect = 0x29,
+  packetid_S2C_play_change_game_state = 0x2B,
+  packetid_S2C_play_player_abilities = 0x39,
+  packetid_S2C_play_plugin_message = 0x3F,
+  packetid_S2C_play_disconnect = 0x40,
+  packetid_S2C_play_change_difficulty = 0x41,
+};
+enum packetids_C2S_play_t {
+  packetid_C2S_play_keep_alive = 0x00,
+};
 // CGSE: packet_ids
 
 // CGSS: send_methods_h
-void send_packet_C2S_handshake(MConn *conn, varint_t protocole_version,
-                               char *server_addr, unsigned short server_port,
-                               varint_t next_state);
+void send_packet_C2S_handshake_handshake(MConn *conn,
+                                         varint_t protocole_version,
+                                         char *server_addr,
+                                         unsigned short server_port,
+                                         varint_t next_state);
 
 void send_packet_S2C_status_response(MConn *conn, char *response);
 
@@ -307,7 +270,8 @@ void send_packet_C2S_play_keep_alive(MConn *conn, varint_t keep_alive_id);
 // CGSE: send_methods_h
 
 // CGSS: unpack_methods_h
-C2S_handshake_packet_t unpack_C2S_handshake_packet(MCbuffer *buff);
+C2S_handshake_handshake_packet_t
+unpack_C2S_handshake_handshake_packet(MCbuffer *buff);
 
 S2C_status_response_packet_t unpack_S2C_status_response_packet(MCbuffer *buff);
 

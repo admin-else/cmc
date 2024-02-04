@@ -26,7 +26,7 @@ enum cmc_err_type {
   ERR_INVALID_NBT_TAG_TYPE
 };
 
-inline char *err_id2str(enum cmc_err_type err) {
+inline const char *err_id2str(enum cmc_err_type err) {
 #define ERRID2STR_HELPER(ERR)                                                  \
   case ERR:                                                                    \
     return #ERR;
