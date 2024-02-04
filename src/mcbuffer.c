@@ -300,12 +300,9 @@ block_pos_t MCbuffer_unpack_position(MCbuffer *buff) {
   pos.z = val << 38 >> 38;
 
   // this is for negatives
-  if (pos.x >= 33554432)
-    pos.x -= 67108864;
-  if (pos.y >= 2048)
-    pos.y -= 4096;
-  if (pos.z >= 33554432)
-    pos.z -= 67108864;
+  pos.x = (pos.x >= 33554432) ? (pos.x % 67108864) : pos.x;
+  pos.y = (pos.y >= 2048) ? (pos.y % 4096) : pos.y;
+  pos.z = (pos.z >= 33554432) ? (pos.z % 67108864) : pos.z;
 
   return pos;
 }

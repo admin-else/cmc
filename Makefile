@@ -9,7 +9,7 @@ FUZZ_DIR = fuzz_input  # Create a directory for fuzz test cases
 
 .PHONY: all clean
 
-all: dirs packeter
+all: dirs codegen packeter
 
 dirs:
 	mkdir -p ./$(BIN)
@@ -22,6 +22,9 @@ packeter: $(OBJ)
 
 %.o: %.c
 	$(CC) -o $@ -c $< $(CFLAGS)
+
+codegen:
+	python3 codegen.py
 
 clean:
 	rm -rf $(BIN) $(OBJ)
