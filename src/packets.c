@@ -154,7 +154,7 @@ char *packet_data_to_string(int packet_id, MConn_state state,
 
 #define ERR_ACTION return;
 // CGSS: send_methods_c
-void send_packet_C2S_handshake_handshake(MConn *conn,
+void send_packet_C2S_handshake_handshake(struct MConn *conn,
                                          varint_t protocole_version,
                                          char *server_addr,
                                          unsigned short server_port,
@@ -169,7 +169,7 @@ void send_packet_C2S_handshake_handshake(MConn *conn,
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_status_response(MConn *conn, char *response) {
+void send_packet_S2C_status_response(struct MConn *conn, char *response) {
   MCbuffer *buff = MCbuffer_init();
   MCbuffer_pack_varint(buff, packetid_S2C_status_response);
   MCbuffer_pack_string(buff, response);
@@ -177,7 +177,7 @@ void send_packet_S2C_status_response(MConn *conn, char *response) {
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_status_pong(MConn *conn, long payload) {
+void send_packet_S2C_status_pong(struct MConn *conn, long payload) {
   MCbuffer *buff = MCbuffer_init();
   MCbuffer_pack_varint(buff, packetid_S2C_status_pong);
   MCbuffer_pack_long(buff, payload);
@@ -185,14 +185,14 @@ void send_packet_S2C_status_pong(MConn *conn, long payload) {
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_C2S_status_request(MConn *conn) {
+void send_packet_C2S_status_request(struct MConn *conn) {
   MCbuffer *buff = MCbuffer_init();
   MCbuffer_pack_varint(buff, packetid_C2S_status_request);
   ERR_CHECK;
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_C2S_status_ping(MConn *conn, long payload) {
+void send_packet_C2S_status_ping(struct MConn *conn, long payload) {
   MCbuffer *buff = MCbuffer_init();
   MCbuffer_pack_varint(buff, packetid_C2S_status_ping);
   MCbuffer_pack_long(buff, payload);
@@ -200,7 +200,7 @@ void send_packet_C2S_status_ping(MConn *conn, long payload) {
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_login_disconnect(MConn *conn, char *reason) {
+void send_packet_S2C_login_disconnect(struct MConn *conn, char *reason) {
   MCbuffer *buff = MCbuffer_init();
   MCbuffer_pack_varint(buff, packetid_S2C_login_disconnect);
   MCbuffer_pack_string(buff, reason);
@@ -208,7 +208,8 @@ void send_packet_S2C_login_disconnect(MConn *conn, char *reason) {
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_login_encryption_request(MConn *conn, char *server_id,
+void send_packet_S2C_login_encryption_request(struct MConn *conn,
+                                              char *server_id,
                                               MCbuffer *public_key,
                                               MCbuffer *verify_token) {
   MCbuffer *buff = MCbuffer_init();
@@ -220,7 +221,7 @@ void send_packet_S2C_login_encryption_request(MConn *conn, char *server_id,
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_login_success(MConn *conn, char *uuid, char *name) {
+void send_packet_S2C_login_success(struct MConn *conn, char *uuid, char *name) {
   MCbuffer *buff = MCbuffer_init();
   MCbuffer_pack_varint(buff, packetid_S2C_login_success);
   MCbuffer_pack_string(buff, uuid);
@@ -229,7 +230,8 @@ void send_packet_S2C_login_success(MConn *conn, char *uuid, char *name) {
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_login_set_compression(MConn *conn, varint_t threshold) {
+void send_packet_S2C_login_set_compression(struct MConn *conn,
+                                           varint_t threshold) {
   MCbuffer *buff = MCbuffer_init();
   MCbuffer_pack_varint(buff, packetid_S2C_login_set_compression);
   MCbuffer_pack_varint(buff, threshold);
@@ -237,7 +239,7 @@ void send_packet_S2C_login_set_compression(MConn *conn, varint_t threshold) {
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_C2S_login_start(MConn *conn, char *name) {
+void send_packet_C2S_login_start(struct MConn *conn, char *name) {
   MCbuffer *buff = MCbuffer_init();
   MCbuffer_pack_varint(buff, packetid_C2S_login_start);
   MCbuffer_pack_string(buff, name);
@@ -245,7 +247,7 @@ void send_packet_C2S_login_start(MConn *conn, char *name) {
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_C2S_login_encryption_response(MConn *conn,
+void send_packet_C2S_login_encryption_response(struct MConn *conn,
                                                MCbuffer *shared_secret,
                                                MCbuffer *verify_token) {
   MCbuffer *buff = MCbuffer_init();
@@ -256,7 +258,8 @@ void send_packet_C2S_login_encryption_response(MConn *conn,
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_play_keep_alive(MConn *conn, varint_t keep_alive_id) {
+void send_packet_S2C_play_keep_alive(struct MConn *conn,
+                                     varint_t keep_alive_id) {
   MCbuffer *buff = MCbuffer_init();
   MCbuffer_pack_varint(buff, packetid_S2C_play_keep_alive);
   MCbuffer_pack_varint(buff, keep_alive_id);
@@ -264,7 +267,7 @@ void send_packet_S2C_play_keep_alive(MConn *conn, varint_t keep_alive_id) {
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_play_join_game(MConn *conn, int entity_id,
+void send_packet_S2C_play_join_game(struct MConn *conn, int entity_id,
                                     unsigned char gamemode, char dimension,
                                     unsigned char difficulty,
                                     unsigned char max_players, char *level_type,
@@ -282,7 +285,7 @@ void send_packet_S2C_play_join_game(MConn *conn, int entity_id,
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_play_chat_message(MConn *conn, char *message,
+void send_packet_S2C_play_chat_message(struct MConn *conn, char *message,
                                        char position) {
   MCbuffer *buff = MCbuffer_init();
   MCbuffer_pack_varint(buff, packetid_S2C_play_chat_message);
@@ -292,7 +295,7 @@ void send_packet_S2C_play_chat_message(MConn *conn, char *message,
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_play_time_update(MConn *conn, long world_age,
+void send_packet_S2C_play_time_update(struct MConn *conn, long world_age,
                                       long time_of_day) {
   MCbuffer *buff = MCbuffer_init();
   MCbuffer_pack_varint(buff, packetid_S2C_play_time_update);
@@ -302,8 +305,9 @@ void send_packet_S2C_play_time_update(MConn *conn, long world_age,
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_play_entity_equipment(MConn *conn, varint_t entity_id,
-                                           short slot, slot_t *item) {
+void send_packet_S2C_play_entity_equipment(struct MConn *conn,
+                                           varint_t entity_id, short slot,
+                                           slot_t *item) {
   MCbuffer *buff = MCbuffer_init();
   MCbuffer_pack_varint(buff, packetid_S2C_play_entity_equipment);
   MCbuffer_pack_varint(buff, entity_id);
@@ -313,7 +317,8 @@ void send_packet_S2C_play_entity_equipment(MConn *conn, varint_t entity_id,
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_play_spawn_position(MConn *conn, block_pos_t location) {
+void send_packet_S2C_play_spawn_position(struct MConn *conn,
+                                         block_pos_t location) {
   MCbuffer *buff = MCbuffer_init();
   MCbuffer_pack_varint(buff, packetid_S2C_play_spawn_position);
   MCbuffer_pack_position(buff, location);
@@ -321,7 +326,7 @@ void send_packet_S2C_play_spawn_position(MConn *conn, block_pos_t location) {
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_play_update_health(MConn *conn, float health,
+void send_packet_S2C_play_update_health(struct MConn *conn, float health,
                                         varint_t food, float food_saturation) {
   MCbuffer *buff = MCbuffer_init();
   MCbuffer_pack_varint(buff, packetid_S2C_play_update_health);
@@ -332,7 +337,7 @@ void send_packet_S2C_play_update_health(MConn *conn, float health,
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_play_respawn(MConn *conn, int dimesion,
+void send_packet_S2C_play_respawn(struct MConn *conn, int dimesion,
                                   unsigned char difficulty,
                                   unsigned char gamemode, char *level_type) {
   MCbuffer *buff = MCbuffer_init();
@@ -345,7 +350,7 @@ void send_packet_S2C_play_respawn(MConn *conn, int dimesion,
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_play_player_look_and_position(MConn *conn, double x,
+void send_packet_S2C_play_player_look_and_position(struct MConn *conn, double x,
                                                    double y, double z,
                                                    float yaw, float pitch,
                                                    unsigned char flags) {
@@ -361,7 +366,7 @@ void send_packet_S2C_play_player_look_and_position(MConn *conn, double x,
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_play_held_item_change(MConn *conn, char slot) {
+void send_packet_S2C_play_held_item_change(struct MConn *conn, char slot) {
   MCbuffer *buff = MCbuffer_init();
   MCbuffer_pack_varint(buff, packetid_S2C_play_held_item_change);
   MCbuffer_pack_char(buff, slot);
@@ -369,7 +374,7 @@ void send_packet_S2C_play_held_item_change(MConn *conn, char slot) {
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_play_use_bed(MConn *conn, varint_t entity_id,
+void send_packet_S2C_play_use_bed(struct MConn *conn, varint_t entity_id,
                                   block_pos_t location) {
   MCbuffer *buff = MCbuffer_init();
   MCbuffer_pack_varint(buff, packetid_S2C_play_use_bed);
@@ -379,7 +384,7 @@ void send_packet_S2C_play_use_bed(MConn *conn, varint_t entity_id,
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_play_animation(MConn *conn, varint_t entity_id,
+void send_packet_S2C_play_animation(struct MConn *conn, varint_t entity_id,
                                     unsigned char animation) {
   MCbuffer *buff = MCbuffer_init();
   MCbuffer_pack_varint(buff, packetid_S2C_play_animation);
@@ -389,7 +394,7 @@ void send_packet_S2C_play_animation(MConn *conn, varint_t entity_id,
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_play_spawn_player(MConn *conn, varint_t entity_id,
+void send_packet_S2C_play_spawn_player(struct MConn *conn, varint_t entity_id,
                                        unsigned long long uuid, int x, int y,
                                        int z, unsigned char yaw,
                                        unsigned char pitch, short current_item,
@@ -409,7 +414,7 @@ void send_packet_S2C_play_spawn_player(MConn *conn, varint_t entity_id,
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_play_collect_item(MConn *conn,
+void send_packet_S2C_play_collect_item(struct MConn *conn,
                                        varint_t collected_entity_id,
                                        varint_t collector_entity_id) {
   MCbuffer *buff = MCbuffer_init();
@@ -420,7 +425,7 @@ void send_packet_S2C_play_collect_item(MConn *conn,
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_play_spawn_mob(MConn *conn, varint_t entity_id,
+void send_packet_S2C_play_spawn_mob(struct MConn *conn, varint_t entity_id,
                                     unsigned char type, int x, int y, int z,
                                     unsigned char yaw, unsigned char pitch,
                                     unsigned char head_pitch, short x_vel,
@@ -444,7 +449,7 @@ void send_packet_S2C_play_spawn_mob(MConn *conn, varint_t entity_id,
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_play_spawn_painting(MConn *conn, varint_t entity_id,
+void send_packet_S2C_play_spawn_painting(struct MConn *conn, varint_t entity_id,
                                          char *title, block_pos_t location,
                                          unsigned char direction) {
   MCbuffer *buff = MCbuffer_init();
@@ -457,9 +462,9 @@ void send_packet_S2C_play_spawn_painting(MConn *conn, varint_t entity_id,
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_play_spawn_experience_orb(MConn *conn, varint_t entity_id,
-                                               int x, int y, int z,
-                                               short count) {
+void send_packet_S2C_play_spawn_experience_orb(struct MConn *conn,
+                                               varint_t entity_id, int x, int y,
+                                               int z, short count) {
   MCbuffer *buff = MCbuffer_init();
   MCbuffer_pack_varint(buff, packetid_S2C_play_spawn_experience_orb);
   MCbuffer_pack_varint(buff, entity_id);
@@ -471,9 +476,9 @@ void send_packet_S2C_play_spawn_experience_orb(MConn *conn, varint_t entity_id,
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_play_entity_velocity(MConn *conn, varint_t entity_id,
-                                          short x_vel, short y_vel,
-                                          short z_vel) {
+void send_packet_S2C_play_entity_velocity(struct MConn *conn,
+                                          varint_t entity_id, short x_vel,
+                                          short y_vel, short z_vel) {
   MCbuffer *buff = MCbuffer_init();
   MCbuffer_pack_varint(buff, packetid_S2C_play_entity_velocity);
   MCbuffer_pack_varint(buff, entity_id);
@@ -484,7 +489,7 @@ void send_packet_S2C_play_entity_velocity(MConn *conn, varint_t entity_id,
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_play_entity(MConn *conn, varint_t entity_id) {
+void send_packet_S2C_play_entity(struct MConn *conn, varint_t entity_id) {
   MCbuffer *buff = MCbuffer_init();
   MCbuffer_pack_varint(buff, packetid_S2C_play_entity);
   MCbuffer_pack_varint(buff, entity_id);
@@ -492,9 +497,10 @@ void send_packet_S2C_play_entity(MConn *conn, varint_t entity_id) {
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_play_entity_relative_move(MConn *conn, varint_t entity_id,
-                                               char delta_x, char delta_y,
-                                               char delta_z, bool on_ground) {
+void send_packet_S2C_play_entity_relative_move(struct MConn *conn,
+                                               varint_t entity_id, char delta_x,
+                                               char delta_y, char delta_z,
+                                               bool on_ground) {
   MCbuffer *buff = MCbuffer_init();
   MCbuffer_pack_varint(buff, packetid_S2C_play_entity_relative_move);
   MCbuffer_pack_varint(buff, entity_id);
@@ -506,7 +512,7 @@ void send_packet_S2C_play_entity_relative_move(MConn *conn, varint_t entity_id,
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_play_entity_look(MConn *conn, varint_t entity_id,
+void send_packet_S2C_play_entity_look(struct MConn *conn, varint_t entity_id,
                                       unsigned char yaw, unsigned char pitch,
                                       bool on_ground) {
   MCbuffer *buff = MCbuffer_init();
@@ -520,8 +526,8 @@ void send_packet_S2C_play_entity_look(MConn *conn, varint_t entity_id,
 }
 
 void send_packet_S2C_play_entity_look_and_relative_move(
-    MConn *conn, varint_t entity_id, char delta_x, char delta_y, char delta_z,
-    unsigned char yaw, unsigned char pitch, bool on_ground) {
+    struct MConn *conn, varint_t entity_id, char delta_x, char delta_y,
+    char delta_z, unsigned char yaw, unsigned char pitch, bool on_ground) {
   MCbuffer *buff = MCbuffer_init();
   MCbuffer_pack_varint(buff, packetid_S2C_play_entity_look_and_relative_move);
   MCbuffer_pack_varint(buff, entity_id);
@@ -535,9 +541,9 @@ void send_packet_S2C_play_entity_look_and_relative_move(
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_play_entity_teleport(MConn *conn, varint_t entity_id,
-                                          int x, int y, int z,
-                                          unsigned char yaw,
+void send_packet_S2C_play_entity_teleport(struct MConn *conn,
+                                          varint_t entity_id, int x, int y,
+                                          int z, unsigned char yaw,
                                           unsigned char pitch, bool on_ground) {
   MCbuffer *buff = MCbuffer_init();
   MCbuffer_pack_varint(buff, packetid_S2C_play_entity_teleport);
@@ -552,7 +558,8 @@ void send_packet_S2C_play_entity_teleport(MConn *conn, varint_t entity_id,
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_play_entity_head_look(MConn *conn, varint_t entity_id,
+void send_packet_S2C_play_entity_head_look(struct MConn *conn,
+                                           varint_t entity_id,
                                            unsigned char head_yaw) {
   MCbuffer *buff = MCbuffer_init();
   MCbuffer_pack_varint(buff, packetid_S2C_play_entity_head_look);
@@ -562,7 +569,7 @@ void send_packet_S2C_play_entity_head_look(MConn *conn, varint_t entity_id,
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_play_entity_status(MConn *conn, int entity_id,
+void send_packet_S2C_play_entity_status(struct MConn *conn, int entity_id,
                                         char entity_status) {
   MCbuffer *buff = MCbuffer_init();
   MCbuffer_pack_varint(buff, packetid_S2C_play_entity_status);
@@ -572,7 +579,7 @@ void send_packet_S2C_play_entity_status(MConn *conn, int entity_id,
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_play_attach_entity(MConn *conn, int entity_id,
+void send_packet_S2C_play_attach_entity(struct MConn *conn, int entity_id,
                                         int vehicle_id, bool leash) {
   MCbuffer *buff = MCbuffer_init();
   MCbuffer_pack_varint(buff, packetid_S2C_play_attach_entity);
@@ -583,7 +590,8 @@ void send_packet_S2C_play_attach_entity(MConn *conn, int entity_id,
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_play_entity_metadata(MConn *conn, varint_t entity_id,
+void send_packet_S2C_play_entity_metadata(struct MConn *conn,
+                                          varint_t entity_id,
                                           entity_metadata_t meta_data) {
   MCbuffer *buff = MCbuffer_init();
   MCbuffer_pack_varint(buff, packetid_S2C_play_entity_metadata);
@@ -593,7 +601,7 @@ void send_packet_S2C_play_entity_metadata(MConn *conn, varint_t entity_id,
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_play_entity_effect(MConn *conn, varint_t entity_id,
+void send_packet_S2C_play_entity_effect(struct MConn *conn, varint_t entity_id,
                                         char effect_id, char amplifier,
                                         varint_t duration,
                                         bool hide_particles) {
@@ -608,7 +616,8 @@ void send_packet_S2C_play_entity_effect(MConn *conn, varint_t entity_id,
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_play_remove_entity_effect(MConn *conn, varint_t entity_id,
+void send_packet_S2C_play_remove_entity_effect(struct MConn *conn,
+                                               varint_t entity_id,
                                                char effect_id) {
   MCbuffer *buff = MCbuffer_init();
   MCbuffer_pack_varint(buff, packetid_S2C_play_remove_entity_effect);
@@ -618,8 +627,8 @@ void send_packet_S2C_play_remove_entity_effect(MConn *conn, varint_t entity_id,
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_play_set_experience(MConn *conn, float experience_bar,
-                                         varint_t level,
+void send_packet_S2C_play_set_experience(struct MConn *conn,
+                                         float experience_bar, varint_t level,
                                          varint_t total_experience) {
   MCbuffer *buff = MCbuffer_init();
   MCbuffer_pack_varint(buff, packetid_S2C_play_set_experience);
@@ -630,8 +639,8 @@ void send_packet_S2C_play_set_experience(MConn *conn, float experience_bar,
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_play_chunk_data(MConn *conn, int chunk_x, int chunk_z,
-                                     bool ground_up_continuous,
+void send_packet_S2C_play_chunk_data(struct MConn *conn, int chunk_x,
+                                     int chunk_z, bool ground_up_continuous,
                                      unsigned short primary_bitmask,
                                      MCbuffer *chunk) {
   MCbuffer *buff = MCbuffer_init();
@@ -645,7 +654,7 @@ void send_packet_S2C_play_chunk_data(MConn *conn, int chunk_x, int chunk_z,
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_play_block_change(MConn *conn, block_pos_t location,
+void send_packet_S2C_play_block_change(struct MConn *conn, block_pos_t location,
                                        varint_t block_id) {
   MCbuffer *buff = MCbuffer_init();
   MCbuffer_pack_varint(buff, packetid_S2C_play_block_change);
@@ -655,7 +664,7 @@ void send_packet_S2C_play_block_change(MConn *conn, block_pos_t location,
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_play_block_action(MConn *conn, block_pos_t location,
+void send_packet_S2C_play_block_action(struct MConn *conn, block_pos_t location,
                                        unsigned char block_data_1,
                                        unsigned char block_data_2,
                                        varint_t block_type) {
@@ -669,7 +678,8 @@ void send_packet_S2C_play_block_action(MConn *conn, block_pos_t location,
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_play_block_break_animation(MConn *conn, varint_t entity_id,
+void send_packet_S2C_play_block_break_animation(struct MConn *conn,
+                                                varint_t entity_id,
                                                 block_pos_t location,
                                                 char destroy_stage) {
   MCbuffer *buff = MCbuffer_init();
@@ -681,7 +691,7 @@ void send_packet_S2C_play_block_break_animation(MConn *conn, varint_t entity_id,
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_play_effect(MConn *conn, int effect_id,
+void send_packet_S2C_play_effect(struct MConn *conn, int effect_id,
                                  block_pos_t location, int data, bool d,
                                  int particle_id, bool long_distances, float x,
                                  float y, float z, float x_offset,
@@ -709,8 +719,8 @@ void send_packet_S2C_play_effect(MConn *conn, int effect_id,
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_play_sound_effect(MConn *conn, char *sound_name, int x,
-                                       int y, int z, float volume,
+void send_packet_S2C_play_sound_effect(struct MConn *conn, char *sound_name,
+                                       int x, int y, int z, float volume,
                                        unsigned char pitch) {
   MCbuffer *buff = MCbuffer_init();
   MCbuffer_pack_varint(buff, packetid_S2C_play_sound_effect);
@@ -724,8 +734,8 @@ void send_packet_S2C_play_sound_effect(MConn *conn, char *sound_name, int x,
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_play_change_game_state(MConn *conn, unsigned char reason,
-                                            float value) {
+void send_packet_S2C_play_change_game_state(struct MConn *conn,
+                                            unsigned char reason, float value) {
   MCbuffer *buff = MCbuffer_init();
   MCbuffer_pack_varint(buff, packetid_S2C_play_change_game_state);
   MCbuffer_pack_byte(buff, reason);
@@ -734,7 +744,7 @@ void send_packet_S2C_play_change_game_state(MConn *conn, unsigned char reason,
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_play_player_abilities(MConn *conn, char flags,
+void send_packet_S2C_play_player_abilities(struct MConn *conn, char flags,
                                            float flying_speed,
                                            float fov_modifier) {
   MCbuffer *buff = MCbuffer_init();
@@ -746,7 +756,7 @@ void send_packet_S2C_play_player_abilities(MConn *conn, char flags,
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_play_plugin_message(MConn *conn, char *channel,
+void send_packet_S2C_play_plugin_message(struct MConn *conn, char *channel,
                                          MCbuffer *data) {
   MCbuffer *buff = MCbuffer_init();
   MCbuffer_pack_varint(buff, packetid_S2C_play_plugin_message);
@@ -756,7 +766,7 @@ void send_packet_S2C_play_plugin_message(MConn *conn, char *channel,
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_play_disconnect(MConn *conn, char *reason) {
+void send_packet_S2C_play_disconnect(struct MConn *conn, char *reason) {
   MCbuffer *buff = MCbuffer_init();
   MCbuffer_pack_varint(buff, packetid_S2C_play_disconnect);
   MCbuffer_pack_string(buff, reason);
@@ -764,7 +774,7 @@ void send_packet_S2C_play_disconnect(MConn *conn, char *reason) {
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_S2C_play_change_difficulty(MConn *conn,
+void send_packet_S2C_play_change_difficulty(struct MConn *conn,
                                             unsigned char difficulty) {
   MCbuffer *buff = MCbuffer_init();
   MCbuffer_pack_varint(buff, packetid_S2C_play_change_difficulty);
@@ -773,7 +783,8 @@ void send_packet_S2C_play_change_difficulty(MConn *conn,
   MConn_send_packet(conn, buff);
 }
 
-void send_packet_C2S_play_keep_alive(MConn *conn, varint_t keep_alive_id) {
+void send_packet_C2S_play_keep_alive(struct MConn *conn,
+                                     varint_t keep_alive_id) {
   MCbuffer *buff = MCbuffer_init();
   MCbuffer_pack_varint(buff, packetid_C2S_play_keep_alive);
   MCbuffer_pack_varint(buff, keep_alive_id);

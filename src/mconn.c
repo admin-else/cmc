@@ -13,8 +13,8 @@
 #include <unistd.h>
 #include <zlib.h>
 
-MConn *MConn_init() {
-  MConn *conn = MALLOC(sizeof(MConn));
+struct MConn *MConn_init() {
+  struct MConn *conn = MALLOC(sizeof(struct MConn));
 
   struct sockaddr_in server_addr;
   server_addr.sin_family = AF_INET;
@@ -30,13 +30,13 @@ MConn *MConn_init() {
   return conn;
 }
 
-void MConn_free(MConn *conn) {
+void MConn_free(struct MConn *conn) {
   assert(conn->state == CONN_STATE_OFFLINE);
   FREE(conn->shared_secret);
   FREE(conn);
 }
 
-void MConn_close(MConn *conn) {
+void MConn_close(struct MConn *conn) {
 #define ERR_ACTION return;
   if (conn->state == CONN_STATE_OFFLINE)
     return;
@@ -76,7 +76,7 @@ int recv_all(int socket, void *buffer, int length) {
   return 0;
 }
 
-MCbuffer *MConn_recive_packet(MConn *conn) {
+MCbuffer *MConn_recive_packet(struct MConn *conn) {
 #define ERR_ACTION return NULL;
   int32_t packet_len = 0;
   for (int i = 0; i < 5; i++) {
@@ -152,7 +152,7 @@ inline void print_bytes_py(unsigned char *bytes, size_t len) {
   printf("'\n");
 }
 
-void MConn_send_packet(MConn *conn, MCbuffer *buff) {
+void MConn_send_packet(struct MConn *conn, MCbuffer *buff) {
 #define ERR_ACTION goto on_error;
   MCbuffer *compressed_buffer = MCbuffer_init();
   if (conn->compression_threshold >= 0) {
@@ -189,7 +189,7 @@ on_error:
   return;
 }
 
-void MConn_loop(MConn *conn) {
+void MConn_loop(struct MConn *conn) {
 #define ERR_ACTION return;
   conn->sockfd = socket(AF_INET, SOCK_STREAM, 0);
   ERR_IF_NOT(conn->sockfd, ERR_SOCKET);
@@ -242,7 +242,7 @@ void MConn_loop(MConn *conn) {
       printf("ERR_CHECKED %s:%d\n", __FILE__, __LINE__);                       \
       goto err_free_packet;                                                    \
     }                                                                          \
-    conn->on_packet.packet_name(data);                                         \
+    conn->on_packet.packet_name(data, conn);                                   \
     break;                                                                     \
   }
 

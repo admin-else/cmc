@@ -106,7 +106,7 @@ def send_method(input_str):
             ]
         )
     )
-    send_method_define = f"void send_packet_{packet_name}(MConn *conn{', ' if symbols else ''} {', '.join([f'{type_map[symbol[0]][0]}{symbol[1:]}' for symbol in symbols])})"
+    send_method_define = f"void send_packet_{packet_name}(struct MConn *conn{', ' if symbols else ''} {', '.join([f'{type_map[symbol[0]][0]}{symbol[1:]}' for symbol in symbols])})"
     send_method = f"{send_method_define} {{MCbuffer *buff = MCbuffer_init();{pack_methods}  ERR_CHECK; MConn_send_packet(conn, buff);}}\n\n"
     return send_method
 
@@ -114,7 +114,7 @@ def send_method(input_str):
 def send_method_h(input_str):
     packet_name, packet_id, symbol_str = input_str.split(";", maxsplit=2)
     symbols = [sym for sym in symbol_str.split(";") if sym != ""]
-    return f"void send_packet_{packet_name}(MConn *conn{',' if symbols else ''} {', '.join([f'{type_map[symbol[0]][0]}{symbol[1:]}' for symbol in symbols])});\n\n"
+    return f"void send_packet_{packet_name}(struct MConn *conn{',' if symbols else ''} {', '.join([f'{type_map[symbol[0]][0]}{symbol[1:]}' for symbol in symbols])});\n\n"
 
 
 def comment_filter(raw):
@@ -212,7 +212,7 @@ def main():
     replace_code_segments(
         "\n".join(
             [
-                f"void (*{'_'.join(mc_packet_exp.split(';')[0].split('_')[2:])})(const {mc_packet_exp.split(';')[0]}_packet_t packet);"
+                f"void (*{'_'.join(mc_packet_exp.split(';')[0].split('_')[2:])})(const {mc_packet_exp.split(';')[0]}_packet_t packet, struct MConn *conn);"
                 for mc_packet_exp in mc_packet_exps
                 if mc_packet_exp.split(";")[0].startswith("S2C_play_")
             ]
