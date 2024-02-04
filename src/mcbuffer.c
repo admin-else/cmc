@@ -452,7 +452,7 @@ entity_metadata_t MCbuffer_unpack_entity_metadata(MCbuffer *buff) {
         realloc(meta_data.entries,
                 (meta_data.size + 1) * sizeof(entity_metadata_entry_t));
     if (new_entries == NULL) {
-      #define ERR_ACTION goto on_error;
+#define ERR_ACTION goto on_error;
       ERR(ERR_MEM);
     }
 
@@ -465,8 +465,8 @@ entity_metadata_t MCbuffer_unpack_entity_metadata(MCbuffer *buff) {
   return meta_data;
 
 on_error:
-free(meta_data.entries);
-meta_data.size = 0;
-meta_data.entries = NULL;
-return meta_data;
+  free(meta_data.entries);
+  meta_data.size = 0;
+  meta_data.entries = NULL;
+  return meta_data;
 }

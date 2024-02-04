@@ -67,7 +67,9 @@ def type_def(input_str):
 def unpack_method(input_str):
     packet_name, packet_id, symbol_str = input_str.split(";", maxsplit=2)
     symbols = [sym for sym in symbol_str.split(";") if sym != ""]
-    unpack_method_define = f"{packet_name}_packet_t unpack_{packet_name}_packet(MCbuffer *buff)"
+    unpack_method_define = (
+        f"{packet_name}_packet_t unpack_{packet_name}_packet(MCbuffer *buff)"
+    )
     unpack_methods = "".join(
         [
             f"packet.{symbol[1:]}=MCbuffer_unpack_{type_map[symbol[0]][1]}(buff);"
@@ -96,7 +98,7 @@ def send_method(input_str):
     packet_name, packet_id, symbol_str = input_str.split(";", maxsplit=2)
     symbols = [sym for sym in symbol_str.split(";") if sym != ""]
     pack_methods = (
-        f"MCbuffer_pack_varint(buff, PACKETID_{packet_name.upper()});"
+        f"MCbuffer_pack_varint(buff, packetid_{packet_name});"
         + "".join(
             [
                 f"MCbuffer_pack_{type_map[symbol[0]][1]}(buff, {symbol[1:]});"
@@ -130,6 +132,24 @@ def comment_filter(raw):
 
         out += token
     return out
+
+
+def packet_ids(mc_packet_exps):
+    packet_states = []
+    for exp in mc_packet_exps:
+        a = "_".join(exp.split("_")[:2])
+        if a not in packet_states:
+            packet_states.append(a)
+
+    code = ""
+    for state in packet_states:
+        code += f"enum packetids_{state}_t {{"
+        for exp in mc_packet_exps:
+            if exp.startswith(state):
+                code += f"packetid_{state}_{'_'.join(exp.split('_')[2:]).split(';')[0]} = {exp.split(';')[1]},"
+        code += "};"
+
+    return code
 
 
 def main():
@@ -172,7 +192,7 @@ def main():
     replace_code_segments(
         "".join(
             [
-                f"PACKET_DATA_TO_STRING_UTIL({mc_packet_exp.split(';')[1]}, CONN_STATE_{mc_packet_exp.split(';')[0].split('_')[1].upper()}, DIRECTION_{mc_packet_exp.split(';')[0].split('_')[0].upper()}, \"{mc_packet_exp.split(';')[0].upper()}\");"
+                f"PACKET_DATA_TO_STRING_UTIL({mc_packet_exp.split(';')[1]}, CONN_STATE_{mc_packet_exp.split(';')[0].split('_')[1].upper()}, DIRECTION_{mc_packet_exp.split(';')[0].split('_')[0].upper()}, \"{mc_packet_exp.split(';')[0]}\");"
                 for mc_packet_exp in mc_packet_exps
             ]
         ),
@@ -180,15 +200,7 @@ def main():
     )
 
     # packet ids
-    replace_code_segments(
-        "\n".join(
-            [
-                f"#define PACKETID_{mc_packet_exp.split(';')[0].upper()} {mc_packet_exp.split(';')[1]}\n"
-                for mc_packet_exp in mc_packet_exps
-            ]
-        ),
-        "packet_ids",
-    )
+    replace_code_segments(packet_ids(mc_packet_exps), "packet_ids")
 
     # type defs
     replace_code_segments(
@@ -211,9 +223,9 @@ def main():
     replace_code_segments(
         "\n".join(
             [
-                f"case PACKETID_{mc_packet_exp.split(';')[0].upper()}: {{{mc_packet_exp.split(';')[0]}_packet_t data = unpack_{mc_packet_exp.split(';')[0]}_packet(packet);ERR_CHECK;conn->on_packet.{'_'.join(mc_packet_exp.split(';')[0].split('_')[2:])}(data);}}"
+                f"PACKER_HANDLER_HELPER({'_'.join(mc_packet_exp.split(';')[0].split('_')[2:])});"
                 for mc_packet_exp in mc_packet_exps
-                if mc_packet_exp.split(';')[0].startswith('S2C_play_')
+                if mc_packet_exp.split(";")[0].startswith("S2C_play_")
             ]
         ),
         "loop_handler",

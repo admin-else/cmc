@@ -26,7 +26,7 @@
 #  | arrays          | A |
 #  +-----------------+---+
 
-C2S_handshake                              ;0x00;vprotocole_version;sserver_addr;Hserver_port;vnext_state
+C2S_handshake_                    handshake;0x00;vprotocole_version;sserver_addr;Hserver_port;vnext_state
 S2C_   status_                     response;0x00;sresponse
 S2C_   status_                         pong;0x01;lpayload
 C2S_   status_                      request;0x00;

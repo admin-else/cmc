@@ -668,14 +668,12 @@ static void dump_list_binary(const struct nbt_list *list, MCbuffer *buff) {
   return;
 }
 
-static void dump_compound_binary(const struct nbt_list *list,
-                                 MCbuffer *buff) {
+static void dump_compound_binary(const struct nbt_list *list, MCbuffer *buff) {
   const struct list_head *pos;
   list_for_each(pos, &list->entry) {
     const struct nbt_list *entry =
         list_entry(pos, const struct nbt_list, entry);
     ERR_ABLE(__dump_binary(entry->data, false, buff));
-    
   }
 
   MCbuffer_pack_byte(buff, 0x00);
