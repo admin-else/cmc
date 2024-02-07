@@ -1,9 +1,9 @@
 CC = clang
-CFLAGS = -O2 -ggdb -Wno-macro-redefined
+CFLAGS = -O2 -g -Wno-macro-redefined
 LDFLAGS = -lz -lcrypto -lssl -lcurl
 
 SRC  = $(wildcard src/*.c) $(wildcard src/**/*.c) $(wildcard src/**/**/*.c) $(wildcard src/**/**/**/*.c)
-OBJ  = $(SRC:.c=.o)
+OBJ  = $(patsubst src/%.c,bin/%.o,$(SRC))
 BIN = bin
 FUZZ_DIR = fuzz_input  # Create a directory for fuzz test cases
 
@@ -20,7 +20,7 @@ run: all
 packeter: $(OBJ)
 	$(CC) -o $(BIN)/packeter $^ $(LDFLAGS)
 
-%.o: %.c
+bin/%.o: src/%.c
 	$(CC) -o $@ -c $< $(CFLAGS)
 
 codegen:
