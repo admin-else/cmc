@@ -467,3 +467,30 @@ on_error:
   meta_data.entries = NULL;
   return meta_data;
 }
+
+void free_entity_metadata(entity_metadata_t metadata) {
+#define ERR_ACTION ;
+  for (int i = 0; i < metadata.size; i++) {
+    entity_metadata_entry_t *entry =
+        metadata.entries + i * sizeof(entity_metadata_entry_t);
+    switch (entry->type) {
+    case ENTITY_METADATA_ENTRY_TYPE_SLOT:
+      // free_slot(entry->payload.slot_data);
+      ERR(ERR_NOT_IMPLEMENTED_YET);
+      break;
+    case ENTITY_METADATA_ENTRY_TYPE_STRING:
+      FREE(entry->payload.string_data);
+      break;
+    default:
+      break;
+    }
+  }
+  FREE(metadata.entries);
+}
+
+void free_string(char *str) { FREE(str); }
+
+void free_slot(slot_t *slot) {
+  nbt_free(slot->tag_compound);
+  FREE(slot);
+}

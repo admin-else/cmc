@@ -23,7 +23,8 @@ enum cmc_err_type {
   ERR_STRING_LENGHT,
   ERR_INVALID_STRING,
   ERR_INVALID_LENGHT,
-  ERR_INVALID_NBT_TAG_TYPE
+  ERR_INVALID_NBT_TAG_TYPE,
+  ERR_NOT_IMPLEMENTED_YET
 };
 
 inline const char *err_id2str(enum cmc_err_type err) {
@@ -54,6 +55,7 @@ inline const char *err_id2str(enum cmc_err_type err) {
     ERRID2STR_HELPER(ERR_INVALID_STRING);
     ERRID2STR_HELPER(ERR_INVALID_LENGHT);
     ERRID2STR_HELPER(ERR_INVALID_NBT_TAG_TYPE);
+    ERRID2STR_HELPER(ERR_NOT_IMPLEMENTED_YET);
   default:
     return "invalid error id";
   }

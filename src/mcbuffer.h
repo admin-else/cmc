@@ -76,3 +76,11 @@ void MCbuffer_pack_byte_array(MCbuffer *buff, MCbuffer *byte_array);
 void MCbuffer_pack_entity_metadata(MCbuffer *buff, entity_metadata_t metadata);
 
 entity_metadata_t MCbuffer_unpack_entity_metadata(MCbuffer *buff);
+
+void free_entity_metadata(entity_metadata_t metadata);
+
+void free_string(char *str);
+
+void free_slot(slot_t *slot);
+
+#define free_byte_array MCbuffer_free
