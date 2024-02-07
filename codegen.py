@@ -97,14 +97,11 @@ def unpack_method_h(input_str):
 def send_method(input_str):
     packet_name, packet_id, symbol_str = input_str.split(";", maxsplit=2)
     symbols = [sym for sym in symbol_str.split(";") if sym != ""]
-    pack_methods = (
-        f"MCbuffer_pack_varint(buff, packetid_{packet_name});"
-        + "".join(
-            [
-                f"MCbuffer_pack_{type_map[symbol[0]][1]}(buff, {symbol[1:]});"
-                for symbol in symbols
-            ]
-        )
+    pack_methods = f"MCbuffer_pack_varint(buff, packetid_{packet_name});" + "".join(
+        [
+            f"MCbuffer_pack_{type_map[symbol[0]][1]}(buff, {symbol[1:]});"
+            for symbol in symbols
+        ]
     )
     send_method_define = f"void send_packet_{packet_name}(struct MConn *conn{', ' if symbols else ''} {', '.join([f'{type_map[symbol[0]][0]}{symbol[1:]}' for symbol in symbols])})"
     send_method = f"{send_method_define} {{MCbuffer *buff = MCbuffer_init();{pack_methods}  ERR_CHECK; MConn_send_packet(conn, buff);}}\n\n"
@@ -152,6 +149,20 @@ def packet_ids(mc_packet_exps):
     return code
 
 
+def free_method(exp):
+    packet_name, packet_id, symbol_str = exp.split(";", maxsplit=2)
+    symbols = [sym for sym in symbol_str.split(";") if sym != ""]
+    if not [True for sym in symbols if type_map[sym[0]][2]]:
+        return ""
+
+    code = f"void free_{packet_name}_packet({packet_name}_packet_t packet) {{"
+    for sym in symbols:
+        if type_map[sym[0]][2]:
+            code += f"free_{type_map[sym[0]][1]}(packet.{sym[1:]});"
+    code += "}"
+    return code
+
+
 def main():
     with open("packets.txt", "r") as f:
         raw = f.read()
@@ -166,7 +177,7 @@ def main():
 
     # packet unpack methods
     replace_code_segments(
-        "".join([unpack_method(mc_packet_exps) for mc_packet_exps in mc_packet_exps]),
+        "".join([unpack_method(mc_packet_exp) for mc_packet_exp in mc_packet_exps]),
         "unpack_methods_c",
     )
 
@@ -229,6 +240,10 @@ def main():
             ]
         ),
         "loop_handler",
+    )
+
+    replace_code_segments(
+        "\n".join([free_method(sym) for sym in mc_packet_exps]), "free_methods_c"
     )
 
     os.system("clang-format -i ./src/*.c ./src/*.h")
