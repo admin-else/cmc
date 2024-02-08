@@ -18,6 +18,8 @@ struct MConn {
   unsigned char *shared_secret;
   /* string literal not in the heap */
   char *name;
+  void (*on_unhandeld_packet)(MCbuffer *buff, int packet_id,
+                              struct MConn *conn);
   struct {
     // CGSS: on_packet_fuction_pointers
     void (*keep_alive)(const S2C_play_keep_alive_packet_t packet,
