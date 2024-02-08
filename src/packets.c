@@ -28,9 +28,9 @@ and i dont like that so made it "safer" ig...
   if (buff->position != buff->length)                                          \
     ERR(ERR_BUFFER_UNDERUN);
 
-char *packet_data_to_string(int packet_id, MConn_state state,
-                            packet_direction direction) {
-#define PACKET_DATA_TO_STRING_UTIL(packet_id, state, direction, packet_name)   \
+char *packet_id_to_string(int packet_id, MConn_state state,
+                          packet_direction direction) {
+#define PACKET_ID_TO_STRING_UTIL(packet_id, state, direction, packet_name)     \
   case (packet_id & 0x00FFFFFF) | (state << 24) | (direction << 23):           \
     return packet_name;
 
@@ -38,119 +38,119 @@ char *packet_data_to_string(int packet_id, MConn_state state,
       (packet_id & 0x00FFFFFF) | (state << 24) | (direction << 23);
 
   switch (combined_packet_data) {
-    // CGSS: packet_data_to_string
-    PACKET_DATA_TO_STRING_UTIL(0x00, CONN_STATE_HANDSHAKE, DIRECTION_C2S,
-                               "C2S_handshake_handshake");
-    PACKET_DATA_TO_STRING_UTIL(0x00, CONN_STATE_STATUS, DIRECTION_S2C,
-                               "S2C_status_response");
-    PACKET_DATA_TO_STRING_UTIL(0x01, CONN_STATE_STATUS, DIRECTION_S2C,
-                               "S2C_status_pong");
-    PACKET_DATA_TO_STRING_UTIL(0x00, CONN_STATE_STATUS, DIRECTION_C2S,
-                               "C2S_status_request");
-    PACKET_DATA_TO_STRING_UTIL(0x01, CONN_STATE_STATUS, DIRECTION_C2S,
-                               "C2S_status_ping");
-    PACKET_DATA_TO_STRING_UTIL(0x00, CONN_STATE_LOGIN, DIRECTION_S2C,
-                               "S2C_login_disconnect");
-    PACKET_DATA_TO_STRING_UTIL(0x01, CONN_STATE_LOGIN, DIRECTION_S2C,
-                               "S2C_login_encryption_request");
-    PACKET_DATA_TO_STRING_UTIL(0x02, CONN_STATE_LOGIN, DIRECTION_S2C,
-                               "S2C_login_success");
-    PACKET_DATA_TO_STRING_UTIL(0x03, CONN_STATE_LOGIN, DIRECTION_S2C,
-                               "S2C_login_set_compression");
-    PACKET_DATA_TO_STRING_UTIL(0x00, CONN_STATE_LOGIN, DIRECTION_C2S,
-                               "C2S_login_start");
-    PACKET_DATA_TO_STRING_UTIL(0x01, CONN_STATE_LOGIN, DIRECTION_C2S,
-                               "C2S_login_encryption_response");
-    PACKET_DATA_TO_STRING_UTIL(0x00, CONN_STATE_PLAY, DIRECTION_S2C,
-                               "S2C_play_keep_alive");
-    PACKET_DATA_TO_STRING_UTIL(0x01, CONN_STATE_PLAY, DIRECTION_S2C,
-                               "S2C_play_join_game");
-    PACKET_DATA_TO_STRING_UTIL(0x02, CONN_STATE_PLAY, DIRECTION_S2C,
-                               "S2C_play_chat_message");
-    PACKET_DATA_TO_STRING_UTIL(0x03, CONN_STATE_PLAY, DIRECTION_S2C,
-                               "S2C_play_time_update");
-    PACKET_DATA_TO_STRING_UTIL(0x04, CONN_STATE_PLAY, DIRECTION_S2C,
-                               "S2C_play_entity_equipment");
-    PACKET_DATA_TO_STRING_UTIL(0x05, CONN_STATE_PLAY, DIRECTION_S2C,
-                               "S2C_play_spawn_position");
-    PACKET_DATA_TO_STRING_UTIL(0x06, CONN_STATE_PLAY, DIRECTION_S2C,
-                               "S2C_play_update_health");
-    PACKET_DATA_TO_STRING_UTIL(0x07, CONN_STATE_PLAY, DIRECTION_S2C,
-                               "S2C_play_respawn");
-    PACKET_DATA_TO_STRING_UTIL(0x08, CONN_STATE_PLAY, DIRECTION_S2C,
-                               "S2C_play_player_look_and_position");
-    PACKET_DATA_TO_STRING_UTIL(0x09, CONN_STATE_PLAY, DIRECTION_S2C,
-                               "S2C_play_held_item_change");
-    PACKET_DATA_TO_STRING_UTIL(0x0A, CONN_STATE_PLAY, DIRECTION_S2C,
-                               "S2C_play_use_bed");
-    PACKET_DATA_TO_STRING_UTIL(0x0B, CONN_STATE_PLAY, DIRECTION_S2C,
-                               "S2C_play_animation");
-    PACKET_DATA_TO_STRING_UTIL(0x0C, CONN_STATE_PLAY, DIRECTION_S2C,
-                               "S2C_play_spawn_player");
-    PACKET_DATA_TO_STRING_UTIL(0x0D, CONN_STATE_PLAY, DIRECTION_S2C,
-                               "S2C_play_collect_item");
-    PACKET_DATA_TO_STRING_UTIL(0x0F, CONN_STATE_PLAY, DIRECTION_S2C,
-                               "S2C_play_spawn_mob");
-    PACKET_DATA_TO_STRING_UTIL(0x10, CONN_STATE_PLAY, DIRECTION_S2C,
-                               "S2C_play_spawn_painting");
-    PACKET_DATA_TO_STRING_UTIL(0x11, CONN_STATE_PLAY, DIRECTION_S2C,
-                               "S2C_play_spawn_experience_orb");
-    PACKET_DATA_TO_STRING_UTIL(0x12, CONN_STATE_PLAY, DIRECTION_S2C,
-                               "S2C_play_entity_velocity");
-    PACKET_DATA_TO_STRING_UTIL(0x14, CONN_STATE_PLAY, DIRECTION_S2C,
-                               "S2C_play_entity");
-    PACKET_DATA_TO_STRING_UTIL(0x15, CONN_STATE_PLAY, DIRECTION_S2C,
-                               "S2C_play_entity_relative_move");
-    PACKET_DATA_TO_STRING_UTIL(0x16, CONN_STATE_PLAY, DIRECTION_S2C,
-                               "S2C_play_entity_look");
-    PACKET_DATA_TO_STRING_UTIL(0x17, CONN_STATE_PLAY, DIRECTION_S2C,
-                               "S2C_play_entity_look_and_relative_move");
-    PACKET_DATA_TO_STRING_UTIL(0x18, CONN_STATE_PLAY, DIRECTION_S2C,
-                               "S2C_play_entity_teleport");
-    PACKET_DATA_TO_STRING_UTIL(0x19, CONN_STATE_PLAY, DIRECTION_S2C,
-                               "S2C_play_entity_head_look");
-    PACKET_DATA_TO_STRING_UTIL(0x1A, CONN_STATE_PLAY, DIRECTION_S2C,
-                               "S2C_play_entity_status");
-    PACKET_DATA_TO_STRING_UTIL(0x1B, CONN_STATE_PLAY, DIRECTION_S2C,
-                               "S2C_play_attach_entity");
-    PACKET_DATA_TO_STRING_UTIL(0x1C, CONN_STATE_PLAY, DIRECTION_S2C,
-                               "S2C_play_entity_metadata");
-    PACKET_DATA_TO_STRING_UTIL(0x1D, CONN_STATE_PLAY, DIRECTION_S2C,
-                               "S2C_play_entity_effect");
-    PACKET_DATA_TO_STRING_UTIL(0x1E, CONN_STATE_PLAY, DIRECTION_S2C,
-                               "S2C_play_remove_entity_effect");
-    PACKET_DATA_TO_STRING_UTIL(0x1F, CONN_STATE_PLAY, DIRECTION_S2C,
-                               "S2C_play_set_experience");
-    PACKET_DATA_TO_STRING_UTIL(0x21, CONN_STATE_PLAY, DIRECTION_S2C,
-                               "S2C_play_chunk_data");
-    PACKET_DATA_TO_STRING_UTIL(0x23, CONN_STATE_PLAY, DIRECTION_S2C,
-                               "S2C_play_block_change");
-    PACKET_DATA_TO_STRING_UTIL(0x24, CONN_STATE_PLAY, DIRECTION_S2C,
-                               "S2C_play_block_action");
-    PACKET_DATA_TO_STRING_UTIL(0x25, CONN_STATE_PLAY, DIRECTION_S2C,
-                               "S2C_play_block_break_animation");
-    PACKET_DATA_TO_STRING_UTIL(0x28, CONN_STATE_PLAY, DIRECTION_S2C,
-                               "S2C_play_effect");
-    PACKET_DATA_TO_STRING_UTIL(0x29, CONN_STATE_PLAY, DIRECTION_S2C,
-                               "S2C_play_sound_effect");
-    PACKET_DATA_TO_STRING_UTIL(0x2B, CONN_STATE_PLAY, DIRECTION_S2C,
-                               "S2C_play_change_game_state");
-    PACKET_DATA_TO_STRING_UTIL(0x39, CONN_STATE_PLAY, DIRECTION_S2C,
-                               "S2C_play_player_abilities");
-    PACKET_DATA_TO_STRING_UTIL(0x3F, CONN_STATE_PLAY, DIRECTION_S2C,
-                               "S2C_play_plugin_message");
-    PACKET_DATA_TO_STRING_UTIL(0x40, CONN_STATE_PLAY, DIRECTION_S2C,
-                               "S2C_play_disconnect");
-    PACKET_DATA_TO_STRING_UTIL(0x41, CONN_STATE_PLAY, DIRECTION_S2C,
-                               "S2C_play_change_difficulty");
-    PACKET_DATA_TO_STRING_UTIL(0x00, CONN_STATE_PLAY, DIRECTION_C2S,
-                               "C2S_play_keep_alive");
-    // CGSE: packet_data_to_string
+    // CGSS: packet_id_to_string
+    PACKET_ID_TO_STRING_UTIL(0x00, CONN_STATE_HANDSHAKE, DIRECTION_C2S,
+                             "C2S_handshake_handshake");
+    PACKET_ID_TO_STRING_UTIL(0x00, CONN_STATE_STATUS, DIRECTION_S2C,
+                             "S2C_status_response");
+    PACKET_ID_TO_STRING_UTIL(0x01, CONN_STATE_STATUS, DIRECTION_S2C,
+                             "S2C_status_pong");
+    PACKET_ID_TO_STRING_UTIL(0x00, CONN_STATE_STATUS, DIRECTION_C2S,
+                             "C2S_status_request");
+    PACKET_ID_TO_STRING_UTIL(0x01, CONN_STATE_STATUS, DIRECTION_C2S,
+                             "C2S_status_ping");
+    PACKET_ID_TO_STRING_UTIL(0x00, CONN_STATE_LOGIN, DIRECTION_S2C,
+                             "S2C_login_disconnect");
+    PACKET_ID_TO_STRING_UTIL(0x01, CONN_STATE_LOGIN, DIRECTION_S2C,
+                             "S2C_login_encryption_request");
+    PACKET_ID_TO_STRING_UTIL(0x02, CONN_STATE_LOGIN, DIRECTION_S2C,
+                             "S2C_login_success");
+    PACKET_ID_TO_STRING_UTIL(0x03, CONN_STATE_LOGIN, DIRECTION_S2C,
+                             "S2C_login_set_compression");
+    PACKET_ID_TO_STRING_UTIL(0x00, CONN_STATE_LOGIN, DIRECTION_C2S,
+                             "C2S_login_start");
+    PACKET_ID_TO_STRING_UTIL(0x01, CONN_STATE_LOGIN, DIRECTION_C2S,
+                             "C2S_login_encryption_response");
+    PACKET_ID_TO_STRING_UTIL(0x00, CONN_STATE_PLAY, DIRECTION_S2C,
+                             "S2C_play_keep_alive");
+    PACKET_ID_TO_STRING_UTIL(0x01, CONN_STATE_PLAY, DIRECTION_S2C,
+                             "S2C_play_join_game");
+    PACKET_ID_TO_STRING_UTIL(0x02, CONN_STATE_PLAY, DIRECTION_S2C,
+                             "S2C_play_chat_message");
+    PACKET_ID_TO_STRING_UTIL(0x03, CONN_STATE_PLAY, DIRECTION_S2C,
+                             "S2C_play_time_update");
+    PACKET_ID_TO_STRING_UTIL(0x04, CONN_STATE_PLAY, DIRECTION_S2C,
+                             "S2C_play_entity_equipment");
+    PACKET_ID_TO_STRING_UTIL(0x05, CONN_STATE_PLAY, DIRECTION_S2C,
+                             "S2C_play_spawn_position");
+    PACKET_ID_TO_STRING_UTIL(0x06, CONN_STATE_PLAY, DIRECTION_S2C,
+                             "S2C_play_update_health");
+    PACKET_ID_TO_STRING_UTIL(0x07, CONN_STATE_PLAY, DIRECTION_S2C,
+                             "S2C_play_respawn");
+    PACKET_ID_TO_STRING_UTIL(0x08, CONN_STATE_PLAY, DIRECTION_S2C,
+                             "S2C_play_player_look_and_position");
+    PACKET_ID_TO_STRING_UTIL(0x09, CONN_STATE_PLAY, DIRECTION_S2C,
+                             "S2C_play_held_item_change");
+    PACKET_ID_TO_STRING_UTIL(0x0A, CONN_STATE_PLAY, DIRECTION_S2C,
+                             "S2C_play_use_bed");
+    PACKET_ID_TO_STRING_UTIL(0x0B, CONN_STATE_PLAY, DIRECTION_S2C,
+                             "S2C_play_animation");
+    PACKET_ID_TO_STRING_UTIL(0x0C, CONN_STATE_PLAY, DIRECTION_S2C,
+                             "S2C_play_spawn_player");
+    PACKET_ID_TO_STRING_UTIL(0x0D, CONN_STATE_PLAY, DIRECTION_S2C,
+                             "S2C_play_collect_item");
+    PACKET_ID_TO_STRING_UTIL(0x0F, CONN_STATE_PLAY, DIRECTION_S2C,
+                             "S2C_play_spawn_mob");
+    PACKET_ID_TO_STRING_UTIL(0x10, CONN_STATE_PLAY, DIRECTION_S2C,
+                             "S2C_play_spawn_painting");
+    PACKET_ID_TO_STRING_UTIL(0x11, CONN_STATE_PLAY, DIRECTION_S2C,
+                             "S2C_play_spawn_experience_orb");
+    PACKET_ID_TO_STRING_UTIL(0x12, CONN_STATE_PLAY, DIRECTION_S2C,
+                             "S2C_play_entity_velocity");
+    PACKET_ID_TO_STRING_UTIL(0x14, CONN_STATE_PLAY, DIRECTION_S2C,
+                             "S2C_play_entity");
+    PACKET_ID_TO_STRING_UTIL(0x15, CONN_STATE_PLAY, DIRECTION_S2C,
+                             "S2C_play_entity_relative_move");
+    PACKET_ID_TO_STRING_UTIL(0x16, CONN_STATE_PLAY, DIRECTION_S2C,
+                             "S2C_play_entity_look");
+    PACKET_ID_TO_STRING_UTIL(0x17, CONN_STATE_PLAY, DIRECTION_S2C,
+                             "S2C_play_entity_look_and_relative_move");
+    PACKET_ID_TO_STRING_UTIL(0x18, CONN_STATE_PLAY, DIRECTION_S2C,
+                             "S2C_play_entity_teleport");
+    PACKET_ID_TO_STRING_UTIL(0x19, CONN_STATE_PLAY, DIRECTION_S2C,
+                             "S2C_play_entity_head_look");
+    PACKET_ID_TO_STRING_UTIL(0x1A, CONN_STATE_PLAY, DIRECTION_S2C,
+                             "S2C_play_entity_status");
+    PACKET_ID_TO_STRING_UTIL(0x1B, CONN_STATE_PLAY, DIRECTION_S2C,
+                             "S2C_play_attach_entity");
+    PACKET_ID_TO_STRING_UTIL(0x1C, CONN_STATE_PLAY, DIRECTION_S2C,
+                             "S2C_play_entity_metadata");
+    PACKET_ID_TO_STRING_UTIL(0x1D, CONN_STATE_PLAY, DIRECTION_S2C,
+                             "S2C_play_entity_effect");
+    PACKET_ID_TO_STRING_UTIL(0x1E, CONN_STATE_PLAY, DIRECTION_S2C,
+                             "S2C_play_remove_entity_effect");
+    PACKET_ID_TO_STRING_UTIL(0x1F, CONN_STATE_PLAY, DIRECTION_S2C,
+                             "S2C_play_set_experience");
+    PACKET_ID_TO_STRING_UTIL(0x21, CONN_STATE_PLAY, DIRECTION_S2C,
+                             "S2C_play_chunk_data");
+    PACKET_ID_TO_STRING_UTIL(0x23, CONN_STATE_PLAY, DIRECTION_S2C,
+                             "S2C_play_block_change");
+    PACKET_ID_TO_STRING_UTIL(0x24, CONN_STATE_PLAY, DIRECTION_S2C,
+                             "S2C_play_block_action");
+    PACKET_ID_TO_STRING_UTIL(0x25, CONN_STATE_PLAY, DIRECTION_S2C,
+                             "S2C_play_block_break_animation");
+    PACKET_ID_TO_STRING_UTIL(0x28, CONN_STATE_PLAY, DIRECTION_S2C,
+                             "S2C_play_effect");
+    PACKET_ID_TO_STRING_UTIL(0x29, CONN_STATE_PLAY, DIRECTION_S2C,
+                             "S2C_play_sound_effect");
+    PACKET_ID_TO_STRING_UTIL(0x2B, CONN_STATE_PLAY, DIRECTION_S2C,
+                             "S2C_play_change_game_state");
+    PACKET_ID_TO_STRING_UTIL(0x39, CONN_STATE_PLAY, DIRECTION_S2C,
+                             "S2C_play_player_abilities");
+    PACKET_ID_TO_STRING_UTIL(0x3F, CONN_STATE_PLAY, DIRECTION_S2C,
+                             "S2C_play_plugin_message");
+    PACKET_ID_TO_STRING_UTIL(0x40, CONN_STATE_PLAY, DIRECTION_S2C,
+                             "S2C_play_disconnect");
+    PACKET_ID_TO_STRING_UTIL(0x41, CONN_STATE_PLAY, DIRECTION_S2C,
+                             "S2C_play_change_difficulty");
+    PACKET_ID_TO_STRING_UTIL(0x00, CONN_STATE_PLAY, DIRECTION_C2S,
+                             "C2S_play_keep_alive");
+    // CGSE: packet_id_to_string
   default:
     return "PACKET_UNKNOWN";
   }
 
-#undef PACKET_DATA_TO_STRING_UTIL
+#undef PACKET_ID_TO_STRING_UTIL
 }
 
 #define ERR_ACTION return;

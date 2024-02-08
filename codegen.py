@@ -173,7 +173,7 @@ def loop_handeler(exp):
     short_packet_name = "_".join(packet_name.split("_")[2:])
     return f"""case packetid_S2C_play_{short_packet_name}: {{
         if (!conn->on_packet.{short_packet_name})
-          break;
+          goto unhandeled_packet;
         S2C_play_{short_packet_name}_packet_t data =
             ERR_ABLE(unpack_S2C_play_{short_packet_name}_packet(packet));
         conn->on_packet.{short_packet_name}(data, conn);
@@ -221,11 +221,11 @@ def main():
     replace_code_segments(
         "".join(
             [
-                f"PACKET_DATA_TO_STRING_UTIL({mc_packet_exp.split(';')[1]}, CONN_STATE_{mc_packet_exp.split(';')[0].split('_')[1].upper()}, DIRECTION_{mc_packet_exp.split(';')[0].split('_')[0].upper()}, \"{mc_packet_exp.split(';')[0]}\");"
+                f"PACKET_ID_TO_STRING_UTIL({mc_packet_exp.split(';')[1]}, CONN_STATE_{mc_packet_exp.split(';')[0].split('_')[1].upper()}, DIRECTION_{mc_packet_exp.split(';')[0].split('_')[0].upper()}, \"{mc_packet_exp.split(';')[0]}\");"
                 for mc_packet_exp in mc_packet_exps
             ]
         ),
-        "packet_data_to_string",
+        "packet_id_to_string",
     )
 
     # packet ids

@@ -7,8 +7,8 @@
 #include <jansson.h>
 #include <stdbool.h>
 
-char *packet_data_to_string(int packet_id, MConn_state state,
-                            packet_direction direction);
+char *packet_id_to_string(int packet_id, MConn_state state,
+                          packet_direction direction);
 
 // CGSS: packet_ids
 enum packetids_C2S_handshake_t {
