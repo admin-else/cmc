@@ -148,11 +148,17 @@ def packet_ids(mc_packet_exps):
 
     return code
 
+def should_have_free_method(exp):
+    packet_name, packet_id, symbol_str = exp.split(";", maxsplit=2)
+    symbols = [sym for sym in symbol_str.split(";") if sym != ""]
+    if [True for sym in symbols if type_map[sym[0]][2]]:
+        return True
+    return False
 
 def free_method(exp):
     packet_name, packet_id, symbol_str = exp.split(";", maxsplit=2)
     symbols = [sym for sym in symbol_str.split(";") if sym != ""]
-    if not [True for sym in symbols if type_map[sym[0]][2]]:
+    if not should_have_free_method(exp):
         return ""
 
     code = f"void free_{packet_name}_packet({packet_name}_packet_t packet) {{"
@@ -162,6 +168,18 @@ def free_method(exp):
     code += "}"
     return code
 
+def loop_handeler(exp):
+    packet_name, packet_id, symbol_str = exp.split(";", maxsplit=2)
+    short_packet_name = "_".join(packet_name.split("_")[2:])
+    return f"""case packetid_S2C_play_{short_packet_name}: {{
+        if (!conn->on_packet.{short_packet_name})
+          break;
+        S2C_play_{short_packet_name}_packet_t data =
+            ERR_ABLE(unpack_S2C_play_{short_packet_name}_packet(packet));
+        conn->on_packet.{short_packet_name}(data, conn);
+        {f'free_S2C_play_{short_packet_name}_packet(data);' if should_have_free_method(exp) else ''}
+        break;
+    }}"""
 
 def main():
     with open("packets.txt", "r") as f:
@@ -234,7 +252,7 @@ def main():
     replace_code_segments(
         "\n".join(
             [
-                f"PACKER_HANDLER_HELPER({'_'.join(mc_packet_exp.split(';')[0].split('_')[2:])});"
+                loop_handeler(mc_packet_exp)
                 for mc_packet_exp in mc_packet_exps
                 if mc_packet_exp.split(";")[0].startswith("S2C_play_")
             ]
@@ -244,6 +262,10 @@ def main():
 
     replace_code_segments(
         "\n".join([free_method(sym) for sym in mc_packet_exps]), "free_methods_c"
+    )
+
+    replace_code_segments(
+        "\n".join([f"void free_{exp.split(';', maxsplit=2)[0]}_packet({exp.split(';', maxsplit=2)[0]}_packet_t packet);" for exp in mc_packet_exps if should_have_free_method(exp)]), "free_methods_h"
     )
 
     os.system("clang-format -i ./src/*.c ./src/*.h")

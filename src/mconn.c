@@ -26,13 +26,15 @@ struct MConn *MConn_init() {
   conn->state = CONN_STATE_OFFLINE;
   conn->compression_threshold = -1;
   conn->sockfd = -1;
+  conn->shared_secret = NULL;
   memset(&conn->on_packet, 0, sizeof(conn->on_packet));
   return conn;
 }
 
 void MConn_free(struct MConn *conn) {
   assert(conn->state == CONN_STATE_OFFLINE);
-  FREE(conn->shared_secret);
+  if (conn->shared_secret)
+    FREE(conn->shared_secret);
   FREE(conn);
 }
 
@@ -107,7 +109,6 @@ MCbuffer *MConn_recive_packet(struct MConn *conn) {
   strm.zalloc = Z_NULL;
   strm.zfree = Z_NULL;
   strm.opaque = Z_NULL;
-  int ret;
 
   strm.avail_in = buff->length - buff->position;
   strm.next_in = (Bytef *)buff->data + buff->position;
@@ -204,6 +205,7 @@ void MConn_loop(struct MConn *conn) {
   conn->state = CONN_STATE_LOGIN;
   while (conn->state != CONN_STATE_OFFLINE) {
     MCbuffer *packet = ERR_ABLE(MConn_recive_packet(conn));
+
 #define ERR_ACTION goto err_free_packet;
     int packet_id = ERR_ABLE(MCbuffer_unpack_varint(packet));
     switch (conn->state) {
@@ -232,64 +234,381 @@ void MConn_loop(struct MConn *conn) {
     }
     case CONN_STATE_PLAY:
       switch (packet_id) {
-#define PACKER_HANDLER_HELPER(packet_name)                                     \
-  case packetid_S2C_play_##packet_name: {                                      \
-    if (!conn->on_packet.packet_name)                                          \
-      break;                                                                   \
-    S2C_play_##packet_name##_packet_t data =                                   \
-        unpack_S2C_play_##packet_name##_packet(packet);                        \
-    if (cmc_err.type) {                                                        \
-      printf("ERR_CHECKED %s:%d\n", __FILE__, __LINE__);                       \
-      goto err_free_packet;                                                    \
-    }                                                                          \
-    conn->on_packet.packet_name(data, conn);                                   \
-    break;                                                                     \
-  }
-
         // CGSS: loop_handler
-        PACKER_HANDLER_HELPER(keep_alive);
-        PACKER_HANDLER_HELPER(join_game);
-        PACKER_HANDLER_HELPER(chat_message);
-        PACKER_HANDLER_HELPER(time_update);
-        PACKER_HANDLER_HELPER(entity_equipment);
-        PACKER_HANDLER_HELPER(spawn_position);
-        PACKER_HANDLER_HELPER(update_health);
-        PACKER_HANDLER_HELPER(respawn);
-        PACKER_HANDLER_HELPER(player_look_and_position);
-        PACKER_HANDLER_HELPER(held_item_change);
-        PACKER_HANDLER_HELPER(use_bed);
-        PACKER_HANDLER_HELPER(animation);
-        PACKER_HANDLER_HELPER(spawn_player);
-        PACKER_HANDLER_HELPER(collect_item);
-        PACKER_HANDLER_HELPER(spawn_mob);
-        PACKER_HANDLER_HELPER(spawn_painting);
-        PACKER_HANDLER_HELPER(spawn_experience_orb);
-        PACKER_HANDLER_HELPER(entity_velocity);
-        PACKER_HANDLER_HELPER(entity);
-        PACKER_HANDLER_HELPER(entity_relative_move);
-        PACKER_HANDLER_HELPER(entity_look);
-        PACKER_HANDLER_HELPER(entity_look_and_relative_move);
-        PACKER_HANDLER_HELPER(entity_teleport);
-        PACKER_HANDLER_HELPER(entity_head_look);
-        PACKER_HANDLER_HELPER(entity_status);
-        PACKER_HANDLER_HELPER(attach_entity);
-        PACKER_HANDLER_HELPER(entity_metadata);
-        PACKER_HANDLER_HELPER(entity_effect);
-        PACKER_HANDLER_HELPER(remove_entity_effect);
-        PACKER_HANDLER_HELPER(set_experience);
-        PACKER_HANDLER_HELPER(chunk_data);
-        PACKER_HANDLER_HELPER(block_change);
-        PACKER_HANDLER_HELPER(block_action);
-        PACKER_HANDLER_HELPER(block_break_animation);
-        PACKER_HANDLER_HELPER(effect);
-        PACKER_HANDLER_HELPER(sound_effect);
-        PACKER_HANDLER_HELPER(change_game_state);
-        PACKER_HANDLER_HELPER(player_abilities);
-        PACKER_HANDLER_HELPER(plugin_message);
-        PACKER_HANDLER_HELPER(disconnect);
-        PACKER_HANDLER_HELPER(change_difficulty);
-        // CGSE: loop_handler
+      case packetid_S2C_play_keep_alive: {
+        if (!conn->on_packet.keep_alive)
+          break;
+        S2C_play_keep_alive_packet_t data =
+            ERR_ABLE(unpack_S2C_play_keep_alive_packet(packet));
+        conn->on_packet.keep_alive(data, conn);
+
+        break;
       }
+      case packetid_S2C_play_join_game: {
+        if (!conn->on_packet.join_game)
+          break;
+        S2C_play_join_game_packet_t data =
+            ERR_ABLE(unpack_S2C_play_join_game_packet(packet));
+        conn->on_packet.join_game(data, conn);
+        free_S2C_play_join_game_packet(data);
+        break;
+      }
+      case packetid_S2C_play_chat_message: {
+        if (!conn->on_packet.chat_message)
+          break;
+        S2C_play_chat_message_packet_t data =
+            ERR_ABLE(unpack_S2C_play_chat_message_packet(packet));
+        conn->on_packet.chat_message(data, conn);
+        free_S2C_play_chat_message_packet(data);
+        break;
+      }
+      case packetid_S2C_play_time_update: {
+        if (!conn->on_packet.time_update)
+          break;
+        S2C_play_time_update_packet_t data =
+            ERR_ABLE(unpack_S2C_play_time_update_packet(packet));
+        conn->on_packet.time_update(data, conn);
+
+        break;
+      }
+      case packetid_S2C_play_entity_equipment: {
+        if (!conn->on_packet.entity_equipment)
+          break;
+        S2C_play_entity_equipment_packet_t data =
+            ERR_ABLE(unpack_S2C_play_entity_equipment_packet(packet));
+        conn->on_packet.entity_equipment(data, conn);
+        free_S2C_play_entity_equipment_packet(data);
+        break;
+      }
+      case packetid_S2C_play_spawn_position: {
+        if (!conn->on_packet.spawn_position)
+          break;
+        S2C_play_spawn_position_packet_t data =
+            ERR_ABLE(unpack_S2C_play_spawn_position_packet(packet));
+        conn->on_packet.spawn_position(data, conn);
+
+        break;
+      }
+      case packetid_S2C_play_update_health: {
+        if (!conn->on_packet.update_health)
+          break;
+        S2C_play_update_health_packet_t data =
+            ERR_ABLE(unpack_S2C_play_update_health_packet(packet));
+        conn->on_packet.update_health(data, conn);
+
+        break;
+      }
+      case packetid_S2C_play_respawn: {
+        if (!conn->on_packet.respawn)
+          break;
+        S2C_play_respawn_packet_t data =
+            ERR_ABLE(unpack_S2C_play_respawn_packet(packet));
+        conn->on_packet.respawn(data, conn);
+        free_S2C_play_respawn_packet(data);
+        break;
+      }
+      case packetid_S2C_play_player_look_and_position: {
+        if (!conn->on_packet.player_look_and_position)
+          break;
+        S2C_play_player_look_and_position_packet_t data =
+            ERR_ABLE(unpack_S2C_play_player_look_and_position_packet(packet));
+        conn->on_packet.player_look_and_position(data, conn);
+
+        break;
+      }
+      case packetid_S2C_play_held_item_change: {
+        if (!conn->on_packet.held_item_change)
+          break;
+        S2C_play_held_item_change_packet_t data =
+            ERR_ABLE(unpack_S2C_play_held_item_change_packet(packet));
+        conn->on_packet.held_item_change(data, conn);
+
+        break;
+      }
+      case packetid_S2C_play_use_bed: {
+        if (!conn->on_packet.use_bed)
+          break;
+        S2C_play_use_bed_packet_t data =
+            ERR_ABLE(unpack_S2C_play_use_bed_packet(packet));
+        conn->on_packet.use_bed(data, conn);
+
+        break;
+      }
+      case packetid_S2C_play_animation: {
+        if (!conn->on_packet.animation)
+          break;
+        S2C_play_animation_packet_t data =
+            ERR_ABLE(unpack_S2C_play_animation_packet(packet));
+        conn->on_packet.animation(data, conn);
+
+        break;
+      }
+      case packetid_S2C_play_spawn_player: {
+        if (!conn->on_packet.spawn_player)
+          break;
+        S2C_play_spawn_player_packet_t data =
+            ERR_ABLE(unpack_S2C_play_spawn_player_packet(packet));
+        conn->on_packet.spawn_player(data, conn);
+        free_S2C_play_spawn_player_packet(data);
+        break;
+      }
+      case packetid_S2C_play_collect_item: {
+        if (!conn->on_packet.collect_item)
+          break;
+        S2C_play_collect_item_packet_t data =
+            ERR_ABLE(unpack_S2C_play_collect_item_packet(packet));
+        conn->on_packet.collect_item(data, conn);
+
+        break;
+      }
+      case packetid_S2C_play_spawn_mob: {
+        if (!conn->on_packet.spawn_mob)
+          break;
+        S2C_play_spawn_mob_packet_t data =
+            ERR_ABLE(unpack_S2C_play_spawn_mob_packet(packet));
+        conn->on_packet.spawn_mob(data, conn);
+        free_S2C_play_spawn_mob_packet(data);
+        break;
+      }
+      case packetid_S2C_play_spawn_painting: {
+        if (!conn->on_packet.spawn_painting)
+          break;
+        S2C_play_spawn_painting_packet_t data =
+            ERR_ABLE(unpack_S2C_play_spawn_painting_packet(packet));
+        conn->on_packet.spawn_painting(data, conn);
+        free_S2C_play_spawn_painting_packet(data);
+        break;
+      }
+      case packetid_S2C_play_spawn_experience_orb: {
+        if (!conn->on_packet.spawn_experience_orb)
+          break;
+        S2C_play_spawn_experience_orb_packet_t data =
+            ERR_ABLE(unpack_S2C_play_spawn_experience_orb_packet(packet));
+        conn->on_packet.spawn_experience_orb(data, conn);
+
+        break;
+      }
+      case packetid_S2C_play_entity_velocity: {
+        if (!conn->on_packet.entity_velocity)
+          break;
+        S2C_play_entity_velocity_packet_t data =
+            ERR_ABLE(unpack_S2C_play_entity_velocity_packet(packet));
+        conn->on_packet.entity_velocity(data, conn);
+
+        break;
+      }
+      case packetid_S2C_play_entity: {
+        if (!conn->on_packet.entity)
+          break;
+        S2C_play_entity_packet_t data =
+            ERR_ABLE(unpack_S2C_play_entity_packet(packet));
+        conn->on_packet.entity(data, conn);
+
+        break;
+      }
+      case packetid_S2C_play_entity_relative_move: {
+        if (!conn->on_packet.entity_relative_move)
+          break;
+        S2C_play_entity_relative_move_packet_t data =
+            ERR_ABLE(unpack_S2C_play_entity_relative_move_packet(packet));
+        conn->on_packet.entity_relative_move(data, conn);
+
+        break;
+      }
+      case packetid_S2C_play_entity_look: {
+        if (!conn->on_packet.entity_look)
+          break;
+        S2C_play_entity_look_packet_t data =
+            ERR_ABLE(unpack_S2C_play_entity_look_packet(packet));
+        conn->on_packet.entity_look(data, conn);
+
+        break;
+      }
+      case packetid_S2C_play_entity_look_and_relative_move: {
+        if (!conn->on_packet.entity_look_and_relative_move)
+          break;
+        S2C_play_entity_look_and_relative_move_packet_t data = ERR_ABLE(
+            unpack_S2C_play_entity_look_and_relative_move_packet(packet));
+        conn->on_packet.entity_look_and_relative_move(data, conn);
+
+        break;
+      }
+      case packetid_S2C_play_entity_teleport: {
+        if (!conn->on_packet.entity_teleport)
+          break;
+        S2C_play_entity_teleport_packet_t data =
+            ERR_ABLE(unpack_S2C_play_entity_teleport_packet(packet));
+        conn->on_packet.entity_teleport(data, conn);
+
+        break;
+      }
+      case packetid_S2C_play_entity_head_look: {
+        if (!conn->on_packet.entity_head_look)
+          break;
+        S2C_play_entity_head_look_packet_t data =
+            ERR_ABLE(unpack_S2C_play_entity_head_look_packet(packet));
+        conn->on_packet.entity_head_look(data, conn);
+
+        break;
+      }
+      case packetid_S2C_play_entity_status: {
+        if (!conn->on_packet.entity_status)
+          break;
+        S2C_play_entity_status_packet_t data =
+            ERR_ABLE(unpack_S2C_play_entity_status_packet(packet));
+        conn->on_packet.entity_status(data, conn);
+
+        break;
+      }
+      case packetid_S2C_play_attach_entity: {
+        if (!conn->on_packet.attach_entity)
+          break;
+        S2C_play_attach_entity_packet_t data =
+            ERR_ABLE(unpack_S2C_play_attach_entity_packet(packet));
+        conn->on_packet.attach_entity(data, conn);
+
+        break;
+      }
+      case packetid_S2C_play_entity_metadata: {
+        if (!conn->on_packet.entity_metadata)
+          break;
+        S2C_play_entity_metadata_packet_t data =
+            ERR_ABLE(unpack_S2C_play_entity_metadata_packet(packet));
+        conn->on_packet.entity_metadata(data, conn);
+        free_S2C_play_entity_metadata_packet(data);
+        break;
+      }
+      case packetid_S2C_play_entity_effect: {
+        if (!conn->on_packet.entity_effect)
+          break;
+        S2C_play_entity_effect_packet_t data =
+            ERR_ABLE(unpack_S2C_play_entity_effect_packet(packet));
+        conn->on_packet.entity_effect(data, conn);
+
+        break;
+      }
+      case packetid_S2C_play_remove_entity_effect: {
+        if (!conn->on_packet.remove_entity_effect)
+          break;
+        S2C_play_remove_entity_effect_packet_t data =
+            ERR_ABLE(unpack_S2C_play_remove_entity_effect_packet(packet));
+        conn->on_packet.remove_entity_effect(data, conn);
+
+        break;
+      }
+      case packetid_S2C_play_set_experience: {
+        if (!conn->on_packet.set_experience)
+          break;
+        S2C_play_set_experience_packet_t data =
+            ERR_ABLE(unpack_S2C_play_set_experience_packet(packet));
+        conn->on_packet.set_experience(data, conn);
+
+        break;
+      }
+      case packetid_S2C_play_chunk_data: {
+        if (!conn->on_packet.chunk_data)
+          break;
+        S2C_play_chunk_data_packet_t data =
+            ERR_ABLE(unpack_S2C_play_chunk_data_packet(packet));
+        conn->on_packet.chunk_data(data, conn);
+        free_S2C_play_chunk_data_packet(data);
+        break;
+      }
+      case packetid_S2C_play_block_change: {
+        if (!conn->on_packet.block_change)
+          break;
+        S2C_play_block_change_packet_t data =
+            ERR_ABLE(unpack_S2C_play_block_change_packet(packet));
+        conn->on_packet.block_change(data, conn);
+
+        break;
+      }
+      case packetid_S2C_play_block_action: {
+        if (!conn->on_packet.block_action)
+          break;
+        S2C_play_block_action_packet_t data =
+            ERR_ABLE(unpack_S2C_play_block_action_packet(packet));
+        conn->on_packet.block_action(data, conn);
+
+        break;
+      }
+      case packetid_S2C_play_block_break_animation: {
+        if (!conn->on_packet.block_break_animation)
+          break;
+        S2C_play_block_break_animation_packet_t data =
+            ERR_ABLE(unpack_S2C_play_block_break_animation_packet(packet));
+        conn->on_packet.block_break_animation(data, conn);
+
+        break;
+      }
+      case packetid_S2C_play_effect: {
+        if (!conn->on_packet.effect)
+          break;
+        S2C_play_effect_packet_t data =
+            ERR_ABLE(unpack_S2C_play_effect_packet(packet));
+        conn->on_packet.effect(data, conn);
+
+        break;
+      }
+      case packetid_S2C_play_sound_effect: {
+        if (!conn->on_packet.sound_effect)
+          break;
+        S2C_play_sound_effect_packet_t data =
+            ERR_ABLE(unpack_S2C_play_sound_effect_packet(packet));
+        conn->on_packet.sound_effect(data, conn);
+        free_S2C_play_sound_effect_packet(data);
+        break;
+      }
+      case packetid_S2C_play_change_game_state: {
+        if (!conn->on_packet.change_game_state)
+          break;
+        S2C_play_change_game_state_packet_t data =
+            ERR_ABLE(unpack_S2C_play_change_game_state_packet(packet));
+        conn->on_packet.change_game_state(data, conn);
+
+        break;
+      }
+      case packetid_S2C_play_player_abilities: {
+        if (!conn->on_packet.player_abilities)
+          break;
+        S2C_play_player_abilities_packet_t data =
+            ERR_ABLE(unpack_S2C_play_player_abilities_packet(packet));
+        conn->on_packet.player_abilities(data, conn);
+
+        break;
+      }
+      case packetid_S2C_play_plugin_message: {
+        if (!conn->on_packet.plugin_message)
+          break;
+        S2C_play_plugin_message_packet_t data =
+            ERR_ABLE(unpack_S2C_play_plugin_message_packet(packet));
+        conn->on_packet.plugin_message(data, conn);
+        free_S2C_play_plugin_message_packet(data);
+        break;
+      }
+      case packetid_S2C_play_disconnect: {
+        if (!conn->on_packet.disconnect)
+          break;
+        S2C_play_disconnect_packet_t data =
+            ERR_ABLE(unpack_S2C_play_disconnect_packet(packet));
+        conn->on_packet.disconnect(data, conn);
+        free_S2C_play_disconnect_packet(data);
+        break;
+      }
+      case packetid_S2C_play_change_difficulty: {
+        if (!conn->on_packet.change_difficulty)
+          break;
+        S2C_play_change_difficulty_packet_t data =
+            ERR_ABLE(unpack_S2C_play_change_difficulty_packet(packet));
+        conn->on_packet.change_difficulty(data, conn);
+
+        break;
+      }
+        // CGSE: loop_handler
+unhandeled_packet:
+  break;
+      }
+      MCbuffer_free(packet);
       break;
     err_free_packet:
       MCbuffer_free(packet);

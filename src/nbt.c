@@ -176,7 +176,6 @@ void nbt_free(nbt_node *tree) {
 
 static char *nbt_read_string(MCbuffer *buff) {
 #define ERR_ACTION return NULL;
-  char *ret = NULL;
   int16_t str_len = MCbuffer_unpack_short(buff);
   ERR_CHECK;
 
