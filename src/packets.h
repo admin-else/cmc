@@ -422,3 +422,32 @@ unpack_S2C_play_change_difficulty_packet(MCbuffer *buff);
 C2S_play_keep_alive_packet_t unpack_C2S_play_keep_alive_packet(MCbuffer *buff);
 
 // CGSE: unpack_methods_h
+
+// CGSS: free_methods_h
+void free_C2S_handshake_handshake_packet(
+    C2S_handshake_handshake_packet_t packet);
+void free_S2C_status_response_packet(S2C_status_response_packet_t packet);
+void free_S2C_login_disconnect_packet(S2C_login_disconnect_packet_t packet);
+void free_S2C_login_encryption_request_packet(
+    S2C_login_encryption_request_packet_t packet);
+void free_S2C_login_success_packet(S2C_login_success_packet_t packet);
+void free_C2S_login_start_packet(C2S_login_start_packet_t packet);
+void free_C2S_login_encryption_response_packet(
+    C2S_login_encryption_response_packet_t packet);
+void free_S2C_play_join_game_packet(S2C_play_join_game_packet_t packet);
+void free_S2C_play_chat_message_packet(S2C_play_chat_message_packet_t packet);
+void free_S2C_play_entity_equipment_packet(
+    S2C_play_entity_equipment_packet_t packet);
+void free_S2C_play_respawn_packet(S2C_play_respawn_packet_t packet);
+void free_S2C_play_spawn_player_packet(S2C_play_spawn_player_packet_t packet);
+void free_S2C_play_spawn_mob_packet(S2C_play_spawn_mob_packet_t packet);
+void free_S2C_play_spawn_painting_packet(
+    S2C_play_spawn_painting_packet_t packet);
+void free_S2C_play_entity_metadata_packet(
+    S2C_play_entity_metadata_packet_t packet);
+void free_S2C_play_chunk_data_packet(S2C_play_chunk_data_packet_t packet);
+void free_S2C_play_sound_effect_packet(S2C_play_sound_effect_packet_t packet);
+void free_S2C_play_plugin_message_packet(
+    S2C_play_plugin_message_packet_t packet);
+void free_S2C_play_disconnect_packet(S2C_play_disconnect_packet_t packet);
+// CGSE: free_methods_h

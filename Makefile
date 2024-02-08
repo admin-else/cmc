@@ -1,6 +1,6 @@
 CC = clang
-CFLAGS = -O2 -g -Wno-macro-redefined
-LDFLAGS = -lz -lcrypto -lssl -lcurl
+CFLAGS = -O2 -ggdb -Wall -Wno-macro-redefined -fsanitize=address
+LDFLAGS = -lz -lcrypto -lssl -lcurl -fsanitize=address
 
 SRC  = $(wildcard src/*.c) $(wildcard src/**/*.c) $(wildcard src/**/**/*.c) $(wildcard src/**/**/**/*.c)
 OBJ  = $(patsubst src/%.c,bin/%.o,$(SRC))
@@ -33,5 +33,5 @@ fuzz: $(OBJ)
 	mkdir -p ./$(FUZZ_DIR)
 	# Copy your valid test cases to the fuzz directory if needed
 	# cp valid_test_case.bin ./$(FUZZ_DIR)/
-	clang -o ./$(BIN)/packeter-fuzz $^ $(CFLAGS) -fsanitize=fuzzer,address
+	$(CC) -o ./$(BIN)/packeter-fuzz $^ $(CFLAGS) -fsanitize=fuzzer,address $(LDFLAGS)
 	./$(BIN)/packeter-fuzz ./$(FUZZ_DIR)
