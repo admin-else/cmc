@@ -16,7 +16,7 @@ type_map = {
     "q": ["long long ", "llong", False],
     "Q": ["unsigned long long ", "ullong", False],
     "?": ["bool ", "bool", False],
-    "v": ["varint_t ", "varint", False],
+    "v": ["int ", "varint", False],
     "s": ["char *", "string", True],
     "p": ["block_pos_t ", "position", False],
     "n": ["nbt_node *", "nbt", True],

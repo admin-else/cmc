@@ -1,7 +1,6 @@
 #include "conn.h"
 #include "err.h"
 #include "heap_utils.h"
-#include "mctypes.h"
 #include "packet_types.h"
 #include "packets.h"
 #include <stdio.h>

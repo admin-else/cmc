@@ -2,7 +2,6 @@
 
 #include "buffer.h"
 #include "conn.h"
-#include "mctypes.h"
 #include "packet_types.h"
 #include <jansson.h>
 #include <stdbool.h>
@@ -82,10 +81,10 @@ enum packetids_C2S_play_t {
 
 // CGSS: send_methods_h
 void send_packet_C2S_handshake_handshake(struct cmc_conn *conn,
-                                         varint_t protocole_version,
+                                         int protocole_version,
                                          char *server_addr,
                                          unsigned short server_port,
-                                         varint_t next_state);
+                                         int next_state);
 
 void send_packet_S2C_status_response(struct cmc_conn *conn, char *response);
 
@@ -106,7 +105,7 @@ void send_packet_S2C_login_success(struct cmc_conn *conn, char *uuid,
                                    char *name);
 
 void send_packet_S2C_login_set_compression(struct cmc_conn *conn,
-                                           varint_t threshold);
+                                           int threshold);
 
 void send_packet_C2S_login_start(struct cmc_conn *conn, char *name);
 
@@ -114,8 +113,7 @@ void send_packet_C2S_login_encryption_response(struct cmc_conn *conn,
                                                cmc_buffer *shared_secret,
                                                cmc_buffer *verify_token);
 
-void send_packet_S2C_play_keep_alive(struct cmc_conn *conn,
-                                     varint_t keep_alive_id);
+void send_packet_S2C_play_keep_alive(struct cmc_conn *conn, int keep_alive_id);
 
 void send_packet_S2C_play_join_game(struct cmc_conn *conn, int entity_id,
                                     unsigned char gamemode, char dimension,
@@ -129,15 +127,14 @@ void send_packet_S2C_play_chat_message(struct cmc_conn *conn, char *message,
 void send_packet_S2C_play_time_update(struct cmc_conn *conn, long world_age,
                                       long time_of_day);
 
-void send_packet_S2C_play_entity_equipment(struct cmc_conn *conn,
-                                           varint_t entity_id, short slot,
-                                           slot_t *item);
+void send_packet_S2C_play_entity_equipment(struct cmc_conn *conn, int entity_id,
+                                           short slot, slot_t *item);
 
 void send_packet_S2C_play_spawn_position(struct cmc_conn *conn,
                                          block_pos_t location);
 
 void send_packet_S2C_play_update_health(struct cmc_conn *conn, float health,
-                                        varint_t food, float food_saturation);
+                                        int food, float food_saturation);
 
 void send_packet_S2C_play_respawn(struct cmc_conn *conn, int dimesion,
                                   unsigned char difficulty,
@@ -150,65 +147,62 @@ void send_packet_S2C_play_player_look_and_position(struct cmc_conn *conn,
 
 void send_packet_S2C_play_held_item_change(struct cmc_conn *conn, char slot);
 
-void send_packet_S2C_play_use_bed(struct cmc_conn *conn, varint_t entity_id,
+void send_packet_S2C_play_use_bed(struct cmc_conn *conn, int entity_id,
                                   block_pos_t location);
 
-void send_packet_S2C_play_animation(struct cmc_conn *conn, varint_t entity_id,
+void send_packet_S2C_play_animation(struct cmc_conn *conn, int entity_id,
                                     unsigned char animation);
 
-void send_packet_S2C_play_spawn_player(struct cmc_conn *conn,
-                                       varint_t entity_id,
+void send_packet_S2C_play_spawn_player(struct cmc_conn *conn, int entity_id,
                                        unsigned long long uuid, int x, int y,
                                        int z, unsigned char yaw,
                                        unsigned char pitch, short current_item,
                                        entity_metadata_t meta_data);
 
 void send_packet_S2C_play_collect_item(struct cmc_conn *conn,
-                                       varint_t collected_entity_id,
-                                       varint_t collector_entity_id);
+                                       int collected_entity_id,
+                                       int collector_entity_id);
 
-void send_packet_S2C_play_spawn_mob(struct cmc_conn *conn, varint_t entity_id,
+void send_packet_S2C_play_spawn_mob(struct cmc_conn *conn, int entity_id,
                                     unsigned char type, int x, int y, int z,
                                     unsigned char yaw, unsigned char pitch,
                                     unsigned char head_pitch, short x_vel,
                                     short y_vel, short z_vel,
                                     entity_metadata_t meta_data);
 
-void send_packet_S2C_play_spawn_painting(struct cmc_conn *conn,
-                                         varint_t entity_id, char *title,
-                                         block_pos_t location,
+void send_packet_S2C_play_spawn_painting(struct cmc_conn *conn, int entity_id,
+                                         char *title, block_pos_t location,
                                          unsigned char direction);
 
 void send_packet_S2C_play_spawn_experience_orb(struct cmc_conn *conn,
-                                               varint_t entity_id, int x, int y,
+                                               int entity_id, int x, int y,
                                                int z, short count);
 
-void send_packet_S2C_play_entity_velocity(struct cmc_conn *conn,
-                                          varint_t entity_id, short x_vel,
-                                          short y_vel, short z_vel);
+void send_packet_S2C_play_entity_velocity(struct cmc_conn *conn, int entity_id,
+                                          short x_vel, short y_vel,
+                                          short z_vel);
 
-void send_packet_S2C_play_entity(struct cmc_conn *conn, varint_t entity_id);
+void send_packet_S2C_play_entity(struct cmc_conn *conn, int entity_id);
 
 void send_packet_S2C_play_entity_relative_move(struct cmc_conn *conn,
-                                               varint_t entity_id, char delta_x,
+                                               int entity_id, char delta_x,
                                                char delta_y, char delta_z,
                                                bool on_ground);
 
-void send_packet_S2C_play_entity_look(struct cmc_conn *conn, varint_t entity_id,
+void send_packet_S2C_play_entity_look(struct cmc_conn *conn, int entity_id,
                                       unsigned char yaw, unsigned char pitch,
                                       bool on_ground);
 
 void send_packet_S2C_play_entity_look_and_relative_move(
-    struct cmc_conn *conn, varint_t entity_id, char delta_x, char delta_y,
+    struct cmc_conn *conn, int entity_id, char delta_x, char delta_y,
     char delta_z, unsigned char yaw, unsigned char pitch, bool on_ground);
 
-void send_packet_S2C_play_entity_teleport(struct cmc_conn *conn,
-                                          varint_t entity_id, int x, int y,
-                                          int z, unsigned char yaw,
+void send_packet_S2C_play_entity_teleport(struct cmc_conn *conn, int entity_id,
+                                          int x, int y, int z,
+                                          unsigned char yaw,
                                           unsigned char pitch, bool on_ground);
 
-void send_packet_S2C_play_entity_head_look(struct cmc_conn *conn,
-                                           varint_t entity_id,
+void send_packet_S2C_play_entity_head_look(struct cmc_conn *conn, int entity_id,
                                            unsigned char head_yaw);
 
 void send_packet_S2C_play_entity_status(struct cmc_conn *conn, int entity_id,
@@ -217,22 +211,19 @@ void send_packet_S2C_play_entity_status(struct cmc_conn *conn, int entity_id,
 void send_packet_S2C_play_attach_entity(struct cmc_conn *conn, int entity_id,
                                         int vehicle_id, bool leash);
 
-void send_packet_S2C_play_entity_metadata(struct cmc_conn *conn,
-                                          varint_t entity_id,
+void send_packet_S2C_play_entity_metadata(struct cmc_conn *conn, int entity_id,
                                           entity_metadata_t meta_data);
 
-void send_packet_S2C_play_entity_effect(struct cmc_conn *conn,
-                                        varint_t entity_id, char effect_id,
-                                        char amplifier, varint_t duration,
-                                        bool hide_particles);
+void send_packet_S2C_play_entity_effect(struct cmc_conn *conn, int entity_id,
+                                        char effect_id, char amplifier,
+                                        int duration, bool hide_particles);
 
 void send_packet_S2C_play_remove_entity_effect(struct cmc_conn *conn,
-                                               varint_t entity_id,
-                                               char effect_id);
+                                               int entity_id, char effect_id);
 
 void send_packet_S2C_play_set_experience(struct cmc_conn *conn,
-                                         float experience_bar, varint_t level,
-                                         varint_t total_experience);
+                                         float experience_bar, int level,
+                                         int total_experience);
 
 void send_packet_S2C_play_chunk_data(struct cmc_conn *conn, int chunk_x,
                                      int chunk_z, bool ground_up_continuous,
@@ -240,16 +231,16 @@ void send_packet_S2C_play_chunk_data(struct cmc_conn *conn, int chunk_x,
                                      cmc_buffer *chunk);
 
 void send_packet_S2C_play_block_change(struct cmc_conn *conn,
-                                       block_pos_t location, varint_t block_id);
+                                       block_pos_t location, int block_id);
 
 void send_packet_S2C_play_block_action(struct cmc_conn *conn,
                                        block_pos_t location,
                                        unsigned char block_data_1,
                                        unsigned char block_data_2,
-                                       varint_t block_type);
+                                       int block_type);
 
 void send_packet_S2C_play_block_break_animation(struct cmc_conn *conn,
-                                                varint_t entity_id,
+                                                int entity_id,
                                                 block_pos_t location,
                                                 char destroy_stage);
 
@@ -280,8 +271,7 @@ void send_packet_S2C_play_disconnect(struct cmc_conn *conn, char *reason);
 void send_packet_S2C_play_change_difficulty(struct cmc_conn *conn,
                                             unsigned char difficulty);
 
-void send_packet_C2S_play_keep_alive(struct cmc_conn *conn,
-                                     varint_t keep_alive_id);
+void send_packet_C2S_play_keep_alive(struct cmc_conn *conn, int keep_alive_id);
 
 // CGSE: send_methods_h
 
