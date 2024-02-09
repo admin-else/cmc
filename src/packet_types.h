@@ -1,7 +1,7 @@
 #pragma once
 #include "mctypes.h"
 
-// there are some circular include shenanigans with mconn and packets header
+// there are some circular include shenanigans with cmc_conn and packets header
 // that the reason for the existence of this file
 
 // CGSS: packet_types
@@ -30,8 +30,8 @@ typedef struct {
 
 typedef struct {
   char *server_id;
-  MCbuffer *public_key;
-  MCbuffer *verify_token;
+  cmc_buffer *public_key;
+  cmc_buffer *verify_token;
 } S2C_login_encryption_request_packet_t;
 
 typedef struct {
@@ -48,8 +48,8 @@ typedef struct {
 } C2S_login_start_packet_t;
 
 typedef struct {
-  MCbuffer *shared_secret;
-  MCbuffer *verify_token;
+  cmc_buffer *shared_secret;
+  cmc_buffer *verify_token;
 } C2S_login_encryption_response_packet_t;
 
 typedef struct {
@@ -260,7 +260,7 @@ typedef struct {
   int chunk_z;
   bool ground_up_continuous;
   unsigned short primary_bitmask;
-  MCbuffer *chunk;
+  cmc_buffer *chunk;
 } S2C_play_chunk_data_packet_t;
 
 typedef struct {
@@ -321,7 +321,7 @@ typedef struct {
 
 typedef struct {
   char *channel;
-  MCbuffer *data;
+  cmc_buffer *data;
 } S2C_play_plugin_message_packet_t;
 
 typedef struct {

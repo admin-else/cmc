@@ -1,4 +1,4 @@
-#include "mcbuffer.h"
+#include "buffer.h"
 #include "err.h"
 #include "heap_utils.h"
 #include "mctypes.h"
@@ -47,7 +47,7 @@ static void *be2ne(void *s, size_t len) {
 
 #define BE2NE_UTIL(var) be2ne(&var, sizeof(var))
 
-void MCbuffer_print_info(MCbuffer *buff) {
+void cmc_buffer_print_info(cmc_buffer *buff) {
   printf("Data      %p\n", buff->data);
   printf("Length    %li\n", buff->length);
   printf("Position  %li\n", buff->position);
@@ -67,8 +67,8 @@ void MCbuffer_print_info(MCbuffer *buff) {
   printf("'\n");
 }
 
-MCbuffer *MCbuffer_init() {
-  MCbuffer *buffer = MALLOC(sizeof(MCbuffer));
+cmc_buffer *cmc_buffer_init() {
+  cmc_buffer *buffer = MALLOC(sizeof(cmc_buffer));
   buffer->data = NULL;
   buffer->capacity = 0;
   buffer->position = 0;
@@ -76,8 +76,8 @@ MCbuffer *MCbuffer_init() {
   return buffer;
 }
 
-MCbuffer *MCbuffer_init_w_size(size_t n) {
-  MCbuffer *buffer = MALLOC(sizeof(MCbuffer));
+cmc_buffer *cmc_buffer_init_w_size(size_t n) {
+  cmc_buffer *buffer = MALLOC(sizeof(cmc_buffer));
   buffer->data = MALLOC(n);
   buffer->capacity = n;
   buffer->length = n;
@@ -85,7 +85,7 @@ MCbuffer *MCbuffer_init_w_size(size_t n) {
   return buffer;
 }
 
-void MCbuffer_free(MCbuffer *buffer) {
+void cmc_buffer_free(cmc_buffer *buffer) {
   if (buffer->capacity) {
     FREE(buffer->data);
   }
@@ -95,13 +95,13 @@ void MCbuffer_free(MCbuffer *buffer) {
   FREE(buffer);
 }
 
-MCbuffer *MCbuffer_combine(MCbuffer *buff1, MCbuffer *buff2) {
-  MCbuffer_pack(buff1, buff2->data, buff2->length);
-  MCbuffer_free(buff2);
+cmc_buffer *cmc_buffer_combine(cmc_buffer *buff1, cmc_buffer *buff2) {
+  cmc_buffer_pack(buff1, buff2->data, buff2->length);
+  cmc_buffer_free(buff2);
   return buff1;
 }
 
-void MCbuffer_pack(MCbuffer *buffer, const void *data, size_t data_size) {
+void cmc_buffer_pack(cmc_buffer *buffer, const void *data, size_t data_size) {
 #define ERR_ACTION return;
   if (buffer == NULL || data == NULL || data_size == 0) {
     ERR(ERR_INVALID_ARGUMENTS);
@@ -131,7 +131,7 @@ void MCbuffer_pack(MCbuffer *buffer, const void *data, size_t data_size) {
   return;
 }
 
-unsigned char *MCbuffer_unpack(MCbuffer *buffer, size_t n) {
+unsigned char *cmc_buffer_unpack(cmc_buffer *buffer, size_t n) {
 #define ERR_ACTION return NULL;
   if (n <= 0 || buffer == NULL)
     ERR(ERR_INVALID_ARGUMENTS);
@@ -147,8 +147,8 @@ unsigned char *MCbuffer_unpack(MCbuffer *buffer, size_t n) {
 // C types
 
 #define NUM_PACK_AND_UNPACK_FUNC_FACTORY(name, type)                           \
-  type MCbuffer_unpack_##name(MCbuffer *buffer) {                              \
-    unsigned char *data = MCbuffer_unpack(buffer, sizeof(type));               \
+  type cmc_buffer_unpack_##name(cmc_buffer *buffer) {                          \
+    unsigned char *data = cmc_buffer_unpack(buffer, sizeof(type));             \
     if (data == NULL)                                                          \
       return (type)0;                                                          \
     type result = *((type *)data);                                             \
@@ -156,13 +156,13 @@ unsigned char *MCbuffer_unpack(MCbuffer *buffer, size_t n) {
     return result;                                                             \
   }                                                                            \
                                                                                \
-  void MCbuffer_pack_##name(MCbuffer *buffer, type data) {                     \
-    MCbuffer_pack(buffer, &data, sizeof(type));                                \
+  void cmc_buffer_pack_##name(cmc_buffer *buffer, type data) {                 \
+    cmc_buffer_pack(buffer, &data, sizeof(type));                              \
   }
 
 #define NUM_PACK_AND_UNPACK_FUNC_FACTORY_WITH_ENDIAN(name, type)               \
-  type MCbuffer_unpack_##name(MCbuffer *buffer) {                              \
-    unsigned char *data = MCbuffer_unpack(buffer, sizeof(type));               \
+  type cmc_buffer_unpack_##name(cmc_buffer *buffer) {                          \
+    unsigned char *data = cmc_buffer_unpack(buffer, sizeof(type));             \
     if (data == NULL)                                                          \
       return (type)0;                                                          \
     type result = *((type *)data);                                             \
@@ -171,9 +171,9 @@ unsigned char *MCbuffer_unpack(MCbuffer *buffer, size_t n) {
     return result;                                                             \
   }                                                                            \
                                                                                \
-  void MCbuffer_pack_##name(MCbuffer *buffer, type data) {                     \
+  void cmc_buffer_pack_##name(cmc_buffer *buffer, type data) {                 \
     ne2be(&data, sizeof(type));                                                \
-    MCbuffer_pack(buffer, &data, sizeof(type));                                \
+    cmc_buffer_pack(buffer, &data, sizeof(type));                              \
   }
 
 NUM_PACK_AND_UNPACK_FUNC_FACTORY(char, char);
@@ -192,16 +192,16 @@ NUM_PACK_AND_UNPACK_FUNC_FACTORY(ullong, unsigned long long);
 #undef NUM_PACK_AND_UNPACK_FUNC_FACTORY
 // other types
 
-void MCbuffer_pack_bool(MCbuffer *buffer, bool value) {
+void cmc_buffer_pack_bool(cmc_buffer *buffer, bool value) {
   unsigned char byte_val = 0;
   if (value)
     byte_val = 1;
 
-  MCbuffer_pack(buffer, &byte_val, 1);
+  cmc_buffer_pack(buffer, &byte_val, 1);
 }
 
-bool MCbuffer_unpack_bool(MCbuffer *buffer) {
-  unsigned char *data = MCbuffer_unpack(buffer, 1);
+bool cmc_buffer_unpack_bool(cmc_buffer *buffer) {
+  unsigned char *data = cmc_buffer_unpack(buffer, 1);
   if (data == NULL)
     return false;
   unsigned char byte_val = *data;
@@ -212,25 +212,25 @@ bool MCbuffer_unpack_bool(MCbuffer *buffer) {
     return false;
 }
 
-void MCbuffer_pack_varint(MCbuffer *buff, int signed_number) {
+void cmc_buffer_pack_varint(cmc_buffer *buff, int signed_number) {
 #define ERR_ACTION return;
   unsigned int number = (unsigned int)signed_number;
   for (int i = 0; i < 5; i++) {
     uint8_t b = number & 0x7F;
     number >>= 7;
     b = b | (number > 0 ? 0x80 : 0);
-    MCbuffer_pack_byte(buff, b);
+    cmc_buffer_pack_byte(buff, b);
     ERR_CHECK;
     if (number == 0)
       break;
   }
 }
 
-int32_t MCbuffer_unpack_varint(MCbuffer *buff) {
+int32_t cmc_buffer_unpack_varint(cmc_buffer *buff) {
 #define ERR_ACTION return 0;
   uint32_t number = 0;
   for (int i = 0; i < 5; i++) {
-    uint8_t b = MCbuffer_unpack_byte(buff);
+    uint8_t b = cmc_buffer_unpack_byte(buff);
     ERR_CHECK;
     number |= (b & VARINT_SEGMENT_BITS) << (7 * i);
     if (!(b & VARINT_CONTINUE_BIT))
@@ -239,23 +239,23 @@ int32_t MCbuffer_unpack_varint(MCbuffer *buff) {
   return (int32_t)number;
 }
 
-void MCbuffer_pack_string_w_max_len(MCbuffer *buff, const char *value,
-                                    int max_len) {
+void cmc_buffer_pack_string_w_max_len(cmc_buffer *buff, const char *value,
+                                      int max_len) {
 #define ERR_ACTION return;
   int str_len = strlen(value);
   if (str_len > max_len)
     ERR(ERR_STRING_LENGHT);
-  MCbuffer_pack_varint(buff, str_len);
-  MCbuffer_pack(buff, value, str_len);
+  cmc_buffer_pack_varint(buff, str_len);
+  cmc_buffer_pack(buff, value, str_len);
 }
 
-inline void MCbuffer_pack_string(MCbuffer *buff, const char *value) {
-  MCbuffer_pack_string_w_max_len(buff, value, DEFAULT_MAX_STRING_LENGTH);
+inline void cmc_buffer_pack_string(cmc_buffer *buff, const char *value) {
+  cmc_buffer_pack_string_w_max_len(buff, value, DEFAULT_MAX_STRING_LENGTH);
 }
 
-char *MCbuffer_unpack_string_w_max_len(MCbuffer *buff, int max_len) {
+char *cmc_buffer_unpack_string_w_max_len(cmc_buffer *buff, int max_len) {
 #define ERR_ACTION return NULL;
-  int str_len = MCbuffer_unpack_varint(buff);
+  int str_len = cmc_buffer_unpack_varint(buff);
   ERR_CHECK;
   if (str_len > max_len * 4 || str_len < 0)
     ERR(ERR_INVALID_ARGUMENTS);
@@ -279,19 +279,19 @@ char *MCbuffer_unpack_string_w_max_len(MCbuffer *buff, int max_len) {
   return str;
 }
 
-char *MCbuffer_unpack_string(MCbuffer *buff) {
-  return MCbuffer_unpack_string_w_max_len(buff, DEFAULT_MAX_STRING_LENGTH);
+char *cmc_buffer_unpack_string(cmc_buffer *buff) {
+  return cmc_buffer_unpack_string_w_max_len(buff, DEFAULT_MAX_STRING_LENGTH);
 }
 
-void MCbuffer_pack_position(MCbuffer *buff, block_pos_t pos) {
+void cmc_buffer_pack_position(cmc_buffer *buff, block_pos_t pos) {
   uint64_t encoded_pos = ((pos.x & 0x3FFFFFF) << 38) | ((pos.y & 0xFFF) << 26) |
                          (pos.z & 0x3FFFFFF);
-  MCbuffer_pack_long(buff, encoded_pos);
+  cmc_buffer_pack_long(buff, encoded_pos);
 }
 
-block_pos_t MCbuffer_unpack_position(MCbuffer *buff) {
+block_pos_t cmc_buffer_unpack_position(cmc_buffer *buff) {
 #define ERR_ACTION return pos;
-  uint64_t val = MCbuffer_unpack_long(buff);
+  uint64_t val = cmc_buffer_unpack_long(buff);
   block_pos_t pos = {0, 0, 0};
 
   ERR_CHECK;
@@ -307,100 +307,101 @@ block_pos_t MCbuffer_unpack_position(MCbuffer *buff) {
   return pos;
 }
 
-nbt_node *MCbuffer_unpack_nbt(MCbuffer *buff) {
+nbt_node *cmc_buffer_unpack_nbt(cmc_buffer *buff) {
   return nbt_parse_named_tag(buff);
 }
 
-void MCbuffer_pack_nbt(MCbuffer *buff, nbt_node *nbt) {
+void cmc_buffer_pack_nbt(cmc_buffer *buff, nbt_node *nbt) {
 #define ERR_ACTION return;
-  MCbuffer *tmp_buff = ERR_ABLE(nbt_dump_binary(nbt));
-  MCbuffer_combine(buff, tmp_buff);
+  cmc_buffer *tmp_buff = ERR_ABLE(nbt_dump_binary(nbt));
+  cmc_buffer_combine(buff, tmp_buff);
 }
 
-void MCbuffer_pack_byte_array(MCbuffer *buff, MCbuffer *byte_array) {
-  MCbuffer_pack_varint(buff, byte_array->length);
-  MCbuffer_pack(buff, byte_array->data, byte_array->length);
+void cmc_buffer_pack_byte_array(cmc_buffer *buff, cmc_buffer *byte_array) {
+  cmc_buffer_pack_varint(buff, byte_array->length);
+  cmc_buffer_pack(buff, byte_array->data, byte_array->length);
 }
 
-MCbuffer *MCbuffer_unpack_byte_array(MCbuffer *buff) {
-  int ret_buff_len = MCbuffer_unpack_varint(buff);
+cmc_buffer *cmc_buffer_unpack_byte_array(cmc_buffer *buff) {
+  int ret_buff_len = cmc_buffer_unpack_varint(buff);
 
-  MCbuffer *ret = MCbuffer_init();
+  cmc_buffer *ret = cmc_buffer_init();
   ret->capacity = ret_buff_len;
   ret->length = ret_buff_len;
   if (ret_buff_len > 0)
-    ret->data = MCbuffer_unpack(buff, ret_buff_len);
+    ret->data = cmc_buffer_unpack(buff, ret_buff_len);
   return ret;
 }
 
-void MCbuffer_pack_slot(MCbuffer *buff, slot_t *slot) {
+void cmc_buffer_pack_slot(cmc_buffer *buff, slot_t *slot) {
   if (slot == NULL) {
-    MCbuffer_pack_short(buff, -1);
+    cmc_buffer_pack_short(buff, -1);
     return;
   }
 
-  MCbuffer_pack_short(buff, slot->item_id);
-  MCbuffer_pack_char(buff, slot->slot_size);
-  MCbuffer_pack_short(buff, slot->meta_data);
-  MCbuffer_pack_nbt(buff, slot->tag_compound);
+  cmc_buffer_pack_short(buff, slot->item_id);
+  cmc_buffer_pack_char(buff, slot->slot_size);
+  cmc_buffer_pack_short(buff, slot->meta_data);
+  cmc_buffer_pack_nbt(buff, slot->tag_compound);
 }
 
-slot_t *MCbuffer_unpack_slot(MCbuffer *buff) {
-  short item_id = MCbuffer_unpack_short(buff);
+slot_t *cmc_buffer_unpack_slot(cmc_buffer *buff) {
+  short item_id = cmc_buffer_unpack_short(buff);
   if (item_id < 0)
     return NULL;
   slot_t *slot = MALLOC(sizeof(slot_t));
   slot->item_id = item_id;
-  slot->slot_size = MCbuffer_unpack_byte(buff);
-  slot->meta_data = MCbuffer_unpack_short(buff);
-  slot->tag_compound = MCbuffer_unpack_nbt(buff);
+  slot->slot_size = cmc_buffer_unpack_byte(buff);
+  slot->meta_data = cmc_buffer_unpack_short(buff);
+  slot->tag_compound = cmc_buffer_unpack_nbt(buff);
   return slot;
 }
 
-void MCbuffer_pack_entity_metadata(MCbuffer *buff, entity_metadata_t metadata) {
+void cmc_buffer_pack_entity_metadata(cmc_buffer *buff,
+                                     entity_metadata_t metadata) {
   for (int i = 0; i < metadata.size; i++) {
     entity_metadata_entry_t *entry =
         metadata.entries + i * sizeof(entity_metadata_entry_t);
-    MCbuffer_pack_char(buff, entry->type << 5 | entry->index);
+    cmc_buffer_pack_char(buff, entry->type << 5 | entry->index);
     switch (entry->type) {
     case ENTITY_METADATA_ENTRY_TYPE_BYTE:
-      MCbuffer_pack_byte(buff, entry->payload.byte_data);
+      cmc_buffer_pack_byte(buff, entry->payload.byte_data);
       break;
     case ENTITY_METADATA_ENTRY_TYPE_SHORT:
-      MCbuffer_pack_short(buff, entry->payload.short_data);
+      cmc_buffer_pack_short(buff, entry->payload.short_data);
       break;
     case ENTITY_METADATA_ENTRY_TYPE_INT:
-      MCbuffer_pack_int(buff, entry->payload.int_data);
+      cmc_buffer_pack_int(buff, entry->payload.int_data);
       break;
     case ENTITY_METADATA_ENTRY_TYPE_FLOAT:
-      MCbuffer_pack_float(buff, entry->payload.float_data);
+      cmc_buffer_pack_float(buff, entry->payload.float_data);
       break;
     case ENTITY_METADATA_ENTRY_TYPE_STRING:
-      MCbuffer_pack_string(buff, entry->payload.string_data);
+      cmc_buffer_pack_string(buff, entry->payload.string_data);
       break;
     case ENTITY_METADATA_ENTRY_TYPE_SLOT:
-      MCbuffer_pack_slot(buff, entry->payload.slot_data);
+      cmc_buffer_pack_slot(buff, entry->payload.slot_data);
       break;
     case ENTITY_METADATA_ENTRY_TYPE_POSITION:
-      MCbuffer_pack_int(buff, entry->payload.position_data.x);
-      MCbuffer_pack_int(buff, entry->payload.position_data.y);
-      MCbuffer_pack_int(buff, entry->payload.position_data.z);
+      cmc_buffer_pack_int(buff, entry->payload.position_data.x);
+      cmc_buffer_pack_int(buff, entry->payload.position_data.y);
+      cmc_buffer_pack_int(buff, entry->payload.position_data.z);
       break;
     case ENTITY_METADATA_ENTRY_TYPE_ROTATION:
-      MCbuffer_pack_float(buff, entry->payload.rotation_data.x);
-      MCbuffer_pack_float(buff, entry->payload.rotation_data.y);
-      MCbuffer_pack_float(buff, entry->payload.rotation_data.z);
+      cmc_buffer_pack_float(buff, entry->payload.rotation_data.x);
+      cmc_buffer_pack_float(buff, entry->payload.rotation_data.y);
+      cmc_buffer_pack_float(buff, entry->payload.rotation_data.z);
       break;
     }
   }
-  MCbuffer_pack_byte(buff, 127);
+  cmc_buffer_pack_byte(buff, 127);
 }
 
-entity_metadata_t MCbuffer_unpack_entity_metadata(MCbuffer *buff) {
+entity_metadata_t cmc_buffer_unpack_entity_metadata(cmc_buffer *buff) {
   entity_metadata_t meta_data = {0, NULL};
 
   while (true) {
-    int8_t type_and_index = MCbuffer_unpack_char(buff);
+    int8_t type_and_index = cmc_buffer_unpack_char(buff);
 
     if (type_and_index == 127) {
       break;
@@ -412,36 +413,36 @@ entity_metadata_t MCbuffer_unpack_entity_metadata(MCbuffer *buff) {
 
     switch (meta_data_entry.type) {
     case ENTITY_METADATA_ENTRY_TYPE_BYTE:
-      meta_data_entry.payload.byte_data = MCbuffer_unpack_byte(buff);
+      meta_data_entry.payload.byte_data = cmc_buffer_unpack_byte(buff);
       BE2NE_UTIL(meta_data_entry.payload.byte_data);
       break;
     case ENTITY_METADATA_ENTRY_TYPE_SHORT:
-      meta_data_entry.payload.short_data = MCbuffer_unpack_short(buff);
+      meta_data_entry.payload.short_data = cmc_buffer_unpack_short(buff);
       BE2NE_UTIL(meta_data_entry.payload.short_data);
       break;
     case ENTITY_METADATA_ENTRY_TYPE_INT:
-      meta_data_entry.payload.int_data = MCbuffer_unpack_int(buff);
+      meta_data_entry.payload.int_data = cmc_buffer_unpack_int(buff);
       BE2NE_UTIL(meta_data_entry.payload.int_data);
       break;
     case ENTITY_METADATA_ENTRY_TYPE_FLOAT:
-      meta_data_entry.payload.float_data = MCbuffer_unpack_float(buff);
+      meta_data_entry.payload.float_data = cmc_buffer_unpack_float(buff);
       BE2NE_UTIL(meta_data_entry.payload.float_data);
       break;
     case ENTITY_METADATA_ENTRY_TYPE_STRING:
-      meta_data_entry.payload.string_data = MCbuffer_unpack_string(buff);
+      meta_data_entry.payload.string_data = cmc_buffer_unpack_string(buff);
       break;
     case ENTITY_METADATA_ENTRY_TYPE_SLOT:
-      meta_data_entry.payload.slot_data = MCbuffer_unpack_slot(buff);
+      meta_data_entry.payload.slot_data = cmc_buffer_unpack_slot(buff);
       break;
     case ENTITY_METADATA_ENTRY_TYPE_POSITION:
-      meta_data_entry.payload.position_data.x = MCbuffer_unpack_int(buff);
-      meta_data_entry.payload.position_data.y = MCbuffer_unpack_int(buff);
-      meta_data_entry.payload.position_data.z = MCbuffer_unpack_int(buff);
+      meta_data_entry.payload.position_data.x = cmc_buffer_unpack_int(buff);
+      meta_data_entry.payload.position_data.y = cmc_buffer_unpack_int(buff);
+      meta_data_entry.payload.position_data.z = cmc_buffer_unpack_int(buff);
       break;
     case ENTITY_METADATA_ENTRY_TYPE_ROTATION:
-      meta_data_entry.payload.rotation_data.x = MCbuffer_unpack_float(buff);
-      meta_data_entry.payload.rotation_data.y = MCbuffer_unpack_float(buff);
-      meta_data_entry.payload.rotation_data.z = MCbuffer_unpack_float(buff);
+      meta_data_entry.payload.rotation_data.x = cmc_buffer_unpack_float(buff);
+      meta_data_entry.payload.rotation_data.y = cmc_buffer_unpack_float(buff);
+      meta_data_entry.payload.rotation_data.z = cmc_buffer_unpack_float(buff);
       break;
     }
 

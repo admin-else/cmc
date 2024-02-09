@@ -2,4 +2,4 @@ this website is very helpful (:
 https://wiki.vg/index.php?title=Protocol&oldid=7407
 
 TODO: Make a MCprofile type (NOTE: i cant get the join endpoint to work for some reason lol)
-TODO: fix da ooms by implementing a list and compund depht limit 
+TODO: fix da ooms by implementing a list and compund depht limit.
