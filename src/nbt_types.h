@@ -8,30 +8,12 @@
  */
 
 /*
- * NOTICE: Some functions may be modifyed or copied from this repo
+ * NOTICE: Some or all functions may be modifyed or copied from this repo
  * https://github.dev/chmod222/cNBT.
  */
-
 #pragma once
-
 #include "list.h"
-#include <stddef.h>
 #include <stdint.h>
-
-typedef struct {
-  unsigned char *data;
-  size_t position;
-  size_t length;
-  size_t capacity;
-} cmc_buffer;
-
-typedef struct {
-  long x;
-  long y;
-  long z;
-} block_pos_t;
-
-typedef int varint_t;
 
 typedef enum {
   TAG_END = 0,
@@ -47,7 +29,6 @@ typedef enum {
   TAG_COMPOUND = 10,
   TAG_INT_ARRAY = 11,
   TAG_LONG_ARRAY = 12
-
 } nbt_type;
 
 typedef struct nbt_node {
@@ -112,55 +93,3 @@ typedef struct nbt_node {
      */
   } payload;
 } nbt_node;
-
-typedef enum {
-  CONN_STATE_OFFLINE,
-  CONN_STATE_STATUS,
-  CONN_STATE_LOGIN,
-  CONN_STATE_PLAY,
-  CONN_STATE_HANDSHAKE
-} cmc_conn_state;
-
-typedef enum { DIRECTION_S2C, DIRECTION_C2S } packet_direction;
-
-typedef struct {
-  int item_id;
-  char slot_size;
-  short meta_data;
-  nbt_node *tag_compound;
-} slot_t;
-
-typedef struct {
-  float x, y, z;
-} rotation_t;
-
-typedef enum {
-  ENTITY_METADATA_ENTRY_TYPE_BYTE,
-  ENTITY_METADATA_ENTRY_TYPE_SHORT,
-  ENTITY_METADATA_ENTRY_TYPE_INT,
-  ENTITY_METADATA_ENTRY_TYPE_FLOAT,
-  ENTITY_METADATA_ENTRY_TYPE_STRING,
-  ENTITY_METADATA_ENTRY_TYPE_SLOT,
-  ENTITY_METADATA_ENTRY_TYPE_POSITION,
-  ENTITY_METADATA_ENTRY_TYPE_ROTATION
-} entity_metadata_entry_types;
-
-typedef struct {
-  entity_metadata_entry_types type;
-  char index;
-  union {
-    char byte_data;
-    short short_data;
-    int int_data;
-    float float_data;
-    char *string_data;
-    slot_t *slot_data;
-    block_pos_t position_data;
-    rotation_t rotation_data;
-  } payload;
-} entity_metadata_entry_t;
-
-typedef struct {
-  size_t size;
-  entity_metadata_entry_t *entries;
-} entity_metadata_t;

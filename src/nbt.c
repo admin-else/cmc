@@ -16,7 +16,6 @@
 #include "buffer.h"
 #include "err.h"
 #include "heap_utils.h"
-#include "mctypes.h"
 #include "text_buffer.h"
 #include <assert.h>
 #include <stdarg.h>

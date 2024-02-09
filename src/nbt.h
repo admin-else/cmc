@@ -16,7 +16,7 @@
 
 #include "buffer.h"
 #include "list.h"
-#include "mctypes.h"
+#include "nbt_types.h"
 #include <stdint.h>
 
 nbt_node *nbt_parse_named_tag(cmc_buffer *buff);

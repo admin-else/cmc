@@ -1,11 +1,20 @@
 #pragma once
 
 #include "buffer.h"
-#include "mctypes.h"
 #include "packet_types.h"
 #include <netinet/in.h>
 #include <stddef.h>
 #include <stdint.h>
+
+typedef enum {
+  CONN_STATE_OFFLINE,
+  CONN_STATE_STATUS,
+  CONN_STATE_LOGIN,
+  CONN_STATE_PLAY,
+  CONN_STATE_HANDSHAKE
+} cmc_conn_state;
+
+typedef enum { DIRECTION_S2C, DIRECTION_C2S } packet_direction;
 
 struct cmc_conn;
 
@@ -14,7 +23,7 @@ struct cmc_conn {
   struct sockaddr_in addr;
   cmc_conn_state state; // SEE cmc_conn_STATE_ macros
   cmc_conn_state next_state;
-  varint_t compression_threshold;
+  int compression_threshold;
   unsigned char *shared_secret;
   /* string literal not in the heap */
   char *name;
