@@ -23,7 +23,7 @@ typedef struct {
   size_t position;
   size_t length;
   size_t capacity;
-} MCbuffer;
+} cmc_buffer;
 
 typedef struct {
   long x;
@@ -119,7 +119,7 @@ typedef enum {
   CONN_STATE_LOGIN,
   CONN_STATE_PLAY,
   CONN_STATE_HANDSHAKE
-} MConn_state;
+} cmc_conn_state;
 
 typedef enum { DIRECTION_S2C, DIRECTION_C2S } packet_direction;
 

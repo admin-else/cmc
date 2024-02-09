@@ -13,9 +13,9 @@
  */
 
 #include "nbt.h"
+#include "buffer.h"
 #include "err.h"
 #include "heap_utils.h"
-#include "mcbuffer.h"
 #include "mctypes.h"
 #include "text_buffer.h"
 #include <assert.h>
@@ -174,16 +174,16 @@ void nbt_free(nbt_node *tree) {
 
 // NBT reading utils
 
-static char *nbt_read_string(MCbuffer *buff) {
+static char *nbt_read_string(cmc_buffer *buff) {
 #define ERR_ACTION return NULL;
-  int16_t str_len = MCbuffer_unpack_short(buff);
+  int16_t str_len = cmc_buffer_unpack_short(buff);
   ERR_CHECK;
 
   be2ne(&str_len, sizeof(int16_t));
   ERR_IF(str_len <= 0, ERR_INVALID_STRING);
 
   char *string = MALLOC(str_len + 1); // null terminator
-  char *heap_data = (char *)MCbuffer_unpack(buff, str_len);
+  char *heap_data = (char *)cmc_buffer_unpack(buff, str_len);
   ERR_CHECK;
 
   memcpy(string, heap_data, str_len);
@@ -195,9 +195,9 @@ static char *nbt_read_string(MCbuffer *buff) {
   return string;
 }
 
-nbt_node *parse_unnamed_tag(MCbuffer *buff, nbt_type type, char *name);
+nbt_node *parse_unnamed_tag(cmc_buffer *buff, nbt_type type, char *name);
 
-static struct nbt_list *read_compound(MCbuffer *buff) {
+static struct nbt_list *read_compound(cmc_buffer *buff) {
   struct nbt_list *ret;
 
   ret = MALLOC(sizeof(struct nbt_list));
@@ -210,7 +210,7 @@ static struct nbt_list *read_compound(MCbuffer *buff) {
     char *name = NULL;
     struct nbt_list *new_entry;
 
-    type = ERR_ABLE(MCbuffer_unpack_byte(buff));
+    type = ERR_ABLE(cmc_buffer_unpack_byte(buff));
 
     if (type == TAG_END)
       break;
@@ -238,7 +238,7 @@ err:
   return NULL;
 }
 
-static struct nbt_list *read_list(MCbuffer *buff) {
+static struct nbt_list *read_list(cmc_buffer *buff) {
   uint8_t type;
   int32_t elems;
   struct nbt_list *ret = NULL;
@@ -251,10 +251,10 @@ static struct nbt_list *read_list(MCbuffer *buff) {
 
   INIT_LIST_HEAD(&ret->entry);
 
-  type = MCbuffer_unpack_byte(buff);
+  type = cmc_buffer_unpack_byte(buff);
   ERR_CHECK;
 
-  elems = MCbuffer_unpack_int(buff);
+  elems = cmc_buffer_unpack_int(buff);
   ERR_CHECK;
   be2ne(&elems, sizeof(int32_t));
 
@@ -282,35 +282,35 @@ err:
   return NULL;
 }
 
-static struct nbt_byte_array read_byte_array(MCbuffer *buff) {
+static struct nbt_byte_array read_byte_array(cmc_buffer *buff) {
 #define ERR_ACTION return ret;
   struct nbt_byte_array ret;
   ret.data = NULL;
 
-  ret.length = MCbuffer_unpack_int(buff);
+  ret.length = cmc_buffer_unpack_int(buff);
   ERR_CHECK;
 
   be2ne(&ret.length, sizeof(int32_t));
 
   ERR_IF(ret.length <= 0, ERR_INVALID_LENGHT);
 
-  ret.data = MCbuffer_unpack(buff, ret.length);
+  ret.data = cmc_buffer_unpack(buff, ret.length);
   ERR_CHECK;
 
   return ret;
 }
 
-static struct nbt_int_array read_int_array(MCbuffer *buff) {
+static struct nbt_int_array read_int_array(cmc_buffer *buff) {
   struct nbt_int_array ret;
   ret.data = NULL;
 
-  ret.length = MCbuffer_unpack_int(buff);
+  ret.length = cmc_buffer_unpack_int(buff);
   ERR_CHECK;
   be2ne(&ret.length, sizeof(int32_t));
 
   ERR_IF(ret.length <= 0, ERR_INVALID_LENGHT);
 
-  ret.data = (int32_t *)MCbuffer_unpack(buff, sizeof(int32_t) * ret.length);
+  ret.data = (int32_t *)cmc_buffer_unpack(buff, sizeof(int32_t) * ret.length);
   ERR_CHECK;
 
   // Byteswap the whole array.
@@ -320,18 +320,18 @@ static struct nbt_int_array read_int_array(MCbuffer *buff) {
   return ret;
 }
 
-static struct nbt_long_array read_long_array(MCbuffer *buff) {
+static struct nbt_long_array read_long_array(cmc_buffer *buff) {
 #define ERR_ACTION return ret;
   struct nbt_long_array ret;
   ret.data = NULL;
 
-  ret.length = MCbuffer_unpack_int(buff);
+  ret.length = cmc_buffer_unpack_int(buff);
   ERR_CHECK;
   be2ne(&ret.length, sizeof(int64_t));
 
   ERR_IF(ret.length <= 0, ERR_INVALID_LENGHT);
 
-  ret.data = (int64_t *)MCbuffer_unpack(buff, sizeof(int64_t) * ret.length);
+  ret.data = (int64_t *)cmc_buffer_unpack(buff, sizeof(int64_t) * ret.length);
   ERR_CHECK;
 
   // Byteswap the whole array.
@@ -341,7 +341,7 @@ static struct nbt_long_array read_long_array(MCbuffer *buff) {
   return ret;
 }
 
-nbt_node *parse_unnamed_tag(MCbuffer *buff, nbt_type type, char *name) {
+nbt_node *parse_unnamed_tag(cmc_buffer *buff, nbt_type type, char *name) {
 #define ERR_ACTION return ret;
   nbt_node *ret = NULL;
   ERR_CHECK;
@@ -354,7 +354,7 @@ nbt_node *parse_unnamed_tag(MCbuffer *buff, nbt_type type, char *name) {
 // Numbers
 #define UNPACK_NUMBER(payload_attrib_name, type)                               \
   do {                                                                         \
-    unsigned char *data = MCbuffer_unpack(buff, sizeof(type));                 \
+    unsigned char *data = cmc_buffer_unpack(buff, sizeof(type));               \
     ERR_CHECK;                                                                 \
     type result = *((type *)data);                                             \
     FREE(data);                                                                \
@@ -411,11 +411,11 @@ err:
   return NULL;
 }
 
-nbt_node *nbt_parse_named_tag(MCbuffer *buff) {
+nbt_node *nbt_parse_named_tag(cmc_buffer *buff) {
 #define ERR_ACTION return ret;
   nbt_node *ret = NULL;
   char *name = NULL;
-  uint8_t type = MCbuffer_unpack_byte(buff);
+  uint8_t type = cmc_buffer_unpack_byte(buff);
   ERR_CHECK;
 
   name = nbt_read_string(buff);
@@ -569,26 +569,26 @@ err:
 // Nbt dumping as binary
 
 static void dump_byte_array_binary(const struct nbt_byte_array ba,
-                                   MCbuffer *buff) {
+                                   cmc_buffer *buff) {
   int32_t dumped_length = ba.length;
 
   ne2be(&dumped_length, sizeof dumped_length);
 
-  MCbuffer_pack_int(buff, dumped_length);
+  cmc_buffer_pack_int(buff, dumped_length);
 
   if (ba.length)
     assert(ba.data);
 
-  MCbuffer_pack(buff, ba.data, ba.length);
+  cmc_buffer_pack(buff, ba.data, ba.length);
 }
 
 static void dump_int_array_binary(const struct nbt_int_array ia,
-                                  MCbuffer *buff) {
+                                  cmc_buffer *buff) {
   int32_t dumped_length = ia.length;
 
   ne2be(&dumped_length, sizeof dumped_length);
 
-  MCbuffer_pack_int(buff, dumped_length);
+  cmc_buffer_pack_int(buff, dumped_length);
 
   if (ia.length)
     assert(ia.data);
@@ -596,17 +596,17 @@ static void dump_int_array_binary(const struct nbt_int_array ia,
   for (int32_t i = 0; i < ia.length; i++) {
     int32_t swappedElem = ia.data[i];
     ne2be(&swappedElem, sizeof(swappedElem));
-    MCbuffer_pack_int(buff, swappedElem);
+    cmc_buffer_pack_int(buff, swappedElem);
   }
 }
 
 static void dump_long_array_binary(const struct nbt_long_array la,
-                                   MCbuffer *buff) {
+                                   cmc_buffer *buff) {
   int32_t dumped_length = la.length;
 
   ne2be(&dumped_length, sizeof dumped_length);
 
-  MCbuffer_pack_int(buff, dumped_length);
+  cmc_buffer_pack_int(buff, dumped_length);
 
   if (la.length)
     assert(la.data);
@@ -614,11 +614,11 @@ static void dump_long_array_binary(const struct nbt_long_array la,
   for (int32_t i = 0; i < la.length; i++) {
     int64_t swappedElem = la.data[i];
     ne2be(&swappedElem, sizeof(swappedElem));
-    MCbuffer_pack_long(buff, swappedElem);
+    cmc_buffer_pack_long(buff, swappedElem);
   }
 }
 
-static void dump_string_binary(const char *name, MCbuffer *buff) {
+static void dump_string_binary(const char *name, cmc_buffer *buff) {
 #define ERR_ACTION return;
   assert(name);
 
@@ -630,15 +630,15 @@ static void dump_string_binary(const char *name, MCbuffer *buff) {
   int16_t dumped_len = (int16_t)len;
   ne2be(&dumped_len, sizeof dumped_len);
 
-  MCbuffer_pack_short(buff, dumped_len);
-  MCbuffer_pack(buff, name, len);
+  cmc_buffer_pack_short(buff, dumped_len);
+  cmc_buffer_pack(buff, name, len);
 
   return;
 }
 
-static void __dump_binary(const nbt_node *, bool, MCbuffer *buff);
+static void __dump_binary(const nbt_node *, bool, cmc_buffer *buff);
 
-static void dump_list_binary(const struct nbt_list *list, MCbuffer *buff) {
+static void dump_list_binary(const struct nbt_list *list, cmc_buffer *buff) {
   nbt_type type = list_is_homogenous(list);
 
   size_t len = list_length(&list->entry);
@@ -650,11 +650,11 @@ static void dump_list_binary(const struct nbt_list *list, MCbuffer *buff) {
   int8_t _type = (int8_t)type;
   ne2be(&_type, sizeof _type); /* unnecessary, but left in to keep similar code
                                   looking similar */
-  MCbuffer_pack_char(buff, _type);
+  cmc_buffer_pack_char(buff, _type);
 
   int32_t dumped_len = (int32_t)len;
   ne2be(&dumped_len, sizeof dumped_len);
-  MCbuffer_pack_int(buff, dumped_len);
+  cmc_buffer_pack_int(buff, dumped_len);
 
   const struct list_head *pos;
   list_for_each(pos, &list->entry) {
@@ -667,7 +667,8 @@ static void dump_list_binary(const struct nbt_list *list, MCbuffer *buff) {
   return;
 }
 
-static void dump_compound_binary(const struct nbt_list *list, MCbuffer *buff) {
+static void dump_compound_binary(const struct nbt_list *list,
+                                 cmc_buffer *buff) {
   const struct list_head *pos;
   list_for_each(pos, &list->entry) {
     const struct nbt_list *entry =
@@ -675,7 +676,7 @@ static void dump_compound_binary(const struct nbt_list *list, MCbuffer *buff) {
     ERR_ABLE(__dump_binary(entry->data, false, buff));
   }
 
-  MCbuffer_pack_byte(buff, 0x00);
+  cmc_buffer_pack_byte(buff, 0x00);
 }
 
 /*
@@ -684,9 +685,9 @@ static void dump_compound_binary(const struct nbt_list *list, MCbuffer *buff) {
  *                    the type.
  */
 static void __dump_binary(const nbt_node *tree, bool dump_type,
-                          MCbuffer *buff) {
+                          cmc_buffer *buff) {
   if (dump_type) /* write out the type */
-    MCbuffer_pack_char(buff, (int8_t)tree->type);
+    cmc_buffer_pack_char(buff, (int8_t)tree->type);
 
   if (tree->name) {
     ERR_ABLE(dump_string_binary(tree->name, buff));
@@ -696,7 +697,7 @@ static void __dump_binary(const nbt_node *tree, bool dump_type,
   do {                                                                         \
     type temp = x;                                                             \
     ne2be(&temp, sizeof temp);                                                 \
-    MCbuffer_pack(buff, &temp, sizeof temp);                                   \
+    cmc_buffer_pack(buff, &temp, sizeof temp);                                 \
   } while (0)
 
   if (tree->type == TAG_BYTE)
@@ -731,11 +732,11 @@ static void __dump_binary(const nbt_node *tree, bool dump_type,
 #undef DUMP_NUM
 }
 
-MCbuffer *nbt_dump_binary(const nbt_node *tree) {
+cmc_buffer *nbt_dump_binary(const nbt_node *tree) {
   if (tree == NULL)
-    return MCbuffer_init();
+    return cmc_buffer_init();
 
-  MCbuffer *ret = MCbuffer_init();
+  cmc_buffer *ret = cmc_buffer_init();
 
   __dump_binary(tree, true, ret);
 

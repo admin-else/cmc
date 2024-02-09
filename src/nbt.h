@@ -14,15 +14,15 @@
 
 #pragma once
 
+#include "buffer.h"
 #include "list.h"
-#include "mcbuffer.h"
 #include "mctypes.h"
 #include <stdint.h>
 
-nbt_node *nbt_parse_named_tag(MCbuffer *buff);
+nbt_node *nbt_parse_named_tag(cmc_buffer *buff);
 
 void nbt_free(nbt_node *tree);
 
 char *nbt_dump_ascii(const nbt_node *tree);
 
-MCbuffer *nbt_dump_binary(const nbt_node *tree);
+cmc_buffer *nbt_dump_binary(const nbt_node *tree);

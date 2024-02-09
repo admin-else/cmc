@@ -21,7 +21,7 @@ type_map = {
     "p": ["block_pos_t ", "position", False],
     "n": ["nbt_node *", "nbt", True],
     "j": ["json_t *", "json", True],
-    "a": ["MCbuffer *", "byte_array", True],
+    "a": ["cmc_buffer *", "byte_array", True],
     "S": ["slot_t *", "slot", True],
     "m": ["entity_metadata_t ", "entity_metadata", True],
 }
@@ -68,11 +68,11 @@ def unpack_method(input_str):
     packet_name, packet_id, symbol_str = input_str.split(";", maxsplit=2)
     symbols = [sym for sym in symbol_str.split(";") if sym != ""]
     unpack_method_define = (
-        f"{packet_name}_packet_t unpack_{packet_name}_packet(MCbuffer *buff)"
+        f"{packet_name}_packet_t unpack_{packet_name}_packet(cmc_buffer *buff)"
     )
     unpack_methods = "".join(
         [
-            f"packet.{symbol[1:]}=MCbuffer_unpack_{type_map[symbol[0]][1]}(buff);"
+            f"packet.{symbol[1:]}=cmc_buffer_unpack_{type_map[symbol[0]][1]}(buff);"
             for symbol in symbols
         ]
     )
@@ -88,7 +88,7 @@ def unpack_method_h(input_str):
     packet_name, packet_id, symbol_str = input_str.split(";", maxsplit=2)
     symbols = [sym for sym in symbol_str.split(";") if sym != ""]
     return (
-        f"{packet_name}_packet_t unpack_{packet_name}_packet(MCbuffer *buff);\n\n"
+        f"{packet_name}_packet_t unpack_{packet_name}_packet(cmc_buffer *buff);\n\n"
         if symbols
         else ""
     )
@@ -97,21 +97,21 @@ def unpack_method_h(input_str):
 def send_method(input_str):
     packet_name, packet_id, symbol_str = input_str.split(";", maxsplit=2)
     symbols = [sym for sym in symbol_str.split(";") if sym != ""]
-    pack_methods = f"MCbuffer_pack_varint(buff, packetid_{packet_name});" + "".join(
+    pack_methods = f"cmc_buffer_pack_varint(buff, packetid_{packet_name});" + "".join(
         [
-            f"MCbuffer_pack_{type_map[symbol[0]][1]}(buff, {symbol[1:]});"
+            f"cmc_buffer_pack_{type_map[symbol[0]][1]}(buff, {symbol[1:]});"
             for symbol in symbols
         ]
     )
-    send_method_define = f"void send_packet_{packet_name}(struct MConn *conn{', ' if symbols else ''} {', '.join([f'{type_map[symbol[0]][0]}{symbol[1:]}' for symbol in symbols])})"
-    send_method = f"{send_method_define} {{MCbuffer *buff = MCbuffer_init();{pack_methods}  ERR_CHECK; MConn_send_packet(conn, buff);}}\n\n"
+    send_method_define = f"void send_packet_{packet_name}(struct cmc_conn *conn{', ' if symbols else ''} {', '.join([f'{type_map[symbol[0]][0]}{symbol[1:]}' for symbol in symbols])})"
+    send_method = f"{send_method_define} {{cmc_buffer *buff = cmc_buffer_init();{pack_methods}  ERR_CHECK; cmc_conn_send_packet(conn, buff);}}\n\n"
     return send_method
 
 
 def send_method_h(input_str):
     packet_name, packet_id, symbol_str = input_str.split(";", maxsplit=2)
     symbols = [sym for sym in symbol_str.split(";") if sym != ""]
-    return f"void send_packet_{packet_name}(struct MConn *conn{',' if symbols else ''} {', '.join([f'{type_map[symbol[0]][0]}{symbol[1:]}' for symbol in symbols])});\n\n"
+    return f"void send_packet_{packet_name}(struct cmc_conn *conn{',' if symbols else ''} {', '.join([f'{type_map[symbol[0]][0]}{symbol[1:]}' for symbol in symbols])});\n\n"
 
 
 def comment_filter(raw):
@@ -241,7 +241,7 @@ def main():
     replace_code_segments(
         "\n".join(
             [
-                f"void (*{'_'.join(mc_packet_exp.split(';')[0].split('_')[2:])})(const {mc_packet_exp.split(';')[0]}_packet_t packet, struct MConn *conn);"
+                f"void (*{'_'.join(mc_packet_exp.split(';')[0].split('_')[2:])})(const {mc_packet_exp.split(';')[0]}_packet_t packet, struct cmc_conn *conn);"
                 for mc_packet_exp in mc_packet_exps
                 if mc_packet_exp.split(";")[0].startswith("S2C_play_")
             ]

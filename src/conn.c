@@ -1,6 +1,6 @@
+#include "buffer.h"
 #include "err.h"
 #include "heap_utils.h"
-#include "mcbuffer.h"
 #include "mctypes.h"
 #include "packet_types.h"
 #include "packets.h"
@@ -13,8 +13,8 @@
 #include <unistd.h>
 #include <zlib.h>
 
-struct MConn *MConn_init() {
-  struct MConn *conn = MALLOC(sizeof(struct MConn));
+struct cmc_conn *cmc_conn_init() {
+  struct cmc_conn *conn = MALLOC(sizeof(struct cmc_conn));
 
   struct sockaddr_in server_addr;
   server_addr.sin_family = AF_INET;
@@ -31,14 +31,14 @@ struct MConn *MConn_init() {
   return conn;
 }
 
-void MConn_free(struct MConn *conn) {
+void cmc_conn_free(struct cmc_conn *conn) {
   assert(conn->state == CONN_STATE_OFFLINE);
   if (conn->shared_secret)
     FREE(conn->shared_secret);
   FREE(conn);
 }
 
-void MConn_close(struct MConn *conn) {
+void cmc_conn_close(struct cmc_conn *conn) {
 #define ERR_ACTION return;
   if (conn->state == CONN_STATE_OFFLINE)
     return;
@@ -78,7 +78,7 @@ int recv_all(int socket, void *buffer, int length) {
   return 0;
 }
 
-MCbuffer *MConn_recive_packet(struct MConn *conn) {
+cmc_buffer *cmc_conn_recive_packet(struct cmc_conn *conn) {
 #define ERR_ACTION return NULL;
   int32_t packet_len = 0;
   for (int i = 0; i < 5; i++) {
@@ -91,14 +91,14 @@ MCbuffer *MConn_recive_packet(struct MConn *conn) {
 
   ERR_IF_LESS_OR_EQ_TO_ZERO(packet_len, ERR_INVALID_PACKET_LEN);
 
-  MCbuffer *buff = MCbuffer_init_w_size(packet_len);
+  cmc_buffer *buff = cmc_buffer_init_w_size(packet_len);
 #define ERR_ACTION goto on_err1;
   ERR_IF(recv_all(conn->sockfd, buff->data, packet_len) == -1, ERR_RECV);
 
   if (conn->compression_threshold < 0)
     return buff;
 
-  int decompressed_length = MCbuffer_unpack_varint(buff);
+  int decompressed_length = cmc_buffer_unpack_varint(buff);
   if (decompressed_length <= 0)
     return buff;
 
@@ -126,9 +126,9 @@ MCbuffer *MConn_recive_packet(struct MConn *conn) {
 #define ERR_ACTION goto on_err2;
   ERR_IF(real_decompressed_length != decompressed_length, ERR_SENDER_LYING);
 
-  MCbuffer_free(buff);
+  cmc_buffer_free(buff);
 
-  MCbuffer *decompressed_buff = MCbuffer_init();
+  cmc_buffer *decompressed_buff = cmc_buffer_init();
   decompressed_buff->data = decompressed_data;
   decompressed_buff->capacity = decompressed_length;
   decompressed_buff->length = decompressed_length;
@@ -141,7 +141,7 @@ on_err3:
 on_err2:
   FREE(decompressed_data);
 on_err1:
-  MCbuffer_free(buff);
+  cmc_buffer_free(buff);
   return NULL;
 }
 
@@ -153,44 +153,44 @@ inline void print_bytes_py(unsigned char *bytes, size_t len) {
   printf("'\n");
 }
 
-void MConn_send_packet(struct MConn *conn, MCbuffer *buff) {
+void cmc_conn_send_packet(struct cmc_conn *conn, cmc_buffer *buff) {
 #define ERR_ACTION goto on_error;
-  MCbuffer *compressed_buffer = MCbuffer_init();
+  cmc_buffer *compressed_buffer = cmc_buffer_init();
   if (conn->compression_threshold >= 0) {
     if (buff->length >= conn->compression_threshold) {
-      MCbuffer_pack_varint(compressed_buffer, buff->length);
+      cmc_buffer_pack_varint(compressed_buffer, buff->length);
       uLong compressedSize = compressBound(buff->length);
       Bytef *compressedData = (Bytef *)malloc(compressedSize);
       ERR_IF(compress(compressedData, &compressedSize, buff->data,
                       buff->length) != Z_OK,
              ERR_ZLIB_COMPRESS);
     } else {
-      MCbuffer_pack_varint(compressed_buffer, 0);
-      MCbuffer_pack(compressed_buffer, buff->data, buff->length);
+      cmc_buffer_pack_varint(compressed_buffer, 0);
+      cmc_buffer_pack(compressed_buffer, buff->data, buff->length);
     }
-    MCbuffer_free(buff);
+    cmc_buffer_free(buff);
   } else {
-    MCbuffer_pack(compressed_buffer, buff->data, buff->length);
-    MCbuffer_free(buff);
+    cmc_buffer_pack(compressed_buffer, buff->data, buff->length);
+    cmc_buffer_free(buff);
   }
 
-  MCbuffer *tmp_buff = MCbuffer_init();
-  MCbuffer_pack_varint(tmp_buff, compressed_buffer->length);
+  cmc_buffer *tmp_buff = cmc_buffer_init();
+  cmc_buffer_pack_varint(tmp_buff, compressed_buffer->length);
 
-  compressed_buffer = MCbuffer_combine(tmp_buff, compressed_buffer);
+  compressed_buffer = cmc_buffer_combine(tmp_buff, compressed_buffer);
 #define ERR_ACTION ;
   ERR_IF_NOT_ZERO(send_all(conn->sockfd, compressed_buffer->data,
                            compressed_buffer->length),
                   ERR_SENDING);
-  MCbuffer_free(compressed_buffer);
+  cmc_buffer_free(compressed_buffer);
   return;
 
 on_error:
-  MCbuffer_free(compressed_buffer);
+  cmc_buffer_free(compressed_buffer);
   return;
 }
 
-void MConn_loop(struct MConn *conn) {
+void cmc_conn_loop(struct cmc_conn *conn) {
 #define ERR_ACTION return;
   conn->sockfd = socket(AF_INET, SOCK_STREAM, 0);
   ERR_IF_NOT(conn->sockfd, ERR_SOCKET);
@@ -204,10 +204,10 @@ void MConn_loop(struct MConn *conn) {
   ERR_ABLE(send_packet_C2S_login_start(conn, conn->name));
   conn->state = CONN_STATE_LOGIN;
   while (conn->state != CONN_STATE_OFFLINE) {
-    MCbuffer *packet = ERR_ABLE(MConn_recive_packet(conn));
+    cmc_buffer *packet = ERR_ABLE(cmc_conn_recive_packet(conn));
 
 #define ERR_ACTION goto err_free_packet;
-    int packet_id = ERR_ABLE(MCbuffer_unpack_varint(packet));
+    int packet_id = ERR_ABLE(cmc_buffer_unpack_varint(packet));
     switch (conn->state) {
     case CONN_STATE_LOGIN: {
       switch (packet_id) {
@@ -610,10 +610,10 @@ void MConn_loop(struct MConn *conn) {
           conn->on_unhandeld_packet(packet, packet_id, conn);
         break;
       }
-      MCbuffer_free(packet);
+      cmc_buffer_free(packet);
       break;
     err_free_packet:
-      MCbuffer_free(packet);
+      cmc_buffer_free(packet);
       goto err_close_conn;
     default:
       break;
@@ -621,5 +621,5 @@ void MConn_loop(struct MConn *conn) {
   }
 #define ERR_ACTION return;
 err_close_conn:
-  MConn_close(conn);
+  cmc_conn_close(conn);
 }
