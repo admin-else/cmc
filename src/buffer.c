@@ -1,9 +1,9 @@
 #include "buffer.h"
 #include "err.h"
 #include "heap_utils.h"
-#include "mctypes.h"
 #include "nbt.h"
 #include <ctype.h>
+#include <endian.h>
 #include <jansson.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -16,48 +16,17 @@
 #define VARINT_CONTINUE_BIT 0x80
 #define DEFAULT_MAX_STRING_LENGTH INT16_MAX
 
-// Endian Utils
-
-/* are we running on a little-endian system? */
-static int little_endian() {
-  uint16_t t = 0x0001;
-  char c[2];
-  memcpy(c, &t, sizeof t);
-  return c[0];
-}
-
-static void *swap_bytes(void *s, size_t len) {
-  for (char *b = s, *e = b + len - 1; b < e; b++, e--) {
-    char t = *b;
-
-    *b = *e;
-    *e = t;
-  }
-
-  return s;
-}
-
-/* big endian to native endian. works in-place */
-static void *be2ne(void *s, size_t len) {
-  return little_endian() ? swap_bytes(s, len) : s;
-}
-
-/* native endian to big endian. works the exact same as its inverse */
-#define ne2be be2ne
-
-#define BE2NE_UTIL(var) be2ne(&var, sizeof(var))
-
 void cmc_buffer_print_info(cmc_buffer *buff) {
   printf("Data      %p\n", buff->data);
   printf("Length    %li\n", buff->length);
   printf("Position  %li\n", buff->position);
   printf("Capacity  %li\n", buff->capacity);
   printf("Hex: \n");
-  for (int i = 0; i < buff->length; i++) {
+  for (size_t i = 0; i < buff->length; i++) {
     printf("%02X ", buff->data[i]);
   }
   printf("\nPython: \nb'");
-  for (int i = 0; i < buff->length; i++) {
+  for (size_t i = 0; i < buff->length; i++) {
     if (isprint(buff->data[i])) {
       printf("%c", buff->data[i]);
     } else {
@@ -102,9 +71,8 @@ cmc_buffer *cmc_buffer_combine(cmc_buffer *buff1, cmc_buffer *buff2) {
 }
 
 void cmc_buffer_pack(cmc_buffer *buffer, const void *data, size_t data_size) {
-#define ERR_ACTION return;
   if (buffer == NULL || data == NULL || data_size == 0) {
-    ERR(ERR_INVALID_ARGUMENTS);
+    ERR(ERR_INVALID_ARGUMENTS, return;);
     return;
   }
   if (buffer->data == NULL) {
@@ -120,7 +88,7 @@ void cmc_buffer_pack(cmc_buffer *buffer, const void *data, size_t data_size) {
     unsigned char *new_data =
         (unsigned char *)realloc(buffer->data, new_capacity);
     if (new_data == NULL)
-      ERR(ERR_MEM);
+      ERR(ERR_MEM, return;);
 
     buffer->data = new_data;
     buffer->capacity = new_capacity;
@@ -132,11 +100,10 @@ void cmc_buffer_pack(cmc_buffer *buffer, const void *data, size_t data_size) {
 }
 
 unsigned char *cmc_buffer_unpack(cmc_buffer *buffer, size_t n) {
-#define ERR_ACTION return NULL;
   if (n <= 0 || buffer == NULL)
-    ERR(ERR_INVALID_ARGUMENTS);
+    ERR(ERR_INVALID_ARGUMENTS, return NULL;);
   if (buffer->position + n > buffer->length)
-    ERR(ERR_BUFFER_OVERFLOW);
+    ERR(ERR_BUFFER_OVERFLOW, return NULL;);
 
   unsigned char *readData = MALLOC(n);
   memcpy(readData, buffer->data + buffer->position, n);
@@ -160,27 +127,11 @@ unsigned char *cmc_buffer_unpack(cmc_buffer *buffer, size_t n) {
     cmc_buffer_pack(buffer, &data, sizeof(type));                              \
   }
 
-#define NUM_PACK_AND_UNPACK_FUNC_FACTORY_WITH_ENDIAN(name, type)               \
-  type cmc_buffer_unpack_##name(cmc_buffer *buffer) {                          \
-    unsigned char *data = cmc_buffer_unpack(buffer, sizeof(type));             \
-    if (data == NULL)                                                          \
-      return (type)0;                                                          \
-    type result = *((type *)data);                                             \
-    FREE(data);                                                                \
-    be2ne(&result, sizeof(type));                                              \
-    return result;                                                             \
-  }                                                                            \
-                                                                               \
-  void cmc_buffer_pack_##name(cmc_buffer *buffer, type data) {                 \
-    ne2be(&data, sizeof(type));                                                \
-    cmc_buffer_pack(buffer, &data, sizeof(type));                              \
-  }
-
 NUM_PACK_AND_UNPACK_FUNC_FACTORY(char, char);
 NUM_PACK_AND_UNPACK_FUNC_FACTORY(byte, unsigned char);
 NUM_PACK_AND_UNPACK_FUNC_FACTORY(short, short);
 NUM_PACK_AND_UNPACK_FUNC_FACTORY(ushort, unsigned short);
-NUM_PACK_AND_UNPACK_FUNC_FACTORY_WITH_ENDIAN(int, int);
+NUM_PACK_AND_UNPACK_FUNC_FACTORY(int, int);
 NUM_PACK_AND_UNPACK_FUNC_FACTORY(uint, unsigned int);
 NUM_PACK_AND_UNPACK_FUNC_FACTORY(long, long);
 NUM_PACK_AND_UNPACK_FUNC_FACTORY(ulong, unsigned long);
@@ -213,25 +164,23 @@ bool cmc_buffer_unpack_bool(cmc_buffer *buffer) {
 }
 
 void cmc_buffer_pack_varint(cmc_buffer *buff, int signed_number) {
-#define ERR_ACTION return;
   unsigned int number = (unsigned int)signed_number;
   for (int i = 0; i < 5; i++) {
     uint8_t b = number & 0x7F;
     number >>= 7;
     b = b | (number > 0 ? 0x80 : 0);
     cmc_buffer_pack_byte(buff, b);
-    ERR_CHECK;
+    ERR_CHECK(return;);
     if (number == 0)
       break;
   }
 }
 
 int32_t cmc_buffer_unpack_varint(cmc_buffer *buff) {
-#define ERR_ACTION return 0;
   uint32_t number = 0;
   for (int i = 0; i < 5; i++) {
     uint8_t b = cmc_buffer_unpack_byte(buff);
-    ERR_CHECK;
+    ERR_CHECK(return 0;);
     number |= (b & VARINT_SEGMENT_BITS) << (7 * i);
     if (!(b & VARINT_CONTINUE_BIT))
       break;
@@ -241,10 +190,9 @@ int32_t cmc_buffer_unpack_varint(cmc_buffer *buff) {
 
 void cmc_buffer_pack_string_w_max_len(cmc_buffer *buff, const char *value,
                                       int max_len) {
-#define ERR_ACTION return;
   int str_len = strlen(value);
   if (str_len > max_len)
-    ERR(ERR_STRING_LENGHT);
+    ERR(ERR_STRING_LENGHT, return;);
   cmc_buffer_pack_varint(buff, str_len);
   cmc_buffer_pack(buff, value, str_len);
 }
@@ -254,11 +202,10 @@ inline void cmc_buffer_pack_string(cmc_buffer *buff, const char *value) {
 }
 
 char *cmc_buffer_unpack_string_w_max_len(cmc_buffer *buff, int max_len) {
-#define ERR_ACTION return NULL;
   int str_len = cmc_buffer_unpack_varint(buff);
-  ERR_CHECK;
+  ERR_CHECK(return NULL;);
   if (str_len > max_len * 4 || str_len < 0)
-    ERR(ERR_INVALID_ARGUMENTS);
+    ERR(ERR_INVALID_ARGUMENTS, return NULL;);
 
   if (str_len == 0) {
     char *str = MALLOC(1);
@@ -267,7 +214,7 @@ char *cmc_buffer_unpack_string_w_max_len(cmc_buffer *buff, int max_len) {
   }
 
   if (buff == NULL || buff->position + str_len > buff->length)
-    ERR(ERR_BUFFER_OVERFLOW);
+    ERR(ERR_BUFFER_OVERFLOW, return NULL;);
 
   char *str = (char *)MALLOC(str_len + 1);
 
@@ -290,11 +237,10 @@ void cmc_buffer_pack_position(cmc_buffer *buff, block_pos_t pos) {
 }
 
 block_pos_t cmc_buffer_unpack_position(cmc_buffer *buff) {
-#define ERR_ACTION return pos;
   uint64_t val = cmc_buffer_unpack_long(buff);
   block_pos_t pos = {0, 0, 0};
 
-  ERR_CHECK;
+  ERR_CHECK(return pos;);
   pos.x = val >> 38;
   pos.y = (val >> 26) & 0xFFF;
   pos.z = val << 38 >> 38;
@@ -312,8 +258,7 @@ nbt_node *cmc_buffer_unpack_nbt(cmc_buffer *buff) {
 }
 
 void cmc_buffer_pack_nbt(cmc_buffer *buff, nbt_node *nbt) {
-#define ERR_ACTION return;
-  cmc_buffer *tmp_buff = ERR_ABLE(nbt_dump_binary(nbt));
+  cmc_buffer *tmp_buff = ERR_ABLE(nbt_dump_binary(nbt), return;);
   cmc_buffer_combine(buff, tmp_buff);
 }
 
@@ -359,7 +304,7 @@ slot_t *cmc_buffer_unpack_slot(cmc_buffer *buff) {
 
 void cmc_buffer_pack_entity_metadata(cmc_buffer *buff,
                                      entity_metadata_t metadata) {
-  for (int i = 0; i < metadata.size; i++) {
+  for (size_t i = 0; i < metadata.size; i++) {
     entity_metadata_entry_t *entry =
         metadata.entries + i * sizeof(entity_metadata_entry_t);
     cmc_buffer_pack_char(buff, entry->type << 5 | entry->index);
@@ -414,19 +359,15 @@ entity_metadata_t cmc_buffer_unpack_entity_metadata(cmc_buffer *buff) {
     switch (meta_data_entry.type) {
     case ENTITY_METADATA_ENTRY_TYPE_BYTE:
       meta_data_entry.payload.byte_data = cmc_buffer_unpack_byte(buff);
-      BE2NE_UTIL(meta_data_entry.payload.byte_data);
       break;
     case ENTITY_METADATA_ENTRY_TYPE_SHORT:
       meta_data_entry.payload.short_data = cmc_buffer_unpack_short(buff);
-      BE2NE_UTIL(meta_data_entry.payload.short_data);
       break;
     case ENTITY_METADATA_ENTRY_TYPE_INT:
       meta_data_entry.payload.int_data = cmc_buffer_unpack_int(buff);
-      BE2NE_UTIL(meta_data_entry.payload.int_data);
       break;
     case ENTITY_METADATA_ENTRY_TYPE_FLOAT:
       meta_data_entry.payload.float_data = cmc_buffer_unpack_float(buff);
-      BE2NE_UTIL(meta_data_entry.payload.float_data);
       break;
     case ENTITY_METADATA_ENTRY_TYPE_STRING:
       meta_data_entry.payload.string_data = cmc_buffer_unpack_string(buff);
@@ -450,8 +391,7 @@ entity_metadata_t cmc_buffer_unpack_entity_metadata(cmc_buffer *buff) {
         realloc(meta_data.entries,
                 (meta_data.size + 1) * sizeof(entity_metadata_entry_t));
     if (new_entries == NULL) {
-#define ERR_ACTION goto on_error;
-      ERR(ERR_MEM);
+      ERR(ERR_MEM, goto on_error;);
     }
 
     meta_data.entries = new_entries;
@@ -463,21 +403,20 @@ entity_metadata_t cmc_buffer_unpack_entity_metadata(cmc_buffer *buff) {
   return meta_data;
 
 on_error:
-  free(meta_data.entries);
+  FREE(meta_data.entries);
   meta_data.size = 0;
   meta_data.entries = NULL;
   return meta_data;
 }
 
 void free_entity_metadata(entity_metadata_t metadata) {
-#define ERR_ACTION ;
-  for (int i = 0; i < metadata.size; i++) {
+  for (size_t i = 0; i < metadata.size; i++) {
     entity_metadata_entry_t *entry =
         metadata.entries + i * sizeof(entity_metadata_entry_t);
     switch (entry->type) {
     case ENTITY_METADATA_ENTRY_TYPE_SLOT:
       // free_slot(entry->payload.slot_data);
-      ERR(ERR_NOT_IMPLEMENTED_YET);
+      ERR(ERR_NOT_IMPLEMENTED_YET, );
       break;
     case ENTITY_METADATA_ENTRY_TYPE_STRING:
       FREE(entry->payload.string_data);

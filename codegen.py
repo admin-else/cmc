@@ -104,7 +104,7 @@ def send_method(input_str):
         ]
     )
     send_method_define = f"void send_packet_{packet_name}(struct cmc_conn *conn{', ' if symbols else ''} {', '.join([f'{type_map[symbol[0]][0]}{symbol[1:]}' for symbol in symbols])})"
-    send_method = f"{send_method_define} {{cmc_buffer *buff = cmc_buffer_init();{pack_methods}  ERR_CHECK; cmc_conn_send_packet(conn, buff);}}\n\n"
+    send_method = f"{send_method_define} {{cmc_buffer *buff = cmc_buffer_init();{pack_methods}  ERR_CHECK(return;); cmc_conn_send_packet(conn, buff);}}\n\n"
     return send_method
 
 
@@ -161,23 +161,23 @@ def free_method(exp):
     if not should_have_free_method(exp):
         return ""
 
-    code = f"void free_{packet_name}_packet({packet_name}_packet_t packet) {{"
+    code = f"void cmc_free_{packet_name}_packet({packet_name}_packet_t packet) {{"
     for sym in symbols:
         if type_map[sym[0]][2]:
             code += f"free_{type_map[sym[0]][1]}(packet.{sym[1:]});"
     code += "}"
     return code
 
-def loop_handeler(exp):
+def loop_handler(exp):
     packet_name, packet_id, symbol_str = exp.split(";", maxsplit=2)
     short_packet_name = "_".join(packet_name.split("_")[2:])
     return f"""case packetid_S2C_play_{short_packet_name}: {{
         if (!conn->on_packet.{short_packet_name})
           goto unhandeled_packet;
         S2C_play_{short_packet_name}_packet_t data =
-            ERR_ABLE(unpack_S2C_play_{short_packet_name}_packet(packet));
+            ERR_ABLE(unpack_S2C_play_{short_packet_name}_packet(packet), goto err_free_packet;);
         conn->on_packet.{short_packet_name}(data, conn);
-        {f'free_S2C_play_{short_packet_name}_packet(data);' if should_have_free_method(exp) else ''}
+        {f'cmc_free_S2C_play_{short_packet_name}_packet(data);' if should_have_free_method(exp) else ''}
         break;
     }}"""
 
@@ -218,10 +218,10 @@ def main():
     )
 
     # packet id to string
-    replace_code_segments(
+    replace_code_segments( # case PACKET_ID(0x00, CONN_STATE_HANDSHAKE, DIRECTION_C2S): return "C2S_handshake_handshake";
         "".join(
             [
-                f"PACKET_ID_TO_STRING_UTIL({mc_packet_exp.split(';')[1]}, CONN_STATE_{mc_packet_exp.split(';')[0].split('_')[1].upper()}, DIRECTION_{mc_packet_exp.split(';')[0].split('_')[0].upper()}, \"{mc_packet_exp.split(';')[0]}\");"
+                f"case PACKET_ID({mc_packet_exp.split(';')[1]}, CMC_CONN_STATE_{mc_packet_exp.split(';')[0].split('_')[1].upper()}, CMC_DIRECTION_{mc_packet_exp.split(';')[0].split('_')[0].upper()}): return \"{mc_packet_exp.split(';')[0]}\";"
                 for mc_packet_exp in mc_packet_exps
             ]
         ),
@@ -252,7 +252,7 @@ def main():
     replace_code_segments(
         "\n".join(
             [
-                loop_handeler(mc_packet_exp)
+                loop_handler(mc_packet_exp)
                 for mc_packet_exp in mc_packet_exps
                 if mc_packet_exp.split(";")[0].startswith("S2C_play_")
             ]
@@ -265,7 +265,7 @@ def main():
     )
 
     replace_code_segments(
-        "\n".join([f"void free_{exp.split(';', maxsplit=2)[0]}_packet({exp.split(';', maxsplit=2)[0]}_packet_t packet);" for exp in mc_packet_exps if should_have_free_method(exp)]), "free_methods_h"
+        "\n".join([f"void cmc_free_{exp.split(';', maxsplit=2)[0]}_packet({exp.split(';', maxsplit=2)[0]}_packet_t packet);" for exp in mc_packet_exps if should_have_free_method(exp)]), "free_methods_h"
     )
 
     os.system("clang-format -i ./src/*.c ./src/*.h")

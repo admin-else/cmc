@@ -24,42 +24,11 @@ enum cmc_err_type {
   ERR_INVALID_STRING,
   ERR_INVALID_LENGHT,
   ERR_INVALID_NBT_TAG_TYPE,
-  ERR_NOT_IMPLEMENTED_YET
+  ERR_NOT_IMPLEMENTED_YET,
 };
 
-inline const char *err_id2str(enum cmc_err_type err) {
-#define ERRID2STR_HELPER(ERR)                                                  \
-  case ERR:                                                                    \
-    return #ERR;
-  switch (err) {
-    ERRID2STR_HELPER(ERR_NO);
-    ERRID2STR_HELPER(ERR_MEM);
-    ERRID2STR_HELPER(ERR_CONNETING);
-    ERRID2STR_HELPER(ERR_SOCKET);
-    ERRID2STR_HELPER(ERR_CLOSING);
-    ERRID2STR_HELPER(ERR_RECV);
-    ERRID2STR_HELPER(ERR_INVALID_PACKET_LEN);
-    ERRID2STR_HELPER(ERR_ZLIB_INIT);
-    ERRID2STR_HELPER(ERR_ZLIB_INFLATE);
-    ERRID2STR_HELPER(ERR_SENDER_LYING);
-    ERRID2STR_HELPER(ERR_ZLIB_COMPRESS);
-    ERRID2STR_HELPER(ERR_SENDING);
-    ERRID2STR_HELPER(ERR_KICKED_WHILE_LOGIN);
-    ERRID2STR_HELPER(ERR_SERVER_ONLINE_MODE);
-    ERRID2STR_HELPER(ERR_INVALID_PACKET_ID_WHILE_LOGGING_IN);
-    ERRID2STR_HELPER(ERR_MALLOC_ZERO);
-    ERRID2STR_HELPER(ERR_INVALID_ARGUMENTS);
-    ERRID2STR_HELPER(ERR_BUFFER_UNDERUN);
-    ERRID2STR_HELPER(ERR_BUFFER_OVERFLOW);
-    ERRID2STR_HELPER(ERR_STRING_LENGHT);
-    ERRID2STR_HELPER(ERR_INVALID_STRING);
-    ERRID2STR_HELPER(ERR_INVALID_LENGHT);
-    ERRID2STR_HELPER(ERR_INVALID_NBT_TAG_TYPE);
-    ERRID2STR_HELPER(ERR_NOT_IMPLEMENTED_YET);
-  default:
-    return "invalid error id";
-  }
-}
+const char *err_id2str(enum cmc_err_type err);
+
 struct cmc_err {
   char *file;
   int line;
@@ -68,29 +37,31 @@ struct cmc_err {
 
 extern struct cmc_err cmc_err;
 
-#define ERR(err)                                                               \
+#define ERR(err, action)                                                       \
   do {                                                                         \
     cmc_err =                                                                  \
         (struct cmc_err){.file = __FILE__, .line = __LINE__, .type = err};     \
-    ERR_ACTION                                                                 \
+    action                                                                     \
   } while (0)
-#define ERR_CHECK                                                              \
+#define ERR_CHECK(action)                                                      \
   if (cmc_err.type) {                                                          \
-    printf("ERR_CHECKED %s:%d\n", __FILE__, __LINE__);                         \
-    ERR_ACTION                                                                 \
+    action                                                                     \
   }
-#define ERR_ABLE(code)                                                         \
+#define ERR_ABLE(code, action)                                                 \
   code;                                                                        \
-  ERR_CHECK
-#define ERR_IF(conditon, err)                                                  \
-  do {                                                                         \
+  ERR_CHECK(action)
+#define ERR_IF(conditon, err, action)                                          \
+  {                                                                            \
     if (conditon) {                                                            \
-      ERR(err);                                                                \
+      ERR(err, action);                                                        \
     }                                                                          \
-  } while (0)
-#define ERR_IF_NOT(val, err) ERR_IF(!(val), err)
-#define ERR_IF_VAL_TO_CONDITION(val, conditon, err) ERR_IF(val conditon, err)
-#define ERR_IF_LESS_THAN_ZERO(val, err) ERR_IF_VAL_TO_CONDITION(val, < 0, err)
-#define ERR_IF_NOT_ZERO(val, err) ERR_IF_VAL_TO_CONDITION(val, != 0, err)
-#define ERR_IF_LESS_OR_EQ_TO_ZERO(val, err)                                    \
-  ERR_IF_VAL_TO_CONDITION(val, <= 0, err)
+  }
+#define ERR_IF_NOT(val, err, action) ERR_IF(!(val), err, action)
+#define ERR_IF_VAL_TO_CONDITION(val, conditon, err, action)                    \
+  ERR_IF(val conditon, err, action)
+#define ERR_IF_LESS_THAN_ZERO(val, err, action)                                \
+  ERR_IF_VAL_TO_CONDITION(val, < 0, err, action)
+#define ERR_IF_NOT_ZERO(val, err, action)                                      \
+  ERR_IF_VAL_TO_CONDITION(val, != 0, err, action)
+#define ERR_IF_LESS_OR_EQ_TO_ZERO(val, err, action)                            \
+  ERR_IF_VAL_TO_CONDITION(val, <= 0, err, action)

@@ -1,9 +1,8 @@
 /*
-this file contains crypto and comprssion
+this file contains crypto and compression
 
 */
 #include "heap_utils.h"
-#include "mctypes.h"
 #include <openssl/bio.h>
 #include <openssl/evp.h>
 #include <openssl/rsa.h>

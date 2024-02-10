@@ -174,22 +174,21 @@ void nbt_free(nbt_node *tree) {
 // NBT reading utils
 
 static char *nbt_read_string(cmc_buffer *buff) {
-#define ERR_ACTION return NULL;
   int16_t str_len = cmc_buffer_unpack_short(buff);
-  ERR_CHECK;
+  ERR_CHECK(return NULL;);
 
   be2ne(&str_len, sizeof(int16_t));
-  ERR_IF(str_len <= 0, ERR_INVALID_STRING);
+  ERR_IF(str_len <= 0, ERR_INVALID_STRING, return NULL;);
 
   char *string = MALLOC(str_len + 1); // null terminator
   char *heap_data = (char *)cmc_buffer_unpack(buff, str_len);
-  ERR_CHECK;
+  ERR_CHECK(return NULL;);
 
   memcpy(string, heap_data, str_len);
   FREE(heap_data);
   string[str_len] = '\0';
 
-  ERR_CHECK;
+  ERR_CHECK(return NULL;);
 
   return string;
 }
@@ -200,7 +199,6 @@ static struct nbt_list *read_compound(cmc_buffer *buff) {
   struct nbt_list *ret;
 
   ret = MALLOC(sizeof(struct nbt_list));
-#define ERR_ACTION goto err;
   ret->data = NULL;
   INIT_LIST_HEAD(&ret->entry);
 
@@ -209,16 +207,17 @@ static struct nbt_list *read_compound(cmc_buffer *buff) {
     char *name = NULL;
     struct nbt_list *new_entry;
 
-    type = ERR_ABLE(cmc_buffer_unpack_byte(buff));
+    type = ERR_ABLE(cmc_buffer_unpack_byte(buff), goto err;);
 
     if (type == TAG_END)
       break;
 
-    name = ERR_ABLE(nbt_read_string(buff));
+    name = ERR_ABLE(nbt_read_string(buff), goto err;);
 
     new_entry = MALLOC(sizeof(struct nbt_list));
 
-    new_entry->data = ERR_ABLE(parse_unnamed_tag(buff, (nbt_type)type, name));
+    new_entry->data =
+        ERR_ABLE(parse_unnamed_tag(buff, (nbt_type)type, name), goto err;);
 
     if (new_entry->data == NULL) {
       FREE(new_entry);
@@ -251,10 +250,10 @@ static struct nbt_list *read_list(cmc_buffer *buff) {
   INIT_LIST_HEAD(&ret->entry);
 
   type = cmc_buffer_unpack_byte(buff);
-  ERR_CHECK;
+  ERR_CHECK(goto err;);
 
   elems = cmc_buffer_unpack_int(buff);
-  ERR_CHECK;
+  ERR_CHECK(goto err;);
   be2ne(&elems, sizeof(int32_t));
 
   ret->data->type = type == TAG_END ? TAG_COMPOUND : (nbt_type)type;
@@ -282,19 +281,17 @@ err:
 }
 
 static struct nbt_byte_array read_byte_array(cmc_buffer *buff) {
-#define ERR_ACTION return ret;
   struct nbt_byte_array ret;
   ret.data = NULL;
 
   ret.length = cmc_buffer_unpack_int(buff);
-  ERR_CHECK;
+  ERR_CHECK(return ret;);
 
   be2ne(&ret.length, sizeof(int32_t));
 
-  ERR_IF(ret.length <= 0, ERR_INVALID_LENGHT);
+  ERR_IF(ret.length <= 0, ERR_INVALID_LENGHT, return ret;);
 
   ret.data = cmc_buffer_unpack(buff, ret.length);
-  ERR_CHECK;
 
   return ret;
 }
@@ -304,13 +301,13 @@ static struct nbt_int_array read_int_array(cmc_buffer *buff) {
   ret.data = NULL;
 
   ret.length = cmc_buffer_unpack_int(buff);
-  ERR_CHECK;
+  ERR_CHECK(return ret;);
   be2ne(&ret.length, sizeof(int32_t));
 
-  ERR_IF(ret.length <= 0, ERR_INVALID_LENGHT);
+  ERR_IF(ret.length <= 0, ERR_INVALID_LENGHT, return ret;);
 
   ret.data = (int32_t *)cmc_buffer_unpack(buff, sizeof(int32_t) * ret.length);
-  ERR_CHECK;
+  ERR_CHECK(return ret;);
 
   // Byteswap the whole array.
   for (int32_t i = 0; i < ret.length; i++)
@@ -320,18 +317,17 @@ static struct nbt_int_array read_int_array(cmc_buffer *buff) {
 }
 
 static struct nbt_long_array read_long_array(cmc_buffer *buff) {
-#define ERR_ACTION return ret;
   struct nbt_long_array ret;
   ret.data = NULL;
 
   ret.length = cmc_buffer_unpack_int(buff);
-  ERR_CHECK;
+  ERR_CHECK(return ret;);
   be2ne(&ret.length, sizeof(int64_t));
 
-  ERR_IF(ret.length <= 0, ERR_INVALID_LENGHT);
+  ERR_IF(ret.length <= 0, ERR_INVALID_LENGHT, return ret;);
 
   ret.data = (int64_t *)cmc_buffer_unpack(buff, sizeof(int64_t) * ret.length);
-  ERR_CHECK;
+  ERR_CHECK(return ret;);
 
   // Byteswap the whole array.
   for (int32_t i = 0; i < ret.length; i++)
@@ -341,9 +337,8 @@ static struct nbt_long_array read_long_array(cmc_buffer *buff) {
 }
 
 nbt_node *parse_unnamed_tag(cmc_buffer *buff, nbt_type type, char *name) {
-#define ERR_ACTION return ret;
   nbt_node *ret = NULL;
-  ERR_CHECK;
+  ERR_CHECK(return ret;);
   ret = MALLOC(sizeof(nbt_node));
 
   ret->name = name;
@@ -354,7 +349,7 @@ nbt_node *parse_unnamed_tag(cmc_buffer *buff, nbt_type type, char *name) {
 #define UNPACK_NUMBER(payload_attrib_name, type)                               \
   do {                                                                         \
     unsigned char *data = cmc_buffer_unpack(buff, sizeof(type));               \
-    ERR_CHECK;                                                                 \
+    ERR_CHECK(return ret;);                                                    \
     type result = *((type *)data);                                             \
     FREE(data);                                                                \
     ret->payload.payload_attrib_name = result;                                 \
@@ -398,11 +393,10 @@ nbt_node *parse_unnamed_tag(cmc_buffer *buff, nbt_type type, char *name) {
     ret->payload.tag_long_array = read_long_array(buff);
     break;
   default:
-#define ERR_ACTION goto err;
-    ERR(ERR_INVALID_NBT_TAG_TYPE);
+    ERR(ERR_INVALID_NBT_TAG_TYPE, goto err;);
   }
 
-  ERR_CHECK;
+  ERR_CHECK(goto err;);
 
   return ret;
 err:
@@ -411,17 +405,16 @@ err:
 }
 
 nbt_node *nbt_parse_named_tag(cmc_buffer *buff) {
-#define ERR_ACTION return ret;
   nbt_node *ret = NULL;
   char *name = NULL;
   uint8_t type = cmc_buffer_unpack_byte(buff);
-  ERR_CHECK;
+  ERR_CHECK(return ret;);
 
   name = nbt_read_string(buff);
-  ERR_CHECK;
+  ERR_CHECK(return ret;);
 
   ret = parse_unnamed_tag(buff, type, name);
-  ERR_CHECK;
+  ERR_CHECK(return ret;);
   return ret;
 }
 
@@ -461,7 +454,6 @@ static void dump_long_array(const struct nbt_long_array la, text_buffer *b) {
 
 static void dump_list_contents_ascii(const struct nbt_list *list,
                                      text_buffer *b, size_t ident) {
-#define ERR_ACTION return;
   const struct list_head *pos;
 
   list_for_each(pos, &list->entry) {
@@ -469,7 +461,7 @@ static void dump_list_contents_ascii(const struct nbt_list *list,
         list_entry(pos, const struct nbt_list, entry);
 
     __nbt_dump_ascii(entry->data, b, ident);
-    ERR_CHECK;
+    ERR_CHECK(return;);
   }
 
   return;
@@ -477,9 +469,8 @@ static void dump_list_contents_ascii(const struct nbt_list *list,
 
 static void __nbt_dump_ascii(const nbt_node *tree, text_buffer *b,
                              size_t ident) {
-#define ERR_ACTION return;
   if (tree == NULL)
-    ERR(ERR_INVALID_ARGUMENTS);
+    ERR(ERR_INVALID_ARGUMENTS, return;);
 
   text_buffer_indent(b, ident);
 
@@ -515,7 +506,7 @@ static void __nbt_dump_ascii(const nbt_node *tree, text_buffer *b,
     text_buffer_bprintf(b, "\n");
   } else if (tree->type == TAG_STRING) {
     if (tree->payload.tag_string == NULL)
-      ERR(ERR_INVALID_STRING);
+      ERR(ERR_INVALID_STRING, return;);
     text_buffer_bprintf(b, "TAG_String(\"%s\"): %s\n", SAFE_NAME(tree),
                         tree->payload.tag_string);
   } else if (tree->type == TAG_LIST) {
@@ -525,34 +516,33 @@ static void __nbt_dump_ascii(const nbt_node *tree, text_buffer *b,
     text_buffer_bprintf(b, "{\n");
 
     dump_list_contents_ascii(tree->payload.tag_list, b, ident + 1);
-    ERR_CHECK;
+    ERR_CHECK(return;);
 
     text_buffer_indent(b, ident);
     text_buffer_bprintf(b, "}\n");
 
-    ERR_CHECK;
+    ERR_CHECK(return;);
   } else if (tree->type == TAG_COMPOUND) {
     text_buffer_bprintf(b, "TAG_Compound(\"%s\")\n", SAFE_NAME(tree));
     text_buffer_indent(b, ident);
     text_buffer_bprintf(b, "{\n");
 
     dump_list_contents_ascii(tree->payload.tag_compound, b, ident + 1);
-    ERR_CHECK;
+    ERR_CHECK(return;);
 
     text_buffer_indent(b, ident);
     text_buffer_bprintf(b, "}\n");
 
-    ERR_CHECK;
+    ERR_CHECK(return;);
   } else
-    ERR(ERR_INVALID_NBT_TAG_TYPE);
+    ERR(ERR_INVALID_NBT_TAG_TYPE, return;);
 }
 
 char *nbt_dump_ascii(const nbt_node *tree) {
-#define ERR_ACTION goto err;
   text_buffer b = TEXT_BUFFER_INIT;
 
-  ERR_ABLE(__nbt_dump_ascii(tree, &b, 0));
-  ERR_ABLE(text_buffer_reserve(&b, b.len + 1));
+  ERR_ABLE(__nbt_dump_ascii(tree, &b, 0), goto err;);
+  ERR_ABLE(text_buffer_reserve(&b, b.len + 1), goto err;);
 
   b.data[b.len] = '\0'; /* null-terminate that biatch, since text_buffer_bprintf
                            doesn't do that for us. */
@@ -618,12 +608,11 @@ static void dump_long_array_binary(const struct nbt_long_array la,
 }
 
 static void dump_string_binary(const char *name, cmc_buffer *buff) {
-#define ERR_ACTION return;
   assert(name);
 
   size_t len = strlen(name);
 
-  ERR_IF(len > INT16_MAX, ERR_STRING_LENGHT);
+  ERR_IF(len > INT16_MAX, ERR_STRING_LENGHT, return;);
 
   /* dump the length */
   int16_t dumped_len = (int16_t)len;
@@ -642,7 +631,7 @@ static void dump_list_binary(const struct nbt_list *list, cmc_buffer *buff) {
 
   size_t len = list_length(&list->entry);
 
-  ERR_IF(len > INT32_MAX, ERR_INVALID_LENGHT);
+  ERR_IF(len > INT32_MAX, ERR_INVALID_LENGHT, return;);
 
   assert(type != TAG_END);
 
@@ -660,7 +649,7 @@ static void dump_list_binary(const struct nbt_list *list, cmc_buffer *buff) {
     const struct nbt_list *entry =
         list_entry(pos, const struct nbt_list, entry);
 
-    ERR_ABLE(__dump_binary(entry->data, false, buff));
+    ERR_ABLE(__dump_binary(entry->data, false, buff), return;);
   }
 
   return;
@@ -672,7 +661,7 @@ static void dump_compound_binary(const struct nbt_list *list,
   list_for_each(pos, &list->entry) {
     const struct nbt_list *entry =
         list_entry(pos, const struct nbt_list, entry);
-    ERR_ABLE(__dump_binary(entry->data, false, buff));
+    ERR_ABLE(__dump_binary(entry->data, false, buff), return;);
   }
 
   cmc_buffer_pack_byte(buff, 0x00);
@@ -689,7 +678,7 @@ static void __dump_binary(const nbt_node *tree, bool dump_type,
     cmc_buffer_pack_char(buff, (int8_t)tree->type);
 
   if (tree->name) {
-    ERR_ABLE(dump_string_binary(tree->name, buff));
+    ERR_ABLE(dump_string_binary(tree->name, buff), return;);
   }
 
 #define DUMP_NUM(type, x)                                                      \
@@ -724,7 +713,7 @@ static void __dump_binary(const nbt_node *tree, bool dump_type,
   else if (tree->type == TAG_COMPOUND)
     return dump_compound_binary(tree->payload.tag_compound, buff);
   else
-    ERR(ERR_INVALID_NBT_TAG_TYPE);
+    ERR(ERR_INVALID_NBT_TAG_TYPE, return;);
 
   return;
 

@@ -7,26 +7,37 @@
 #include <stdint.h>
 
 typedef enum {
-  CONN_STATE_OFFLINE,
-  CONN_STATE_STATUS,
-  CONN_STATE_LOGIN,
-  CONN_STATE_PLAY,
-  CONN_STATE_HANDSHAKE
+  CMC_CONN_STATE_OFFLINE,
+  CMC_CONN_STATE_STATUS,
+  CMC_CONN_STATE_LOGIN,
+  CMC_CONN_STATE_PLAY,
+  CMC_CONN_STATE_HANDSHAKE
 } cmc_conn_state;
 
-typedef enum { DIRECTION_S2C, DIRECTION_C2S } packet_direction;
+typedef enum { CMC_DIRECTION_S2C, CMC_DIRECTION_C2S } packet_direction;
 
 struct cmc_conn;
+
+struct cmc_custom_heap_functions {
+  void *(*malloc)(size_t n);
+  void *(*remalloc)(void *ptr, size_t n);
+  void (*free)(void *ptr);
+};
 
 struct cmc_conn {
   int sockfd;
   struct sockaddr_in addr;
   cmc_conn_state state; // SEE cmc_conn_STATE_ macros
   cmc_conn_state next_state;
-  int compression_threshold;
+  size_t compression_threshold;
   unsigned char *shared_secret;
   /* string literal not in the heap */
   char *name;
+  struct {
+    void *(*malloc)(size_t n);
+    void *(*realloc)(void *ptr, size_t n);
+    void (*free)(void *ptr);
+  } custom_heap;
   void (*on_unhandeld_packet)(cmc_buffer *buff, int packet_id,
                               struct cmc_conn *conn);
   struct {
