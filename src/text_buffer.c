@@ -20,13 +20,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef __GNUC__
-#define likely(x) __builtin_expect(!!(x), 1)
-#define unlikely(x) __builtin_expect((x), 0)
-#else
 #define likely(x) (x)
 #define unlikely(x) (x)
-#endif
 
 int text_buffer_lazy_init(text_buffer *b) {
   assert(b->data == NULL);

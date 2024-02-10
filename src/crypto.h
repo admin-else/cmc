@@ -1,6 +1,5 @@
 #pragma once
 
-#include "mctypes.h"
 #include <openssl/bio.h>
 #include <openssl/evp.h>
 #include <openssl/rsa.h>
