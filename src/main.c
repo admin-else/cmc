@@ -21,6 +21,7 @@ static void on_keep_alive(const S2C_play_keep_alive_packet_t data,
 
 static void on_chat_message(const S2C_play_chat_message_packet_t data,
                             cmc_conn *conn) {
+  (void)conn;
   printf("%s\n", data.message);
 }
 

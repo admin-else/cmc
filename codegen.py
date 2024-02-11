@@ -97,7 +97,7 @@ def unpack_method_h(input_str):
 def send_method(input_str):
     packet_name, packet_id, symbol_str = input_str.split(";", maxsplit=2)
     symbols = [sym for sym in symbol_str.split(";") if sym != ""]
-    pack_methods = f"cmc_buffer_pack_varint(buff, packetid_{packet_name});" + "".join(
+    pack_methods = f"cmc_buffer_pack_varint(buff, CMC_PACKETID_{packet_name.upper()});" + "".join(
         [
             f"cmc_buffer_pack_{type_map[symbol[0]][1]}(buff, {symbol[1:]});"
             for symbol in symbols
@@ -143,7 +143,7 @@ def packet_ids(mc_packet_exps):
         code += f"enum packetids_{state}_t {{"
         for exp in mc_packet_exps:
             if exp.startswith(state):
-                code += f"packetid_{state}_{'_'.join(exp.split('_')[2:]).split(';')[0]} = {exp.split(';')[1]},"
+                code += f"CMC_PACKETID_{state.upper()}_{'_'.join(exp.split('_')[2:]).split(';')[0].upper()} = {exp.split(';')[1]},"
         code += "};"
 
     return code

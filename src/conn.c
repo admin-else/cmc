@@ -99,7 +99,7 @@ cmc_buffer *cmc_conn_recive_packet(struct cmc_conn *conn) {
   ERR_IF(recv_all(conn->sockfd, buff->data, packet_len) == -1, ERR_RECV,
          goto on_err1;);
 
-  if (conn->compression_threshold < 0)
+  if (conn->compression_threshold == 0)
     return buff;
 
   int decompressed_length_signed = cmc_buffer_unpack_varint(buff);
@@ -161,7 +161,7 @@ inline void print_bytes_py(unsigned char *bytes, size_t len) {
 void cmc_conn_send_packet(struct cmc_conn *conn, cmc_buffer *buff) {
   cmc_buffer *compressed_buffer = cmc_buffer_init();
   if (conn->compression_threshold >= 0) {
-    if (buff->length >= conn->compression_threshold) {
+    if (buff->length >= (size_t)conn->compression_threshold) {
       cmc_buffer_pack_varint(compressed_buffer, buff->length);
       uLong compressedSize = compressBound(buff->length);
       Bytef *compressedData = (Bytef *)malloc(compressedSize);
