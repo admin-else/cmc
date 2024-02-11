@@ -145,7 +145,7 @@ void send_packet_C2S_handshake_handshake(struct cmc_conn *conn,
                                          unsigned short server_port,
                                          int next_state) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_C2S_handshake_handshake);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_C2S_HANDSHAKE_HANDSHAKE);
   cmc_buffer_pack_varint(buff, protocole_version);
   cmc_buffer_pack_string(buff, server_addr);
   cmc_buffer_pack_ushort(buff, server_port);
@@ -156,7 +156,7 @@ void send_packet_C2S_handshake_handshake(struct cmc_conn *conn,
 
 void send_packet_S2C_status_response(struct cmc_conn *conn, char *response) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_status_response);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_STATUS_RESPONSE);
   cmc_buffer_pack_string(buff, response);
   ERR_CHECK(return;);
   cmc_conn_send_packet(conn, buff);
@@ -164,7 +164,7 @@ void send_packet_S2C_status_response(struct cmc_conn *conn, char *response) {
 
 void send_packet_S2C_status_pong(struct cmc_conn *conn, long payload) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_status_pong);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_STATUS_PONG);
   cmc_buffer_pack_long(buff, payload);
   ERR_CHECK(return;);
   cmc_conn_send_packet(conn, buff);
@@ -172,14 +172,14 @@ void send_packet_S2C_status_pong(struct cmc_conn *conn, long payload) {
 
 void send_packet_C2S_status_request(struct cmc_conn *conn) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_C2S_status_request);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_C2S_STATUS_REQUEST);
   ERR_CHECK(return;);
   cmc_conn_send_packet(conn, buff);
 }
 
 void send_packet_C2S_status_ping(struct cmc_conn *conn, long payload) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_C2S_status_ping);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_C2S_STATUS_PING);
   cmc_buffer_pack_long(buff, payload);
   ERR_CHECK(return;);
   cmc_conn_send_packet(conn, buff);
@@ -187,7 +187,7 @@ void send_packet_C2S_status_ping(struct cmc_conn *conn, long payload) {
 
 void send_packet_S2C_login_disconnect(struct cmc_conn *conn, char *reason) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_login_disconnect);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_LOGIN_DISCONNECT);
   cmc_buffer_pack_string(buff, reason);
   ERR_CHECK(return;);
   cmc_conn_send_packet(conn, buff);
@@ -198,7 +198,7 @@ void send_packet_S2C_login_encryption_request(struct cmc_conn *conn,
                                               cmc_buffer *public_key,
                                               cmc_buffer *verify_token) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_login_encryption_request);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_LOGIN_ENCRYPTION_REQUEST);
   cmc_buffer_pack_string(buff, server_id);
   cmc_buffer_pack_byte_array(buff, public_key);
   cmc_buffer_pack_byte_array(buff, verify_token);
@@ -209,7 +209,7 @@ void send_packet_S2C_login_encryption_request(struct cmc_conn *conn,
 void send_packet_S2C_login_success(struct cmc_conn *conn, char *uuid,
                                    char *name) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_login_success);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_LOGIN_SUCCESS);
   cmc_buffer_pack_string(buff, uuid);
   cmc_buffer_pack_string(buff, name);
   ERR_CHECK(return;);
@@ -219,7 +219,7 @@ void send_packet_S2C_login_success(struct cmc_conn *conn, char *uuid,
 void send_packet_S2C_login_set_compression(struct cmc_conn *conn,
                                            int threshold) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_login_set_compression);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_LOGIN_SET_COMPRESSION);
   cmc_buffer_pack_varint(buff, threshold);
   ERR_CHECK(return;);
   cmc_conn_send_packet(conn, buff);
@@ -227,7 +227,7 @@ void send_packet_S2C_login_set_compression(struct cmc_conn *conn,
 
 void send_packet_C2S_login_start(struct cmc_conn *conn, char *name) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_C2S_login_start);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_C2S_LOGIN_START);
   cmc_buffer_pack_string(buff, name);
   ERR_CHECK(return;);
   cmc_conn_send_packet(conn, buff);
@@ -237,7 +237,7 @@ void send_packet_C2S_login_encryption_response(struct cmc_conn *conn,
                                                cmc_buffer *shared_secret,
                                                cmc_buffer *verify_token) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_C2S_login_encryption_response);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_C2S_LOGIN_ENCRYPTION_RESPONSE);
   cmc_buffer_pack_byte_array(buff, shared_secret);
   cmc_buffer_pack_byte_array(buff, verify_token);
   ERR_CHECK(return;);
@@ -246,7 +246,7 @@ void send_packet_C2S_login_encryption_response(struct cmc_conn *conn,
 
 void send_packet_S2C_play_keep_alive(struct cmc_conn *conn, int keep_alive_id) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_play_keep_alive);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_KEEP_ALIVE);
   cmc_buffer_pack_varint(buff, keep_alive_id);
   ERR_CHECK(return;);
   cmc_conn_send_packet(conn, buff);
@@ -258,7 +258,7 @@ void send_packet_S2C_play_join_game(struct cmc_conn *conn, int entity_id,
                                     unsigned char max_players, char *level_type,
                                     bool reduced_debug_info) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_play_join_game);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_JOIN_GAME);
   cmc_buffer_pack_int(buff, entity_id);
   cmc_buffer_pack_byte(buff, gamemode);
   cmc_buffer_pack_char(buff, dimension);
@@ -273,7 +273,7 @@ void send_packet_S2C_play_join_game(struct cmc_conn *conn, int entity_id,
 void send_packet_S2C_play_chat_message(struct cmc_conn *conn, char *message,
                                        char position) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_play_chat_message);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_CHAT_MESSAGE);
   cmc_buffer_pack_string(buff, message);
   cmc_buffer_pack_char(buff, position);
   ERR_CHECK(return;);
@@ -283,7 +283,7 @@ void send_packet_S2C_play_chat_message(struct cmc_conn *conn, char *message,
 void send_packet_S2C_play_time_update(struct cmc_conn *conn, long world_age,
                                       long time_of_day) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_play_time_update);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_TIME_UPDATE);
   cmc_buffer_pack_long(buff, world_age);
   cmc_buffer_pack_long(buff, time_of_day);
   ERR_CHECK(return;);
@@ -293,7 +293,7 @@ void send_packet_S2C_play_time_update(struct cmc_conn *conn, long world_age,
 void send_packet_S2C_play_entity_equipment(struct cmc_conn *conn, int entity_id,
                                            short slot, slot_t *item) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_play_entity_equipment);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_ENTITY_EQUIPMENT);
   cmc_buffer_pack_varint(buff, entity_id);
   cmc_buffer_pack_short(buff, slot);
   cmc_buffer_pack_slot(buff, item);
@@ -304,7 +304,7 @@ void send_packet_S2C_play_entity_equipment(struct cmc_conn *conn, int entity_id,
 void send_packet_S2C_play_spawn_position(struct cmc_conn *conn,
                                          block_pos_t location) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_play_spawn_position);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_SPAWN_POSITION);
   cmc_buffer_pack_position(buff, location);
   ERR_CHECK(return;);
   cmc_conn_send_packet(conn, buff);
@@ -313,7 +313,7 @@ void send_packet_S2C_play_spawn_position(struct cmc_conn *conn,
 void send_packet_S2C_play_update_health(struct cmc_conn *conn, float health,
                                         int food, float food_saturation) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_play_update_health);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_UPDATE_HEALTH);
   cmc_buffer_pack_float(buff, health);
   cmc_buffer_pack_varint(buff, food);
   cmc_buffer_pack_float(buff, food_saturation);
@@ -325,7 +325,7 @@ void send_packet_S2C_play_respawn(struct cmc_conn *conn, int dimesion,
                                   unsigned char difficulty,
                                   unsigned char gamemode, char *level_type) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_play_respawn);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_RESPAWN);
   cmc_buffer_pack_int(buff, dimesion);
   cmc_buffer_pack_byte(buff, difficulty);
   cmc_buffer_pack_byte(buff, gamemode);
@@ -339,7 +339,7 @@ void send_packet_S2C_play_player_look_and_position(struct cmc_conn *conn,
                                                    float yaw, float pitch,
                                                    unsigned char flags) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_play_player_look_and_position);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_PLAYER_LOOK_AND_POSITION);
   cmc_buffer_pack_double(buff, x);
   cmc_buffer_pack_double(buff, y);
   cmc_buffer_pack_double(buff, z);
@@ -352,7 +352,7 @@ void send_packet_S2C_play_player_look_and_position(struct cmc_conn *conn,
 
 void send_packet_S2C_play_held_item_change(struct cmc_conn *conn, char slot) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_play_held_item_change);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_HELD_ITEM_CHANGE);
   cmc_buffer_pack_char(buff, slot);
   ERR_CHECK(return;);
   cmc_conn_send_packet(conn, buff);
@@ -361,7 +361,7 @@ void send_packet_S2C_play_held_item_change(struct cmc_conn *conn, char slot) {
 void send_packet_S2C_play_use_bed(struct cmc_conn *conn, int entity_id,
                                   block_pos_t location) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_play_use_bed);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_USE_BED);
   cmc_buffer_pack_varint(buff, entity_id);
   cmc_buffer_pack_position(buff, location);
   ERR_CHECK(return;);
@@ -371,7 +371,7 @@ void send_packet_S2C_play_use_bed(struct cmc_conn *conn, int entity_id,
 void send_packet_S2C_play_animation(struct cmc_conn *conn, int entity_id,
                                     unsigned char animation) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_play_animation);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_ANIMATION);
   cmc_buffer_pack_varint(buff, entity_id);
   cmc_buffer_pack_byte(buff, animation);
   ERR_CHECK(return;);
@@ -384,7 +384,7 @@ void send_packet_S2C_play_spawn_player(struct cmc_conn *conn, int entity_id,
                                        unsigned char pitch, short current_item,
                                        entity_metadata_t meta_data) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_play_spawn_player);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_SPAWN_PLAYER);
   cmc_buffer_pack_varint(buff, entity_id);
   cmc_buffer_pack_ullong(buff, uuid);
   cmc_buffer_pack_int(buff, x);
@@ -402,7 +402,7 @@ void send_packet_S2C_play_collect_item(struct cmc_conn *conn,
                                        int collected_entity_id,
                                        int collector_entity_id) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_play_collect_item);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_COLLECT_ITEM);
   cmc_buffer_pack_varint(buff, collected_entity_id);
   cmc_buffer_pack_varint(buff, collector_entity_id);
   ERR_CHECK(return;);
@@ -416,7 +416,7 @@ void send_packet_S2C_play_spawn_mob(struct cmc_conn *conn, int entity_id,
                                     short y_vel, short z_vel,
                                     entity_metadata_t meta_data) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_play_spawn_mob);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_SPAWN_MOB);
   cmc_buffer_pack_varint(buff, entity_id);
   cmc_buffer_pack_byte(buff, type);
   cmc_buffer_pack_int(buff, x);
@@ -437,7 +437,7 @@ void send_packet_S2C_play_spawn_painting(struct cmc_conn *conn, int entity_id,
                                          char *title, block_pos_t location,
                                          unsigned char direction) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_play_spawn_painting);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_SPAWN_PAINTING);
   cmc_buffer_pack_varint(buff, entity_id);
   cmc_buffer_pack_string(buff, title);
   cmc_buffer_pack_position(buff, location);
@@ -450,7 +450,7 @@ void send_packet_S2C_play_spawn_experience_orb(struct cmc_conn *conn,
                                                int entity_id, int x, int y,
                                                int z, short count) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_play_spawn_experience_orb);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_SPAWN_EXPERIENCE_ORB);
   cmc_buffer_pack_varint(buff, entity_id);
   cmc_buffer_pack_int(buff, x);
   cmc_buffer_pack_int(buff, y);
@@ -464,7 +464,7 @@ void send_packet_S2C_play_entity_velocity(struct cmc_conn *conn, int entity_id,
                                           short x_vel, short y_vel,
                                           short z_vel) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_play_entity_velocity);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_ENTITY_VELOCITY);
   cmc_buffer_pack_varint(buff, entity_id);
   cmc_buffer_pack_short(buff, x_vel);
   cmc_buffer_pack_short(buff, y_vel);
@@ -475,7 +475,7 @@ void send_packet_S2C_play_entity_velocity(struct cmc_conn *conn, int entity_id,
 
 void send_packet_S2C_play_entity(struct cmc_conn *conn, int entity_id) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_play_entity);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_ENTITY);
   cmc_buffer_pack_varint(buff, entity_id);
   ERR_CHECK(return;);
   cmc_conn_send_packet(conn, buff);
@@ -486,7 +486,7 @@ void send_packet_S2C_play_entity_relative_move(struct cmc_conn *conn,
                                                char delta_y, char delta_z,
                                                bool on_ground) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_play_entity_relative_move);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_ENTITY_RELATIVE_MOVE);
   cmc_buffer_pack_varint(buff, entity_id);
   cmc_buffer_pack_char(buff, delta_x);
   cmc_buffer_pack_char(buff, delta_y);
@@ -500,7 +500,7 @@ void send_packet_S2C_play_entity_look(struct cmc_conn *conn, int entity_id,
                                       unsigned char yaw, unsigned char pitch,
                                       bool on_ground) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_play_entity_look);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_ENTITY_LOOK);
   cmc_buffer_pack_varint(buff, entity_id);
   cmc_buffer_pack_byte(buff, yaw);
   cmc_buffer_pack_byte(buff, pitch);
@@ -513,7 +513,8 @@ void send_packet_S2C_play_entity_look_and_relative_move(
     struct cmc_conn *conn, int entity_id, char delta_x, char delta_y,
     char delta_z, unsigned char yaw, unsigned char pitch, bool on_ground) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_play_entity_look_and_relative_move);
+  cmc_buffer_pack_varint(buff,
+                         CMC_PACKETID_S2C_PLAY_ENTITY_LOOK_AND_RELATIVE_MOVE);
   cmc_buffer_pack_varint(buff, entity_id);
   cmc_buffer_pack_char(buff, delta_x);
   cmc_buffer_pack_char(buff, delta_y);
@@ -530,7 +531,7 @@ void send_packet_S2C_play_entity_teleport(struct cmc_conn *conn, int entity_id,
                                           unsigned char yaw,
                                           unsigned char pitch, bool on_ground) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_play_entity_teleport);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_ENTITY_TELEPORT);
   cmc_buffer_pack_varint(buff, entity_id);
   cmc_buffer_pack_int(buff, x);
   cmc_buffer_pack_int(buff, y);
@@ -545,7 +546,7 @@ void send_packet_S2C_play_entity_teleport(struct cmc_conn *conn, int entity_id,
 void send_packet_S2C_play_entity_head_look(struct cmc_conn *conn, int entity_id,
                                            unsigned char head_yaw) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_play_entity_head_look);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_ENTITY_HEAD_LOOK);
   cmc_buffer_pack_varint(buff, entity_id);
   cmc_buffer_pack_byte(buff, head_yaw);
   ERR_CHECK(return;);
@@ -555,7 +556,7 @@ void send_packet_S2C_play_entity_head_look(struct cmc_conn *conn, int entity_id,
 void send_packet_S2C_play_entity_status(struct cmc_conn *conn, int entity_id,
                                         char entity_status) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_play_entity_status);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_ENTITY_STATUS);
   cmc_buffer_pack_int(buff, entity_id);
   cmc_buffer_pack_char(buff, entity_status);
   ERR_CHECK(return;);
@@ -565,7 +566,7 @@ void send_packet_S2C_play_entity_status(struct cmc_conn *conn, int entity_id,
 void send_packet_S2C_play_attach_entity(struct cmc_conn *conn, int entity_id,
                                         int vehicle_id, bool leash) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_play_attach_entity);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_ATTACH_ENTITY);
   cmc_buffer_pack_int(buff, entity_id);
   cmc_buffer_pack_int(buff, vehicle_id);
   cmc_buffer_pack_bool(buff, leash);
@@ -576,7 +577,7 @@ void send_packet_S2C_play_attach_entity(struct cmc_conn *conn, int entity_id,
 void send_packet_S2C_play_entity_metadata(struct cmc_conn *conn, int entity_id,
                                           entity_metadata_t meta_data) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_play_entity_metadata);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_ENTITY_METADATA);
   cmc_buffer_pack_varint(buff, entity_id);
   cmc_buffer_pack_entity_metadata(buff, meta_data);
   ERR_CHECK(return;);
@@ -587,7 +588,7 @@ void send_packet_S2C_play_entity_effect(struct cmc_conn *conn, int entity_id,
                                         char effect_id, char amplifier,
                                         int duration, bool hide_particles) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_play_entity_effect);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_ENTITY_EFFECT);
   cmc_buffer_pack_varint(buff, entity_id);
   cmc_buffer_pack_char(buff, effect_id);
   cmc_buffer_pack_char(buff, amplifier);
@@ -600,7 +601,7 @@ void send_packet_S2C_play_entity_effect(struct cmc_conn *conn, int entity_id,
 void send_packet_S2C_play_remove_entity_effect(struct cmc_conn *conn,
                                                int entity_id, char effect_id) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_play_remove_entity_effect);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_REMOVE_ENTITY_EFFECT);
   cmc_buffer_pack_varint(buff, entity_id);
   cmc_buffer_pack_char(buff, effect_id);
   ERR_CHECK(return;);
@@ -611,7 +612,7 @@ void send_packet_S2C_play_set_experience(struct cmc_conn *conn,
                                          float experience_bar, int level,
                                          int total_experience) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_play_set_experience);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_SET_EXPERIENCE);
   cmc_buffer_pack_float(buff, experience_bar);
   cmc_buffer_pack_varint(buff, level);
   cmc_buffer_pack_varint(buff, total_experience);
@@ -624,7 +625,7 @@ void send_packet_S2C_play_chunk_data(struct cmc_conn *conn, int chunk_x,
                                      unsigned short primary_bitmask,
                                      cmc_buffer *chunk) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_play_chunk_data);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_CHUNK_DATA);
   cmc_buffer_pack_int(buff, chunk_x);
   cmc_buffer_pack_int(buff, chunk_z);
   cmc_buffer_pack_bool(buff, ground_up_continuous);
@@ -637,7 +638,7 @@ void send_packet_S2C_play_chunk_data(struct cmc_conn *conn, int chunk_x,
 void send_packet_S2C_play_block_change(struct cmc_conn *conn,
                                        block_pos_t location, int block_id) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_play_block_change);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_BLOCK_CHANGE);
   cmc_buffer_pack_position(buff, location);
   cmc_buffer_pack_varint(buff, block_id);
   ERR_CHECK(return;);
@@ -650,7 +651,7 @@ void send_packet_S2C_play_block_action(struct cmc_conn *conn,
                                        unsigned char block_data_2,
                                        int block_type) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_play_block_action);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_BLOCK_ACTION);
   cmc_buffer_pack_position(buff, location);
   cmc_buffer_pack_byte(buff, block_data_1);
   cmc_buffer_pack_byte(buff, block_data_2);
@@ -664,7 +665,7 @@ void send_packet_S2C_play_block_break_animation(struct cmc_conn *conn,
                                                 block_pos_t location,
                                                 char destroy_stage) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_play_block_break_animation);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_BLOCK_BREAK_ANIMATION);
   cmc_buffer_pack_varint(buff, entity_id);
   cmc_buffer_pack_position(buff, location);
   cmc_buffer_pack_char(buff, destroy_stage);
@@ -680,7 +681,7 @@ void send_packet_S2C_play_effect(struct cmc_conn *conn, int effect_id,
                                  float particle_data, int particle_count,
                                  int sable_relative_volume) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_play_effect);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_EFFECT);
   cmc_buffer_pack_int(buff, effect_id);
   cmc_buffer_pack_position(buff, location);
   cmc_buffer_pack_int(buff, data);
@@ -704,7 +705,7 @@ void send_packet_S2C_play_sound_effect(struct cmc_conn *conn, char *sound_name,
                                        int x, int y, int z, float volume,
                                        unsigned char pitch) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_play_sound_effect);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_SOUND_EFFECT);
   cmc_buffer_pack_string(buff, sound_name);
   cmc_buffer_pack_int(buff, x);
   cmc_buffer_pack_int(buff, y);
@@ -718,7 +719,7 @@ void send_packet_S2C_play_sound_effect(struct cmc_conn *conn, char *sound_name,
 void send_packet_S2C_play_change_game_state(struct cmc_conn *conn,
                                             unsigned char reason, float value) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_play_change_game_state);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_CHANGE_GAME_STATE);
   cmc_buffer_pack_byte(buff, reason);
   cmc_buffer_pack_float(buff, value);
   ERR_CHECK(return;);
@@ -729,7 +730,7 @@ void send_packet_S2C_play_player_abilities(struct cmc_conn *conn, char flags,
                                            float flying_speed,
                                            float fov_modifier) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_play_player_abilities);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_PLAYER_ABILITIES);
   cmc_buffer_pack_char(buff, flags);
   cmc_buffer_pack_float(buff, flying_speed);
   cmc_buffer_pack_float(buff, fov_modifier);
@@ -740,7 +741,7 @@ void send_packet_S2C_play_player_abilities(struct cmc_conn *conn, char flags,
 void send_packet_S2C_play_plugin_message(struct cmc_conn *conn, char *channel,
                                          cmc_buffer *data) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_play_plugin_message);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_PLUGIN_MESSAGE);
   cmc_buffer_pack_string(buff, channel);
   cmc_buffer_pack_byte_array(buff, data);
   ERR_CHECK(return;);
@@ -749,7 +750,7 @@ void send_packet_S2C_play_plugin_message(struct cmc_conn *conn, char *channel,
 
 void send_packet_S2C_play_disconnect(struct cmc_conn *conn, char *reason) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_play_disconnect);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_DISCONNECT);
   cmc_buffer_pack_string(buff, reason);
   ERR_CHECK(return;);
   cmc_conn_send_packet(conn, buff);
@@ -758,7 +759,7 @@ void send_packet_S2C_play_disconnect(struct cmc_conn *conn, char *reason) {
 void send_packet_S2C_play_change_difficulty(struct cmc_conn *conn,
                                             unsigned char difficulty) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_S2C_play_change_difficulty);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_CHANGE_DIFFICULTY);
   cmc_buffer_pack_byte(buff, difficulty);
   ERR_CHECK(return;);
   cmc_conn_send_packet(conn, buff);
@@ -766,7 +767,7 @@ void send_packet_S2C_play_change_difficulty(struct cmc_conn *conn,
 
 void send_packet_C2S_play_keep_alive(struct cmc_conn *conn, int keep_alive_id) {
   cmc_buffer *buff = cmc_buffer_init();
-  cmc_buffer_pack_varint(buff, packetid_C2S_play_keep_alive);
+  cmc_buffer_pack_varint(buff, CMC_PACKETID_C2S_PLAY_KEEP_ALIVE);
   cmc_buffer_pack_varint(buff, keep_alive_id);
   ERR_CHECK(return;);
   cmc_conn_send_packet(conn, buff);

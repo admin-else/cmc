@@ -29,7 +29,7 @@ struct cmc_conn {
   struct sockaddr_in addr;
   cmc_conn_state state; // SEE cmc_conn_STATE_ macros
   cmc_conn_state next_state;
-  size_t compression_threshold;
+  ssize_t compression_threshold;
   unsigned char *shared_secret;
   /* string literal not in the heap */
   char *name;

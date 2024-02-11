@@ -48,9 +48,9 @@ unsigned char *generate_random_bytes(int len) {
   return generated_bytes;
 }
 
-char *mc_sha_final(SHA_CTX *sha1) {
+char *mc_sha_final(EVP_MD_CTX *mdctx) {
   unsigned char hash[SHA_DIGEST_LENGTH];
-  SHA1_Final(hash, sha1);
+  EVP_DigestFinal(mdctx, hash, NULL); // Finalize the context and get the hash
 
   bool negativ = false;
   if (hash[0] & 0x80) {
