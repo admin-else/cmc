@@ -214,19 +214,19 @@ void cmc_conn_loop(struct cmc_conn *conn) {
     switch (conn->state) {
     case CMC_CONN_STATE_LOGIN: {
       switch (packet_id) {
-      case packetid_S2C_login_disconnect:
+      case CMC_PACKETID_S2C_LOGIN_DISCONNECT:
         ERR(ERR_KICKED_WHILE_LOGIN, goto err_free_packet;);
         break;
-      case packetid_S2C_login_encryption_request:
+      case CMC_PACKETID_S2C_LOGIN_ENCRYPTION_REQUEST:
         ERR(ERR_SERVER_ONLINE_MODE, goto err_free_packet;);
         break;
-      case packetid_S2C_login_set_compression: {
+      case CMC_PACKETID_S2C_LOGIN_SET_COMPRESSION: {
         S2C_login_set_compression_packet_t compression_packet =
             unpack_S2C_login_set_compression_packet(packet);
         conn->compression_threshold = compression_packet.threshold;
         break;
       }
-      case packetid_S2C_login_success:
+      case CMC_PACKETID_S2C_LOGIN_SUCCESS:
         conn->state = CMC_CONN_STATE_PLAY;
         break;
       default:
@@ -238,7 +238,7 @@ void cmc_conn_loop(struct cmc_conn *conn) {
     case CMC_CONN_STATE_PLAY:
       switch (packet_id) {
         // CGSS: loop_handler
-      case packetid_S2C_play_keep_alive: {
+      case CMC_PACKETID_S2C_PLAY_KEEP_ALIVE: {
         if (!conn->on_packet.keep_alive)
           goto unhandeled_packet;
         S2C_play_keep_alive_packet_t data = ERR_ABLE(
@@ -247,7 +247,7 @@ void cmc_conn_loop(struct cmc_conn *conn) {
 
         break;
       }
-      case packetid_S2C_play_join_game: {
+      case CMC_PACKETID_S2C_PLAY_JOIN_GAME: {
         if (!conn->on_packet.join_game)
           goto unhandeled_packet;
         S2C_play_join_game_packet_t data = ERR_ABLE(
@@ -256,7 +256,7 @@ void cmc_conn_loop(struct cmc_conn *conn) {
         cmc_free_S2C_play_join_game_packet(data);
         break;
       }
-      case packetid_S2C_play_chat_message: {
+      case CMC_PACKETID_S2C_PLAY_CHAT_MESSAGE: {
         if (!conn->on_packet.chat_message)
           goto unhandeled_packet;
         S2C_play_chat_message_packet_t data = ERR_ABLE(
@@ -265,7 +265,7 @@ void cmc_conn_loop(struct cmc_conn *conn) {
         cmc_free_S2C_play_chat_message_packet(data);
         break;
       }
-      case packetid_S2C_play_time_update: {
+      case CMC_PACKETID_S2C_PLAY_TIME_UPDATE: {
         if (!conn->on_packet.time_update)
           goto unhandeled_packet;
         S2C_play_time_update_packet_t data = ERR_ABLE(
@@ -274,7 +274,7 @@ void cmc_conn_loop(struct cmc_conn *conn) {
 
         break;
       }
-      case packetid_S2C_play_entity_equipment: {
+      case CMC_PACKETID_S2C_PLAY_ENTITY_EQUIPMENT: {
         if (!conn->on_packet.entity_equipment)
           goto unhandeled_packet;
         S2C_play_entity_equipment_packet_t data =
@@ -284,7 +284,7 @@ void cmc_conn_loop(struct cmc_conn *conn) {
         cmc_free_S2C_play_entity_equipment_packet(data);
         break;
       }
-      case packetid_S2C_play_spawn_position: {
+      case CMC_PACKETID_S2C_PLAY_SPAWN_POSITION: {
         if (!conn->on_packet.spawn_position)
           goto unhandeled_packet;
         S2C_play_spawn_position_packet_t data =
@@ -294,7 +294,7 @@ void cmc_conn_loop(struct cmc_conn *conn) {
 
         break;
       }
-      case packetid_S2C_play_update_health: {
+      case CMC_PACKETID_S2C_PLAY_UPDATE_HEALTH: {
         if (!conn->on_packet.update_health)
           goto unhandeled_packet;
         S2C_play_update_health_packet_t data =
@@ -304,7 +304,7 @@ void cmc_conn_loop(struct cmc_conn *conn) {
 
         break;
       }
-      case packetid_S2C_play_respawn: {
+      case CMC_PACKETID_S2C_PLAY_RESPAWN: {
         if (!conn->on_packet.respawn)
           goto unhandeled_packet;
         S2C_play_respawn_packet_t data = ERR_ABLE(
@@ -313,7 +313,7 @@ void cmc_conn_loop(struct cmc_conn *conn) {
         cmc_free_S2C_play_respawn_packet(data);
         break;
       }
-      case packetid_S2C_play_player_look_and_position: {
+      case CMC_PACKETID_S2C_PLAY_PLAYER_LOOK_AND_POSITION: {
         if (!conn->on_packet.player_look_and_position)
           goto unhandeled_packet;
         S2C_play_player_look_and_position_packet_t data =
@@ -323,7 +323,7 @@ void cmc_conn_loop(struct cmc_conn *conn) {
 
         break;
       }
-      case packetid_S2C_play_held_item_change: {
+      case CMC_PACKETID_S2C_PLAY_HELD_ITEM_CHANGE: {
         if (!conn->on_packet.held_item_change)
           goto unhandeled_packet;
         S2C_play_held_item_change_packet_t data =
@@ -333,7 +333,7 @@ void cmc_conn_loop(struct cmc_conn *conn) {
 
         break;
       }
-      case packetid_S2C_play_use_bed: {
+      case CMC_PACKETID_S2C_PLAY_USE_BED: {
         if (!conn->on_packet.use_bed)
           goto unhandeled_packet;
         S2C_play_use_bed_packet_t data = ERR_ABLE(
@@ -342,7 +342,7 @@ void cmc_conn_loop(struct cmc_conn *conn) {
 
         break;
       }
-      case packetid_S2C_play_animation: {
+      case CMC_PACKETID_S2C_PLAY_ANIMATION: {
         if (!conn->on_packet.animation)
           goto unhandeled_packet;
         S2C_play_animation_packet_t data = ERR_ABLE(
@@ -351,7 +351,7 @@ void cmc_conn_loop(struct cmc_conn *conn) {
 
         break;
       }
-      case packetid_S2C_play_spawn_player: {
+      case CMC_PACKETID_S2C_PLAY_SPAWN_PLAYER: {
         if (!conn->on_packet.spawn_player)
           goto unhandeled_packet;
         S2C_play_spawn_player_packet_t data = ERR_ABLE(
@@ -360,7 +360,7 @@ void cmc_conn_loop(struct cmc_conn *conn) {
         cmc_free_S2C_play_spawn_player_packet(data);
         break;
       }
-      case packetid_S2C_play_collect_item: {
+      case CMC_PACKETID_S2C_PLAY_COLLECT_ITEM: {
         if (!conn->on_packet.collect_item)
           goto unhandeled_packet;
         S2C_play_collect_item_packet_t data = ERR_ABLE(
@@ -369,7 +369,7 @@ void cmc_conn_loop(struct cmc_conn *conn) {
 
         break;
       }
-      case packetid_S2C_play_spawn_mob: {
+      case CMC_PACKETID_S2C_PLAY_SPAWN_MOB: {
         if (!conn->on_packet.spawn_mob)
           goto unhandeled_packet;
         S2C_play_spawn_mob_packet_t data = ERR_ABLE(
@@ -378,7 +378,7 @@ void cmc_conn_loop(struct cmc_conn *conn) {
         cmc_free_S2C_play_spawn_mob_packet(data);
         break;
       }
-      case packetid_S2C_play_spawn_painting: {
+      case CMC_PACKETID_S2C_PLAY_SPAWN_PAINTING: {
         if (!conn->on_packet.spawn_painting)
           goto unhandeled_packet;
         S2C_play_spawn_painting_packet_t data =
@@ -388,7 +388,7 @@ void cmc_conn_loop(struct cmc_conn *conn) {
         cmc_free_S2C_play_spawn_painting_packet(data);
         break;
       }
-      case packetid_S2C_play_spawn_experience_orb: {
+      case CMC_PACKETID_S2C_PLAY_SPAWN_EXPERIENCE_ORB: {
         if (!conn->on_packet.spawn_experience_orb)
           goto unhandeled_packet;
         S2C_play_spawn_experience_orb_packet_t data =
@@ -398,7 +398,7 @@ void cmc_conn_loop(struct cmc_conn *conn) {
 
         break;
       }
-      case packetid_S2C_play_entity_velocity: {
+      case CMC_PACKETID_S2C_PLAY_ENTITY_VELOCITY: {
         if (!conn->on_packet.entity_velocity)
           goto unhandeled_packet;
         S2C_play_entity_velocity_packet_t data =
@@ -408,7 +408,7 @@ void cmc_conn_loop(struct cmc_conn *conn) {
 
         break;
       }
-      case packetid_S2C_play_entity: {
+      case CMC_PACKETID_S2C_PLAY_ENTITY: {
         if (!conn->on_packet.entity)
           goto unhandeled_packet;
         S2C_play_entity_packet_t data = ERR_ABLE(
@@ -417,7 +417,7 @@ void cmc_conn_loop(struct cmc_conn *conn) {
 
         break;
       }
-      case packetid_S2C_play_entity_relative_move: {
+      case CMC_PACKETID_S2C_PLAY_ENTITY_RELATIVE_MOVE: {
         if (!conn->on_packet.entity_relative_move)
           goto unhandeled_packet;
         S2C_play_entity_relative_move_packet_t data =
@@ -427,7 +427,7 @@ void cmc_conn_loop(struct cmc_conn *conn) {
 
         break;
       }
-      case packetid_S2C_play_entity_look: {
+      case CMC_PACKETID_S2C_PLAY_ENTITY_LOOK: {
         if (!conn->on_packet.entity_look)
           goto unhandeled_packet;
         S2C_play_entity_look_packet_t data = ERR_ABLE(
@@ -436,7 +436,7 @@ void cmc_conn_loop(struct cmc_conn *conn) {
 
         break;
       }
-      case packetid_S2C_play_entity_look_and_relative_move: {
+      case CMC_PACKETID_S2C_PLAY_ENTITY_LOOK_AND_RELATIVE_MOVE: {
         if (!conn->on_packet.entity_look_and_relative_move)
           goto unhandeled_packet;
         S2C_play_entity_look_and_relative_move_packet_t data = ERR_ABLE(
@@ -446,7 +446,7 @@ void cmc_conn_loop(struct cmc_conn *conn) {
 
         break;
       }
-      case packetid_S2C_play_entity_teleport: {
+      case CMC_PACKETID_S2C_PLAY_ENTITY_TELEPORT: {
         if (!conn->on_packet.entity_teleport)
           goto unhandeled_packet;
         S2C_play_entity_teleport_packet_t data =
@@ -456,7 +456,7 @@ void cmc_conn_loop(struct cmc_conn *conn) {
 
         break;
       }
-      case packetid_S2C_play_entity_head_look: {
+      case CMC_PACKETID_S2C_PLAY_ENTITY_HEAD_LOOK: {
         if (!conn->on_packet.entity_head_look)
           goto unhandeled_packet;
         S2C_play_entity_head_look_packet_t data =
@@ -466,7 +466,7 @@ void cmc_conn_loop(struct cmc_conn *conn) {
 
         break;
       }
-      case packetid_S2C_play_entity_status: {
+      case CMC_PACKETID_S2C_PLAY_ENTITY_STATUS: {
         if (!conn->on_packet.entity_status)
           goto unhandeled_packet;
         S2C_play_entity_status_packet_t data =
@@ -476,7 +476,7 @@ void cmc_conn_loop(struct cmc_conn *conn) {
 
         break;
       }
-      case packetid_S2C_play_attach_entity: {
+      case CMC_PACKETID_S2C_PLAY_ATTACH_ENTITY: {
         if (!conn->on_packet.attach_entity)
           goto unhandeled_packet;
         S2C_play_attach_entity_packet_t data =
@@ -486,7 +486,7 @@ void cmc_conn_loop(struct cmc_conn *conn) {
 
         break;
       }
-      case packetid_S2C_play_entity_metadata: {
+      case CMC_PACKETID_S2C_PLAY_ENTITY_METADATA: {
         if (!conn->on_packet.entity_metadata)
           goto unhandeled_packet;
         S2C_play_entity_metadata_packet_t data =
@@ -496,7 +496,7 @@ void cmc_conn_loop(struct cmc_conn *conn) {
         cmc_free_S2C_play_entity_metadata_packet(data);
         break;
       }
-      case packetid_S2C_play_entity_effect: {
+      case CMC_PACKETID_S2C_PLAY_ENTITY_EFFECT: {
         if (!conn->on_packet.entity_effect)
           goto unhandeled_packet;
         S2C_play_entity_effect_packet_t data =
@@ -506,7 +506,7 @@ void cmc_conn_loop(struct cmc_conn *conn) {
 
         break;
       }
-      case packetid_S2C_play_remove_entity_effect: {
+      case CMC_PACKETID_S2C_PLAY_REMOVE_ENTITY_EFFECT: {
         if (!conn->on_packet.remove_entity_effect)
           goto unhandeled_packet;
         S2C_play_remove_entity_effect_packet_t data =
@@ -516,7 +516,7 @@ void cmc_conn_loop(struct cmc_conn *conn) {
 
         break;
       }
-      case packetid_S2C_play_set_experience: {
+      case CMC_PACKETID_S2C_PLAY_SET_EXPERIENCE: {
         if (!conn->on_packet.set_experience)
           goto unhandeled_packet;
         S2C_play_set_experience_packet_t data =
@@ -526,7 +526,7 @@ void cmc_conn_loop(struct cmc_conn *conn) {
 
         break;
       }
-      case packetid_S2C_play_chunk_data: {
+      case CMC_PACKETID_S2C_PLAY_CHUNK_DATA: {
         if (!conn->on_packet.chunk_data)
           goto unhandeled_packet;
         S2C_play_chunk_data_packet_t data = ERR_ABLE(
@@ -535,7 +535,7 @@ void cmc_conn_loop(struct cmc_conn *conn) {
         cmc_free_S2C_play_chunk_data_packet(data);
         break;
       }
-      case packetid_S2C_play_block_change: {
+      case CMC_PACKETID_S2C_PLAY_BLOCK_CHANGE: {
         if (!conn->on_packet.block_change)
           goto unhandeled_packet;
         S2C_play_block_change_packet_t data = ERR_ABLE(
@@ -544,7 +544,7 @@ void cmc_conn_loop(struct cmc_conn *conn) {
 
         break;
       }
-      case packetid_S2C_play_block_action: {
+      case CMC_PACKETID_S2C_PLAY_BLOCK_ACTION: {
         if (!conn->on_packet.block_action)
           goto unhandeled_packet;
         S2C_play_block_action_packet_t data = ERR_ABLE(
@@ -553,7 +553,7 @@ void cmc_conn_loop(struct cmc_conn *conn) {
 
         break;
       }
-      case packetid_S2C_play_block_break_animation: {
+      case CMC_PACKETID_S2C_PLAY_BLOCK_BREAK_ANIMATION: {
         if (!conn->on_packet.block_break_animation)
           goto unhandeled_packet;
         S2C_play_block_break_animation_packet_t data =
@@ -563,7 +563,7 @@ void cmc_conn_loop(struct cmc_conn *conn) {
 
         break;
       }
-      case packetid_S2C_play_effect: {
+      case CMC_PACKETID_S2C_PLAY_EFFECT: {
         if (!conn->on_packet.effect)
           goto unhandeled_packet;
         S2C_play_effect_packet_t data = ERR_ABLE(
@@ -572,7 +572,7 @@ void cmc_conn_loop(struct cmc_conn *conn) {
 
         break;
       }
-      case packetid_S2C_play_sound_effect: {
+      case CMC_PACKETID_S2C_PLAY_SOUND_EFFECT: {
         if (!conn->on_packet.sound_effect)
           goto unhandeled_packet;
         S2C_play_sound_effect_packet_t data = ERR_ABLE(
@@ -581,7 +581,7 @@ void cmc_conn_loop(struct cmc_conn *conn) {
         cmc_free_S2C_play_sound_effect_packet(data);
         break;
       }
-      case packetid_S2C_play_change_game_state: {
+      case CMC_PACKETID_S2C_PLAY_CHANGE_GAME_STATE: {
         if (!conn->on_packet.change_game_state)
           goto unhandeled_packet;
         S2C_play_change_game_state_packet_t data =
@@ -591,7 +591,7 @@ void cmc_conn_loop(struct cmc_conn *conn) {
 
         break;
       }
-      case packetid_S2C_play_player_abilities: {
+      case CMC_PACKETID_S2C_PLAY_PLAYER_ABILITIES: {
         if (!conn->on_packet.player_abilities)
           goto unhandeled_packet;
         S2C_play_player_abilities_packet_t data =
@@ -601,7 +601,7 @@ void cmc_conn_loop(struct cmc_conn *conn) {
 
         break;
       }
-      case packetid_S2C_play_plugin_message: {
+      case CMC_PACKETID_S2C_PLAY_PLUGIN_MESSAGE: {
         if (!conn->on_packet.plugin_message)
           goto unhandeled_packet;
         S2C_play_plugin_message_packet_t data =
@@ -611,7 +611,7 @@ void cmc_conn_loop(struct cmc_conn *conn) {
         cmc_free_S2C_play_plugin_message_packet(data);
         break;
       }
-      case packetid_S2C_play_disconnect: {
+      case CMC_PACKETID_S2C_PLAY_DISCONNECT: {
         if (!conn->on_packet.disconnect)
           goto unhandeled_packet;
         S2C_play_disconnect_packet_t data = ERR_ABLE(
@@ -620,7 +620,7 @@ void cmc_conn_loop(struct cmc_conn *conn) {
         cmc_free_S2C_play_disconnect_packet(data);
         break;
       }
-      case packetid_S2C_play_change_difficulty: {
+      case CMC_PACKETID_S2C_PLAY_CHANGE_DIFFICULTY: {
         if (!conn->on_packet.change_difficulty)
           goto unhandeled_packet;
         S2C_play_change_difficulty_packet_t data =

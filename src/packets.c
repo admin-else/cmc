@@ -3,7 +3,6 @@
 #include "conn.h"
 #include "err.h"
 #include "packet_types.h"
-#include <jansson.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
