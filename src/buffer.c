@@ -4,7 +4,6 @@
 #include "nbt.h"
 #include <ctype.h>
 #include <endian.h>
-#include <jansson.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>

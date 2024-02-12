@@ -171,7 +171,7 @@ def free_method(exp):
 def loop_handler(exp):
     packet_name, packet_id, symbol_str = exp.split(";", maxsplit=2)
     short_packet_name = "_".join(packet_name.split("_")[2:])
-    return f"""case packetid_S2C_play_{short_packet_name}: {{
+    return f"""case CMC_PACKETID_S2C_PLAY_{short_packet_name.upper()}: {{
         if (!conn->on_packet.{short_packet_name})
           goto unhandeled_packet;
         S2C_play_{short_packet_name}_packet_t data =
