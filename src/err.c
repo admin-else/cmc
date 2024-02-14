@@ -29,6 +29,7 @@ const char *err_id2str(enum cmc_err_type err) {
     ERRID2STR_HELPER(ERR_INVALID_LENGHT);
     ERRID2STR_HELPER(ERR_INVALID_NBT_TAG_TYPE);
     ERRID2STR_HELPER(ERR_NOT_IMPLEMENTED_YET);
+    ERRID2STR_HELPER(ERR_ASSERT);
 #undef ERRID2STR_HELPER
   default:
     return "invalid error id";

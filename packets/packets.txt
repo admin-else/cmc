@@ -71,7 +71,7 @@ S2C_     play_         remove_entity_effect;0x1E;ventity_id;beffect_id
 S2C_     play_               set_experience;0x1F;fexperience_bar;vlevel;vtotal_experience
 #S2C_    play_            entity_properties;0x20;ventity_id;iproperties_count;Aproperties_count[skey;dvalue;vnum_of_modifiers;Anum_of_modifiers[damount;boperation]modifiers]properties
 S2C_     play_                   chunk_data;0x21;ichunk_x;ichunk_z;?ground_up_continuous;Hprimary_bitmask;achunk
-#S2C_    play_           multi_block_change;0x22;ichunk_x;ichunk_z;vrecord_count;Arecord_count[Bhorizontal_position;Bvertical_position;vblock_id]records
+#S2C_    play_           multi_block_change;0x22;ichunk_x;ichunk_z;vrecord_count;Arecords[Bhorizontal_position;Bvertical_position;vblock_id]record_count
 S2C_     play_                 block_change;0x23;plocation;vblock_id
 S2C_     play_                 block_action;0x24;plocation;Bblock_data_1;Bblock_data_2;vblock_type
 S2C_     play_        block_break_animation;0x25;ventity_id;plocation;bdestroy_stage

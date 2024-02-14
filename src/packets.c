@@ -290,7 +290,7 @@ void send_packet_S2C_play_time_update(struct cmc_conn *conn, long world_age,
 }
 
 void send_packet_S2C_play_entity_equipment(struct cmc_conn *conn, int entity_id,
-                                           short slot, slot_t *item) {
+                                           short slot, cmc_slot *item) {
   cmc_buffer *buff = cmc_buffer_init();
   cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_ENTITY_EQUIPMENT);
   cmc_buffer_pack_varint(buff, entity_id);
@@ -301,7 +301,7 @@ void send_packet_S2C_play_entity_equipment(struct cmc_conn *conn, int entity_id,
 }
 
 void send_packet_S2C_play_spawn_position(struct cmc_conn *conn,
-                                         block_pos_t location) {
+                                         cmc_block_pos location) {
   cmc_buffer *buff = cmc_buffer_init();
   cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_SPAWN_POSITION);
   cmc_buffer_pack_position(buff, location);
@@ -358,7 +358,7 @@ void send_packet_S2C_play_held_item_change(struct cmc_conn *conn, char slot) {
 }
 
 void send_packet_S2C_play_use_bed(struct cmc_conn *conn, int entity_id,
-                                  block_pos_t location) {
+                                  cmc_block_pos location) {
   cmc_buffer *buff = cmc_buffer_init();
   cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_USE_BED);
   cmc_buffer_pack_varint(buff, entity_id);
@@ -381,7 +381,7 @@ void send_packet_S2C_play_spawn_player(struct cmc_conn *conn, int entity_id,
                                        unsigned long long uuid, int x, int y,
                                        int z, unsigned char yaw,
                                        unsigned char pitch, short current_item,
-                                       entity_metadata_t meta_data) {
+                                       cmc_entity_metadata meta_data) {
   cmc_buffer *buff = cmc_buffer_init();
   cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_SPAWN_PLAYER);
   cmc_buffer_pack_varint(buff, entity_id);
@@ -413,7 +413,7 @@ void send_packet_S2C_play_spawn_mob(struct cmc_conn *conn, int entity_id,
                                     unsigned char yaw, unsigned char pitch,
                                     unsigned char head_pitch, short x_vel,
                                     short y_vel, short z_vel,
-                                    entity_metadata_t meta_data) {
+                                    cmc_entity_metadata meta_data) {
   cmc_buffer *buff = cmc_buffer_init();
   cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_SPAWN_MOB);
   cmc_buffer_pack_varint(buff, entity_id);
@@ -433,7 +433,7 @@ void send_packet_S2C_play_spawn_mob(struct cmc_conn *conn, int entity_id,
 }
 
 void send_packet_S2C_play_spawn_painting(struct cmc_conn *conn, int entity_id,
-                                         char *title, block_pos_t location,
+                                         char *title, cmc_block_pos location,
                                          unsigned char direction) {
   cmc_buffer *buff = cmc_buffer_init();
   cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_SPAWN_PAINTING);
@@ -574,7 +574,7 @@ void send_packet_S2C_play_attach_entity(struct cmc_conn *conn, int entity_id,
 }
 
 void send_packet_S2C_play_entity_metadata(struct cmc_conn *conn, int entity_id,
-                                          entity_metadata_t meta_data) {
+                                          cmc_entity_metadata meta_data) {
   cmc_buffer *buff = cmc_buffer_init();
   cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_ENTITY_METADATA);
   cmc_buffer_pack_varint(buff, entity_id);
@@ -635,7 +635,7 @@ void send_packet_S2C_play_chunk_data(struct cmc_conn *conn, int chunk_x,
 }
 
 void send_packet_S2C_play_block_change(struct cmc_conn *conn,
-                                       block_pos_t location, int block_id) {
+                                       cmc_block_pos location, int block_id) {
   cmc_buffer *buff = cmc_buffer_init();
   cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_BLOCK_CHANGE);
   cmc_buffer_pack_position(buff, location);
@@ -645,7 +645,7 @@ void send_packet_S2C_play_block_change(struct cmc_conn *conn,
 }
 
 void send_packet_S2C_play_block_action(struct cmc_conn *conn,
-                                       block_pos_t location,
+                                       cmc_block_pos location,
                                        unsigned char block_data_1,
                                        unsigned char block_data_2,
                                        int block_type) {
@@ -661,7 +661,7 @@ void send_packet_S2C_play_block_action(struct cmc_conn *conn,
 
 void send_packet_S2C_play_block_break_animation(struct cmc_conn *conn,
                                                 int entity_id,
-                                                block_pos_t location,
+                                                cmc_block_pos location,
                                                 char destroy_stage) {
   cmc_buffer *buff = cmc_buffer_init();
   cmc_buffer_pack_varint(buff, CMC_PACKETID_S2C_PLAY_BLOCK_BREAK_ANIMATION);
@@ -673,7 +673,7 @@ void send_packet_S2C_play_block_break_animation(struct cmc_conn *conn,
 }
 
 void send_packet_S2C_play_effect(struct cmc_conn *conn, int effect_id,
-                                 block_pos_t location, int data, bool d,
+                                 cmc_block_pos location, int data, bool d,
                                  int particle_id, bool long_distances, float x,
                                  float y, float z, float x_offset,
                                  float y_offset, float z_offset,
@@ -775,9 +775,9 @@ void send_packet_C2S_play_keep_alive(struct cmc_conn *conn, int keep_alive_id) {
 // CGSE: send_methods_c
 
 // CGSS: unpack_methods_c
-C2S_handshake_handshake_packet_t
+C2S_handshake_handshake_packet
 unpack_C2S_handshake_handshake_packet(cmc_buffer *buff) {
-  C2S_handshake_handshake_packet_t packet;
+  C2S_handshake_handshake_packet packet;
   packet.protocole_version = cmc_buffer_unpack_varint(buff);
   packet.server_addr = cmc_buffer_unpack_string(buff);
   packet.server_port = cmc_buffer_unpack_ushort(buff);
@@ -786,39 +786,38 @@ unpack_C2S_handshake_handshake_packet(cmc_buffer *buff) {
   return packet;
 }
 
-S2C_status_response_packet_t
-unpack_S2C_status_response_packet(cmc_buffer *buff) {
-  S2C_status_response_packet_t packet;
+S2C_status_response_packet unpack_S2C_status_response_packet(cmc_buffer *buff) {
+  S2C_status_response_packet packet;
   packet.response = cmc_buffer_unpack_string(buff);
   UNPACK_ERR_HANDELER;
   return packet;
 }
 
-S2C_status_pong_packet_t unpack_S2C_status_pong_packet(cmc_buffer *buff) {
-  S2C_status_pong_packet_t packet;
+S2C_status_pong_packet unpack_S2C_status_pong_packet(cmc_buffer *buff) {
+  S2C_status_pong_packet packet;
   packet.payload = cmc_buffer_unpack_long(buff);
   UNPACK_ERR_HANDELER;
   return packet;
 }
 
-C2S_status_ping_packet_t unpack_C2S_status_ping_packet(cmc_buffer *buff) {
-  C2S_status_ping_packet_t packet;
+C2S_status_ping_packet unpack_C2S_status_ping_packet(cmc_buffer *buff) {
+  C2S_status_ping_packet packet;
   packet.payload = cmc_buffer_unpack_long(buff);
   UNPACK_ERR_HANDELER;
   return packet;
 }
 
-S2C_login_disconnect_packet_t
+S2C_login_disconnect_packet
 unpack_S2C_login_disconnect_packet(cmc_buffer *buff) {
-  S2C_login_disconnect_packet_t packet;
+  S2C_login_disconnect_packet packet;
   packet.reason = cmc_buffer_unpack_string(buff);
   UNPACK_ERR_HANDELER;
   return packet;
 }
 
-S2C_login_encryption_request_packet_t
+S2C_login_encryption_request_packet
 unpack_S2C_login_encryption_request_packet(cmc_buffer *buff) {
-  S2C_login_encryption_request_packet_t packet;
+  S2C_login_encryption_request_packet packet;
   packet.server_id = cmc_buffer_unpack_string(buff);
   packet.public_key = cmc_buffer_unpack_byte_array(buff);
   packet.verify_token = cmc_buffer_unpack_byte_array(buff);
@@ -826,48 +825,47 @@ unpack_S2C_login_encryption_request_packet(cmc_buffer *buff) {
   return packet;
 }
 
-S2C_login_success_packet_t unpack_S2C_login_success_packet(cmc_buffer *buff) {
-  S2C_login_success_packet_t packet;
+S2C_login_success_packet unpack_S2C_login_success_packet(cmc_buffer *buff) {
+  S2C_login_success_packet packet;
   packet.uuid = cmc_buffer_unpack_string(buff);
   packet.name = cmc_buffer_unpack_string(buff);
   UNPACK_ERR_HANDELER;
   return packet;
 }
 
-S2C_login_set_compression_packet_t
+S2C_login_set_compression_packet
 unpack_S2C_login_set_compression_packet(cmc_buffer *buff) {
-  S2C_login_set_compression_packet_t packet;
+  S2C_login_set_compression_packet packet;
   packet.threshold = cmc_buffer_unpack_varint(buff);
   UNPACK_ERR_HANDELER;
   return packet;
 }
 
-C2S_login_start_packet_t unpack_C2S_login_start_packet(cmc_buffer *buff) {
-  C2S_login_start_packet_t packet;
+C2S_login_start_packet unpack_C2S_login_start_packet(cmc_buffer *buff) {
+  C2S_login_start_packet packet;
   packet.name = cmc_buffer_unpack_string(buff);
   UNPACK_ERR_HANDELER;
   return packet;
 }
 
-C2S_login_encryption_response_packet_t
+C2S_login_encryption_response_packet
 unpack_C2S_login_encryption_response_packet(cmc_buffer *buff) {
-  C2S_login_encryption_response_packet_t packet;
+  C2S_login_encryption_response_packet packet;
   packet.shared_secret = cmc_buffer_unpack_byte_array(buff);
   packet.verify_token = cmc_buffer_unpack_byte_array(buff);
   UNPACK_ERR_HANDELER;
   return packet;
 }
 
-S2C_play_keep_alive_packet_t
-unpack_S2C_play_keep_alive_packet(cmc_buffer *buff) {
-  S2C_play_keep_alive_packet_t packet;
+S2C_play_keep_alive_packet unpack_S2C_play_keep_alive_packet(cmc_buffer *buff) {
+  S2C_play_keep_alive_packet packet;
   packet.keep_alive_id = cmc_buffer_unpack_varint(buff);
   UNPACK_ERR_HANDELER;
   return packet;
 }
 
-S2C_play_join_game_packet_t unpack_S2C_play_join_game_packet(cmc_buffer *buff) {
-  S2C_play_join_game_packet_t packet;
+S2C_play_join_game_packet unpack_S2C_play_join_game_packet(cmc_buffer *buff) {
+  S2C_play_join_game_packet packet;
   packet.entity_id = cmc_buffer_unpack_int(buff);
   packet.gamemode = cmc_buffer_unpack_byte(buff);
   packet.dimension = cmc_buffer_unpack_char(buff);
@@ -879,27 +877,27 @@ S2C_play_join_game_packet_t unpack_S2C_play_join_game_packet(cmc_buffer *buff) {
   return packet;
 }
 
-S2C_play_chat_message_packet_t
+S2C_play_chat_message_packet
 unpack_S2C_play_chat_message_packet(cmc_buffer *buff) {
-  S2C_play_chat_message_packet_t packet;
+  S2C_play_chat_message_packet packet;
   packet.message = cmc_buffer_unpack_string(buff);
   packet.position = cmc_buffer_unpack_char(buff);
   UNPACK_ERR_HANDELER;
   return packet;
 }
 
-S2C_play_time_update_packet_t
+S2C_play_time_update_packet
 unpack_S2C_play_time_update_packet(cmc_buffer *buff) {
-  S2C_play_time_update_packet_t packet;
+  S2C_play_time_update_packet packet;
   packet.world_age = cmc_buffer_unpack_long(buff);
   packet.time_of_day = cmc_buffer_unpack_long(buff);
   UNPACK_ERR_HANDELER;
   return packet;
 }
 
-S2C_play_entity_equipment_packet_t
+S2C_play_entity_equipment_packet
 unpack_S2C_play_entity_equipment_packet(cmc_buffer *buff) {
-  S2C_play_entity_equipment_packet_t packet;
+  S2C_play_entity_equipment_packet packet;
   packet.entity_id = cmc_buffer_unpack_varint(buff);
   packet.slot = cmc_buffer_unpack_short(buff);
   packet.item = cmc_buffer_unpack_slot(buff);
@@ -907,17 +905,17 @@ unpack_S2C_play_entity_equipment_packet(cmc_buffer *buff) {
   return packet;
 }
 
-S2C_play_spawn_position_packet_t
+S2C_play_spawn_position_packet
 unpack_S2C_play_spawn_position_packet(cmc_buffer *buff) {
-  S2C_play_spawn_position_packet_t packet;
+  S2C_play_spawn_position_packet packet;
   packet.location = cmc_buffer_unpack_position(buff);
   UNPACK_ERR_HANDELER;
   return packet;
 }
 
-S2C_play_update_health_packet_t
+S2C_play_update_health_packet
 unpack_S2C_play_update_health_packet(cmc_buffer *buff) {
-  S2C_play_update_health_packet_t packet;
+  S2C_play_update_health_packet packet;
   packet.health = cmc_buffer_unpack_float(buff);
   packet.food = cmc_buffer_unpack_varint(buff);
   packet.food_saturation = cmc_buffer_unpack_float(buff);
@@ -925,8 +923,8 @@ unpack_S2C_play_update_health_packet(cmc_buffer *buff) {
   return packet;
 }
 
-S2C_play_respawn_packet_t unpack_S2C_play_respawn_packet(cmc_buffer *buff) {
-  S2C_play_respawn_packet_t packet;
+S2C_play_respawn_packet unpack_S2C_play_respawn_packet(cmc_buffer *buff) {
+  S2C_play_respawn_packet packet;
   packet.dimesion = cmc_buffer_unpack_int(buff);
   packet.difficulty = cmc_buffer_unpack_byte(buff);
   packet.gamemode = cmc_buffer_unpack_byte(buff);
@@ -935,9 +933,9 @@ S2C_play_respawn_packet_t unpack_S2C_play_respawn_packet(cmc_buffer *buff) {
   return packet;
 }
 
-S2C_play_player_look_and_position_packet_t
+S2C_play_player_look_and_position_packet
 unpack_S2C_play_player_look_and_position_packet(cmc_buffer *buff) {
-  S2C_play_player_look_and_position_packet_t packet;
+  S2C_play_player_look_and_position_packet packet;
   packet.x = cmc_buffer_unpack_double(buff);
   packet.y = cmc_buffer_unpack_double(buff);
   packet.z = cmc_buffer_unpack_double(buff);
@@ -948,33 +946,33 @@ unpack_S2C_play_player_look_and_position_packet(cmc_buffer *buff) {
   return packet;
 }
 
-S2C_play_held_item_change_packet_t
+S2C_play_held_item_change_packet
 unpack_S2C_play_held_item_change_packet(cmc_buffer *buff) {
-  S2C_play_held_item_change_packet_t packet;
+  S2C_play_held_item_change_packet packet;
   packet.slot = cmc_buffer_unpack_char(buff);
   UNPACK_ERR_HANDELER;
   return packet;
 }
 
-S2C_play_use_bed_packet_t unpack_S2C_play_use_bed_packet(cmc_buffer *buff) {
-  S2C_play_use_bed_packet_t packet;
+S2C_play_use_bed_packet unpack_S2C_play_use_bed_packet(cmc_buffer *buff) {
+  S2C_play_use_bed_packet packet;
   packet.entity_id = cmc_buffer_unpack_varint(buff);
   packet.location = cmc_buffer_unpack_position(buff);
   UNPACK_ERR_HANDELER;
   return packet;
 }
 
-S2C_play_animation_packet_t unpack_S2C_play_animation_packet(cmc_buffer *buff) {
-  S2C_play_animation_packet_t packet;
+S2C_play_animation_packet unpack_S2C_play_animation_packet(cmc_buffer *buff) {
+  S2C_play_animation_packet packet;
   packet.entity_id = cmc_buffer_unpack_varint(buff);
   packet.animation = cmc_buffer_unpack_byte(buff);
   UNPACK_ERR_HANDELER;
   return packet;
 }
 
-S2C_play_spawn_player_packet_t
+S2C_play_spawn_player_packet
 unpack_S2C_play_spawn_player_packet(cmc_buffer *buff) {
-  S2C_play_spawn_player_packet_t packet;
+  S2C_play_spawn_player_packet packet;
   packet.entity_id = cmc_buffer_unpack_varint(buff);
   packet.uuid = cmc_buffer_unpack_ullong(buff);
   packet.x = cmc_buffer_unpack_int(buff);
@@ -988,17 +986,17 @@ unpack_S2C_play_spawn_player_packet(cmc_buffer *buff) {
   return packet;
 }
 
-S2C_play_collect_item_packet_t
+S2C_play_collect_item_packet
 unpack_S2C_play_collect_item_packet(cmc_buffer *buff) {
-  S2C_play_collect_item_packet_t packet;
+  S2C_play_collect_item_packet packet;
   packet.collected_entity_id = cmc_buffer_unpack_varint(buff);
   packet.collector_entity_id = cmc_buffer_unpack_varint(buff);
   UNPACK_ERR_HANDELER;
   return packet;
 }
 
-S2C_play_spawn_mob_packet_t unpack_S2C_play_spawn_mob_packet(cmc_buffer *buff) {
-  S2C_play_spawn_mob_packet_t packet;
+S2C_play_spawn_mob_packet unpack_S2C_play_spawn_mob_packet(cmc_buffer *buff) {
+  S2C_play_spawn_mob_packet packet;
   packet.entity_id = cmc_buffer_unpack_varint(buff);
   packet.type = cmc_buffer_unpack_byte(buff);
   packet.x = cmc_buffer_unpack_int(buff);
@@ -1015,9 +1013,9 @@ S2C_play_spawn_mob_packet_t unpack_S2C_play_spawn_mob_packet(cmc_buffer *buff) {
   return packet;
 }
 
-S2C_play_spawn_painting_packet_t
+S2C_play_spawn_painting_packet
 unpack_S2C_play_spawn_painting_packet(cmc_buffer *buff) {
-  S2C_play_spawn_painting_packet_t packet;
+  S2C_play_spawn_painting_packet packet;
   packet.entity_id = cmc_buffer_unpack_varint(buff);
   packet.title = cmc_buffer_unpack_string(buff);
   packet.location = cmc_buffer_unpack_position(buff);
@@ -1026,9 +1024,9 @@ unpack_S2C_play_spawn_painting_packet(cmc_buffer *buff) {
   return packet;
 }
 
-S2C_play_spawn_experience_orb_packet_t
+S2C_play_spawn_experience_orb_packet
 unpack_S2C_play_spawn_experience_orb_packet(cmc_buffer *buff) {
-  S2C_play_spawn_experience_orb_packet_t packet;
+  S2C_play_spawn_experience_orb_packet packet;
   packet.entity_id = cmc_buffer_unpack_varint(buff);
   packet.x = cmc_buffer_unpack_int(buff);
   packet.y = cmc_buffer_unpack_int(buff);
@@ -1038,9 +1036,9 @@ unpack_S2C_play_spawn_experience_orb_packet(cmc_buffer *buff) {
   return packet;
 }
 
-S2C_play_entity_velocity_packet_t
+S2C_play_entity_velocity_packet
 unpack_S2C_play_entity_velocity_packet(cmc_buffer *buff) {
-  S2C_play_entity_velocity_packet_t packet;
+  S2C_play_entity_velocity_packet packet;
   packet.entity_id = cmc_buffer_unpack_varint(buff);
   packet.x_vel = cmc_buffer_unpack_short(buff);
   packet.y_vel = cmc_buffer_unpack_short(buff);
@@ -1049,16 +1047,16 @@ unpack_S2C_play_entity_velocity_packet(cmc_buffer *buff) {
   return packet;
 }
 
-S2C_play_entity_packet_t unpack_S2C_play_entity_packet(cmc_buffer *buff) {
-  S2C_play_entity_packet_t packet;
+S2C_play_entity_packet unpack_S2C_play_entity_packet(cmc_buffer *buff) {
+  S2C_play_entity_packet packet;
   packet.entity_id = cmc_buffer_unpack_varint(buff);
   UNPACK_ERR_HANDELER;
   return packet;
 }
 
-S2C_play_entity_relative_move_packet_t
+S2C_play_entity_relative_move_packet
 unpack_S2C_play_entity_relative_move_packet(cmc_buffer *buff) {
-  S2C_play_entity_relative_move_packet_t packet;
+  S2C_play_entity_relative_move_packet packet;
   packet.entity_id = cmc_buffer_unpack_varint(buff);
   packet.delta_x = cmc_buffer_unpack_char(buff);
   packet.delta_y = cmc_buffer_unpack_char(buff);
@@ -1068,9 +1066,9 @@ unpack_S2C_play_entity_relative_move_packet(cmc_buffer *buff) {
   return packet;
 }
 
-S2C_play_entity_look_packet_t
+S2C_play_entity_look_packet
 unpack_S2C_play_entity_look_packet(cmc_buffer *buff) {
-  S2C_play_entity_look_packet_t packet;
+  S2C_play_entity_look_packet packet;
   packet.entity_id = cmc_buffer_unpack_varint(buff);
   packet.yaw = cmc_buffer_unpack_byte(buff);
   packet.pitch = cmc_buffer_unpack_byte(buff);
@@ -1079,9 +1077,9 @@ unpack_S2C_play_entity_look_packet(cmc_buffer *buff) {
   return packet;
 }
 
-S2C_play_entity_look_and_relative_move_packet_t
+S2C_play_entity_look_and_relative_move_packet
 unpack_S2C_play_entity_look_and_relative_move_packet(cmc_buffer *buff) {
-  S2C_play_entity_look_and_relative_move_packet_t packet;
+  S2C_play_entity_look_and_relative_move_packet packet;
   packet.entity_id = cmc_buffer_unpack_varint(buff);
   packet.delta_x = cmc_buffer_unpack_char(buff);
   packet.delta_y = cmc_buffer_unpack_char(buff);
@@ -1093,9 +1091,9 @@ unpack_S2C_play_entity_look_and_relative_move_packet(cmc_buffer *buff) {
   return packet;
 }
 
-S2C_play_entity_teleport_packet_t
+S2C_play_entity_teleport_packet
 unpack_S2C_play_entity_teleport_packet(cmc_buffer *buff) {
-  S2C_play_entity_teleport_packet_t packet;
+  S2C_play_entity_teleport_packet packet;
   packet.entity_id = cmc_buffer_unpack_varint(buff);
   packet.x = cmc_buffer_unpack_int(buff);
   packet.y = cmc_buffer_unpack_int(buff);
@@ -1107,27 +1105,27 @@ unpack_S2C_play_entity_teleport_packet(cmc_buffer *buff) {
   return packet;
 }
 
-S2C_play_entity_head_look_packet_t
+S2C_play_entity_head_look_packet
 unpack_S2C_play_entity_head_look_packet(cmc_buffer *buff) {
-  S2C_play_entity_head_look_packet_t packet;
+  S2C_play_entity_head_look_packet packet;
   packet.entity_id = cmc_buffer_unpack_varint(buff);
   packet.head_yaw = cmc_buffer_unpack_byte(buff);
   UNPACK_ERR_HANDELER;
   return packet;
 }
 
-S2C_play_entity_status_packet_t
+S2C_play_entity_status_packet
 unpack_S2C_play_entity_status_packet(cmc_buffer *buff) {
-  S2C_play_entity_status_packet_t packet;
+  S2C_play_entity_status_packet packet;
   packet.entity_id = cmc_buffer_unpack_int(buff);
   packet.entity_status = cmc_buffer_unpack_char(buff);
   UNPACK_ERR_HANDELER;
   return packet;
 }
 
-S2C_play_attach_entity_packet_t
+S2C_play_attach_entity_packet
 unpack_S2C_play_attach_entity_packet(cmc_buffer *buff) {
-  S2C_play_attach_entity_packet_t packet;
+  S2C_play_attach_entity_packet packet;
   packet.entity_id = cmc_buffer_unpack_int(buff);
   packet.vehicle_id = cmc_buffer_unpack_int(buff);
   packet.leash = cmc_buffer_unpack_bool(buff);
@@ -1135,18 +1133,18 @@ unpack_S2C_play_attach_entity_packet(cmc_buffer *buff) {
   return packet;
 }
 
-S2C_play_entity_metadata_packet_t
+S2C_play_entity_metadata_packet
 unpack_S2C_play_entity_metadata_packet(cmc_buffer *buff) {
-  S2C_play_entity_metadata_packet_t packet;
+  S2C_play_entity_metadata_packet packet;
   packet.entity_id = cmc_buffer_unpack_varint(buff);
   packet.meta_data = cmc_buffer_unpack_entity_metadata(buff);
   UNPACK_ERR_HANDELER;
   return packet;
 }
 
-S2C_play_entity_effect_packet_t
+S2C_play_entity_effect_packet
 unpack_S2C_play_entity_effect_packet(cmc_buffer *buff) {
-  S2C_play_entity_effect_packet_t packet;
+  S2C_play_entity_effect_packet packet;
   packet.entity_id = cmc_buffer_unpack_varint(buff);
   packet.effect_id = cmc_buffer_unpack_char(buff);
   packet.amplifier = cmc_buffer_unpack_char(buff);
@@ -1156,18 +1154,18 @@ unpack_S2C_play_entity_effect_packet(cmc_buffer *buff) {
   return packet;
 }
 
-S2C_play_remove_entity_effect_packet_t
+S2C_play_remove_entity_effect_packet
 unpack_S2C_play_remove_entity_effect_packet(cmc_buffer *buff) {
-  S2C_play_remove_entity_effect_packet_t packet;
+  S2C_play_remove_entity_effect_packet packet;
   packet.entity_id = cmc_buffer_unpack_varint(buff);
   packet.effect_id = cmc_buffer_unpack_char(buff);
   UNPACK_ERR_HANDELER;
   return packet;
 }
 
-S2C_play_set_experience_packet_t
+S2C_play_set_experience_packet
 unpack_S2C_play_set_experience_packet(cmc_buffer *buff) {
-  S2C_play_set_experience_packet_t packet;
+  S2C_play_set_experience_packet packet;
   packet.experience_bar = cmc_buffer_unpack_float(buff);
   packet.level = cmc_buffer_unpack_varint(buff);
   packet.total_experience = cmc_buffer_unpack_varint(buff);
@@ -1175,9 +1173,8 @@ unpack_S2C_play_set_experience_packet(cmc_buffer *buff) {
   return packet;
 }
 
-S2C_play_chunk_data_packet_t
-unpack_S2C_play_chunk_data_packet(cmc_buffer *buff) {
-  S2C_play_chunk_data_packet_t packet;
+S2C_play_chunk_data_packet unpack_S2C_play_chunk_data_packet(cmc_buffer *buff) {
+  S2C_play_chunk_data_packet packet;
   packet.chunk_x = cmc_buffer_unpack_int(buff);
   packet.chunk_z = cmc_buffer_unpack_int(buff);
   packet.ground_up_continuous = cmc_buffer_unpack_bool(buff);
@@ -1187,18 +1184,18 @@ unpack_S2C_play_chunk_data_packet(cmc_buffer *buff) {
   return packet;
 }
 
-S2C_play_block_change_packet_t
+S2C_play_block_change_packet
 unpack_S2C_play_block_change_packet(cmc_buffer *buff) {
-  S2C_play_block_change_packet_t packet;
+  S2C_play_block_change_packet packet;
   packet.location = cmc_buffer_unpack_position(buff);
   packet.block_id = cmc_buffer_unpack_varint(buff);
   UNPACK_ERR_HANDELER;
   return packet;
 }
 
-S2C_play_block_action_packet_t
+S2C_play_block_action_packet
 unpack_S2C_play_block_action_packet(cmc_buffer *buff) {
-  S2C_play_block_action_packet_t packet;
+  S2C_play_block_action_packet packet;
   packet.location = cmc_buffer_unpack_position(buff);
   packet.block_data_1 = cmc_buffer_unpack_byte(buff);
   packet.block_data_2 = cmc_buffer_unpack_byte(buff);
@@ -1207,9 +1204,9 @@ unpack_S2C_play_block_action_packet(cmc_buffer *buff) {
   return packet;
 }
 
-S2C_play_block_break_animation_packet_t
+S2C_play_block_break_animation_packet
 unpack_S2C_play_block_break_animation_packet(cmc_buffer *buff) {
-  S2C_play_block_break_animation_packet_t packet;
+  S2C_play_block_break_animation_packet packet;
   packet.entity_id = cmc_buffer_unpack_varint(buff);
   packet.location = cmc_buffer_unpack_position(buff);
   packet.destroy_stage = cmc_buffer_unpack_char(buff);
@@ -1217,8 +1214,8 @@ unpack_S2C_play_block_break_animation_packet(cmc_buffer *buff) {
   return packet;
 }
 
-S2C_play_effect_packet_t unpack_S2C_play_effect_packet(cmc_buffer *buff) {
-  S2C_play_effect_packet_t packet;
+S2C_play_effect_packet unpack_S2C_play_effect_packet(cmc_buffer *buff) {
+  S2C_play_effect_packet packet;
   packet.effect_id = cmc_buffer_unpack_int(buff);
   packet.location = cmc_buffer_unpack_position(buff);
   packet.data = cmc_buffer_unpack_int(buff);
@@ -1238,9 +1235,9 @@ S2C_play_effect_packet_t unpack_S2C_play_effect_packet(cmc_buffer *buff) {
   return packet;
 }
 
-S2C_play_sound_effect_packet_t
+S2C_play_sound_effect_packet
 unpack_S2C_play_sound_effect_packet(cmc_buffer *buff) {
-  S2C_play_sound_effect_packet_t packet;
+  S2C_play_sound_effect_packet packet;
   packet.sound_name = cmc_buffer_unpack_string(buff);
   packet.x = cmc_buffer_unpack_int(buff);
   packet.y = cmc_buffer_unpack_int(buff);
@@ -1251,18 +1248,18 @@ unpack_S2C_play_sound_effect_packet(cmc_buffer *buff) {
   return packet;
 }
 
-S2C_play_change_game_state_packet_t
+S2C_play_change_game_state_packet
 unpack_S2C_play_change_game_state_packet(cmc_buffer *buff) {
-  S2C_play_change_game_state_packet_t packet;
+  S2C_play_change_game_state_packet packet;
   packet.reason = cmc_buffer_unpack_byte(buff);
   packet.value = cmc_buffer_unpack_float(buff);
   UNPACK_ERR_HANDELER;
   return packet;
 }
 
-S2C_play_player_abilities_packet_t
+S2C_play_player_abilities_packet
 unpack_S2C_play_player_abilities_packet(cmc_buffer *buff) {
-  S2C_play_player_abilities_packet_t packet;
+  S2C_play_player_abilities_packet packet;
   packet.flags = cmc_buffer_unpack_char(buff);
   packet.flying_speed = cmc_buffer_unpack_float(buff);
   packet.fov_modifier = cmc_buffer_unpack_float(buff);
@@ -1270,34 +1267,32 @@ unpack_S2C_play_player_abilities_packet(cmc_buffer *buff) {
   return packet;
 }
 
-S2C_play_plugin_message_packet_t
+S2C_play_plugin_message_packet
 unpack_S2C_play_plugin_message_packet(cmc_buffer *buff) {
-  S2C_play_plugin_message_packet_t packet;
+  S2C_play_plugin_message_packet packet;
   packet.channel = cmc_buffer_unpack_string(buff);
   packet.data = cmc_buffer_unpack_byte_array(buff);
   UNPACK_ERR_HANDELER;
   return packet;
 }
 
-S2C_play_disconnect_packet_t
-unpack_S2C_play_disconnect_packet(cmc_buffer *buff) {
-  S2C_play_disconnect_packet_t packet;
+S2C_play_disconnect_packet unpack_S2C_play_disconnect_packet(cmc_buffer *buff) {
+  S2C_play_disconnect_packet packet;
   packet.reason = cmc_buffer_unpack_string(buff);
   UNPACK_ERR_HANDELER;
   return packet;
 }
 
-S2C_play_change_difficulty_packet_t
+S2C_play_change_difficulty_packet
 unpack_S2C_play_change_difficulty_packet(cmc_buffer *buff) {
-  S2C_play_change_difficulty_packet_t packet;
+  S2C_play_change_difficulty_packet packet;
   packet.difficulty = cmc_buffer_unpack_byte(buff);
   UNPACK_ERR_HANDELER;
   return packet;
 }
 
-C2S_play_keep_alive_packet_t
-unpack_C2S_play_keep_alive_packet(cmc_buffer *buff) {
-  C2S_play_keep_alive_packet_t packet;
+C2S_play_keep_alive_packet unpack_C2S_play_keep_alive_packet(cmc_buffer *buff) {
+  C2S_play_keep_alive_packet packet;
   packet.keep_alive_id = cmc_buffer_unpack_varint(buff);
   UNPACK_ERR_HANDELER;
   return packet;
@@ -1307,90 +1302,87 @@ unpack_C2S_play_keep_alive_packet(cmc_buffer *buff) {
 
 // CGSS: free_methods_c
 void cmc_free_C2S_handshake_handshake_packet(
-    C2S_handshake_handshake_packet_t packet) {
+    C2S_handshake_handshake_packet packet) {
   free_string(packet.server_addr);
 }
-void cmc_free_S2C_status_response_packet(S2C_status_response_packet_t packet) {
+void cmc_free_S2C_status_response_packet(S2C_status_response_packet packet) {
   free_string(packet.response);
 }
 
-void cmc_free_S2C_login_disconnect_packet(
-    S2C_login_disconnect_packet_t packet) {
+void cmc_free_S2C_login_disconnect_packet(S2C_login_disconnect_packet packet) {
   free_string(packet.reason);
 }
 void cmc_free_S2C_login_encryption_request_packet(
-    S2C_login_encryption_request_packet_t packet) {
+    S2C_login_encryption_request_packet packet) {
   free_string(packet.server_id);
   free_byte_array(packet.public_key);
   free_byte_array(packet.verify_token);
 }
-void cmc_free_S2C_login_success_packet(S2C_login_success_packet_t packet) {
+void cmc_free_S2C_login_success_packet(S2C_login_success_packet packet) {
   free_string(packet.uuid);
   free_string(packet.name);
 }
 
-void cmc_free_C2S_login_start_packet(C2S_login_start_packet_t packet) {
+void cmc_free_C2S_login_start_packet(C2S_login_start_packet packet) {
   free_string(packet.name);
 }
 void cmc_free_C2S_login_encryption_response_packet(
-    C2S_login_encryption_response_packet_t packet) {
+    C2S_login_encryption_response_packet packet) {
   free_byte_array(packet.shared_secret);
   free_byte_array(packet.verify_token);
 }
 
-void cmc_free_S2C_play_join_game_packet(S2C_play_join_game_packet_t packet) {
+void cmc_free_S2C_play_join_game_packet(S2C_play_join_game_packet packet) {
   free_string(packet.level_type);
 }
 void cmc_free_S2C_play_chat_message_packet(
-    S2C_play_chat_message_packet_t packet) {
+    S2C_play_chat_message_packet packet) {
   free_string(packet.message);
 }
 
 void cmc_free_S2C_play_entity_equipment_packet(
-    S2C_play_entity_equipment_packet_t packet) {
+    S2C_play_entity_equipment_packet packet) {
   free_slot(packet.item);
 }
 
-void cmc_free_S2C_play_respawn_packet(S2C_play_respawn_packet_t packet) {
+void cmc_free_S2C_play_respawn_packet(S2C_play_respawn_packet packet) {
   free_string(packet.level_type);
 }
 
 void cmc_free_S2C_play_spawn_player_packet(
-    S2C_play_spawn_player_packet_t packet) {
+    S2C_play_spawn_player_packet packet) {
   free_entity_metadata(packet.meta_data);
 }
 
-void cmc_free_S2C_play_spawn_mob_packet(S2C_play_spawn_mob_packet_t packet) {
+void cmc_free_S2C_play_spawn_mob_packet(S2C_play_spawn_mob_packet packet) {
   free_entity_metadata(packet.meta_data);
 }
 void cmc_free_S2C_play_spawn_painting_packet(
-    S2C_play_spawn_painting_packet_t packet) {
+    S2C_play_spawn_painting_packet packet) {
   free_string(packet.title);
 }
 
 void cmc_free_S2C_play_entity_metadata_packet(
-    S2C_play_entity_metadata_packet_t packet) {
+    S2C_play_entity_metadata_packet packet) {
   free_entity_metadata(packet.meta_data);
 }
 
-void cmc_free_S2C_play_chunk_data_packet(S2C_play_chunk_data_packet_t packet) {
+void cmc_free_S2C_play_chunk_data_packet(S2C_play_chunk_data_packet packet) {
   free_byte_array(packet.chunk);
 }
 
 void cmc_free_S2C_play_sound_effect_packet(
-    S2C_play_sound_effect_packet_t packet) {
+    S2C_play_sound_effect_packet packet) {
   free_string(packet.sound_name);
 }
 
 void cmc_free_S2C_play_plugin_message_packet(
-    S2C_play_plugin_message_packet_t packet) {
+    S2C_play_plugin_message_packet packet) {
   free_string(packet.channel);
   free_byte_array(packet.data);
 }
-void cmc_free_S2C_play_disconnect_packet(S2C_play_disconnect_packet_t packet) {
+void cmc_free_S2C_play_disconnect_packet(S2C_play_disconnect_packet packet) {
   free_string(packet.reason);
 }
 
 // CGSE: free_methods_c
-
-// ichunk_x;ichunk_y;

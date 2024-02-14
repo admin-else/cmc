@@ -1,6 +1,9 @@
 import os
 import re
 
+with open("packets/custom.c", "r") as f:
+    custom_code = f.read()
+
 type_map = {
     #  TYPE  |code tpye             |method type       |is heap
     "b": ["char ", "char", False],
@@ -18,12 +21,11 @@ type_map = {
     "?": ["bool ", "bool", False],
     "v": ["int ", "varint", False],
     "s": ["char *", "string", True],
-    "p": ["block_pos_t ", "position", False],
-    "n": ["nbt_node *", "nbt", True],
-    "j": ["json_t *", "json", True],
+    "p": ["cmc_block_pos ", "position", False],
+    "n": ["cmc_nbt_node *", "nbt", True],
     "a": ["cmc_buffer *", "byte_array", True],
-    "S": ["slot_t *", "slot", True],
-    "m": ["entity_metadata_t ", "entity_metadata", True],
+    "S": ["cmc_slot *", "slot", True],
+    "m": ["cmc_entity_metadata ", "entity_metadata", True],
 }
 
 
@@ -58,7 +60,7 @@ def type_def(input_str):
     packet_name, packet_id, symbol_str = input_str.split(";", maxsplit=2)
     symbols = [sym for sym in symbol_str.split(";") if sym != ""]
     return (
-        f"typedef struct {{{''.join([f'{type_map[symbol[0]][0]}{symbol[1:]};' for symbol in symbols])}}} {packet_name}_packet_t;\n\n"
+        f"typedef struct {{{''.join([f'{type_map[symbol[0]][0]}{symbol[1:]};' for symbol in symbols])}}} {packet_name}_packet;\n\n"
         if symbols
         else ""
     )
@@ -68,7 +70,7 @@ def unpack_method(input_str):
     packet_name, packet_id, symbol_str = input_str.split(";", maxsplit=2)
     symbols = [sym for sym in symbol_str.split(";") if sym != ""]
     unpack_method_define = (
-        f"{packet_name}_packet_t unpack_{packet_name}_packet(cmc_buffer *buff)"
+        f"{packet_name}_packet unpack_{packet_name}_packet(cmc_buffer *buff)"
     )
     unpack_methods = "".join(
         [
@@ -77,7 +79,7 @@ def unpack_method(input_str):
         ]
     )
     unpack_method = (
-        f"{unpack_method_define} {{{packet_name}_packet_t packet;{unpack_methods} UNPACK_ERR_HANDELER;return packet;}}\n\n"
+        f"{unpack_method_define} {{{packet_name}_packet packet;{unpack_methods} UNPACK_ERR_HANDELER;return packet;}}\n\n"
         if symbols
         else ""
     )
@@ -88,7 +90,7 @@ def unpack_method_h(input_str):
     packet_name, packet_id, symbol_str = input_str.split(";", maxsplit=2)
     symbols = [sym for sym in symbol_str.split(";") if sym != ""]
     return (
-        f"{packet_name}_packet_t unpack_{packet_name}_packet(cmc_buffer *buff);\n\n"
+        f"{packet_name}_packet unpack_{packet_name}_packet(cmc_buffer *buff);\n\n"
         if symbols
         else ""
     )
@@ -140,7 +142,7 @@ def packet_ids(mc_packet_exps):
 
     code = ""
     for state in packet_states:
-        code += f"enum packetids_{state}_t {{"
+        code += f"enum packetids_{state} {{"
         for exp in mc_packet_exps:
             if exp.startswith(state):
                 code += f"CMC_PACKETID_{state.upper()}_{'_'.join(exp.split('_')[2:]).split(';')[0].upper()} = {exp.split(';')[1]},"
@@ -161,7 +163,7 @@ def free_method(exp):
     if not should_have_free_method(exp):
         return ""
 
-    code = f"void cmc_free_{packet_name}_packet({packet_name}_packet_t packet) {{"
+    code = f"void cmc_free_{packet_name}_packet({packet_name}_packet packet) {{"
     for sym in symbols:
         if type_map[sym[0]][2]:
             code += f"free_{type_map[sym[0]][1]}(packet.{sym[1:]});"
@@ -174,7 +176,7 @@ def loop_handler(exp):
     return f"""case CMC_PACKETID_S2C_PLAY_{short_packet_name.upper()}: {{
         if (!conn->on_packet.{short_packet_name})
           goto unhandeled_packet;
-        S2C_play_{short_packet_name}_packet_t data =
+        S2C_play_{short_packet_name}_packet data =
             ERR_ABLE(unpack_S2C_play_{short_packet_name}_packet(packet), goto err_free_packet;);
         conn->on_packet.{short_packet_name}(data, conn);
         {f'cmc_free_S2C_play_{short_packet_name}_packet(data);' if should_have_free_method(exp) else ''}
@@ -182,7 +184,7 @@ def loop_handler(exp):
     }}"""
 
 def main():
-    with open("packets.txt", "r") as f:
+    with open("packets/packets.txt", "r") as f:
         raw = f.read()
 
     raw = comment_filter(raw)
@@ -237,35 +239,12 @@ def main():
         "packet_types",
     )
 
-    # on_packet_fuction_pointers
-    replace_code_segments(
-        "\n".join(
-            [
-                f"void (*{'_'.join(mc_packet_exp.split(';')[0].split('_')[2:])})(const {mc_packet_exp.split(';')[0]}_packet_t packet, struct cmc_conn *conn);"
-                for mc_packet_exp in mc_packet_exps
-                if mc_packet_exp.split(";")[0].startswith("S2C_play_")
-            ]
-        ),
-        "on_packet_fuction_pointers",
-    )
-
-    replace_code_segments(
-        "\n".join(
-            [
-                loop_handler(mc_packet_exp)
-                for mc_packet_exp in mc_packet_exps
-                if mc_packet_exp.split(";")[0].startswith("S2C_play_")
-            ]
-        ),
-        "loop_handler",
-    )
-
     replace_code_segments(
         "\n".join([free_method(sym) for sym in mc_packet_exps]), "free_methods_c"
     )
 
     replace_code_segments(
-        "\n".join([f"void cmc_free_{exp.split(';', maxsplit=2)[0]}_packet({exp.split(';', maxsplit=2)[0]}_packet_t packet);" for exp in mc_packet_exps if should_have_free_method(exp)]), "free_methods_h"
+        "\n".join([f"void cmc_free_{exp.split(';', maxsplit=2)[0]}_packet({exp.split(';', maxsplit=2)[0]}_packet packet);" for exp in mc_packet_exps if should_have_free_method(exp)]), "free_methods_h"
     )
 
     os.system("clang-format -i ./src/*.c ./src/*.h")

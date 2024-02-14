@@ -61,10 +61,10 @@ typedef struct {
   long x;
   long y;
   long z;
-} block_pos_t;
+} cmc_block_pos;
 
-void cmc_buffer_pack_position(cmc_buffer *buff, block_pos_t pos);
-block_pos_t cmc_buffer_unpack_position(cmc_buffer *buff);
+void cmc_buffer_pack_position(cmc_buffer *buff, cmc_block_pos pos);
+cmc_block_pos cmc_buffer_unpack_position(cmc_buffer *buff);
 
 // nbt
 nbt_node *cmc_buffer_unpack_nbt(cmc_buffer *buff);
@@ -80,11 +80,11 @@ typedef struct {
   char slot_size;
   short meta_data;
   nbt_node *tag_compound;
-} slot_t;
+} cmc_slot;
 
-void cmc_buffer_pack_slot(cmc_buffer *buff, slot_t *slot);
-slot_t *cmc_buffer_unpack_slot(cmc_buffer *buff);
-void free_slot(slot_t *slot);
+void cmc_buffer_pack_slot(cmc_buffer *buff, cmc_slot *slot);
+cmc_slot *cmc_buffer_unpack_slot(cmc_buffer *buff);
+void free_slot(cmc_slot *slot);
 
 // Entity metadata
 typedef enum {
@@ -107,26 +107,26 @@ typedef struct {
     int int_data;
     float float_data;
     char *string_data;
-    slot_t *slot_data;
-    block_pos_t position_data;
+    cmc_slot *slot_data;
+    cmc_block_pos position_data;
     struct {
       float x;
       float y;
       float z;
     } rotation_data;
   } payload;
-} entity_metadata_entry_t;
+} cmc_entity_metadata_entry;
 
 typedef struct {
   size_t size;
-  entity_metadata_entry_t *entries;
-} entity_metadata_t;
+  cmc_entity_metadata_entry *entries;
+} cmc_entity_metadata;
 
 void cmc_buffer_pack_entity_metadata(cmc_buffer *buff,
-                                     entity_metadata_t metadata);
+                                     cmc_entity_metadata metadata);
 
-entity_metadata_t cmc_buffer_unpack_entity_metadata(cmc_buffer *buff);
+cmc_entity_metadata cmc_buffer_unpack_entity_metadata(cmc_buffer *buff);
 
-void free_entity_metadata(entity_metadata_t metadata);
+void free_entity_metadata(cmc_entity_metadata metadata);
 
 #define free_byte_array cmc_buffer_free
