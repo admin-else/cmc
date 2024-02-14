@@ -33,7 +33,7 @@ struct cmc_conn *cmc_conn_init() {
   conn->compression_threshold = -1;
   conn->sockfd = -1;
   conn->shared_secret = NULL;
-  memset(&conn->on_packet, 0, sizeof(conn->on_packet));
+  conn->on_packet = NULL;
   return conn;
 }
 
@@ -53,11 +53,10 @@ void cmc_conn_close(struct cmc_conn *conn) {
 }
 
 int send_all(int socket, const void *buffer, size_t length) {
-  const char *ptr = (const char *)buffer;
   size_t total_sent = 0;
 
   while (total_sent < length) {
-    ssize_t sent = send(socket, ptr + total_sent, length - total_sent, 0);
+    ssize_t sent = send(socket, buffer + total_sent, length - total_sent, 0);
 
     if (sent == -1)
       return -1;
@@ -72,8 +71,8 @@ int recv_all(int socket, void *buffer, size_t length) {
   size_t total_received = 0;
 
   while (total_received < length) {
-    ssize_t bytes_received =
-        recv(socket, &buffer[total_received], length - total_received, 0);
+    ssize_t bytes_received = // sorry janfel ): dereferencing ‘void *’ pointer
+        recv(socket, buffer + total_received, length - total_received, 0);
 
     if (bytes_received <= 0)
       return -1;
@@ -99,7 +98,7 @@ cmc_buffer *cmc_conn_recive_packet(struct cmc_conn *conn) {
   ERR_IF(recv_all(conn->sockfd, buff->data, packet_len) == -1, ERR_RECV,
          goto on_err1;);
 
-  if (conn->compression_threshold == 0)
+  if (conn->compression_threshold == -1)
     return buff;
 
   int decompressed_length_signed = cmc_buffer_unpack_varint(buff);
@@ -122,7 +121,7 @@ cmc_buffer *cmc_conn_recive_packet(struct cmc_conn *conn) {
 
   ERR_IF(inflateInit(&strm) != Z_OK, ERR_ZLIB_INIT, goto on_err2;);
 
-  ERR_IF(inflate(&strm, Z_FINISH) != Z_STREAM_END, ERR_ZLIB_INIT,
+  ERR_IF(inflate(&strm, Z_FINISH) != Z_STREAM_END, ERR_ZLIB_INFLATE,
          goto on_err3;);
 
   size_t real_decompressed_length = strm.total_out;
@@ -207,7 +206,7 @@ void cmc_conn_loop(struct cmc_conn *conn) {
   conn->state = CMC_CONN_STATE_LOGIN;
   while (conn->state != CMC_CONN_STATE_OFFLINE) {
     cmc_buffer *packet =
-        ERR_ABLE(cmc_conn_recive_packet(conn), goto err_free_packet;);
+        ERR_ABLE(cmc_conn_recive_packet(conn), goto err_close_conn;);
 
     int packet_id =
         ERR_ABLE(cmc_buffer_unpack_varint(packet), goto err_free_packet;);
@@ -221,9 +220,9 @@ void cmc_conn_loop(struct cmc_conn *conn) {
         ERR(ERR_SERVER_ONLINE_MODE, goto err_free_packet;);
         break;
       case CMC_PACKETID_S2C_LOGIN_SET_COMPRESSION: {
-        S2C_login_set_compression_packet_t compression_packet =
+        S2C_login_set_compression_packet compression_data =
             unpack_S2C_login_set_compression_packet(packet);
-        conn->compression_threshold = compression_packet.threshold;
+        conn->compression_threshold = compression_data.threshold;
         break;
       }
       case CMC_PACKETID_S2C_LOGIN_SUCCESS:
@@ -236,406 +235,8 @@ void cmc_conn_loop(struct cmc_conn *conn) {
       break;
     }
     case CMC_CONN_STATE_PLAY:
-      switch (packet_id) {
-        // CGSS: loop_handler
-      case CMC_PACKETID_S2C_PLAY_KEEP_ALIVE: {
-        if (!conn->on_packet.keep_alive)
-          goto unhandeled_packet;
-        S2C_play_keep_alive_packet_t data = ERR_ABLE(
-            unpack_S2C_play_keep_alive_packet(packet), goto err_free_packet;);
-        conn->on_packet.keep_alive(data, conn);
-
-        break;
-      }
-      case CMC_PACKETID_S2C_PLAY_JOIN_GAME: {
-        if (!conn->on_packet.join_game)
-          goto unhandeled_packet;
-        S2C_play_join_game_packet_t data = ERR_ABLE(
-            unpack_S2C_play_join_game_packet(packet), goto err_free_packet;);
-        conn->on_packet.join_game(data, conn);
-        cmc_free_S2C_play_join_game_packet(data);
-        break;
-      }
-      case CMC_PACKETID_S2C_PLAY_CHAT_MESSAGE: {
-        if (!conn->on_packet.chat_message)
-          goto unhandeled_packet;
-        S2C_play_chat_message_packet_t data = ERR_ABLE(
-            unpack_S2C_play_chat_message_packet(packet), goto err_free_packet;);
-        conn->on_packet.chat_message(data, conn);
-        cmc_free_S2C_play_chat_message_packet(data);
-        break;
-      }
-      case CMC_PACKETID_S2C_PLAY_TIME_UPDATE: {
-        if (!conn->on_packet.time_update)
-          goto unhandeled_packet;
-        S2C_play_time_update_packet_t data = ERR_ABLE(
-            unpack_S2C_play_time_update_packet(packet), goto err_free_packet;);
-        conn->on_packet.time_update(data, conn);
-
-        break;
-      }
-      case CMC_PACKETID_S2C_PLAY_ENTITY_EQUIPMENT: {
-        if (!conn->on_packet.entity_equipment)
-          goto unhandeled_packet;
-        S2C_play_entity_equipment_packet_t data =
-            ERR_ABLE(unpack_S2C_play_entity_equipment_packet(packet),
-                     goto err_free_packet;);
-        conn->on_packet.entity_equipment(data, conn);
-        cmc_free_S2C_play_entity_equipment_packet(data);
-        break;
-      }
-      case CMC_PACKETID_S2C_PLAY_SPAWN_POSITION: {
-        if (!conn->on_packet.spawn_position)
-          goto unhandeled_packet;
-        S2C_play_spawn_position_packet_t data =
-            ERR_ABLE(unpack_S2C_play_spawn_position_packet(packet),
-                     goto err_free_packet;);
-        conn->on_packet.spawn_position(data, conn);
-
-        break;
-      }
-      case CMC_PACKETID_S2C_PLAY_UPDATE_HEALTH: {
-        if (!conn->on_packet.update_health)
-          goto unhandeled_packet;
-        S2C_play_update_health_packet_t data =
-            ERR_ABLE(unpack_S2C_play_update_health_packet(packet),
-                     goto err_free_packet;);
-        conn->on_packet.update_health(data, conn);
-
-        break;
-      }
-      case CMC_PACKETID_S2C_PLAY_RESPAWN: {
-        if (!conn->on_packet.respawn)
-          goto unhandeled_packet;
-        S2C_play_respawn_packet_t data = ERR_ABLE(
-            unpack_S2C_play_respawn_packet(packet), goto err_free_packet;);
-        conn->on_packet.respawn(data, conn);
-        cmc_free_S2C_play_respawn_packet(data);
-        break;
-      }
-      case CMC_PACKETID_S2C_PLAY_PLAYER_LOOK_AND_POSITION: {
-        if (!conn->on_packet.player_look_and_position)
-          goto unhandeled_packet;
-        S2C_play_player_look_and_position_packet_t data =
-            ERR_ABLE(unpack_S2C_play_player_look_and_position_packet(packet),
-                     goto err_free_packet;);
-        conn->on_packet.player_look_and_position(data, conn);
-
-        break;
-      }
-      case CMC_PACKETID_S2C_PLAY_HELD_ITEM_CHANGE: {
-        if (!conn->on_packet.held_item_change)
-          goto unhandeled_packet;
-        S2C_play_held_item_change_packet_t data =
-            ERR_ABLE(unpack_S2C_play_held_item_change_packet(packet),
-                     goto err_free_packet;);
-        conn->on_packet.held_item_change(data, conn);
-
-        break;
-      }
-      case CMC_PACKETID_S2C_PLAY_USE_BED: {
-        if (!conn->on_packet.use_bed)
-          goto unhandeled_packet;
-        S2C_play_use_bed_packet_t data = ERR_ABLE(
-            unpack_S2C_play_use_bed_packet(packet), goto err_free_packet;);
-        conn->on_packet.use_bed(data, conn);
-
-        break;
-      }
-      case CMC_PACKETID_S2C_PLAY_ANIMATION: {
-        if (!conn->on_packet.animation)
-          goto unhandeled_packet;
-        S2C_play_animation_packet_t data = ERR_ABLE(
-            unpack_S2C_play_animation_packet(packet), goto err_free_packet;);
-        conn->on_packet.animation(data, conn);
-
-        break;
-      }
-      case CMC_PACKETID_S2C_PLAY_SPAWN_PLAYER: {
-        if (!conn->on_packet.spawn_player)
-          goto unhandeled_packet;
-        S2C_play_spawn_player_packet_t data = ERR_ABLE(
-            unpack_S2C_play_spawn_player_packet(packet), goto err_free_packet;);
-        conn->on_packet.spawn_player(data, conn);
-        cmc_free_S2C_play_spawn_player_packet(data);
-        break;
-      }
-      case CMC_PACKETID_S2C_PLAY_COLLECT_ITEM: {
-        if (!conn->on_packet.collect_item)
-          goto unhandeled_packet;
-        S2C_play_collect_item_packet_t data = ERR_ABLE(
-            unpack_S2C_play_collect_item_packet(packet), goto err_free_packet;);
-        conn->on_packet.collect_item(data, conn);
-
-        break;
-      }
-      case CMC_PACKETID_S2C_PLAY_SPAWN_MOB: {
-        if (!conn->on_packet.spawn_mob)
-          goto unhandeled_packet;
-        S2C_play_spawn_mob_packet_t data = ERR_ABLE(
-            unpack_S2C_play_spawn_mob_packet(packet), goto err_free_packet;);
-        conn->on_packet.spawn_mob(data, conn);
-        cmc_free_S2C_play_spawn_mob_packet(data);
-        break;
-      }
-      case CMC_PACKETID_S2C_PLAY_SPAWN_PAINTING: {
-        if (!conn->on_packet.spawn_painting)
-          goto unhandeled_packet;
-        S2C_play_spawn_painting_packet_t data =
-            ERR_ABLE(unpack_S2C_play_spawn_painting_packet(packet),
-                     goto err_free_packet;);
-        conn->on_packet.spawn_painting(data, conn);
-        cmc_free_S2C_play_spawn_painting_packet(data);
-        break;
-      }
-      case CMC_PACKETID_S2C_PLAY_SPAWN_EXPERIENCE_ORB: {
-        if (!conn->on_packet.spawn_experience_orb)
-          goto unhandeled_packet;
-        S2C_play_spawn_experience_orb_packet_t data =
-            ERR_ABLE(unpack_S2C_play_spawn_experience_orb_packet(packet),
-                     goto err_free_packet;);
-        conn->on_packet.spawn_experience_orb(data, conn);
-
-        break;
-      }
-      case CMC_PACKETID_S2C_PLAY_ENTITY_VELOCITY: {
-        if (!conn->on_packet.entity_velocity)
-          goto unhandeled_packet;
-        S2C_play_entity_velocity_packet_t data =
-            ERR_ABLE(unpack_S2C_play_entity_velocity_packet(packet),
-                     goto err_free_packet;);
-        conn->on_packet.entity_velocity(data, conn);
-
-        break;
-      }
-      case CMC_PACKETID_S2C_PLAY_ENTITY: {
-        if (!conn->on_packet.entity)
-          goto unhandeled_packet;
-        S2C_play_entity_packet_t data = ERR_ABLE(
-            unpack_S2C_play_entity_packet(packet), goto err_free_packet;);
-        conn->on_packet.entity(data, conn);
-
-        break;
-      }
-      case CMC_PACKETID_S2C_PLAY_ENTITY_RELATIVE_MOVE: {
-        if (!conn->on_packet.entity_relative_move)
-          goto unhandeled_packet;
-        S2C_play_entity_relative_move_packet_t data =
-            ERR_ABLE(unpack_S2C_play_entity_relative_move_packet(packet),
-                     goto err_free_packet;);
-        conn->on_packet.entity_relative_move(data, conn);
-
-        break;
-      }
-      case CMC_PACKETID_S2C_PLAY_ENTITY_LOOK: {
-        if (!conn->on_packet.entity_look)
-          goto unhandeled_packet;
-        S2C_play_entity_look_packet_t data = ERR_ABLE(
-            unpack_S2C_play_entity_look_packet(packet), goto err_free_packet;);
-        conn->on_packet.entity_look(data, conn);
-
-        break;
-      }
-      case CMC_PACKETID_S2C_PLAY_ENTITY_LOOK_AND_RELATIVE_MOVE: {
-        if (!conn->on_packet.entity_look_and_relative_move)
-          goto unhandeled_packet;
-        S2C_play_entity_look_and_relative_move_packet_t data = ERR_ABLE(
-            unpack_S2C_play_entity_look_and_relative_move_packet(packet),
-            goto err_free_packet;);
-        conn->on_packet.entity_look_and_relative_move(data, conn);
-
-        break;
-      }
-      case CMC_PACKETID_S2C_PLAY_ENTITY_TELEPORT: {
-        if (!conn->on_packet.entity_teleport)
-          goto unhandeled_packet;
-        S2C_play_entity_teleport_packet_t data =
-            ERR_ABLE(unpack_S2C_play_entity_teleport_packet(packet),
-                     goto err_free_packet;);
-        conn->on_packet.entity_teleport(data, conn);
-
-        break;
-      }
-      case CMC_PACKETID_S2C_PLAY_ENTITY_HEAD_LOOK: {
-        if (!conn->on_packet.entity_head_look)
-          goto unhandeled_packet;
-        S2C_play_entity_head_look_packet_t data =
-            ERR_ABLE(unpack_S2C_play_entity_head_look_packet(packet),
-                     goto err_free_packet;);
-        conn->on_packet.entity_head_look(data, conn);
-
-        break;
-      }
-      case CMC_PACKETID_S2C_PLAY_ENTITY_STATUS: {
-        if (!conn->on_packet.entity_status)
-          goto unhandeled_packet;
-        S2C_play_entity_status_packet_t data =
-            ERR_ABLE(unpack_S2C_play_entity_status_packet(packet),
-                     goto err_free_packet;);
-        conn->on_packet.entity_status(data, conn);
-
-        break;
-      }
-      case CMC_PACKETID_S2C_PLAY_ATTACH_ENTITY: {
-        if (!conn->on_packet.attach_entity)
-          goto unhandeled_packet;
-        S2C_play_attach_entity_packet_t data =
-            ERR_ABLE(unpack_S2C_play_attach_entity_packet(packet),
-                     goto err_free_packet;);
-        conn->on_packet.attach_entity(data, conn);
-
-        break;
-      }
-      case CMC_PACKETID_S2C_PLAY_ENTITY_METADATA: {
-        if (!conn->on_packet.entity_metadata)
-          goto unhandeled_packet;
-        S2C_play_entity_metadata_packet_t data =
-            ERR_ABLE(unpack_S2C_play_entity_metadata_packet(packet),
-                     goto err_free_packet;);
-        conn->on_packet.entity_metadata(data, conn);
-        cmc_free_S2C_play_entity_metadata_packet(data);
-        break;
-      }
-      case CMC_PACKETID_S2C_PLAY_ENTITY_EFFECT: {
-        if (!conn->on_packet.entity_effect)
-          goto unhandeled_packet;
-        S2C_play_entity_effect_packet_t data =
-            ERR_ABLE(unpack_S2C_play_entity_effect_packet(packet),
-                     goto err_free_packet;);
-        conn->on_packet.entity_effect(data, conn);
-
-        break;
-      }
-      case CMC_PACKETID_S2C_PLAY_REMOVE_ENTITY_EFFECT: {
-        if (!conn->on_packet.remove_entity_effect)
-          goto unhandeled_packet;
-        S2C_play_remove_entity_effect_packet_t data =
-            ERR_ABLE(unpack_S2C_play_remove_entity_effect_packet(packet),
-                     goto err_free_packet;);
-        conn->on_packet.remove_entity_effect(data, conn);
-
-        break;
-      }
-      case CMC_PACKETID_S2C_PLAY_SET_EXPERIENCE: {
-        if (!conn->on_packet.set_experience)
-          goto unhandeled_packet;
-        S2C_play_set_experience_packet_t data =
-            ERR_ABLE(unpack_S2C_play_set_experience_packet(packet),
-                     goto err_free_packet;);
-        conn->on_packet.set_experience(data, conn);
-
-        break;
-      }
-      case CMC_PACKETID_S2C_PLAY_CHUNK_DATA: {
-        if (!conn->on_packet.chunk_data)
-          goto unhandeled_packet;
-        S2C_play_chunk_data_packet_t data = ERR_ABLE(
-            unpack_S2C_play_chunk_data_packet(packet), goto err_free_packet;);
-        conn->on_packet.chunk_data(data, conn);
-        cmc_free_S2C_play_chunk_data_packet(data);
-        break;
-      }
-      case CMC_PACKETID_S2C_PLAY_BLOCK_CHANGE: {
-        if (!conn->on_packet.block_change)
-          goto unhandeled_packet;
-        S2C_play_block_change_packet_t data = ERR_ABLE(
-            unpack_S2C_play_block_change_packet(packet), goto err_free_packet;);
-        conn->on_packet.block_change(data, conn);
-
-        break;
-      }
-      case CMC_PACKETID_S2C_PLAY_BLOCK_ACTION: {
-        if (!conn->on_packet.block_action)
-          goto unhandeled_packet;
-        S2C_play_block_action_packet_t data = ERR_ABLE(
-            unpack_S2C_play_block_action_packet(packet), goto err_free_packet;);
-        conn->on_packet.block_action(data, conn);
-
-        break;
-      }
-      case CMC_PACKETID_S2C_PLAY_BLOCK_BREAK_ANIMATION: {
-        if (!conn->on_packet.block_break_animation)
-          goto unhandeled_packet;
-        S2C_play_block_break_animation_packet_t data =
-            ERR_ABLE(unpack_S2C_play_block_break_animation_packet(packet),
-                     goto err_free_packet;);
-        conn->on_packet.block_break_animation(data, conn);
-
-        break;
-      }
-      case CMC_PACKETID_S2C_PLAY_EFFECT: {
-        if (!conn->on_packet.effect)
-          goto unhandeled_packet;
-        S2C_play_effect_packet_t data = ERR_ABLE(
-            unpack_S2C_play_effect_packet(packet), goto err_free_packet;);
-        conn->on_packet.effect(data, conn);
-
-        break;
-      }
-      case CMC_PACKETID_S2C_PLAY_SOUND_EFFECT: {
-        if (!conn->on_packet.sound_effect)
-          goto unhandeled_packet;
-        S2C_play_sound_effect_packet_t data = ERR_ABLE(
-            unpack_S2C_play_sound_effect_packet(packet), goto err_free_packet;);
-        conn->on_packet.sound_effect(data, conn);
-        cmc_free_S2C_play_sound_effect_packet(data);
-        break;
-      }
-      case CMC_PACKETID_S2C_PLAY_CHANGE_GAME_STATE: {
-        if (!conn->on_packet.change_game_state)
-          goto unhandeled_packet;
-        S2C_play_change_game_state_packet_t data =
-            ERR_ABLE(unpack_S2C_play_change_game_state_packet(packet),
-                     goto err_free_packet;);
-        conn->on_packet.change_game_state(data, conn);
-
-        break;
-      }
-      case CMC_PACKETID_S2C_PLAY_PLAYER_ABILITIES: {
-        if (!conn->on_packet.player_abilities)
-          goto unhandeled_packet;
-        S2C_play_player_abilities_packet_t data =
-            ERR_ABLE(unpack_S2C_play_player_abilities_packet(packet),
-                     goto err_free_packet;);
-        conn->on_packet.player_abilities(data, conn);
-
-        break;
-      }
-      case CMC_PACKETID_S2C_PLAY_PLUGIN_MESSAGE: {
-        if (!conn->on_packet.plugin_message)
-          goto unhandeled_packet;
-        S2C_play_plugin_message_packet_t data =
-            ERR_ABLE(unpack_S2C_play_plugin_message_packet(packet),
-                     goto err_free_packet;);
-        conn->on_packet.plugin_message(data, conn);
-        cmc_free_S2C_play_plugin_message_packet(data);
-        break;
-      }
-      case CMC_PACKETID_S2C_PLAY_DISCONNECT: {
-        if (!conn->on_packet.disconnect)
-          goto unhandeled_packet;
-        S2C_play_disconnect_packet_t data = ERR_ABLE(
-            unpack_S2C_play_disconnect_packet(packet), goto err_free_packet;);
-        conn->on_packet.disconnect(data, conn);
-        cmc_free_S2C_play_disconnect_packet(data);
-        break;
-      }
-      case CMC_PACKETID_S2C_PLAY_CHANGE_DIFFICULTY: {
-        if (!conn->on_packet.change_difficulty)
-          goto unhandeled_packet;
-        S2C_play_change_difficulty_packet_t data =
-            ERR_ABLE(unpack_S2C_play_change_difficulty_packet(packet),
-                     goto err_free_packet;);
-        conn->on_packet.change_difficulty(data, conn);
-
-        break;
-      }
-        // CGSE: loop_handler
-      unhandeled_packet:
-        if (conn->on_unhandeld_packet)
-          conn->on_unhandeld_packet(packet, packet_id, conn);
-        break;
-      }
+      if (conn->on_packet)
+        conn->on_packet(packet, packet_id, conn);
       cmc_buffer_free(packet);
       break;
     err_free_packet:

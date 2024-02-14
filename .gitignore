@@ -1,6 +1,5 @@
 dev-help-res/
 example-data/
 fuzz/
-.vscode/
-.venv/
+.*/
 bin/

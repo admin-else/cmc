@@ -1,4 +1,5 @@
 #include "buffer.h"
+#include "assert.h"
 #include "err.h"
 #include "heap_utils.h"
 #include "nbt.h"
@@ -54,6 +55,7 @@ cmc_buffer *cmc_buffer_init_w_size(size_t n) {
 }
 
 void cmc_buffer_free(cmc_buffer *buffer) {
+  assert(buffer != NULL, return;);
   if (buffer->capacity) {
     FREE(buffer->data);
   }
@@ -229,15 +231,15 @@ char *cmc_buffer_unpack_string(cmc_buffer *buff) {
   return cmc_buffer_unpack_string_w_max_len(buff, DEFAULT_MAX_STRING_LENGTH);
 }
 
-void cmc_buffer_pack_position(cmc_buffer *buff, block_pos_t pos) {
+void cmc_buffer_pack_position(cmc_buffer *buff, cmc_block_pos pos) {
   uint64_t encoded_pos = ((pos.x & 0x3FFFFFF) << 38) | ((pos.y & 0xFFF) << 26) |
                          (pos.z & 0x3FFFFFF);
   cmc_buffer_pack_long(buff, encoded_pos);
 }
 
-block_pos_t cmc_buffer_unpack_position(cmc_buffer *buff) {
+cmc_block_pos cmc_buffer_unpack_position(cmc_buffer *buff) {
   uint64_t val = cmc_buffer_unpack_long(buff);
-  block_pos_t pos = {0, 0, 0};
+  cmc_block_pos pos = {0, 0, 0};
 
   ERR_CHECK(return pos;);
   pos.x = val >> 38;
@@ -277,7 +279,7 @@ cmc_buffer *cmc_buffer_unpack_byte_array(cmc_buffer *buff) {
   return ret;
 }
 
-void cmc_buffer_pack_slot(cmc_buffer *buff, slot_t *slot) {
+void cmc_buffer_pack_slot(cmc_buffer *buff, cmc_slot *slot) {
   if (slot == NULL) {
     cmc_buffer_pack_short(buff, -1);
     return;
@@ -289,11 +291,11 @@ void cmc_buffer_pack_slot(cmc_buffer *buff, slot_t *slot) {
   cmc_buffer_pack_nbt(buff, slot->tag_compound);
 }
 
-slot_t *cmc_buffer_unpack_slot(cmc_buffer *buff) {
+cmc_slot *cmc_buffer_unpack_slot(cmc_buffer *buff) {
   short item_id = cmc_buffer_unpack_short(buff);
   if (item_id < 0)
     return NULL;
-  slot_t *slot = MALLOC(sizeof(slot_t));
+  cmc_slot *slot = MALLOC(sizeof(cmc_slot));
   slot->item_id = item_id;
   slot->slot_size = cmc_buffer_unpack_byte(buff);
   slot->meta_data = cmc_buffer_unpack_short(buff);
@@ -302,10 +304,10 @@ slot_t *cmc_buffer_unpack_slot(cmc_buffer *buff) {
 }
 
 void cmc_buffer_pack_entity_metadata(cmc_buffer *buff,
-                                     entity_metadata_t metadata) {
+                                     cmc_entity_metadata metadata) {
   for (size_t i = 0; i < metadata.size; i++) {
-    entity_metadata_entry_t *entry =
-        metadata.entries + i * sizeof(entity_metadata_entry_t);
+    cmc_entity_metadata_entry *entry =
+        metadata.entries + i * sizeof(cmc_entity_metadata_entry);
     cmc_buffer_pack_char(buff, entry->type << 5 | entry->index);
     switch (entry->type) {
     case ENTITY_METADATA_ENTRY_TYPE_BYTE:
@@ -341,8 +343,8 @@ void cmc_buffer_pack_entity_metadata(cmc_buffer *buff,
   cmc_buffer_pack_byte(buff, 127);
 }
 
-entity_metadata_t cmc_buffer_unpack_entity_metadata(cmc_buffer *buff) {
-  entity_metadata_t meta_data = {0, NULL};
+cmc_entity_metadata cmc_buffer_unpack_entity_metadata(cmc_buffer *buff) {
+  cmc_entity_metadata meta_data = {0, NULL};
 
   while (true) {
     int8_t type_and_index = cmc_buffer_unpack_char(buff);
@@ -351,7 +353,7 @@ entity_metadata_t cmc_buffer_unpack_entity_metadata(cmc_buffer *buff) {
       break;
     }
 
-    entity_metadata_entry_t meta_data_entry;
+    cmc_entity_metadata_entry meta_data_entry;
     meta_data_entry.type = abs(type_and_index >> 5);
     meta_data_entry.index = type_and_index & 0x1F;
 
@@ -386,9 +388,9 @@ entity_metadata_t cmc_buffer_unpack_entity_metadata(cmc_buffer *buff) {
       break;
     }
 
-    entity_metadata_entry_t *new_entries =
+    cmc_entity_metadata_entry *new_entries =
         realloc(meta_data.entries,
-                (meta_data.size + 1) * sizeof(entity_metadata_entry_t));
+                (meta_data.size + 1) * sizeof(cmc_entity_metadata_entry));
     if (new_entries == NULL) {
       ERR(ERR_MEM, goto on_error;);
     }
@@ -408,10 +410,10 @@ on_error:
   return meta_data;
 }
 
-void free_entity_metadata(entity_metadata_t metadata) {
+void free_entity_metadata(cmc_entity_metadata metadata) {
   for (size_t i = 0; i < metadata.size; i++) {
-    entity_metadata_entry_t *entry =
-        metadata.entries + i * sizeof(entity_metadata_entry_t);
+    cmc_entity_metadata_entry *entry =
+        metadata.entries + i * sizeof(cmc_entity_metadata_entry);
     switch (entry->type) {
     case ENTITY_METADATA_ENTRY_TYPE_SLOT:
       // free_slot(entry->payload.slot_data);
@@ -429,7 +431,7 @@ void free_entity_metadata(entity_metadata_t metadata) {
 
 void free_string(char *str) { FREE(str); }
 
-void free_slot(slot_t *slot) {
+void free_slot(cmc_slot *slot) {
   nbt_free(slot->tag_compound);
   FREE(slot);
 }

@@ -70,6 +70,8 @@ def parse(exp, buff: Buffer1_7):
 
     
     name, packet_id, exp = exp.split(";", maxsplit=2)
+    if exp == "!":
+        return {"name": name, "data": "custom function"}
     return {"name": name, "data": parse2(exp, buff)}
 
 
