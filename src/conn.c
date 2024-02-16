@@ -13,19 +13,11 @@
 #include <zlib.h>
 
 struct cmc_conn *cmc_conn_init() {
-  struct cmc_conn *conn =
-      malloc(sizeof(*conn)); // TODO: when you guve a libary a custom allocator
-                             // it supposed to always use it i will have to make
-                             // it be that way but right now this will stay
-
+  struct cmc_conn *conn = MALLOC(sizeof(*conn));
   struct sockaddr_in localhost;
   localhost.sin_family = AF_INET;
   localhost.sin_port = htons(25565);
   inet_pton(AF_INET, "127.0.0.1", &(localhost.sin_addr));
-
-  conn->custom_heap.free = free;
-  conn->custom_heap.malloc = malloc;
-  conn->custom_heap.realloc = realloc;
 
   conn->addr = localhost;
   conn->name = "Bot";
@@ -163,7 +155,7 @@ void cmc_conn_send_packet(struct cmc_conn *conn, cmc_buffer *buff) {
     if (buff->length >= (size_t)conn->compression_threshold) {
       cmc_buffer_pack_varint(compressed_buffer, buff->length);
       uLong compressedSize = compressBound(buff->length);
-      Bytef *compressedData = (Bytef *)malloc(compressedSize);
+      Bytef *compressedData = (Bytef *)MALLOC(compressedSize);
       ERR_IF(compress(compressedData, &compressedSize, buff->data,
                       buff->length) != Z_OK,
              ERR_ZLIB_COMPRESS, goto on_error;);
