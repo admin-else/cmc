@@ -33,11 +33,6 @@ struct cmc_conn {
   unsigned char *shared_secret;
   /* string literal not in the heap */
   char *name;
-  struct {
-    void *(*malloc)(size_t n);
-    void *(*realloc)(void *ptr, size_t n);
-    void (*free)(void *ptr);
-  } custom_heap;
   void (*on_packet)(cmc_buffer *buff, int packet_id, struct cmc_conn *conn);
 };
 
