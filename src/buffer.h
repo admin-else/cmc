@@ -6,10 +6,11 @@
 #include <stdint.h>
 
 typedef struct {
-  unsigned char *data;
+  uint8_t *data;
   size_t position;
   size_t length;
   size_t capacity;
+  int protcol_version;
 } cmc_buffer;
 
 cmc_buffer *cmc_buffer_init();

@@ -25,7 +25,8 @@ enum cmc_err_type {
   ERR_INVALID_LENGHT,
   ERR_INVALID_NBT_TAG_TYPE,
   ERR_NOT_IMPLEMENTED_YET,
-  ERR_ASSERT
+  ERR_ASSERT,
+  ERR_UNSUPPORTED_PROTOCOL_VERSION
 };
 
 const char *err_id2str(enum cmc_err_type err);
