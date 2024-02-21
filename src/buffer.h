@@ -10,7 +10,7 @@ typedef struct {
   size_t position;
   size_t length;
   size_t capacity;
-  int protcol_version;
+  int protocol_version;
 } cmc_buffer;
 
 cmc_buffer *cmc_buffer_init();

@@ -1,4 +1,5 @@
 #include "packets.h"
+#include "heap_utils.h"
 #include "buffer.h"
 #include "conn.h"
 #include "err.h"
@@ -775,22 +776,9 @@ void send_packet_C2S_play_keep_alive(struct cmc_conn *conn, int keep_alive_id) {
 // CGSE: send_methods_c
 
 // CGSS: unpack_methods_c
-C2S_handshake_handshake_packet *unpack_C2S_handshake_handshake_packet(cmc_buffer *buff) {
-  C2S_handshake_handshake_packet packet;
-  switch(buff->protocol_version) {
-    case 47: {
-      packet.protocole_version=cmc_buffer_unpack_varint(buff);
-      packet.server_addr=cmc_buffer_unpack_string(buff);
-      packet.server_port=cmc_buffer_unpack_ushort(buff);
-      packet.next_state=cmc_buffer_unpack_varint(buff);
-      goto done_unpacking;
-    }
-    default: ERR(ERR_UNSUPPORTED_PROTOCOL_VERSION, return NULL;);
-  }
+C2S_handshake_handshake_packet *unpack_C2S_handshake_handshake_packet(cmc_buffer *buff) {C2S_handshake_handshake_packet packet;switch(buff->protocol_version) {case 47: {packet.protocole_version=cmc_buffer_unpack_varint(buff);packet.server_addr=cmc_buffer_unpack_string(buff);packet.server_port=cmc_buffer_unpack_ushort(buff);packet.next_state=cmc_buffer_unpack_varint(buff);goto done_unpacking;}default: ERR(ERR_UNSUPPORTED_PROTOCOL_VERSION, return NULL)}
 done_unpacking:
-  UNPACK_ERR_HANDELER;
-  return packet;
-}
+               UNPACK_ERR_HANDELER;return packet;}
 
 S2C_status_response_packet *unpack_S2C_status_response_packet(cmc_buffer *buff) {S2C_status_response_packet packet;switch(buff->protocol_version) {case 47: {packet.response=cmc_buffer_unpack_string(buff);goto done_unpacking;}default: ERR(ERR_UNSUPPORTED_PROTOCOL_VERSION, return NULL)}
 done_unpacking:

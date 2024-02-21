@@ -83,14 +83,10 @@ done_unpacking:
     return code
 
 
-def unpack_method_h(input_str):
-    packet_name, packet_id, symbol_str = input_str.split(";", maxsplit=2)
-    symbols = [sym for sym in symbol_str.split(";") if sym != ""]
-    return (
-        f"{packet_name}_packet unpack_{packet_name}_packet(cmc_buffer *buff);\n\n"
-        if symbols
-        else ""
-    )
+def unpack_method_h(inp):
+    if inp['is_empty']:
+        return ""
+    return f"{inp['name']}_packet *unpack_{inp['name']}_packet(cmc_buffer *buff)"
 
 
 def send_method(input_str):
