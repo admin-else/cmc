@@ -1,9 +1,6 @@
 import os
 import re
 
-with open("packets/custom.c", "r") as f:
-    custom_code = f.read()
-
 type_map = {
     #  TYPE  |code tpye             |method type       |is heap
     "b": ["char ", "char", False],
@@ -66,24 +63,24 @@ def type_def(input_str):
     )
 
 
-def unpack_method(input_str):
-    packet_name, packet_id, symbol_str = input_str.split(";", maxsplit=2)
-    symbols = [sym for sym in symbol_str.split(";") if sym != ""]
-    unpack_method_define = (
-        f"{packet_name}_packet unpack_{packet_name}_packet(cmc_buffer *buff)"
+def unpack_method(inp):
+    if inp["is_empty"]:
+        return ""
+    code = (
+        f"{inp['name']}_packet *unpack_{inp['name']}_packet(cmc_buffer *buff) {{{inp['name']}_packet packet;"
     )
-    unpack_methods = "".join(
-        [
-            f"packet.{symbol[1:]}=cmc_buffer_unpack_{type_map[symbol[0]][1]}(buff);"
-            for symbol in symbols
-        ]
-    )
-    unpack_method = (
-        f"{unpack_method_define} {{{packet_name}_packet packet;{unpack_methods} UNPACK_ERR_HANDELER;return packet;}}\n\n"
-        if symbols
-        else ""
-    )
-    return unpack_method
+    code += "switch(buff->protocol_version) {"
+    for pv, data in inp["packet_data"].items():
+        code += f"case {pv}: {{" + "".join(
+            [
+                f"packet.{symbol[1:]}=cmc_buffer_unpack_{type_map[symbol[0]][1]}(buff);"
+                for symbol in data["content"]
+            ]
+        ) + "goto done_unpacking;}"
+    code += """default: ERR(ERR_UNSUPPORTED_PROTOCOL_VERSION, return NULL)}
+done_unpacking:
+               UNPACK_ERR_HANDELER;return packet;}\n\n"""
+    return code
 
 
 def unpack_method_h(input_str):
@@ -115,30 +112,10 @@ def send_method_h(input_str):
     symbols = [sym for sym in symbol_str.split(";") if sym != ""]
     return f"void send_packet_{packet_name}(struct cmc_conn *conn{',' if symbols else ''} {', '.join([f'{type_map[symbol[0]][0]}{symbol[1:]}' for symbol in symbols])});\n\n"
 
-
-def comment_filter(raw):
-    out = ""
-    comment = False
-    for token in raw:
-        if token == "#":
-            comment = True
-
-        if comment:
-            if token == "\n":
-                out += token
-                comment = False
-            continue
-
-        out += token
-    return out
-
-
 def packet_ids(mc_packet_exps):
-    packet_states = []
+    packet_states = set()
     for exp in mc_packet_exps:
-        a = "_".join(exp.split("_")[:2])
-        if a not in packet_states:
-            packet_states.append(a)
+        packet_states.add("_".join(exp.split("_")[:2]))
 
     code = ""
     for state in packet_states:
@@ -183,29 +160,49 @@ def loop_handler(exp):
         break;
     }}"""
 
+def gather_packets():
+    out = {}
+    for fname in os.listdir("packets"):
+        with open("packets/" + fname, "r") as f:
+            vid = int(fname.split(".")[0])
+            for exp in f.read().replace(" ", "").split("\n"):
+                if exp.find("#") != -1:
+                    exp = exp[:exp.find("#")]
+                if not exp:
+                    continue
+                
+                packet_name, packet_id, symbol_str = exp.split(";", maxsplit=2)
+                
+                if packet_name not in out:
+                    out[packet_name] = {}
+                    out[packet_name]["is_empty"] = True
+                if "packet_data" not in out[packet_name]:
+                    out[packet_name]["packet_data"] = {}
+                if vid not in out[packet_name]["packet_data"]:
+                    out[packet_name]["packet_data"][vid] = {}
+                
+                if symbol_str:
+                    out[packet_name]["packet_data"][vid]["content"] = symbol_str.split(";")
+                    out[packet_name]["is_empty"] = False
+                out[packet_name]["packet_data"][vid]["packet_id"] = packet_id
+                out[packet_name]["name"] = packet_name
+
+    return list(out.values())
+
 def main():
-    with open("packets/packets.txt", "r") as f:
-        raw = f.read()
-
-    raw = comment_filter(raw)
-
-    raw = raw.replace(" ", "").split("\n")
-    mc_packet_exps = []
-    for l in raw:
-        if not l == "":
-            mc_packet_exps.append(l)
+    mc_packet_exps = gather_packets()
 
     # packet unpack methods
     replace_code_segments(
         "".join([unpack_method(mc_packet_exp) for mc_packet_exp in mc_packet_exps]),
         "unpack_methods_c",
     )
-
-    # packet unpack methods header
     replace_code_segments(
         "".join([unpack_method_h(mc_packet_exps) for mc_packet_exps in mc_packet_exps]),
         "unpack_methods_h",
     )
+    exit()
+    # packet unpack methods header
 
     # packet send methods
     replace_code_segments(
