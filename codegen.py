@@ -67,31 +67,46 @@ def unpack_method(inp):
     if inp["is_empty"]:
         return ""
     code = (
-        f"{inp['name']}_packet *unpack_{inp['name']}_packet(cmc_buffer *buff) {{{inp['name']}_packet packet;"
+        f"{inp['name']}_packet *unpack_{inp['name']}_packet(cmc_buffer *buff) {{{inp['name']}_packet *packet = MALLOC(sizeof(*packet));"
     )
     code += "switch(buff->protocol_version) {"
     for pv, data in inp["packet_data"].items():
         code += f"case {pv}: {{" + "".join(
             [
-                f"packet.{symbol[1:]}=cmc_buffer_unpack_{type_map[symbol[0]][1]}(buff);"
+                f"packet->{symbol[1:]}=cmc_buffer_unpack_{type_map[symbol[0]][1]}(buff);"
                 for symbol in data["content"]
             ]
-        ) + "goto done_unpacking;}"
-    code += """default: ERR(ERR_UNSUPPORTED_PROTOCOL_VERSION, return NULL)}
-done_unpacking:
+        ) + "break;}"
+    code += """default: ERR(ERR_UNSUPPORTED_PROTOCOL_VERSION, return NULL;);}
                UNPACK_ERR_HANDELER;return packet;}\n\n"""
     return code
 
+def send_method(inp):
+    code = "void cmc_send_{}_packet(cmc_conn *conn{})".format(inp['name'], f", {inp['name']}_packet *packet" if not inp["is_empty"] else "")
+    code += "{cmc_buffer *buff = cmc_buffer_init();"
+    code += "switch(buff->protocol_version) {"
+    for pv, data in inp["packet_data"].items():
+        print(data)
+        code += f"case {pv}: {{" 
+        code += f"cmc_buffer_pack_varint(buff, {data['packet_id']});"
+        if "content" in data:
+            code += "".join(
+                [
+                    f"packet->{symbol[1:]}=cmc_buffer_unpack_{type_map[symbol[0]][1]}(buff);"
+                    for symbol in data["content"]
+                ]
+            )
+        code += "break;}"
+    code += """default: 
+        cmc_buffer_free(buff);
+        ERR(ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    }
+    cmc_conn_send_packet(conn, buff);
+    cmc_buffer_free(buff);
+    }\n\n"""
 
-def unpack_method_h(inp):
-    if inp['is_empty']:
-        return ""
-    return f"{inp['name']}_packet *unpack_{inp['name']}_packet(cmc_buffer *buff)"
+    return code
 
-
-def send_method(input_str):
-    packet_name, packet_id, symbol_str = input_str.split(";", maxsplit=2)
-    symbols = [sym for sym in symbol_str.split(";") if sym != ""]
     pack_methods = f"cmc_buffer_pack_varint(buff, CMC_PACKETID_{packet_name.upper()});" + "".join(
         [
             f"cmc_buffer_pack_{type_map[symbol[0]][1]}(buff, {symbol[1:]});"
@@ -194,13 +209,11 @@ def main():
         "unpack_methods_c",
     )
     replace_code_segments(
-        "".join([unpack_method_h(mc_packet_exps) for mc_packet_exps in mc_packet_exps]),
+        "".join([f"{inp['name']}_packet *unpack_{inp['name']}_packet(cmc_buffer *buff);" if not inp['is_empty'] else "" for inp in mc_packet_exps]),
         "unpack_methods_h",
     )
-    exit()
     # packet unpack methods header
 
-    # packet send methods
     replace_code_segments(
         "".join([send_method(mc_packet_exp) for mc_packet_exp in mc_packet_exps]),
         "send_methods_c",
@@ -208,7 +221,7 @@ def main():
 
     # packet send methods header
     replace_code_segments(
-        "".join([send_method_h(mc_packet_exp) for mc_packet_exp in mc_packet_exps]),
+        "".join(["void cmc_send_{}_packet(cmc_conn *conn{});".format(inp['name'], f", {inp['name']}_packet *packet" if not inp["is_empty"] else "") for inp in mc_packet_exps]),
         "send_methods_h",
     )
 
@@ -239,15 +252,6 @@ def main():
     replace_code_segments(
         "\n".join([f"void cmc_free_{exp.split(';', maxsplit=2)[0]}_packet({exp.split(';', maxsplit=2)[0]}_packet packet);" for exp in mc_packet_exps if should_have_free_method(exp)]), "free_methods_h"
     )
-
-    os.system("clang-format -i ./src/*.c ./src/*.h")
-    # The Zen of Python, by Tim Peters
-    #
-    # Beautiful is better than ugly.
-    # ...
-
-    # i mean there is no zen of c ...
-
 
 if __name__ == "__main__":
     main()
