@@ -212,9 +212,9 @@ void cmc_conn_loop(struct cmc_conn *conn) {
         ERR(ERR_SERVER_ONLINE_MODE, goto err_free_packet;);
         break;
       case CMC_PACKETID_S2C_LOGIN_SET_COMPRESSION: {
-        S2C_login_set_compression_packet compression_data =
+        S2C_login_set_compression_packet *compression_data =
             unpack_S2C_login_set_compression_packet(packet);
-        conn->compression_threshold = compression_data.threshold;
+        conn->compression_threshold = compression_data->threshold;
         break;
       }
       case CMC_PACKETID_S2C_LOGIN_SUCCESS:
