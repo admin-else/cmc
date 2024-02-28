@@ -53,14 +53,11 @@ def replace_code_segments(replacement_code, tag):
     raise ValueError(f"didnt find tag {tag}")
 
 
-def type_def(input_str):
-    packet_name, packet_id, symbol_str = input_str.split(";", maxsplit=2)
-    symbols = [sym for sym in symbol_str.split(";") if sym != ""]
-    return (
-        f"typedef struct {{{''.join([f'{type_map[symbol[0]][0]}{symbol[1:]};' for symbol in symbols])}}} {packet_name}_packet;\n\n"
-        if symbols
-        else ""
-    )
+def type_def(inp):
+    if inp["is_empty"]:
+        return ""
+    return f"typedef struct {{{''.join([f'{type_map[symbol[0]][0]}{symbol[1:]};' for symbol in inp['packet_type_content']])}}} {inp['name']}_packet;\n\n"
+    
 
 
 def unpack_method(inp):
@@ -86,7 +83,6 @@ def send_method(inp):
     code += "{cmc_buffer *buff = cmc_buffer_init();"
     code += "switch(buff->protocol_version) {"
     for pv, data in inp["packet_data"].items():
-        print(data)
         code += f"case {pv}: {{" 
         code += f"cmc_buffer_pack_varint(buff, {data['packet_id']});"
         if "content" in data:
@@ -107,22 +103,6 @@ def send_method(inp):
 
     return code
 
-    pack_methods = f"cmc_buffer_pack_varint(buff, CMC_PACKETID_{packet_name.upper()});" + "".join(
-        [
-            f"cmc_buffer_pack_{type_map[symbol[0]][1]}(buff, {symbol[1:]});"
-            for symbol in symbols
-        ]
-    )
-    send_method_define = f"void send_packet_{packet_name}(struct cmc_conn *conn{', ' if symbols else ''} {', '.join([f'{type_map[symbol[0]][0]}{symbol[1:]}' for symbol in symbols])})"
-    send_method = f"{send_method_define} {{cmc_buffer *buff = cmc_buffer_init();{pack_methods}  ERR_CHECK(return;); cmc_conn_send_packet(conn, buff);}}\n\n"
-    return send_method
-
-
-def send_method_h(input_str):
-    packet_name, packet_id, symbol_str = input_str.split(";", maxsplit=2)
-    symbols = [sym for sym in symbol_str.split(";") if sym != ""]
-    return f"void send_packet_{packet_name}(struct cmc_conn *conn{',' if symbols else ''} {', '.join([f'{type_map[symbol[0]][0]}{symbol[1:]}' for symbol in symbols])});\n\n"
-
 def packet_ids(mc_packet_exps):
     packet_states = set()
     for exp in mc_packet_exps:
@@ -138,20 +118,11 @@ def packet_ids(mc_packet_exps):
 
     return code
 
-def should_have_free_method(exp):
-    packet_name, packet_id, symbol_str = exp.split(";", maxsplit=2)
-    symbols = [sym for sym in symbol_str.split(";") if sym != ""]
-    if [True for sym in symbols if type_map[sym[0]][2]]:
-        return True
-    return False
-
-def free_method(exp):
-    packet_name, packet_id, symbol_str = exp.split(";", maxsplit=2)
-    symbols = [sym for sym in symbol_str.split(";") if sym != ""]
-    if not should_have_free_method(exp):
+def free_method(inp):
+    if not inp['is_heap']:
         return ""
 
-    code = f"void cmc_free_{packet_name}_packet({packet_name}_packet packet) {{"
+    code = f"void cmc_free_{inp['name']}_packet({inp['name']}_packet packet) {{"
     for sym in symbols:
         if type_map[sym[0]][2]:
             code += f"free_{type_map[sym[0]][1]}(packet.{sym[1:]});"
@@ -191,17 +162,37 @@ def gather_packets():
                     out[packet_name]["packet_data"] = {}
                 if vid not in out[packet_name]["packet_data"]:
                     out[packet_name]["packet_data"][vid] = {}
-                
                 if symbol_str:
                     out[packet_name]["packet_data"][vid]["content"] = symbol_str.split(";")
                     out[packet_name]["is_empty"] = False
+
+                    out[packet_name]["is_heap"] = False
+                    content = set()
+                    for _, val in out[packet_name]["packet_data"].items():
+                        for field in val["content"]:
+                            content.add(field)
+                            if type_map[field[0]][2]:
+                                out[packet_name]["is_heap"] = True
+                    
+                    out[packet_name]["packet_type_content"] = content
+
                 out[packet_name]["packet_data"][vid]["packet_id"] = packet_id
                 out[packet_name]["name"] = packet_name
 
     return list(out.values())
 
+def packet_name_id_define(exps):
+    names = set([exp["name"].upper() for exp in exps])
+    code = "typedef enum {"
+    for name in names:
+        code += f"CMC_{name}_NAME_ID,"
+    code += "}cmc_packet_name_id;"
+    return code
+
 def main():
     mc_packet_exps = gather_packets()
+    
+    replace_code_segments(packet_name_id_define(mc_packet_exps), "packet_name_id_define")
 
     # packet unpack methods
     replace_code_segments(
@@ -224,20 +215,6 @@ def main():
         "".join(["void cmc_send_{}_packet(cmc_conn *conn{});".format(inp['name'], f", {inp['name']}_packet *packet" if not inp["is_empty"] else "") for inp in mc_packet_exps]),
         "send_methods_h",
     )
-
-    # packet id to string
-    replace_code_segments( # case PACKET_ID(0x00, CONN_STATE_HANDSHAKE, DIRECTION_C2S): return "C2S_handshake_handshake";
-        "".join(
-            [
-                f"case PACKET_ID({mc_packet_exp.split(';')[1]}, CMC_CONN_STATE_{mc_packet_exp.split(';')[0].split('_')[1].upper()}, CMC_DIRECTION_{mc_packet_exp.split(';')[0].split('_')[0].upper()}): return \"{mc_packet_exp.split(';')[0]}\";"
-                for mc_packet_exp in mc_packet_exps
-            ]
-        ),
-        "packet_id_to_string",
-    )
-
-    # packet ids
-    replace_code_segments(packet_ids(mc_packet_exps), "packet_ids")
 
     # type defs
     replace_code_segments(
