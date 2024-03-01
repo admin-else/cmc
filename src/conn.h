@@ -28,11 +28,11 @@ struct cmc_conn {
   int sockfd;
   struct sockaddr_in addr;
   cmc_conn_state state; // SEE cmc_conn_STATE_ macros
-  cmc_conn_state next_state;
   ssize_t compression_threshold;
   unsigned char *shared_secret;
   /* string literal not in the heap */
   char *name;
+  int protocol_version;
   void (*on_packet)(cmc_buffer *buff, int packet_id, struct cmc_conn *conn);
 };
 

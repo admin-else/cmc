@@ -190,33 +190,50 @@ void cmc_conn_loop(struct cmc_conn *conn) {
 
   ERR_IF_LESS_THAN_ZERO(
       connect(conn->sockfd, (struct sockaddr *)&conn->addr, sizeof(conn->addr)),
-      ERR_CONNETING, goto err_close_conn;);
-  ERR_ABLE(send_packet_C2S_handshake_handshake(conn, 47, "cmc", 25565,
-                                               CMC_CONN_STATE_LOGIN),
-           goto err_close_conn;);
-  ERR_ABLE(send_packet_C2S_login_start(conn, conn->name), goto err_close_conn;);
+      ERR_CONNETING, return;);
+  conn->state = CMC_CONN_STATE_HANDSHAKE;
+  C2S_handshake_handshake_packet handshake = {
+      .server_addr = "cmc", CMC_CONN_STATE_LOGIN, 47, 25565};
+  C2S_login_start_packet login_start = {.name = conn->name};
+  ERR_ABLE(cmc_send_C2S_handshake_handshake_packet(conn, &handshake), goto close_conn;);
+  ERR_ABLE(cmc_send_C2S_login_start_packet(conn, &login_start), goto close_conn;);
   conn->state = CMC_CONN_STATE_LOGIN;
-  while (conn->state != CMC_CONN_STATE_OFFLINE) {
+  while (conn->state == CMC_CONN_STATE_LOGIN) {
+    cmc_buffer *raw_packet = ERR_ABLE(cmc_conn_recive_packet(conn), break;);
+    int packet_id = ERR_ABLE(cmc_buffer_unpack_varint(raw_packet), break;);
+    int pnid = cmc_packet_id_to_packet_name_id(packet_id, conn->state, CMC_DIRECTION_S2C, conn->protocol_version);
+    switch (pnid) {
+      case CMC_S2C_LOGIN_DISCONNECT_NAME_ID:
+        ERR(ERR_KICKED_WHILE_LOGIN, conn->state = CMC_CONN_STATE_OFFLINE;);
+      case CMC_S2C_LOGIN_ENCRYPTION_REQUEST_NAME_ID:
+        ERR(ERR_SERVER_ONLINE_MODE, conn->state = CMC_CONN_STATE_OFFLINE;);
+      case CMC_INVALID_NAME_ID:
+        ERR(ERR_UNKOWN_PACKET, conn->state = CMC_CONN_STATE_OFFLINE;);
+      default:
+        ERR(ERR_UNEXPECTED_PACKET, conn->state = CMC_CONN_STATE_OFFLINE;);
+    }
+    cmc_buffer_free(raw_packet);
+  }
+close_conn:
+  cmc_conn_close(conn);
+  /* 
     cmc_buffer *packet =
         ERR_ABLE(cmc_conn_recive_packet(conn), goto err_close_conn;);
 
     int packet_id =
         ERR_ABLE(cmc_buffer_unpack_varint(packet), goto err_free_packet;);
-    switch (conn->state) {
-    case CMC_CONN_STATE_LOGIN: {
+    cmc_packet_name_id pnid = cmc_packet_id_to_packet_name_id(
+        packet_id, conn->state, CMC_DIRECTION_S2C, 47);
+    switch (pnid) {
+    case CMC_S2C_LOGIN_DISCONNECT_NAME_ID:
+      ERR(ERR_KICKED_WHILE_LOGIN, goto err_free_packet;);
+      break;
+    case CMC_S2C_LOGIN_ENCRYPTION_REQUEST_NAME_ID:
+      ERR(ERR_SERVER_ONLINE_MODE, goto err_free_packet;);
+      break;
+
       switch (packet_id) {
-      case CMC_PACKETID_S2C_LOGIN_DISCONNECT:
-        ERR(ERR_KICKED_WHILE_LOGIN, goto err_free_packet;);
-        break;
-      case CMC_PACKETID_S2C_LOGIN_ENCRYPTION_REQUEST:
-        ERR(ERR_SERVER_ONLINE_MODE, goto err_free_packet;);
-        break;
-      case CMC_PACKETID_S2C_LOGIN_SET_COMPRESSION: {
-        S2C_login_set_compression_packet *compression_data =
-            unpack_S2C_login_set_compression_packet(packet);
-        conn->compression_threshold = compression_data->threshold;
-        break;
-      }
+
       case CMC_PACKETID_S2C_LOGIN_SUCCESS:
         conn->state = CMC_CONN_STATE_PLAY;
         break;
@@ -225,19 +242,16 @@ void cmc_conn_loop(struct cmc_conn *conn) {
         break;
       }
       break;
-    }
+
     case CMC_CONN_STATE_PLAY:
       if (conn->on_packet)
         conn->on_packet(packet, packet_id, conn);
       cmc_buffer_free(packet);
       break;
-    err_free_packet:
-      cmc_buffer_free(packet);
+
       goto err_close_conn;
     default:
       break;
     }
-  }
-err_close_conn:
-  cmc_conn_close(conn);
+    } */
 }

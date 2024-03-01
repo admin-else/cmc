@@ -56,7 +56,7 @@ def replace_code_segments(replacement_code, tag):
 def type_def(inp):
     if inp["is_empty"]:
         return ""
-    return f"typedef struct {{{''.join([f'{type_map[symbol[0]][0]}{symbol[1:]};' for symbol in inp['packet_type_content']])}}} {inp['name']}_packet;\n\n"
+    return f"typedef struct {{{''.join([f'{type_map[symbol[0]][0]}{symbol[1:]};' for symbol in inp['type_def_content']])}}} {inp['name']}_packet;\n\n"
     
 
 
@@ -123,24 +123,11 @@ def free_method(inp):
         return ""
 
     code = f"void cmc_free_{inp['name']}_packet({inp['name']}_packet packet) {{"
-    for sym in symbols:
+    for sym in inp["type_def_content"]:
         if type_map[sym[0]][2]:
             code += f"free_{type_map[sym[0]][1]}(packet.{sym[1:]});"
     code += "}"
     return code
-
-def loop_handler(exp):
-    packet_name, packet_id, symbol_str = exp.split(";", maxsplit=2)
-    short_packet_name = "_".join(packet_name.split("_")[2:])
-    return f"""case CMC_PACKETID_S2C_PLAY_{short_packet_name.upper()}: {{
-        if (!conn->on_packet.{short_packet_name})
-          goto unhandeled_packet;
-        S2C_play_{short_packet_name}_packet data =
-            ERR_ABLE(unpack_S2C_play_{short_packet_name}_packet(packet), goto err_free_packet;);
-        conn->on_packet.{short_packet_name}(data, conn);
-        {f'cmc_free_S2C_play_{short_packet_name}_packet(data);' if should_have_free_method(exp) else ''}
-        break;
-    }}"""
 
 def gather_packets():
     out = {}
@@ -158,6 +145,8 @@ def gather_packets():
                 if packet_name not in out:
                     out[packet_name] = {}
                     out[packet_name]["is_empty"] = True
+                    out[packet_name]["is_heap"] = False
+
                 if "packet_data" not in out[packet_name]:
                     out[packet_name]["packet_data"] = {}
                 if vid not in out[packet_name]["packet_data"]:
@@ -166,7 +155,6 @@ def gather_packets():
                     out[packet_name]["packet_data"][vid]["content"] = symbol_str.split(";")
                     out[packet_name]["is_empty"] = False
 
-                    out[packet_name]["is_heap"] = False
                     content = set()
                     for _, val in out[packet_name]["packet_data"].items():
                         for field in val["content"]:
@@ -174,7 +162,7 @@ def gather_packets():
                             if type_map[field[0]][2]:
                                 out[packet_name]["is_heap"] = True
                     
-                    out[packet_name]["packet_type_content"] = content
+                    out[packet_name]["type_def_content"] = content
 
                 out[packet_name]["packet_data"][vid]["packet_id"] = packet_id
                 out[packet_name]["name"] = packet_name
@@ -187,6 +175,14 @@ def packet_name_id_define(exps):
     for name in names:
         code += f"CMC_{name}_NAME_ID,"
     code += "}cmc_packet_name_id;"
+    return code
+
+def packet_id_to_packet_name_id(inp):
+    code = ""
+    for packet in inp:
+        direction, state, *_ = packet["name"].split("_")
+        for protcole_version, data in packet['packet_data'].items():
+            code += f"case (({protcole_version} | ((uint64_t)CMC_CONN_STATE_{state.upper()}) << 32 | ((uint64_t)CMC_DIRECTION_{direction}) << 35 | ((uint64_t){data['packet_id']}) << 36)): return CMC_{packet['name'].upper()}_NAME_ID;"
     return code
 
 def main():
@@ -227,8 +223,10 @@ def main():
     )
 
     replace_code_segments(
-        "\n".join([f"void cmc_free_{exp.split(';', maxsplit=2)[0]}_packet({exp.split(';', maxsplit=2)[0]}_packet packet);" for exp in mc_packet_exps if should_have_free_method(exp)]), "free_methods_h"
+        "\n".join([f"void cmc_free_{inp['name']}_packet({inp['name']}_packet packet);" for inp in mc_packet_exps if inp["is_heap"]]), "free_methods_h"
     )
+
+    replace_code_segments(packet_id_to_packet_name_id(mc_packet_exps), "packet_id_to_packet_name_id")
 
 if __name__ == "__main__":
     main()
