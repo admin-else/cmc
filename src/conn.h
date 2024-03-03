@@ -29,16 +29,13 @@ struct cmc_conn {
   struct sockaddr_in addr;
   cmc_conn_state state; // SEE cmc_conn_STATE_ macros
   ssize_t compression_threshold;
-  unsigned char *shared_secret;
-  /* string literal not in the heap */
   char *name;
   int protocol_version;
-  void (*on_packet)(cmc_buffer *buff, int packet_id, struct cmc_conn *conn);
 };
 
 typedef struct cmc_conn cmc_conn;
 
-struct cmc_conn *cmc_conn_init();
+struct cmc_conn cmc_conn_init(int protocol_version);
 
 cmc_buffer *cmc_conn_recive_packet(struct cmc_conn *conn);
 
@@ -50,8 +47,6 @@ void cmc_conn_send_packet(struct cmc_conn *conn, cmc_buffer *buff);
 
 cmc_buffer *cmc_conn_recive_packet(struct cmc_conn *conn);
 
-void cmc_conn_free(struct cmc_conn *conn);
-
 void cmc_conn_close(struct cmc_conn *conn);
 
-void cmc_conn_loop(struct cmc_conn *conn);
+void cmc_conn_login(struct cmc_conn *conn);
