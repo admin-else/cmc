@@ -13,8 +13,7 @@ typedef struct {
   int protocol_version;
 } cmc_buffer;
 
-cmc_buffer *cmc_buffer_init();
-cmc_buffer *cmc_buffer_init_w_size(size_t n);
+cmc_buffer *cmc_buffer_init(int protocol_version);
 void cmc_buffer_print_info(cmc_buffer *buff);
 void cmc_buffer_free(cmc_buffer *buffer);
 cmc_buffer *cmc_buffer_combine(cmc_buffer *buff1, cmc_buffer *buff2);

@@ -12,28 +12,20 @@
 #include <unistd.h>
 #include <zlib.h>
 
-struct cmc_conn *cmc_conn_init() {
-  struct cmc_conn *conn = MALLOC(sizeof(*conn));
+struct cmc_conn cmc_conn_init(int protocol_version) {
+  struct cmc_conn conn;
   struct sockaddr_in localhost;
   localhost.sin_family = AF_INET;
   localhost.sin_port = htons(25565);
   inet_pton(AF_INET, "127.0.0.1", &(localhost.sin_addr));
 
-  conn->addr = localhost;
-  conn->name = "Bot";
-  conn->state = CMC_CONN_STATE_OFFLINE;
-  conn->compression_threshold = -1;
-  conn->sockfd = -1;
-  conn->shared_secret = NULL;
-  conn->on_packet = NULL;
+  conn.addr = localhost;
+  conn.name = "Bot";
+  conn.state = CMC_CONN_STATE_OFFLINE;
+  conn.compression_threshold = -1;
+  conn.sockfd = -1;
+  conn.protocol_version = protocol_version;
   return conn;
-}
-
-void cmc_conn_free(struct cmc_conn *conn) {
-  assert(conn->state == CMC_CONN_STATE_OFFLINE);
-  if (conn->shared_secret)
-    FREE(conn->shared_secret);
-  FREE(conn);
 }
 
 void cmc_conn_close(struct cmc_conn *conn) {
@@ -86,7 +78,8 @@ cmc_buffer *cmc_conn_recive_packet(struct cmc_conn *conn) {
 
   ERR_IF_LESS_OR_EQ_TO_ZERO(packet_len, ERR_INVALID_PACKET_LEN, return NULL;);
 
-  cmc_buffer *buff = cmc_buffer_init_w_size(packet_len);
+  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+  cmc_buffer_pack(buff, NULL, packet_len);
   ERR_IF(recv_all(conn->sockfd, buff->data, packet_len) == -1, ERR_RECV,
          goto on_err1;);
 
@@ -124,7 +117,7 @@ cmc_buffer *cmc_conn_recive_packet(struct cmc_conn *conn) {
 
   cmc_buffer_free(buff);
 
-  cmc_buffer *decompressed_buff = cmc_buffer_init();
+  cmc_buffer *decompressed_buff = cmc_buffer_init(conn->protocol_version);
   decompressed_buff->data = decompressed_data;
   decompressed_buff->capacity = decompressed_length;
   decompressed_buff->length = decompressed_length;
@@ -150,7 +143,7 @@ inline void print_bytes_py(unsigned char *bytes, size_t len) {
 }
 
 void cmc_conn_send_packet(struct cmc_conn *conn, cmc_buffer *buff) {
-  cmc_buffer *compressed_buffer = cmc_buffer_init();
+  cmc_buffer *compressed_buffer = cmc_buffer_init(conn->protocol_version);
   if (conn->compression_threshold >= 0) {
     if (buff->length >= (size_t)conn->compression_threshold) {
       cmc_buffer_pack_varint(compressed_buffer, buff->length);
@@ -163,13 +156,11 @@ void cmc_conn_send_packet(struct cmc_conn *conn, cmc_buffer *buff) {
       cmc_buffer_pack_varint(compressed_buffer, 0);
       cmc_buffer_pack(compressed_buffer, buff->data, buff->length);
     }
-    cmc_buffer_free(buff);
   } else {
     cmc_buffer_pack(compressed_buffer, buff->data, buff->length);
-    cmc_buffer_free(buff);
   }
 
-  cmc_buffer *tmp_buff = cmc_buffer_init();
+  cmc_buffer *tmp_buff = cmc_buffer_init(conn->protocol_version);
   cmc_buffer_pack_varint(tmp_buff, compressed_buffer->length);
 
   compressed_buffer = cmc_buffer_combine(tmp_buff, compressed_buffer);
@@ -184,7 +175,7 @@ on_error:
   return;
 }
 
-void cmc_conn_loop(struct cmc_conn *conn) {
+void cmc_conn_login(struct cmc_conn *conn) {
   conn->sockfd = socket(AF_INET, SOCK_STREAM, 0);
   ERR_IF_NOT(conn->sockfd, ERR_SOCKET, return;);
 
@@ -192,66 +183,49 @@ void cmc_conn_loop(struct cmc_conn *conn) {
       connect(conn->sockfd, (struct sockaddr *)&conn->addr, sizeof(conn->addr)),
       ERR_CONNETING, return;);
   conn->state = CMC_CONN_STATE_HANDSHAKE;
-  C2S_handshake_handshake_packet handshake = {
-      .server_addr = "cmc", CMC_CONN_STATE_LOGIN, 47, 25565};
+  C2S_handshake_handshake_packet handshake = {.server_addr = "cmc",
+                                              .next_state =
+                                                  CMC_CONN_STATE_LOGIN,
+                                              .protocole_version = 47,
+                                              .server_port = 25565};
   C2S_login_start_packet login_start = {.name = conn->name};
-  ERR_ABLE(cmc_send_C2S_handshake_handshake_packet(conn, &handshake), goto close_conn;);
-  ERR_ABLE(cmc_send_C2S_login_start_packet(conn, &login_start), goto close_conn;);
+  ERR_ABLE(cmc_send_C2S_handshake_handshake_packet(conn, &handshake),
+           goto close_conn;);
+  ERR_ABLE(cmc_send_C2S_login_start_packet(conn, &login_start),
+           goto close_conn;);
   conn->state = CMC_CONN_STATE_LOGIN;
   while (conn->state == CMC_CONN_STATE_LOGIN) {
     cmc_buffer *raw_packet = ERR_ABLE(cmc_conn_recive_packet(conn), break;);
     int packet_id = ERR_ABLE(cmc_buffer_unpack_varint(raw_packet), break;);
-    int pnid = cmc_packet_id_to_packet_name_id(packet_id, conn->state, CMC_DIRECTION_S2C, conn->protocol_version);
+    int pnid = cmc_packet_id_to_packet_name_id(
+        packet_id, conn->state, CMC_DIRECTION_S2C, conn->protocol_version);
     switch (pnid) {
-      case CMC_S2C_LOGIN_DISCONNECT_NAME_ID:
-        ERR(ERR_KICKED_WHILE_LOGIN, conn->state = CMC_CONN_STATE_OFFLINE;);
-      case CMC_S2C_LOGIN_ENCRYPTION_REQUEST_NAME_ID:
-        ERR(ERR_SERVER_ONLINE_MODE, conn->state = CMC_CONN_STATE_OFFLINE;);
-      case CMC_INVALID_NAME_ID:
-        ERR(ERR_UNKOWN_PACKET, conn->state = CMC_CONN_STATE_OFFLINE;);
-      default:
-        ERR(ERR_UNEXPECTED_PACKET, conn->state = CMC_CONN_STATE_OFFLINE;);
+    case CMC_S2C_LOGIN_SET_COMPRESSION_NAME_ID: {
+      S2C_login_set_compression_packet compression =
+          unpack_S2C_login_set_compression_packet(raw_packet);
+      conn->compression_threshold = compression.threshold;
+      cmc_free_S2C_login_set_compression_packet(packet);
+      break;
+    }
+    case CMC_S2C_LOGIN_SUCCESS_NAME_ID:
+      conn->state = CMC_CONN_STATE_PLAY;
+      break;
+    case CMC_S2C_LOGIN_DISCONNECT_NAME_ID:
+      ERR(ERR_KICKED_WHILE_LOGIN, conn->state = CMC_CONN_STATE_OFFLINE;);
+      break;
+    case CMC_S2C_LOGIN_ENCRYPTION_REQUEST_NAME_ID:
+      ERR(ERR_SERVER_ONLINE_MODE, conn->state = CMC_CONN_STATE_OFFLINE;);
+      break;
+    case CMC_UNKOWN_NAME_ID:
+      ERR(ERR_UNKOWN_PACKET, conn->state = CMC_CONN_STATE_OFFLINE;);
+      break;
+    default:
+      ERR(ERR_UNEXPECTED_PACKET, conn->state = CMC_CONN_STATE_OFFLINE;);
     }
     cmc_buffer_free(raw_packet);
   }
-close_conn:
-  cmc_conn_close(conn);
-  /* 
-    cmc_buffer *packet =
-        ERR_ABLE(cmc_conn_recive_packet(conn), goto err_close_conn;);
-
-    int packet_id =
-        ERR_ABLE(cmc_buffer_unpack_varint(packet), goto err_free_packet;);
-    cmc_packet_name_id pnid = cmc_packet_id_to_packet_name_id(
-        packet_id, conn->state, CMC_DIRECTION_S2C, 47);
-    switch (pnid) {
-    case CMC_S2C_LOGIN_DISCONNECT_NAME_ID:
-      ERR(ERR_KICKED_WHILE_LOGIN, goto err_free_packet;);
-      break;
-    case CMC_S2C_LOGIN_ENCRYPTION_REQUEST_NAME_ID:
-      ERR(ERR_SERVER_ONLINE_MODE, goto err_free_packet;);
-      break;
-
-      switch (packet_id) {
-
-      case CMC_PACKETID_S2C_LOGIN_SUCCESS:
-        conn->state = CMC_CONN_STATE_PLAY;
-        break;
-      default:
-        ERR(ERR_INVALID_PACKET_ID_WHILE_LOGGING_IN, goto err_free_packet;);
-        break;
-      }
-      break;
-
-    case CMC_CONN_STATE_PLAY:
-      if (conn->on_packet)
-        conn->on_packet(packet, packet_id, conn);
-      cmc_buffer_free(packet);
-      break;
-
-      goto err_close_conn;
-    default:
-      break;
-    }
-    } */
+  if (conn->state != CMC_CONN_STATE_PLAY) {
+  close_conn:
+    cmc_conn_close(conn);
+  }
 }

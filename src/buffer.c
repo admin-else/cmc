@@ -36,21 +36,13 @@ void cmc_buffer_print_info(cmc_buffer *buff) {
   printf("'\n");
 }
 
-cmc_buffer *cmc_buffer_init() {
+cmc_buffer *cmc_buffer_init(int protocol_version) {
   cmc_buffer *buffer = MALLOC(sizeof(cmc_buffer));
   buffer->data = NULL;
   buffer->capacity = 0;
   buffer->position = 0;
   buffer->length = 0;
-  return buffer;
-}
-
-cmc_buffer *cmc_buffer_init_w_size(size_t n) {
-  cmc_buffer *buffer = MALLOC(sizeof(cmc_buffer));
-  buffer->data = MALLOC(n);
-  buffer->capacity = n;
-  buffer->length = n;
-  buffer->position = 0;
+  buffer->protocol_version = protocol_version;
   return buffer;
 }
 
@@ -72,10 +64,13 @@ cmc_buffer *cmc_buffer_combine(cmc_buffer *buff1, cmc_buffer *buff2) {
 }
 
 void cmc_buffer_pack(cmc_buffer *buffer, const void *data, size_t data_size) {
-  if (buffer == NULL || data == NULL || data_size == 0) {
+  if (buffer == NULL) {
     ERR(ERR_INVALID_ARGUMENTS, return;);
     return;
   }
+  if (data_size == 0)
+    return; // we dont have to do anything...
+
   if (buffer->data == NULL) {
     buffer->data = MALLOC(data_size);
     buffer->capacity = data_size;
@@ -94,8 +89,8 @@ void cmc_buffer_pack(cmc_buffer *buffer, const void *data, size_t data_size) {
     buffer->data = new_data;
     buffer->capacity = new_capacity;
   }
-
-  memcpy(buffer->data + buffer->length, data, data_size);
+  if (data != NULL)
+    memcpy(buffer->data + buffer->length, data, data_size);
   buffer->length += data_size;
   return;
 }
@@ -271,7 +266,7 @@ void cmc_buffer_pack_byte_array(cmc_buffer *buff, cmc_buffer *byte_array) {
 cmc_buffer *cmc_buffer_unpack_byte_array(cmc_buffer *buff) {
   int ret_buff_len = cmc_buffer_unpack_varint(buff);
 
-  cmc_buffer *ret = cmc_buffer_init();
+  cmc_buffer *ret = cmc_buffer_init(buff->protocol_version);
   ret->capacity = ret_buff_len;
   ret->length = ret_buff_len;
   if (ret_buff_len > 0)

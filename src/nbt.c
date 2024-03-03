@@ -722,9 +722,9 @@ static void __dump_binary(const nbt_node *tree, bool dump_type,
 
 cmc_buffer *nbt_dump_binary(const nbt_node *tree) {
   if (tree == NULL)
-    return cmc_buffer_init();
+    return cmc_buffer_init(47);
 
-  cmc_buffer *ret = cmc_buffer_init();
+  cmc_buffer *ret = cmc_buffer_init(47);
 
   __dump_binary(tree, true, ret);
 

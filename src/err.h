@@ -1,6 +1,6 @@
 #pragma once
 
-enum cmc_err_type {
+enum cmc_err {
   ERR_NO,
   ERR_MEM,
   ERR_CONNETING,
@@ -30,24 +30,17 @@ enum cmc_err_type {
   ERR_UNEXPECTED_PACKET
 };
 
-const char *err_id2str(enum cmc_err_type err);
+const char *err_id2str(enum cmc_err err);
 
-struct cmc_err {
-  char *file;
-  int line;
-  enum cmc_err_type type;
-};
-
-extern struct cmc_err cmc_err;
+extern enum cmc_err cmc_err;
 
 #define ERR(err, action)                                                       \
   do {                                                                         \
-    cmc_err =                                                                  \
-        (struct cmc_err){.file = __FILE__, .line = __LINE__, .type = err};     \
+    cmc_err = err;                                                             \
     action                                                                     \
   } while (0)
 #define ERR_CHECK(action)                                                      \
-  if (cmc_err.type) {                                                          \
+  if (cmc_err) {                                                               \
     action                                                                     \
   }
 #define ERR_ABLE(code, action)                                                 \
