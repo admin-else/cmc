@@ -19,10 +19,10 @@
 #include "nbt_types.h"
 #include <stdint.h>
 
-nbt_node *nbt_parse_named_tag(cmc_buffer *buff);
+cmc_nbt *nbt_parse_named_tag(cmc_buffer *buff);
 
-void nbt_free(nbt_node *tree);
+void nbt_free(cmc_nbt *tree);
 
-char *nbt_dump_ascii(const nbt_node *tree);
+char *nbt_dump_ascii(const cmc_nbt *tree);
 
-cmc_buffer *nbt_dump_binary(const nbt_node *tree);
+cmc_buffer *nbt_dump_binary(const cmc_nbt *tree);

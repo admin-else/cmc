@@ -31,7 +31,7 @@ typedef enum {
   TAG_LONG_ARRAY = 12
 } nbt_type;
 
-typedef struct nbt_node {
+typedef struct cmc_nbt {
   nbt_type type;
   char *name; /* This may be NULL. Check your damn pointers. */
 
@@ -64,7 +64,7 @@ typedef struct nbt_node {
 
     /*
      * Design addendum: we make tag_list a linked list instead of an array
-     * so that nbt_node can be a true recursive data structure. If we used
+     * so that cmc_nbt can be a true recursive data structure. If we used
      * an array, it would be incorrect to call free() on any element except
      * the first one. By using a linked list, the context of the node is
      * irrelevant. One tradeoff of this design is that we don't get tight
@@ -74,7 +74,7 @@ typedef struct nbt_node {
      * is well documented.
      */
     struct nbt_list {
-      struct nbt_node *data; /* A single node's data. */
+      struct cmc_nbt *data; /* A single node's data. */
       struct list_head entry;
     } *tag_list, *tag_compound;
 
@@ -92,4 +92,4 @@ typedef struct nbt_node {
      * unused and set to NULL.
      */
   } payload;
-} nbt_node;
+} cmc_nbt;

@@ -125,7 +125,7 @@ static void *be2ne(void *s, size_t len) {
 
 // NBT free
 
-void nbt_free(nbt_node *tree);
+void nbt_free(cmc_nbt *tree);
 
 void nbt_free_list(struct nbt_list *list) {
   if (!list)
@@ -144,7 +144,7 @@ void nbt_free_list(struct nbt_list *list) {
   FREE(list);
 }
 
-void nbt_free(nbt_node *tree) {
+void nbt_free(cmc_nbt *tree) {
   if (tree == NULL)
     return;
 
@@ -193,7 +193,7 @@ static char *nbt_read_string(cmc_buffer *buff) {
   return string;
 }
 
-nbt_node *parse_unnamed_tag(cmc_buffer *buff, nbt_type type, char *name);
+cmc_nbt *parse_unnamed_tag(cmc_buffer *buff, nbt_type type, char *name);
 
 static struct nbt_list *read_compound(cmc_buffer *buff) {
   struct nbt_list *ret;
@@ -336,10 +336,10 @@ static struct nbt_long_array read_long_array(cmc_buffer *buff) {
   return ret;
 }
 
-nbt_node *parse_unnamed_tag(cmc_buffer *buff, nbt_type type, char *name) {
-  nbt_node *ret = NULL;
+cmc_nbt *parse_unnamed_tag(cmc_buffer *buff, nbt_type type, char *name) {
+  cmc_nbt *ret = NULL;
   ERR_CHECK(return ret;);
-  ret = MALLOC(sizeof(nbt_node));
+  ret = MALLOC(sizeof(cmc_nbt));
 
   ret->name = name;
   ret->type = type;
@@ -404,8 +404,8 @@ err:
   return NULL;
 }
 
-nbt_node *nbt_parse_named_tag(cmc_buffer *buff) {
-  nbt_node *ret = NULL;
+cmc_nbt *nbt_parse_named_tag(cmc_buffer *buff) {
+  cmc_nbt *ret = NULL;
   char *name = NULL;
   uint8_t type = cmc_buffer_unpack_byte(buff);
   ERR_CHECK(return ret;);
@@ -419,7 +419,7 @@ nbt_node *nbt_parse_named_tag(cmc_buffer *buff) {
 }
 
 // Nbt printing utils
-static void __nbt_dump_ascii(const nbt_node *tree, text_buffer *b,
+static void __nbt_dump_ascii(const cmc_nbt *tree, text_buffer *b,
                              size_t ident);
 
 /* prints the node's name, or (null) if it has none. */
@@ -467,7 +467,7 @@ static void dump_list_contents_ascii(const struct nbt_list *list,
   return;
 }
 
-static void __nbt_dump_ascii(const nbt_node *tree, text_buffer *b,
+static void __nbt_dump_ascii(const cmc_nbt *tree, text_buffer *b,
                              size_t ident) {
   if (tree == NULL)
     ERR(ERR_INVALID_ARGUMENTS, return;);
@@ -538,7 +538,7 @@ static void __nbt_dump_ascii(const nbt_node *tree, text_buffer *b,
     ERR(ERR_INVALID_NBT_TAG_TYPE, return;);
 }
 
-char *nbt_dump_ascii(const nbt_node *tree) {
+char *nbt_dump_ascii(const cmc_nbt *tree) {
   text_buffer b = TEXT_BUFFER_INIT;
 
   ERR_ABLE(__nbt_dump_ascii(tree, &b, 0), goto err;);
@@ -624,7 +624,7 @@ static void dump_string_binary(const char *name, cmc_buffer *buff) {
   return;
 }
 
-static void __dump_binary(const nbt_node *, bool, cmc_buffer *buff);
+static void __dump_binary(const cmc_nbt *, bool, cmc_buffer *buff);
 
 static void dump_list_binary(const struct nbt_list *list, cmc_buffer *buff) {
   nbt_type type = list_is_homogenous(list);
@@ -672,7 +672,7 @@ static void dump_compound_binary(const struct nbt_list *list,
  *                    when dumping lists, because the list header already says
  *                    the type.
  */
-static void __dump_binary(const nbt_node *tree, bool dump_type,
+static void __dump_binary(const cmc_nbt *tree, bool dump_type,
                           cmc_buffer *buff) {
   if (dump_type) /* write out the type */
     cmc_buffer_pack_char(buff, (int8_t)tree->type);
@@ -720,7 +720,7 @@ static void __dump_binary(const nbt_node *tree, bool dump_type,
 #undef DUMP_NUM
 }
 
-cmc_buffer *nbt_dump_binary(const nbt_node *tree) {
+cmc_buffer *nbt_dump_binary(const cmc_nbt *tree) {
   if (tree == NULL)
     return cmc_buffer_init(47);
 

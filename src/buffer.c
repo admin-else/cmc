@@ -124,17 +124,15 @@ unsigned char *cmc_buffer_unpack(cmc_buffer *buffer, size_t n) {
   }
 
 NUM_PACK_AND_UNPACK_FUNC_FACTORY(char, char);
-NUM_PACK_AND_UNPACK_FUNC_FACTORY(byte, unsigned char);
-NUM_PACK_AND_UNPACK_FUNC_FACTORY(short, short);
-NUM_PACK_AND_UNPACK_FUNC_FACTORY(ushort, unsigned short);
-NUM_PACK_AND_UNPACK_FUNC_FACTORY(int, int);
-NUM_PACK_AND_UNPACK_FUNC_FACTORY(uint, unsigned int);
-NUM_PACK_AND_UNPACK_FUNC_FACTORY(long, long);
-NUM_PACK_AND_UNPACK_FUNC_FACTORY(ulong, unsigned long);
+NUM_PACK_AND_UNPACK_FUNC_FACTORY(byte, uint8_t);
+NUM_PACK_AND_UNPACK_FUNC_FACTORY(short, int16_t);
+NUM_PACK_AND_UNPACK_FUNC_FACTORY(ushort, uint16_t);
+NUM_PACK_AND_UNPACK_FUNC_FACTORY(int, int32_t);
+NUM_PACK_AND_UNPACK_FUNC_FACTORY(uint, uint32_t);
+NUM_PACK_AND_UNPACK_FUNC_FACTORY(long, int64_t);
+NUM_PACK_AND_UNPACK_FUNC_FACTORY(ulong, uint64_t);
 NUM_PACK_AND_UNPACK_FUNC_FACTORY(float, float);
 NUM_PACK_AND_UNPACK_FUNC_FACTORY(double, double);
-NUM_PACK_AND_UNPACK_FUNC_FACTORY(llong, long long);
-NUM_PACK_AND_UNPACK_FUNC_FACTORY(ullong, unsigned long long);
 
 #undef NUM_PACK_AND_UNPACK_FUNC_FACTORY
 // other types
@@ -429,4 +427,14 @@ void free_string(char *str) { FREE(str); }
 void free_slot(cmc_slot *slot) {
   nbt_free(slot->tag_compound);
   FREE(slot);
+}
+
+cmc_uuid cmc_buffer_unpack_uuid(cmc_buffer *buff) {
+  return (cmc_uuid){.lower = cmc_buffer_unpack_long(buff),
+                    .upper = cmc_buffer_unpack_long(buff)};
+}
+
+void cmc_buffer_pack_uuid(cmc_buffer *buff, cmc_uuid uuid) {
+  cmc_buffer_pack_long(buff, uuid.lower);
+  cmc_buffer_pack_long(buff, uuid.upper);
 }

@@ -33,7 +33,7 @@ C2S_   status_                      request;0x00;
 C2S_   status_                         ping;0x01;lpayload
 S2C_    login_                   disconnect;0x00;sreason
 S2C_    login_           encryption_request;0x01;sserver_id;apublic_key;averify_token
-S2C_    login_                      success;0x02;suuid;sname
+S2C_    login_                      success;0x02;suuid_str;sname
 S2C_    login_              set_compression;0x03;vthreshold
 C2S_    login_                        start;0x00;sname
 C2S_    login_          encryption_response;0x01;ashared_secret;averify_token
@@ -49,7 +49,7 @@ S2C_     play_     player_look_and_position;0x08;dx;dy;dz;fyaw;fpitch;Bflags
 S2C_     play_             held_item_change;0x09;bslot
 S2C_     play_                      use_bed;0x0A;ventity_id;plocation
 S2C_     play_                    animation;0x0B;ventity_id;Banimation
-S2C_     play_                 spawn_player;0x0C;ventity_id;Quuid;ix;iy;iz;Byaw;Bpitch;hcurrent_item;mmeta_data
+S2C_     play_                 spawn_player;0x0C;ventity_id;uuuid;ix;iy;iz;Byaw;Bpitch;hcurrent_item;mmeta_data
 S2C_     play_                 collect_item;0x0D;vcollected_entity_id;vcollector_entity_id
 #S2C_    play_                 spawn_object;0x0E;ventity_id;btype;ix;iy;iz;Bpitch;Byaw;idata;cif(data != 0) {;hx_vel;hy_vel;hz_vel;c} # TODO; unimplemented feature if statements
 S2C_     play_                    spawn_mob;0x0F;ventity_id;Btype;ix;iy;iz;Byaw;Bpitch;Bhead_pitch;hx_vel;hy_vel;hz_vel;mmeta_data
@@ -69,7 +69,7 @@ S2C_     play_              entity_metadata;0x1C;ventity_id;mmeta_data
 S2C_     play_                entity_effect;0x1D;ventity_id;beffect_id;bamplifier;vduration;?hide_particles
 S2C_     play_         remove_entity_effect;0x1E;ventity_id;beffect_id
 S2C_     play_               set_experience;0x1F;fexperience_bar;vlevel;vtotal_experience
-#S2C_    play_            entity_properties;0x20;ventity_id;iproperties_count;Aproperties_count[skey;dvalue;vnum_of_modifiers;Anum_of_modifiers[damount;boperation]modifiers]properties
+S2C_    play_            entity_properties;0x20;ventity_id;iproperties_count;Aproperties_count[skey;dvalue;vnum_of_modifiers;Anum_of_modifiers[damount;boperation]modifiers]properties
 S2C_     play_                   chunk_data;0x21;ichunk_x;ichunk_z;?ground_up_continuous;Hprimary_bitmask;achunk
 #S2C_    play_           multi_block_change;0x22;ichunk_x;ichunk_z;vrecord_count;Arecords[Bhorizontal_position;Bvertical_position;vblock_id]record_count
 S2C_     play_                 block_change;0x23;plocation;vblock_id

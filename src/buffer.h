@@ -35,8 +35,6 @@ NUM_PACK_AND_UNPACK_FUNC_FACTORY_H(long, long);
 NUM_PACK_AND_UNPACK_FUNC_FACTORY_H(ulong, unsigned long);
 NUM_PACK_AND_UNPACK_FUNC_FACTORY_H(float, float);
 NUM_PACK_AND_UNPACK_FUNC_FACTORY_H(double, double);
-NUM_PACK_AND_UNPACK_FUNC_FACTORY_H(llong, long long);
-NUM_PACK_AND_UNPACK_FUNC_FACTORY_H(ullong, unsigned long long);
 
 #undef NUM_PACK_AND_UNPACK_FUNC_FACTORY_H
 
@@ -67,19 +65,20 @@ void cmc_buffer_pack_position(cmc_buffer *buff, cmc_block_pos pos);
 cmc_block_pos cmc_buffer_unpack_position(cmc_buffer *buff);
 
 // nbt
-nbt_node *cmc_buffer_unpack_nbt(cmc_buffer *buff);
-void cmc_buffer_pack_nbt(cmc_buffer *buff, nbt_node *nbt);
+cmc_nbt *cmc_buffer_unpack_nbt(cmc_buffer *buff);
+void cmc_buffer_pack_nbt(cmc_buffer *buff, cmc_nbt *nbt);
 
 // byte arrays
 cmc_buffer *cmc_buffer_unpack_byte_array(cmc_buffer *buff);
 void cmc_buffer_pack_byte_array(cmc_buffer *buff, cmc_buffer *byte_array);
+#define free_byte_array cmc_buffer_free
 
 // Slots
 typedef struct {
   int item_id;
   char slot_size;
   short meta_data;
-  nbt_node *tag_compound;
+  cmc_nbt *tag_compound;
 } cmc_slot;
 
 void cmc_buffer_pack_slot(cmc_buffer *buff, cmc_slot *slot);
@@ -129,4 +128,11 @@ cmc_entity_metadata cmc_buffer_unpack_entity_metadata(cmc_buffer *buff);
 
 void free_entity_metadata(cmc_entity_metadata metadata);
 
-#define free_byte_array cmc_buffer_free
+// uuids
+typedef struct {
+  uint64_t upper;
+  uint64_t lower;
+} cmc_uuid;
+
+cmc_uuid cmc_buffer_unpack_uuid(cmc_buffer *buff);
+void cmc_buffer_pack_uuid(cmc_buffer *buff, cmc_uuid uuid);

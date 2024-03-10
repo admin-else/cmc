@@ -30,7 +30,7 @@ enum cmc_err {
   ERR_UNEXPECTED_PACKET
 };
 
-const char *err_id2str(enum cmc_err err);
+const char *cmc_err_as_str(enum cmc_err err);
 
 extern enum cmc_err cmc_err;
 

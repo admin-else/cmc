@@ -1,0 +1,22 @@
+C2S_handshake_                    handshake;0x00;vprotocole_version;sserver_addr;Hserver_port;vnext_state
+S2C_   status_                     response;0x00;sresponse
+S2C_   status_                         pong;0x01;lpayload
+C2S_   status_                      request;0x00;
+C2S_   status_                         ping;0x01;lpayload
+S2C_    login_                   disconnect;0x00;sreason
+S2C_    login_           encryption_request;0x01;sserver_id;apublic_key;averify_token
+S2C_    login_                      success;0x02;uuuid;sname
+S2C_    login_              set_compression;0x03;vthreshold
+C2S_    login_                        start;0x00;sname;uuuid
+C2S_    login_          encryption_response;0x01;ashared_secret;averify_token
+# Config state
+S2C_   config_               plugin_message;0x00;schannel;adata
+S2C_   config_                   disconnect;0x01;sreason
+S2C_   config_                       finish;0x02;
+S2C_   config_                   keep_alive;0x03;lkeep_alive_id
+S2C_   config_                         ping;0x04;iid
+S2C_   config_                registry_data;0x05;nregistry_codec
+S2C_   config_         remove_resource_pack;0x06;
+S2C_   config_            add_resource_pack;0x07;
+
+S2C_     play_                   keep_alive;0x00;vkeep_alive_id

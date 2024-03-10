@@ -1,5 +1,5 @@
 # for var names see $info make section 10.3
-CFLAGS = -Og -ggdb -Wall -Wextra -W -fsanitize=address,undefined
+CFLAGS = -O2 -ggdb -Wall -Wextra -W -fsanitize=address,undefined
 LDFLAGS = -fsanitize=address,undefined
 LDLIBS = -lz -lcrypto -lssl -lcurl
 
