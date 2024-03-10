@@ -1,6 +1,6 @@
 #include "err.h"
 
-const char *err_id2str(enum cmc_err err) {
+const char *cmc_err_as_str(enum cmc_err err) {
 #define ERRID2STR_HELPER(ERR)                                                  \
   case ERR:                                                                    \
     return #ERR;

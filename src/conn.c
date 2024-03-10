@@ -183,12 +183,14 @@ void cmc_conn_login(struct cmc_conn *conn) {
       connect(conn->sockfd, (struct sockaddr *)&conn->addr, sizeof(conn->addr)),
       ERR_CONNETING, return;);
   conn->state = CMC_CONN_STATE_HANDSHAKE;
-  C2S_handshake_handshake_packet handshake = {.server_addr = "cmc",
-                                              .next_state =
-                                                  CMC_CONN_STATE_LOGIN,
-                                              .protocole_version = 47,
-                                              .server_port = 25565};
-  C2S_login_start_packet login_start = {.name = conn->name};
+  C2S_handshake_handshake_packet handshake = {
+      .server_addr = "cmc",
+      .next_state = CMC_CONN_STATE_LOGIN,
+      .protocole_version = conn->protocol_version,
+      .server_port = 25565};
+  C2S_login_start_packet login_start = {
+      .name = conn->name,
+      .uuid = (cmc_uuid){.upper = 826775, .lower = 489269249}};
   ERR_ABLE(cmc_send_C2S_handshake_handshake_packet(conn, &handshake),
            goto close_conn;);
   ERR_ABLE(cmc_send_C2S_login_start_packet(conn, &login_start),
@@ -204,15 +206,22 @@ void cmc_conn_login(struct cmc_conn *conn) {
       S2C_login_set_compression_packet compression =
           unpack_S2C_login_set_compression_packet(raw_packet);
       conn->compression_threshold = compression.threshold;
-      cmc_free_S2C_login_set_compression_packet(packet);
+      cmc_free_S2C_login_set_compression_packet(&compression);
       break;
     }
     case CMC_S2C_LOGIN_SUCCESS_NAME_ID:
       conn->state = CMC_CONN_STATE_PLAY;
       break;
-    case CMC_S2C_LOGIN_DISCONNECT_NAME_ID:
+    case CMC_S2C_LOGIN_DISCONNECT_NAME_ID: {
+      S2C_login_disconnect_packet disconnect =
+          unpack_S2C_login_disconnect_packet(raw_packet);
+      if (!cmc_err) {
+        printf("kicked while logging in: %s\n", disconnect.reason);
+        cmc_free_S2C_login_disconnect_packet(&disconnect);
+      }
       ERR(ERR_KICKED_WHILE_LOGIN, conn->state = CMC_CONN_STATE_OFFLINE;);
       break;
+    }
     case CMC_S2C_LOGIN_ENCRYPTION_REQUEST_NAME_ID:
       ERR(ERR_SERVER_ONLINE_MODE, conn->state = CMC_CONN_STATE_OFFLINE;);
       break;

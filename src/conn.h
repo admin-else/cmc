@@ -1,6 +1,7 @@
 #pragma once
 
 #include "buffer.h"
+#include "array"
 #include "packet_types.h"
 #include <netinet/in.h>
 #include <stddef.h>
@@ -11,7 +12,8 @@ typedef enum {
   CMC_CONN_STATE_STATUS,
   CMC_CONN_STATE_LOGIN,
   CMC_CONN_STATE_PLAY,
-  CMC_CONN_STATE_HANDSHAKE
+  CMC_CONN_STATE_HANDSHAKE,
+  CMC_CONN_STATE_CONFIG
 } cmc_conn_state;
 
 typedef enum { CMC_DIRECTION_S2C, CMC_DIRECTION_C2S } packet_direction;

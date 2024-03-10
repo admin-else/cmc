@@ -1,34 +1,54 @@
 import os
 import re
+from pprint import pprint
 
 type_map = {
-    #  TYPE  |code tpye |method type |is heap |default value
-    "b": ["char ", "char", False, "0"],
-    "B": ["unsigned char ", "byte", False, "0"],
-    "h": ["short ", "short", False, "0"],
-    "H": ["unsigned short ", "ushort", False, "0"],
-    "i": ["int ", "int", False, "0"],
-    "I": ["unsigned int ", "uint", False, "0"],
-    "l": ["long ", "long", False, "0"],
-    "L": ["unsigned long ", "ulong", False, "0"],
-    "f": ["float ", "float", False, "0"],
-    "d": ["double ", "double", False, "0"],
-    "q": ["long long ", "llong", False, "0"],
-    "Q": ["unsigned long long ", "ullong", False, "0"],
-    "?": ["bool ", "bool", False, "false"],
-    "v": ["int ", "varint", False, "0"],
-    "s": ["char *", "string", True, "NULL"],
-    "p": ["cmc_block_pos ", "position", False, "{.x=0,.y=0,.z=0}"],
-    "n": ["cmc_nbt_node *", "nbt", True, "NULL"],
-    "a": ["cmc_buffer *", "byte_array", True, "NULL"],
-    "S": ["cmc_slot *", "slot", True, "NULL"],
-    "m": ["cmc_entity_metadata ", "entity_metadata", True, "{.size=0,.entries=NULL}"],
+#  TYPE  |code tpye               |method type      |is heap |default value
+    "b": ["int8_t ",              "char",            False,  "0",                       ],
+    "B": ["uint8_t ",             "byte",            False,  "0",                       ],
+    "h": ["int16_t ",             "short",           False,  "0",                       ],
+    "H": ["uint16_t ",            "ushort",          False,  "0",                       ],
+    "i": ["int32_t ",             "int",             False,  "0",                       ],
+    "I": ["uint32_t ",            "uint",            False,  "0",                       ],
+    "l": ["int64_t ",             "long",            False,  "0",                       ],
+    "L": ["uint64_t ",            "ulong",           False,  "0",                       ],
+    "f": ["float ",               "float",           False,  "0",                       ],
+    "d": ["double ",              "double",          False,  "0",                       ],
+    "?": ["bool ",                "bool",            False,  "false",                   ],
+    "v": ["int32_t ",             "varint",          False,  "0",                       ],
+    "s": ["char *",               "string",          True,   "NULL",                    ],
+    "p": ["cmc_block_pos ",       "position",        False,  "{.x=0,.y=0,.z=0}",        ],
+    "n": ["cmc_nbt_node *",       "nbt",             True,   "NULL",                    ],
+    "a": ["cmc_buffer *",         "byte_array",      True,   "NULL",                    ],
+    "S": ["cmc_slot *",           "slot",            True,   "NULL",                    ],
+    "m": ["cmc_entity_metadata ", "entity_metadata", True,   "{.size=0,.entries=NULL}", ],
+    "u": ["cmc_uuid ",             "uuid",           False,  "{.lower=0,.upper=0}",     ],
+    "A": ["cmc_array ",            None,             True,   None,                      ],
 }
 
+def careful_split(exp):
+    out = []
+    curr_str = ""
+    deepness = 0
+    for c in exp:
+        if c == ";" and deepness == 0:
+            out.append(curr_str)
+            curr_str = ""
+        else:
+            curr_str += c
+        
+        if c == "[":
+            deepness += 1
+        elif c == "]":
+            deepness -= 1
+            if deepness < 0:
+                raise ValueError("closed nonexistent array") 
+    out.append(curr_str)
+    return out
 
 def replace_code_segments(replacement_code, tag):
     start_tag = f"// CGSS: {tag}"  # Code Generator Segment Start
-    end_tag = f"// CGSE: {tag}"  # Code Generator Segment End
+    end_tag   = f"// CGSE: {tag}"  # Code Generator Segment End
 
     for file_name in os.listdir("./src"):
         if file_name.endswith(".c") or file_name.endswith(".h"):
@@ -94,12 +114,12 @@ def send_method(inp):
         code += f"case {pv}: {{" 
         code += f"cmc_buffer_pack_varint(buff, {data['packet_id']});"
         if "content" in data:
-            code += "".join(
-                [
-                    f"cmc_buffer_pack_{type_map[symbol[0]][1]}(buff, packet->{symbol[1:]});"
-                    for symbol in data["content"]
-                ]
-            )
+            for symbol in data["content"]:
+                if symbol[0] == "A":
+                    pass
+                else:
+                    code += f"cmc_buffer_pack_{type_map[symbol[0]][1]}(buff, packet->{symbol[1:]});"
+
         code += "break;}"
     code += """default: 
         cmc_buffer_free(buff);
@@ -126,14 +146,35 @@ def packet_ids(mc_packet_exps):
 
     return code
 
-def free_method(inp):
-    if not inp['is_heap']:
-        return ""
-
-    code = f"void cmc_free_{inp['name']}_packet({inp['name']}_packet *packet) {{"
-    for sym in inp["type_def_content"]:
+def free_method_content(exp, tofree, deepness, packet_name):
+    code = ""
+    for sym in careful_split(exp):
         if type_map[sym[0]][2]:
-            code += f"free_{type_map[sym[0]][1]}(packet->{sym[1:]});"
+            exp_type = sym[0]
+            exp_data = sym[1:]
+            if exp_type == "A":
+                array_exp = exp_data[exp_data.find("[")+1:exp_data.find("]")]
+                name = exp_data[:exp_data.find("[")]
+                deepnessc = chr(deepness)
+                code += f"""for(int {deepnessc} = 0; {tofree}->{name}.len; ++{deepnessc}) {{
+{packet_name}_{name} *p_{name} = {deepnessc} * sizeof(*p_{name}) + ({packet_name}_{name} *){tofree}->{name}.data;"""
+                code += free_method_content(array_exp, f"p_{name}", deepness+1, packet_name)
+                code += f"""}}
+FREE({tofree}->{name}.data);
+{tofree}->{name}.len = 0;"""
+            else:
+                code += f"free_{type_map[exp_type][1]}({tofree}->{exp_data});"
+    return code
+
+def free_method(inp):
+    if inp["is_empty"]:
+        return ""
+    
+    code = f"void cmc_free_{inp['name']}_packet({inp['name']}_packet *packet) {{"
+    if inp['is_heap']:
+        code += free_method_content(inp['type_def_content_str'], "packet", ord("i"), inp["name"])
+    else:
+        code += "(void)packet;"
     code += "}"
     return code
 
@@ -160,7 +201,8 @@ def gather_packets():
                 if vid not in out[packet_name]["packet_data"]:
                     out[packet_name]["packet_data"][vid] = {}
                 if symbol_str:
-                    out[packet_name]["packet_data"][vid]["content"] = symbol_str.split(";")
+                    out[packet_name]["packet_data"][vid]["content"] = careful_split(symbol_str)
+                    out[packet_name]["packet_data"][vid]["content_str"] = symbol_str
                     out[packet_name]["is_empty"] = False
 
                     content = set()
@@ -169,8 +211,10 @@ def gather_packets():
                             content.add(field)
                             if type_map[field[0]][2]:
                                 out[packet_name]["is_heap"] = True
+                                
                     
                     out[packet_name]["type_def_content"] = content
+                    out[packet_name]["type_def_content_str"] = ";".join(content)
 
                 out[packet_name]["packet_data"][vid]["packet_id"] = packet_id
                 out[packet_name]["name"] = packet_name
@@ -194,6 +238,8 @@ def packet_id_to_packet_name_id(inp):
 
 def main():
     mc_packet_exps = gather_packets()
+    #pprint(mc_packet_exps)
+
     replace_code_segments("".join([f"HELPER(CMC_{inp['name'].upper()}_NAME_ID);" for inp in mc_packet_exps]), "packet_name_id_string")
 
 
@@ -232,7 +278,7 @@ def main():
     )
 
     replace_code_segments(
-        "\n".join([(f"void cmc_free_{inp['name']}_packet({inp['name']}_packet *packet);" if inp["is_heap"] else f"#define cmc_free_{inp['name']}_packet(packet)") for inp in mc_packet_exps]), "free_methods_h"
+        "\n".join([f"void cmc_free_{inp['name']}_packet({inp['name']}_packet *packet);" for inp in mc_packet_exps if not inp["is_empty"]]), "free_methods_h"
     )
 
     replace_code_segments(packet_id_to_packet_name_id(mc_packet_exps), "packet_id_to_packet_name_id")
