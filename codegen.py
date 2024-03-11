@@ -39,7 +39,6 @@ def split_array_exp(inp):
                 break
     return first, inp[:i], inp[i+1:]
 
-
 def careful_split(exp):
     out = []
     curr_str = ""
@@ -94,11 +93,7 @@ def type_def_content(token, packet_name, wrap_name):
         exp_data = sym[1:]
         exp_type = sym[0]
         if exp_type == "A":
-            array_exp = exp_data[exp_data.find("[")+1:exp_data.find("]")]
-            name = exp_data[len(exp_data) - exp_data[::-1].find("]"):]
-            print(token)
-            print(sym)
-            print(name)
+            key, array_exp, name = split_array_exp(exp_data)
             code += f"{packet_name}_{name} {name};"
             other_typedef += type_def_content(array_exp, packet_name, f"{packet_name}_{name}") 
         else:
