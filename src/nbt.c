@@ -419,8 +419,7 @@ cmc_nbt *nbt_parse_named_tag(cmc_buffer *buff) {
 }
 
 // Nbt printing utils
-static void __nbt_dump_ascii(const cmc_nbt *tree, text_buffer *b,
-                             size_t ident);
+static void __nbt_dump_ascii(const cmc_nbt *tree, text_buffer *b, size_t ident);
 
 /* prints the node's name, or (null) if it has none. */
 #define SAFE_NAME(node) ((node)->name ? (node)->name : "<null>")

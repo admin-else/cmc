@@ -18,13 +18,27 @@ type_map = {
     "v": ["int32_t ",             "varint",          False,  "0",                       ],
     "s": ["char *",               "string",          True,   "NULL",                    ],
     "p": ["cmc_block_pos ",       "position",        False,  "{.x=0,.y=0,.z=0}",        ],
-    "n": ["cmc_nbt_node *",       "nbt",             True,   "NULL",                    ],
+    "n": ["cmc_nbt *",            "nbt",             True,   "NULL",                    ],
     "a": ["cmc_buffer *",         "byte_array",      True,   "NULL",                    ],
     "S": ["cmc_slot *",           "slot",            True,   "NULL",                    ],
     "m": ["cmc_entity_metadata ", "entity_metadata", True,   "{.size=0,.entries=NULL}", ],
     "u": ["cmc_uuid ",             "uuid",           False,  "{.lower=0,.upper=0}",     ],
     "A": ["cmc_array ",            None,             True,   None,                      ],
 }
+
+def split_array_exp(inp):
+    first = inp[:inp.find("[")]
+    inp = inp[inp.find("[")+1:]
+    deepness = 0
+    for i, c in enumerate(inp):
+        if c == "[":
+            deepness += 1
+        if c == "]":
+            deepness -= 1
+            if deepness == -1:
+                break
+    return first, inp[:i], inp[i+1:]
+
 
 def careful_split(exp):
     out = []
@@ -73,11 +87,31 @@ def replace_code_segments(replacement_code, tag):
     raise ValueError(f"didnt find tag {tag}")
 
 
+def type_def_content(token, packet_name, wrap_name):
+    code = ""
+    other_typedef = ""
+    for sym in careful_split(token):
+        exp_data = sym[1:]
+        exp_type = sym[0]
+        if exp_type == "A":
+            array_exp = exp_data[exp_data.find("[")+1:exp_data.find("]")]
+            name = exp_data[len(exp_data) - exp_data[::-1].find("]"):]
+            print(token)
+            print(sym)
+            print(name)
+            code += f"{packet_name}_{name} {name};"
+            other_typedef += type_def_content(array_exp, packet_name, f"{packet_name}_{name}") 
+        else:
+            code += f"{type_map[exp_type][0]} {exp_data};"
+    code = f"typedef struct {{{code}}} {wrap_name};"
+    return other_typedef + code
+
+
 def type_def(inp):
     if inp["is_empty"]:
         return ""
-    return f"typedef struct {{{''.join([f'{type_map[symbol[0]][0]}{symbol[1:]};' for symbol in inp['type_def_content']])}}} {inp['name']}_packet;\n\n"
-    
+    code = type_def_content(inp["type_def_content_str"], inp["name"], f"{inp['name']}_packet")    
+    return code
 
 
 def unpack_method(inp):
