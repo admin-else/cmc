@@ -1,37 +1,67 @@
 import os
 import re
-
-with open("packets/custom.c", "r") as f:
-    custom_code = f.read()
+from pprint import pprint
 
 type_map = {
-    #  TYPE  |code tpye             |method type       |is heap
-    "b": ["char ", "char", False],
-    "B": ["unsigned char ", "byte", False],
-    "h": ["short ", "short", False],
-    "H": ["unsigned short ", "ushort", False],
-    "i": ["int ", "int", False],
-    "I": ["unsigned int ", "uint", False],
-    "l": ["long ", "long", False],
-    "L": ["unsigned long ", "ulong", False],
-    "f": ["float ", "float", False],
-    "d": ["double ", "double", False],
-    "q": ["long long ", "llong", False],
-    "Q": ["unsigned long long ", "ullong", False],
-    "?": ["bool ", "bool", False],
-    "v": ["int ", "varint", False],
-    "s": ["char *", "string", True],
-    "p": ["cmc_block_pos ", "position", False],
-    "n": ["cmc_nbt_node *", "nbt", True],
-    "a": ["cmc_buffer *", "byte_array", True],
-    "S": ["cmc_slot *", "slot", True],
-    "m": ["cmc_entity_metadata ", "entity_metadata", True],
+#  TYPE  |code tpye               |method type      |is heap |default value
+    "b": ["int8_t ",              "char",            False,  "0",                       ],
+    "B": ["uint8_t ",             "byte",            False,  "0",                       ],
+    "h": ["int16_t ",             "short",           False,  "0",                       ],
+    "H": ["uint16_t ",            "ushort",          False,  "0",                       ],
+    "i": ["int32_t ",             "int",             False,  "0",                       ],
+    "I": ["uint32_t ",            "uint",            False,  "0",                       ],
+    "l": ["int64_t ",             "long",            False,  "0",                       ],
+    "L": ["uint64_t ",            "ulong",           False,  "0",                       ],
+    "f": ["float ",               "float",           False,  "0",                       ],
+    "d": ["double ",              "double",          False,  "0",                       ],
+    "?": ["bool ",                "bool",            False,  "false",                   ],
+    "v": ["int32_t ",             "varint",          False,  "0",                       ],
+    "s": ["char *",               "string",          True,   "NULL",                    ],
+    "p": ["cmc_block_pos ",       "position",        False,  "{.x=0,.y=0,.z=0}",        ],
+    "n": ["cmc_nbt *",            "nbt",             True,   "NULL",                    ],
+    "a": ["cmc_buffer *",         "byte_array",      True,   "NULL",                    ],
+    "S": ["cmc_slot *",           "slot",            True,   "NULL",                    ],
+    "m": ["cmc_entity_metadata ", "entity_metadata", True,   "{.size=0,.entries=NULL}", ],
+    "u": ["cmc_uuid ",             "uuid",           False,  "{.lower=0,.upper=0}",     ],
+    "A": ["cmc_array ",            None,             True,   None,                      ],
 }
 
+def split_array_exp(inp):
+    name = inp[:inp.find("[")]
+    inp = inp[inp.find("[")+1:]
+    deepness = 0
+    for i, c in enumerate(inp):
+        if c == "[":
+            deepness += 1
+        if c == "]":
+            deepness -= 1
+            if deepness == -1:
+                break
+    return name[1:], inp[:i], inp[i+1:]
+
+def careful_split(exp):
+    out = []
+    curr_str = ""
+    deepness = 0
+    for c in exp:
+        if c == ";" and deepness == 0:
+            out.append(curr_str)
+            curr_str = ""
+        else:
+            curr_str += c
+        
+        if c == "[":
+            deepness += 1
+        elif c == "]":
+            deepness -= 1
+            if deepness < 0:
+                raise ValueError("closed nonexistent array") 
+    out.append(curr_str)
+    return out
 
 def replace_code_segments(replacement_code, tag):
     start_tag = f"// CGSS: {tag}"  # Code Generator Segment Start
-    end_tag = f"// CGSE: {tag}"  # Code Generator Segment End
+    end_tag   = f"// CGSE: {tag}"  # Code Generator Segment End
 
     for file_name in os.listdir("./src"):
         if file_name.endswith(".c") or file_name.endswith(".h"):
@@ -56,89 +86,84 @@ def replace_code_segments(replacement_code, tag):
     raise ValueError(f"didnt find tag {tag}")
 
 
-def type_def(input_str):
-    packet_name, packet_id, symbol_str = input_str.split(";", maxsplit=2)
-    symbols = [sym for sym in symbol_str.split(";") if sym != ""]
-    return (
-        f"typedef struct {{{''.join([f'{type_map[symbol[0]][0]}{symbol[1:]};' for symbol in symbols])}}} {packet_name}_packet;\n\n"
-        if symbols
-        else ""
-    )
+def type_def_content(token, packet_name, wrap_name):
+    code = ""
+    other_typedef = ""
+    for sym in careful_split(token):
+        exp_data = sym[1:]
+        exp_type = sym[0]
+        if exp_type == "A":
+            name, array_exp, key = split_array_exp(exp_data)
+            other_typedef += type_def_content(array_exp, packet_name, f"{packet_name}_{name}") 
+            code += f"{type_map[exp_type][0]} {name};"
+        else:
+            code += f"{type_map[exp_type][0]} {exp_data};"
+    code = f"typedef struct {{{code}}} {wrap_name};"
+    return other_typedef + code
 
 
-def unpack_method(input_str):
-    packet_name, packet_id, symbol_str = input_str.split(";", maxsplit=2)
-    symbols = [sym for sym in symbol_str.split(";") if sym != ""]
-    unpack_method_define = (
-        f"{packet_name}_packet unpack_{packet_name}_packet(cmc_buffer *buff)"
-    )
-    unpack_methods = "".join(
-        [
-            f"packet.{symbol[1:]}=cmc_buffer_unpack_{type_map[symbol[0]][1]}(buff);"
-            for symbol in symbols
-        ]
-    )
-    unpack_method = (
-        f"{unpack_method_define} {{{packet_name}_packet packet;{unpack_methods} UNPACK_ERR_HANDELER;return packet;}}\n\n"
-        if symbols
-        else ""
-    )
-    return unpack_method
+def type_def(inp):
+    if inp["is_empty"]:
+        return ""
+    code = type_def_content(inp["type_def_content_str"], inp["name"], f"{inp['name']}_packet")    
+    return code
 
 
-def unpack_method_h(input_str):
-    packet_name, packet_id, symbol_str = input_str.split(";", maxsplit=2)
-    symbols = [sym for sym in symbol_str.split(";") if sym != ""]
-    return (
-        f"{packet_name}_packet unpack_{packet_name}_packet(cmc_buffer *buff);\n\n"
-        if symbols
-        else ""
-    )
+def unpack_method(inp):
+    if inp["is_empty"]:
+        return ""
+    code = f"{inp['name']}_packet unpack_{inp['name']}_packet(cmc_buffer *buff)"
+    empty = "{" + ",".join([f".{entry[1:]}={type_map[entry[0]][3]}" for entry in inp['type_def_content']])+ "}"
+    code += f"{{{inp['name']}_packet packet = {empty};"
+    code += "switch(buff->protocol_version) {"
+    for pv, data in inp["packet_data"].items():
+        code += f"case {pv}: {{" + "".join(
+            [
+                f"packet.{symbol[1:]}=cmc_buffer_unpack_{type_map[symbol[0]][1]}(buff);"
+                for symbol in data["content"]
+            ]
+        ) + "break;}"
+    code += f"""default: 
+                 ERR(ERR_UNSUPPORTED_PROTOCOL_VERSION, return packet;);
+               }}
+               ERR_CHECK(goto err;);
+               if(buff->position != buff->length) ERR(ERR_BUFFER_UNDERUN, goto err;);
+               return packet;
+               err:
+                 cmc_free_{inp['name']}_packet(&packet);
+                 return ({inp['name']}_packet){empty};
+               }}\n\n"""
+    return code
 
+def send_method(inp):
+    code = "void cmc_send_{}_packet(cmc_conn *conn{})".format(inp['name'], f", {inp['name']}_packet *packet" if not inp["is_empty"] else "")
+    code += "{cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);"
+    code += "switch(conn->protocol_version) {"
+    for pv, data in inp["packet_data"].items():
+        code += f"case {pv}: {{" 
+        code += f"cmc_buffer_pack_varint(buff, {data['packet_id']});"
+        if "content" in data:
+            for symbol in data["content"]:
+                if symbol[0] == "A":
+                    pass
+                else:
+                    code += f"cmc_buffer_pack_{type_map[symbol[0]][1]}(buff, packet->{symbol[1:]});"
 
-def send_method(input_str):
-    packet_name, packet_id, symbol_str = input_str.split(";", maxsplit=2)
-    symbols = [sym for sym in symbol_str.split(";") if sym != ""]
-    pack_methods = f"cmc_buffer_pack_varint(buff, CMC_PACKETID_{packet_name.upper()});" + "".join(
-        [
-            f"cmc_buffer_pack_{type_map[symbol[0]][1]}(buff, {symbol[1:]});"
-            for symbol in symbols
-        ]
-    )
-    send_method_define = f"void send_packet_{packet_name}(struct cmc_conn *conn{', ' if symbols else ''} {', '.join([f'{type_map[symbol[0]][0]}{symbol[1:]}' for symbol in symbols])})"
-    send_method = f"{send_method_define} {{cmc_buffer *buff = cmc_buffer_init();{pack_methods}  ERR_CHECK(return;); cmc_conn_send_packet(conn, buff);}}\n\n"
-    return send_method
+        code += "break;}"
+    code += """default: 
+        cmc_buffer_free(buff);
+        ERR(ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    }
+    cmc_conn_send_packet(conn, buff);
+    cmc_buffer_free(buff);
+    }\n\n"""
 
-
-def send_method_h(input_str):
-    packet_name, packet_id, symbol_str = input_str.split(";", maxsplit=2)
-    symbols = [sym for sym in symbol_str.split(";") if sym != ""]
-    return f"void send_packet_{packet_name}(struct cmc_conn *conn{',' if symbols else ''} {', '.join([f'{type_map[symbol[0]][0]}{symbol[1:]}' for symbol in symbols])});\n\n"
-
-
-def comment_filter(raw):
-    out = ""
-    comment = False
-    for token in raw:
-        if token == "#":
-            comment = True
-
-        if comment:
-            if token == "\n":
-                out += token
-                comment = False
-            continue
-
-        out += token
-    return out
-
+    return code
 
 def packet_ids(mc_packet_exps):
-    packet_states = []
+    packet_states = set()
     for exp in mc_packet_exps:
-        a = "_".join(exp.split("_")[:2])
-        if a not in packet_states:
-            packet_states.append(a)
+        packet_states.add("_".join(exp.split("_")[:2]))
 
     code = ""
     for state in packet_states:
@@ -150,64 +175,115 @@ def packet_ids(mc_packet_exps):
 
     return code
 
-def should_have_free_method(exp):
-    packet_name, packet_id, symbol_str = exp.split(";", maxsplit=2)
-    symbols = [sym for sym in symbol_str.split(";") if sym != ""]
-    if [True for sym in symbols if type_map[sym[0]][2]]:
-        return True
-    return False
-
-def free_method(exp):
-    packet_name, packet_id, symbol_str = exp.split(";", maxsplit=2)
-    symbols = [sym for sym in symbol_str.split(";") if sym != ""]
-    if not should_have_free_method(exp):
-        return ""
-
-    code = f"void cmc_free_{packet_name}_packet({packet_name}_packet packet) {{"
-    for sym in symbols:
+def free_method_content(exp, tofree, deepness, packet_name):
+    code = ""
+    for sym in careful_split(exp):
         if type_map[sym[0]][2]:
-            code += f"free_{type_map[sym[0]][1]}(packet.{sym[1:]});"
+            exp_type = sym[0]
+            exp_data = sym[1:]
+            if exp_type == "A":
+                name, array_exp, key = split_array_exp(exp_data)
+                deepnessc = chr(deepness)
+                code += f"""for(int {deepnessc} = 0; {tofree}->{name}.len; ++{deepnessc}) {{
+{packet_name}_{name} *p_{name} = {deepnessc} * sizeof(*p_{name}) + ({packet_name}_{name} *){tofree}->{name}.data;"""
+                code += free_method_content(array_exp, f"p_{name}", deepness+1, packet_name)
+                code += f"""}}
+FREE({tofree}->{name}.data);
+{tofree}->{name}.len = 0;"""
+            else:
+                code += f"free_{type_map[exp_type][1]}({tofree}->{exp_data});"
+    return code
+
+def free_method(inp):
+    if inp["is_empty"]:
+        return ""
+    
+    code = f"void cmc_free_{inp['name']}_packet({inp['name']}_packet *packet) {{"
+    if inp['is_heap']:
+        code += free_method_content(inp['type_def_content_str'], "packet", ord("i"), inp["name"])
+    else:
+        code += "(void)packet;"
     code += "}"
     return code
 
-def loop_handler(exp):
-    packet_name, packet_id, symbol_str = exp.split(";", maxsplit=2)
-    short_packet_name = "_".join(packet_name.split("_")[2:])
-    return f"""case CMC_PACKETID_S2C_PLAY_{short_packet_name.upper()}: {{
-        if (!conn->on_packet.{short_packet_name})
-          goto unhandeled_packet;
-        S2C_play_{short_packet_name}_packet data =
-            ERR_ABLE(unpack_S2C_play_{short_packet_name}_packet(packet), goto err_free_packet;);
-        conn->on_packet.{short_packet_name}(data, conn);
-        {f'cmc_free_S2C_play_{short_packet_name}_packet(data);' if should_have_free_method(exp) else ''}
-        break;
-    }}"""
+def gather_packets():
+    out = {}
+    for fname in os.listdir("packets"):
+        with open("packets/" + fname, "r") as f:
+            vid = int(fname.split(".")[0])
+            for exp in f.read().replace(" ", "").split("\n"):
+                if exp.find("#") != -1:
+                    exp = exp[:exp.find("#")]
+                if not exp:
+                    continue
+                
+                packet_name, packet_id, symbol_str = exp.split(";", maxsplit=2)
+                
+                if packet_name not in out:
+                    out[packet_name] = {}
+                    out[packet_name]["is_empty"] = True
+                    out[packet_name]["is_heap"] = False
+
+                if "packet_data" not in out[packet_name]:
+                    out[packet_name]["packet_data"] = {}
+                if vid not in out[packet_name]["packet_data"]:
+                    out[packet_name]["packet_data"][vid] = {}
+                if symbol_str:
+                    out[packet_name]["packet_data"][vid]["content"] = careful_split(symbol_str)
+                    out[packet_name]["packet_data"][vid]["content_str"] = symbol_str
+                    out[packet_name]["is_empty"] = False
+
+                    content = set()
+                    for _, val in out[packet_name]["packet_data"].items():
+                        for field in val["content"]:
+                            content.add(field)
+                            if type_map[field[0]][2]:
+                                out[packet_name]["is_heap"] = True
+                                
+                    
+                    out[packet_name]["type_def_content"] = content
+                    out[packet_name]["type_def_content_str"] = ";".join(content)
+
+                out[packet_name]["packet_data"][vid]["packet_id"] = packet_id
+                out[packet_name]["name"] = packet_name
+
+    return list(out.values())
+
+def packet_name_id_define(exps):
+    names = set([exp["name"].upper() for exp in exps])
+    code = ""
+    for name in names:
+        code += f"CMC_{name}_NAME_ID,"
+    return code
+
+def packet_id_to_packet_name_id(inp):
+    code = ""
+    for packet in inp:
+        direction, state, *_ = packet["name"].split("_")
+        for protcole_version, data in packet['packet_data'].items():
+            code += f"case (({protcole_version} | ((uint64_t)CMC_CONN_STATE_{state.upper()}) << 32 | ((uint64_t)CMC_DIRECTION_{direction}) << 35 | ((uint64_t){data['packet_id']}) << 36)): return CMC_{packet['name'].upper()}_NAME_ID;"
+    return code
 
 def main():
-    with open("packets/packets.txt", "r") as f:
-        raw = f.read()
+    mc_packet_exps = gather_packets()
+    #pprint(mc_packet_exps)
 
-    raw = comment_filter(raw)
+    replace_code_segments("".join([f"HELPER(CMC_{inp['name'].upper()}_NAME_ID);" for inp in mc_packet_exps]), "packet_name_id_string")
 
-    raw = raw.replace(" ", "").split("\n")
-    mc_packet_exps = []
-    for l in raw:
-        if not l == "":
-            mc_packet_exps.append(l)
+
+    replace_code_segments(packet_name_id_define(mc_packet_exps), "packet_name_id_define")
 
     # packet unpack methods
     replace_code_segments(
         "".join([unpack_method(mc_packet_exp) for mc_packet_exp in mc_packet_exps]),
         "unpack_methods_c",
     )
-
-    # packet unpack methods header
     replace_code_segments(
-        "".join([unpack_method_h(mc_packet_exps) for mc_packet_exps in mc_packet_exps]),
+        "".join([f"{inp['name']}_packet unpack_{inp['name']}_packet(cmc_buffer *buff);" if not inp['is_empty'] else "" for inp in mc_packet_exps]),
         "unpack_methods_h",
     )
+    # packet unpack methods header
 
-    # packet send methods
     replace_code_segments(
         "".join([send_method(mc_packet_exp) for mc_packet_exp in mc_packet_exps]),
         "send_methods_c",
@@ -215,23 +291,9 @@ def main():
 
     # packet send methods header
     replace_code_segments(
-        "".join([send_method_h(mc_packet_exp) for mc_packet_exp in mc_packet_exps]),
+        "".join(["void cmc_send_{}_packet(cmc_conn *conn{});".format(inp['name'], f", {inp['name']}_packet *packet" if not inp["is_empty"] else "") for inp in mc_packet_exps]),
         "send_methods_h",
     )
-
-    # packet id to string
-    replace_code_segments( # case PACKET_ID(0x00, CONN_STATE_HANDSHAKE, DIRECTION_C2S): return "C2S_handshake_handshake";
-        "".join(
-            [
-                f"case PACKET_ID({mc_packet_exp.split(';')[1]}, CMC_CONN_STATE_{mc_packet_exp.split(';')[0].split('_')[1].upper()}, CMC_DIRECTION_{mc_packet_exp.split(';')[0].split('_')[0].upper()}): return \"{mc_packet_exp.split(';')[0]}\";"
-                for mc_packet_exp in mc_packet_exps
-            ]
-        ),
-        "packet_id_to_string",
-    )
-
-    # packet ids
-    replace_code_segments(packet_ids(mc_packet_exps), "packet_ids")
 
     # type defs
     replace_code_segments(
@@ -244,17 +306,10 @@ def main():
     )
 
     replace_code_segments(
-        "\n".join([f"void cmc_free_{exp.split(';', maxsplit=2)[0]}_packet({exp.split(';', maxsplit=2)[0]}_packet packet);" for exp in mc_packet_exps if should_have_free_method(exp)]), "free_methods_h"
+        "\n".join([f"void cmc_free_{inp['name']}_packet({inp['name']}_packet *packet);" for inp in mc_packet_exps if not inp["is_empty"]]), "free_methods_h"
     )
 
-    os.system("clang-format -i ./src/*.c ./src/*.h")
-    # The Zen of Python, by Tim Peters
-    #
-    # Beautiful is better than ugly.
-    # ...
-
-    # i mean there is no zen of c ...
-
+    replace_code_segments(packet_id_to_packet_name_id(mc_packet_exps), "packet_id_to_packet_name_id")
 
 if __name__ == "__main__":
     main()

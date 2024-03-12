@@ -40,7 +40,7 @@ RSA *pubkeyDER_to_RSA(uint8_t *pubkeyDER, size_t pubkeyDER_len, char **errmsg) {
 }
 
 unsigned char *generate_random_bytes(int len) {
-  unsigned char *generated_bytes = malloc(len);
+  unsigned char *generated_bytes = MALLOC(len);
 
   for (int i = 0; i < len; i++) {
     generated_bytes[i] = rand() % 0xFF;
@@ -50,13 +50,13 @@ unsigned char *generate_random_bytes(int len) {
 
 char *mc_sha_final(EVP_MD_CTX *mdctx) {
   unsigned char hash[SHA_DIGEST_LENGTH];
-  EVP_DigestFinal(mdctx, hash, NULL); // Finalize the context and get the hash
+  EVP_DigestFinal(mdctx, hash, NULL);
 
   bool negativ = false;
   if (hash[0] & 0x80) {
     negativ = true;
     for (size_t i = 0; i < SHA_DIGEST_LENGTH; i++) {
-      hash[i] = ~hash[i]; // Bitwise NOT operation
+      hash[i] = ~hash[i];
     }
     for (int i = SHA_DIGEST_LENGTH - 1; i >= 0; i--) {
       hash[i] += 1;

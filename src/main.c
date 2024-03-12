@@ -5,35 +5,47 @@
 #include "packets.h"
 #include <stdio.h>
 
-struct cmc_err cmc_err =
-    (struct cmc_err){.file = NULL, .line = 0, .type = ERR_NO};
-
-static void on_data(cmc_buffer *buff, int packet_id, cmc_conn *conn) {
-  (void)buff;
-  (void)conn;
-  const char *packet_name =
-      packet_id_to_string(packet_id, CMC_CONN_STATE_PLAY, CMC_DIRECTION_S2C);
-  switch (packet_id) {
-  case CMC_PACKETID_C2S_PLAY_KEEP_ALIVE: {
-    S2C_play_keep_alive_packet keep_alive =
-        unpack_S2C_play_keep_alive_packet(buff);
-    send_packet_C2S_play_keep_alive(conn, keep_alive.keep_alive_id);
-    break;
-  }
-  default:
-    printf("unhandeld packet %X %s\n", packet_id, packet_name);
-    break;
-  }
-}
+enum cmc_err cmc_err = ERR_NO;
 
 int main() {
-  cmc_conn *conn = cmc_conn_init();
-  conn->on_packet = on_data;
-  cmc_conn_loop(conn);
-  if (cmc_err.type != ERR_NO) {
-    printf("%s at %s:%d\n", err_id2str(cmc_err.type), cmc_err.file,
-           cmc_err.line);
+  cmc_conn conn = cmc_conn_init(765);
+  cmc_conn_login(&conn);
+  if (cmc_err != ERR_NO) {
+    printf("%s\n", cmc_err_as_str(cmc_err));
+    return 1;
   }
-  cmc_conn_free(conn);
+  while (conn.state != CMC_CONN_STATE_OFFLINE) {
+    cmc_buffer *raw_packet = ERR_ABLE(cmc_conn_recive_packet(&conn), break;);
+    int packet_id = cmc_buffer_unpack_varint(raw_packet);
+    cmc_packet_name_id pnid = cmc_packet_id_to_packet_name_id(
+        packet_id, conn.state, CMC_DIRECTION_S2C, 765);
+    switch (pnid) {
+    case CMC_S2C_PLAY_KEEP_ALIVE_NAME_ID: {
+      puts("keepalive");
+      S2C_play_keep_alive_packet keep_alive_sever =
+          unpack_S2C_play_keep_alive_packet(raw_packet);
+      C2S_play_keep_alive_packet keep_alive_client = {
+          .keep_alive_id = keep_alive_sever.keep_alive_id};
+      cmc_send_C2S_play_keep_alive_packet(&conn, &keep_alive_client);
+      cmc_free_C2S_play_keep_alive_packet(&keep_alive_client);
+      cmc_free_S2C_play_keep_alive_packet(&keep_alive_sever);
+      break;
+    }
+    default: {
+      printf("packet %s, packet_id %d\n", cmc_packet_name_id_string(pnid),
+             packet_id);
+    }
+    }
+    cmc_buffer_free(raw_packet);
+    if (cmc_err) {
+      conn.state = CMC_CONN_STATE_OFFLINE;
+      printf("error occured %s\n", cmc_err_as_str(cmc_err));
+    }
+  }
+  cmc_conn_close(&conn);
+  if (cmc_err) {
+    conn.state = CMC_CONN_STATE_OFFLINE;
+    printf("error occured %s\n", cmc_err_as_str(cmc_err));
+  }
   return 0;
 }
