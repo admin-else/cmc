@@ -1,6 +1,5 @@
 #pragma once
 
-#include "array"
 #include "buffer.h"
 #include "packet_types.h"
 #include <netinet/in.h>
@@ -19,12 +18,6 @@ typedef enum {
 typedef enum { CMC_DIRECTION_S2C, CMC_DIRECTION_C2S } packet_direction;
 
 struct cmc_conn;
-
-struct cmc_custom_heap_functions {
-  void *(*malloc)(size_t n);
-  void *(*remalloc)(void *ptr, size_t n);
-  void (*free)(void *ptr);
-};
 
 struct cmc_conn {
   int sockfd;

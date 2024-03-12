@@ -56,7 +56,7 @@ S2C_     play_                    spawn_mob;0x0F;ventity_id;Btype;ix;iy;iz;Byaw;
 S2C_     play_               spawn_painting;0x10;ventity_id;stitle;plocation;Bdirection
 S2C_     play_         spawn_experience_orb;0x11;ventity_id;ix;iy;iz;hcount
 S2C_     play_              entity_velocity;0x12;ventity_id;hx_vel;hy_vel;hz_vel
-#S2C_    play_             destroy_entities;0x13;vcount;Acount[ventity_id]entities
+#S2C_    play_             destroy_entities;0x13;vcount;Aentities[ventity_id]count
 S2C_     play_                       entity;0x14;ventity_id
 S2C_     play_         entity_relative_move;0x15;ventity_id;bdelta_x;bdelta_y;bdelta_z;?on_ground
 S2C_     play_                  entity_look;0x16;ventity_id;Byaw;Bpitch;?on_ground
@@ -69,14 +69,14 @@ S2C_     play_              entity_metadata;0x1C;ventity_id;mmeta_data
 S2C_     play_                entity_effect;0x1D;ventity_id;beffect_id;bamplifier;vduration;?hide_particles
 S2C_     play_         remove_entity_effect;0x1E;ventity_id;beffect_id
 S2C_     play_               set_experience;0x1F;fexperience_bar;vlevel;vtotal_experience
-S2C_    play_            entity_properties;0x20;ventity_id;iproperties_count;Aproperties_count[skey;dvalue;vnum_of_modifiers;Anum_of_modifiers[damount;boperation]modifiers]properties
+S2C_    play_            entity_properties;0x20;ventity_id;iproperties_count;Aproperties[skey;dvalue;vnum_of_modifiers;Amodifiers[damount;boperation]num_of_modifiers]properties_count
 S2C_     play_                   chunk_data;0x21;ichunk_x;ichunk_z;?ground_up_continuous;Hprimary_bitmask;achunk
-#S2C_    play_           multi_block_change;0x22;ichunk_x;ichunk_z;vrecord_count;Arecords[Bhorizontal_position;Bvertical_position;vblock_id]record_count
+S2C_    play_           multi_block_change;0x22;ichunk_x;ichunk_z;vrecord_count;Arecords[Bhorizontal_position;Bvertical_position;vblock_id]record_count
 S2C_     play_                 block_change;0x23;plocation;vblock_id
 S2C_     play_                 block_action;0x24;plocation;Bblock_data_1;Bblock_data_2;vblock_type
 S2C_     play_        block_break_animation;0x25;ventity_id;plocation;bdestroy_stage
-#S2C_    play_               map_chunk_bulk;0x26;?sky_light_sent;vchunk_column_count;Achunk_column_count[ichunk_x;ichunk_z;Hbit_mask]chunk_columns;achunk
-#S2C_    play_                    explosion;0x27;fx;fy;fz;fradius;irecord_count;Arecord_count[bx_offset;by_offset;bz_offset]records;fx_player_vel;fy_player_vel;fz_player_vel;
+S2C_    play_               map_chunk_bulk;0x26;?sky_light_sent;vchunk_column_count;Achunk_columns[ichunk_x;ichunk_z;Hbit_mask]chunk_column_count;achunk
+S2C_    play_                    explosion;0x27;fx;fy;fz;fradius;irecord_count;Arecords[bx_offset;by_offset;bz_offset]record_count;fx_player_vel;fy_player_vel;fz_player_vel
 S2C_     play_                       effect;0x28;ieffect_id;plocation;idata;?d;iparticle_id;?long_distances;fx;fy;fz;fx_offset;fy_offset;fz_offset;fparticle_data;iparticle_count;isable_relative_volume
 S2C_     play_                 sound_effect;0x29;ssound_name;ix;iy;iz;fvolume;Bpitch
 #S2C_    play_                     particle;0x2A;! # custom function not implementet yet

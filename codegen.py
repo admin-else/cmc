@@ -27,7 +27,7 @@ type_map = {
 }
 
 def split_array_exp(inp):
-    first = inp[:inp.find("[")]
+    name = inp[:inp.find("[")]
     inp = inp[inp.find("[")+1:]
     deepness = 0
     for i, c in enumerate(inp):
@@ -37,7 +37,7 @@ def split_array_exp(inp):
             deepness -= 1
             if deepness == -1:
                 break
-    return first, inp[:i], inp[i+1:]
+    return name[1:], inp[:i], inp[i+1:]
 
 def careful_split(exp):
     out = []
@@ -93,9 +93,9 @@ def type_def_content(token, packet_name, wrap_name):
         exp_data = sym[1:]
         exp_type = sym[0]
         if exp_type == "A":
-            key, array_exp, name = split_array_exp(exp_data)
-            code += f"{packet_name}_{name} {name};"
+            name, array_exp, key = split_array_exp(exp_data)
             other_typedef += type_def_content(array_exp, packet_name, f"{packet_name}_{name}") 
+            code += f"{type_map[exp_type][0]} {name};"
         else:
             code += f"{type_map[exp_type][0]} {exp_data};"
     code = f"typedef struct {{{code}}} {wrap_name};"
@@ -182,8 +182,7 @@ def free_method_content(exp, tofree, deepness, packet_name):
             exp_type = sym[0]
             exp_data = sym[1:]
             if exp_type == "A":
-                array_exp = exp_data[exp_data.find("[")+1:exp_data.find("]")]
-                name = exp_data[:exp_data.find("[")]
+                name, array_exp, key = split_array_exp(exp_data)
                 deepnessc = chr(deepness)
                 code += f"""for(int {deepnessc} = 0; {tofree}->{name}.len; ++{deepnessc}) {{
 {packet_name}_{name} *p_{name} = {deepnessc} * sizeof(*p_{name}) + ({packet_name}_{name} *){tofree}->{name}.data;"""
