@@ -136,3 +136,9 @@ typedef struct {
 
 cmc_uuid cmc_buffer_unpack_uuid(cmc_buffer *buff);
 void cmc_buffer_pack_uuid(cmc_buffer *buff, cmc_uuid uuid);
+
+// array
+typedef struct {
+  void *data;
+  int len;
+} cmc_array;

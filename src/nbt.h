@@ -21,6 +21,7 @@
 
 cmc_nbt *nbt_parse_named_tag(cmc_buffer *buff);
 
+#define free_nbt nbt_free
 void nbt_free(cmc_nbt *tree);
 
 char *nbt_dump_ascii(const cmc_nbt *tree);
