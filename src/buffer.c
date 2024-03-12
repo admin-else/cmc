@@ -247,11 +247,11 @@ cmc_block_pos cmc_buffer_unpack_position(cmc_buffer *buff) {
   return pos;
 }
 
-nbt_node *cmc_buffer_unpack_nbt(cmc_buffer *buff) {
+cmc_nbt *cmc_buffer_unpack_nbt(cmc_buffer *buff) {
   return nbt_parse_named_tag(buff);
 }
 
-void cmc_buffer_pack_nbt(cmc_buffer *buff, nbt_node *nbt) {
+void cmc_buffer_pack_nbt(cmc_buffer *buff, cmc_nbt *nbt) {
   cmc_buffer *tmp_buff = ERR_ABLE(nbt_dump_binary(nbt), return;);
   cmc_buffer_combine(buff, tmp_buff);
 }
