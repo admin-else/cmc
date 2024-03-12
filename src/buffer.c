@@ -36,21 +36,13 @@ void cmc_buffer_print_info(cmc_buffer *buff) {
   printf("'\n");
 }
 
-cmc_buffer *cmc_buffer_init() {
+cmc_buffer *cmc_buffer_init(int protocol_version) {
   cmc_buffer *buffer = MALLOC(sizeof(cmc_buffer));
   buffer->data = NULL;
   buffer->capacity = 0;
   buffer->position = 0;
   buffer->length = 0;
-  return buffer;
-}
-
-cmc_buffer *cmc_buffer_init_w_size(size_t n) {
-  cmc_buffer *buffer = MALLOC(sizeof(cmc_buffer));
-  buffer->data = MALLOC(n);
-  buffer->capacity = n;
-  buffer->length = n;
-  buffer->position = 0;
+  buffer->protocol_version = protocol_version;
   return buffer;
 }
 
@@ -72,10 +64,13 @@ cmc_buffer *cmc_buffer_combine(cmc_buffer *buff1, cmc_buffer *buff2) {
 }
 
 void cmc_buffer_pack(cmc_buffer *buffer, const void *data, size_t data_size) {
-  if (buffer == NULL || data == NULL || data_size == 0) {
+  if (buffer == NULL) {
     ERR(ERR_INVALID_ARGUMENTS, return;);
     return;
   }
+  if (data_size == 0)
+    return; // we dont have to do anything...
+
   if (buffer->data == NULL) {
     buffer->data = MALLOC(data_size);
     buffer->capacity = data_size;
@@ -94,8 +89,8 @@ void cmc_buffer_pack(cmc_buffer *buffer, const void *data, size_t data_size) {
     buffer->data = new_data;
     buffer->capacity = new_capacity;
   }
-
-  memcpy(buffer->data + buffer->length, data, data_size);
+  if (data != NULL)
+    memcpy(buffer->data + buffer->length, data, data_size);
   buffer->length += data_size;
   return;
 }
@@ -129,17 +124,15 @@ unsigned char *cmc_buffer_unpack(cmc_buffer *buffer, size_t n) {
   }
 
 NUM_PACK_AND_UNPACK_FUNC_FACTORY(char, char);
-NUM_PACK_AND_UNPACK_FUNC_FACTORY(byte, unsigned char);
-NUM_PACK_AND_UNPACK_FUNC_FACTORY(short, short);
-NUM_PACK_AND_UNPACK_FUNC_FACTORY(ushort, unsigned short);
-NUM_PACK_AND_UNPACK_FUNC_FACTORY(int, int);
-NUM_PACK_AND_UNPACK_FUNC_FACTORY(uint, unsigned int);
-NUM_PACK_AND_UNPACK_FUNC_FACTORY(long, long);
-NUM_PACK_AND_UNPACK_FUNC_FACTORY(ulong, unsigned long);
+NUM_PACK_AND_UNPACK_FUNC_FACTORY(byte, uint8_t);
+NUM_PACK_AND_UNPACK_FUNC_FACTORY(short, int16_t);
+NUM_PACK_AND_UNPACK_FUNC_FACTORY(ushort, uint16_t);
+NUM_PACK_AND_UNPACK_FUNC_FACTORY(int, int32_t);
+NUM_PACK_AND_UNPACK_FUNC_FACTORY(uint, uint32_t);
+NUM_PACK_AND_UNPACK_FUNC_FACTORY(long, int64_t);
+NUM_PACK_AND_UNPACK_FUNC_FACTORY(ulong, uint64_t);
 NUM_PACK_AND_UNPACK_FUNC_FACTORY(float, float);
 NUM_PACK_AND_UNPACK_FUNC_FACTORY(double, double);
-NUM_PACK_AND_UNPACK_FUNC_FACTORY(llong, long long);
-NUM_PACK_AND_UNPACK_FUNC_FACTORY(ullong, unsigned long long);
 
 #undef NUM_PACK_AND_UNPACK_FUNC_FACTORY
 // other types
@@ -271,7 +264,7 @@ void cmc_buffer_pack_byte_array(cmc_buffer *buff, cmc_buffer *byte_array) {
 cmc_buffer *cmc_buffer_unpack_byte_array(cmc_buffer *buff) {
   int ret_buff_len = cmc_buffer_unpack_varint(buff);
 
-  cmc_buffer *ret = cmc_buffer_init();
+  cmc_buffer *ret = cmc_buffer_init(buff->protocol_version);
   ret->capacity = ret_buff_len;
   ret->length = ret_buff_len;
   if (ret_buff_len > 0)
@@ -434,4 +427,14 @@ void free_string(char *str) { FREE(str); }
 void free_slot(cmc_slot *slot) {
   nbt_free(slot->tag_compound);
   FREE(slot);
+}
+
+cmc_uuid cmc_buffer_unpack_uuid(cmc_buffer *buff) {
+  return (cmc_uuid){.lower = cmc_buffer_unpack_long(buff),
+                    .upper = cmc_buffer_unpack_long(buff)};
+}
+
+void cmc_buffer_pack_uuid(cmc_buffer *buff, cmc_uuid uuid) {
+  cmc_buffer_pack_long(buff, uuid.lower);
+  cmc_buffer_pack_long(buff, uuid.upper);
 }

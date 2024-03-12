@@ -1,5 +1,5 @@
 # for var names see $info make section 10.3
-CFLAGS = -Og -ggdb -Wall -Wextra -W -fsanitize=address,undefined -std=c2x
+CFLAGS = -O2 -ggdb -Wall -Wextra -W -fsanitize=address,undefined
 LDFLAGS = -fsanitize=address,undefined
 LDLIBS = -lz -lcrypto -lssl -lcurl
 
@@ -10,7 +10,7 @@ FUZZ_DIR = fuzz_input  # Create a directory for fuzz test cases
 
 .PHONY: all clean dirs
 
-all: dirs codegen packeter
+all: dirs packeter
 
 run: all
 	bin/packeter
@@ -22,8 +22,12 @@ bin/%.o: src/%.c
 	mkdir -p ./bin
 	$(CC) -o $@ -c $< $(CFLAGS)
 
+format:
+	clang-format -i ./src/*.c ./src/*.h
+
 codegen:
 	python3 codegen.py
+	clang-format -i ./src/*.c ./src/*.h
 
 clean:
 	rm -rf bin/packeter $(OBJ)

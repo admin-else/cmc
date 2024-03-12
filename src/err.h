@@ -1,6 +1,6 @@
 #pragma once
 
-enum cmc_err_type {
+enum cmc_err {
   ERR_NO,
   ERR_MEM,
   ERR_CONNETING,
@@ -15,7 +15,7 @@ enum cmc_err_type {
   ERR_SENDING,
   ERR_KICKED_WHILE_LOGIN,
   ERR_SERVER_ONLINE_MODE,
-  ERR_INVALID_PACKET_ID_WHILE_LOGGING_IN,
+  ERR_UNKOWN_PACKET,
   ERR_MALLOC_ZERO,
   ERR_INVALID_ARGUMENTS,
   ERR_BUFFER_UNDERUN,
@@ -25,27 +25,22 @@ enum cmc_err_type {
   ERR_INVALID_LENGHT,
   ERR_INVALID_NBT_TAG_TYPE,
   ERR_NOT_IMPLEMENTED_YET,
-  ERR_ASSERT
+  ERR_ASSERT,
+  ERR_UNSUPPORTED_PROTOCOL_VERSION,
+  ERR_UNEXPECTED_PACKET
 };
 
-const char *err_id2str(enum cmc_err_type err);
+const char *cmc_err_as_str(enum cmc_err err);
 
-struct cmc_err {
-  char *file;
-  int line;
-  enum cmc_err_type type;
-};
-
-extern struct cmc_err cmc_err;
+extern enum cmc_err cmc_err;
 
 #define ERR(err, action)                                                       \
   do {                                                                         \
-    cmc_err =                                                                  \
-        (struct cmc_err){.file = __FILE__, .line = __LINE__, .type = err};     \
+    cmc_err = err;                                                             \
     action                                                                     \
   } while (0)
 #define ERR_CHECK(action)                                                      \
-  if (cmc_err.type) {                                                          \
+  if (cmc_err) {                                                               \
     action                                                                     \
   }
 #define ERR_ABLE(code, action)                                                 \

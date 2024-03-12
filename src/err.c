@@ -1,6 +1,6 @@
 #include "err.h"
 
-const char *err_id2str(enum cmc_err_type err) {
+const char *cmc_err_as_str(enum cmc_err err) {
 #define ERRID2STR_HELPER(ERR)                                                  \
   case ERR:                                                                    \
     return #ERR;
@@ -19,7 +19,6 @@ const char *err_id2str(enum cmc_err_type err) {
     ERRID2STR_HELPER(ERR_SENDING);
     ERRID2STR_HELPER(ERR_KICKED_WHILE_LOGIN);
     ERRID2STR_HELPER(ERR_SERVER_ONLINE_MODE);
-    ERRID2STR_HELPER(ERR_INVALID_PACKET_ID_WHILE_LOGGING_IN);
     ERRID2STR_HELPER(ERR_MALLOC_ZERO);
     ERRID2STR_HELPER(ERR_INVALID_ARGUMENTS);
     ERRID2STR_HELPER(ERR_BUFFER_UNDERUN);
@@ -30,6 +29,7 @@ const char *err_id2str(enum cmc_err_type err) {
     ERRID2STR_HELPER(ERR_INVALID_NBT_TAG_TYPE);
     ERRID2STR_HELPER(ERR_NOT_IMPLEMENTED_YET);
     ERRID2STR_HELPER(ERR_ASSERT);
+    ERRID2STR_HELPER(ERR_UNSUPPORTED_PROTOCOL_VERSION);
 #undef ERRID2STR_HELPER
   default:
     return "invalid error id";
