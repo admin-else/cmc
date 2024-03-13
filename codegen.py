@@ -154,16 +154,18 @@ def unpack_method(inp):
                }}\n\n"""
     return code
 
-def send_method_content(data, to_send, deepness):
-    if "content" not in data:
-        return ""
-    
+def send_method_content(data, to_send, deepness, packet_name):
     code = ""
-    for symbol in data["content"]:
+    for symbol in careful_split(data):
+        name = symbol[1:]
         if symbol[0] == "A":
-            pass
+            name, array_exp, key = split_array_exp(symbol)
+            code += f"for(int {chr(deepness)} = 0; {chr(deepness)} < {to_send}{name}.len; ++{chr(deepness)}) {{"
+            code += f"{packet_name}_{name} *p_{name} = {chr(deepness)} * sizeof({packet_name}_{name}) + {to_send}{name}.data;"
+            code += send_method_content(array_exp, f"p_{name}->", deepness+1, packet_name)
+            code += "}"
         else:
-            code += f"cmc_buffer_pack_{type_map[symbol[0]][1]}(buff, {to_send}{symbol[1:]});"
+            code += f"cmc_buffer_pack_{type_map[symbol[0]][1]}(buff, {to_send}{name});"
     return code
 
 
@@ -174,7 +176,8 @@ def send_method(inp):
     for pv, data in inp["packet_data"].items():
         code += f"case {pv}: {{" 
         code += f"cmc_buffer_pack_varint(buff, {data['packet_id']});"
-        code += send_method_content(data, "packet->", ord("i"))
+        if "content" in data:
+            code += send_method_content(data["content_str"], "packet->", ord("i"), inp['name'])
         code += "break;}"
     code += """default: 
         cmc_buffer_free(buff);
