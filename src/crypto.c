@@ -11,6 +11,8 @@ this file contains crypto and compression
 #include <stddef.h>
 #include <string.h>
 
+/*
+// this code is unused but i may use it later when i implement accounts
 RSA *pubkeyDER_to_RSA(uint8_t *pubkeyDER, size_t pubkeyDER_len, char **errmsg) {
   unsigned char *malloced_buffer = MALLOC(pubkeyDER_len);
   memcpy(malloced_buffer, pubkeyDER, pubkeyDER_len);
@@ -37,7 +39,7 @@ RSA *pubkeyDER_to_RSA(uint8_t *pubkeyDER, size_t pubkeyDER_len, char **errmsg) {
   BIO_free(pubkeyBIO);
   EVP_PKEY_free(pubkeyEVP);
   return pubkeyRSA;
-}
+}*/
 
 unsigned char *generate_random_bytes(int len) {
   unsigned char *generated_bytes = MALLOC(len);

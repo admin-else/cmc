@@ -1,6 +1,6 @@
 # for var names see $info make section 10.3
-CFLAGS = -O2 -ggdb -Wall -Wextra -W -fsanitize=address,undefined
-LDFLAGS = -fsanitize=address,undefined
+CFLAGS = -O2 -ggdb -Wall -Wextra -W # -fsanitize=address,undefined
+LDFLAGS = # -fsanitize=address,undefined
 LDLIBS = -lz -lcrypto -lssl -lcurl
 
 
@@ -12,6 +12,9 @@ FUZZ_DIR = fuzz_input  # Create a directory for fuzz test cases
 
 all: dirs packeter
 
+dirs:
+	mkdir -p ./bin
+
 run: all
 	bin/packeter
 
@@ -19,7 +22,6 @@ packeter: $(OBJ)
 	$(CC) -o bin/packeter $^ $(LDFLAGS) $(LDLIBS)
 
 bin/%.o: src/%.c
-	mkdir -p ./bin
 	$(CC) -o $@ -c $< $(CFLAGS)
 
 format:
@@ -30,7 +32,7 @@ codegen:
 	clang-format -i ./src/*.c ./src/*.h
 
 clean:
-	rm -rf bin/packeter $(OBJ)
+	rm -rf bin/*
 
 fuzz: $(OBJ)
 	mkdir -p ./$(FUZZ_DIR)

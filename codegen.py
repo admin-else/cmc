@@ -265,6 +265,10 @@ def gather_packets():
                     content = set()
                     for _, val in out[packet_name]["packet_data"].items():
                         for field in val["content"]:
+                            for existing_field in content:
+                                if not existing_field == field and existing_field[1:] == field[1:]:
+                                    print(f"fatal conflict between {existing_field} and {field} on {packet_name}!!!")
+                                    exit(1)
                             content.add(field)
                             if type_map[field[0]][2]:
                                 out[packet_name]["is_heap"] = True
@@ -290,7 +294,7 @@ def packet_id_to_packet_name_id(inp):
     for packet in inp:
         direction, state, *_ = packet["name"].split("_")
         for protcole_version, data in packet['packet_data'].items():
-            code += f"case (({protcole_version} | ((uint64_t)CMC_CONN_STATE_{state.upper()}) << 32 | ((uint64_t)CMC_DIRECTION_{direction}) << 35 | ((uint64_t){data['packet_id']}) << 36)): return CMC_{packet['name'].upper()}_NAME_ID;"
+            code += f"case (COMBINE_VALUES({data['packet_id']}, CMC_CONN_STATE_{state.upper()}, CMC_DIRECTION_{direction}, {protcole_version})): return CMC_{packet['name'].upper()}_NAME_ID;"
     return code
 
 def main():
