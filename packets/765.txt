@@ -5,10 +5,12 @@ C2S_   status_                      request;0x00;
 C2S_   status_                         ping;0x01;lpayload
 S2C_    login_                   disconnect;0x00;sreason
 S2C_    login_           encryption_request;0x01;sserver_id;apublic_key;averify_token
-S2C_    login_                      success;0x02;uuuid;sname
+S2C_    login_                      success;0x02;uuuid;sname;vproperties_count # ;Aproperties[sproperty_name;sproperty_value;?is_signed;O[ssignature]is_signed]
+# the last line contains unimplemented features like optionals
 S2C_    login_              set_compression;0x03;vthreshold
 C2S_    login_                        start;0x00;sname;uuuid
 C2S_    login_          encryption_response;0x01;ashared_secret;averify_token
+C2S_    login_                 acknowledged;0x03;
 # Config state
 S2C_   config_               plugin_message;0x00;schannel;adata
 S2C_   config_                   disconnect;0x01;sreason
@@ -19,4 +21,6 @@ S2C_   config_                registry_data;0x05;nregistry_codec
 S2C_   config_         remove_resource_pack;0x06;
 S2C_   config_            add_resource_pack;0x07;
 
-S2C_     play_                   keep_alive;0x00;vkeep_alive_id
+# play state
+C2S_     play_                   keep_alive;0x15;lkeep_alive_id_long
+S2C_     play_                   keep_alive;0x24;lkeep_alive_id_long
