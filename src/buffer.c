@@ -68,6 +68,7 @@ void cmc_buffer_pack(cmc_buffer *buffer, const void *data, size_t data_size) {
     ERR(ERR_INVALID_ARGUMENTS, return;);
     return;
   }
+  
   if (data_size == 0)
     return; // we dont have to do anything...
 

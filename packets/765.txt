@@ -24,3 +24,4 @@ S2C_   config_            add_resource_pack;0x07;
 # play state
 C2S_     play_                   keep_alive;0x15;lkeep_alive_id_long
 S2C_     play_                   keep_alive;0x24;lkeep_alive_id_long
+S2C_     play_                   disconnect;0x1B;nreason_nbt

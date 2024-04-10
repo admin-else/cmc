@@ -4,19 +4,21 @@
 #include "packet_types.h"
 #include "packets.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 enum cmc_err cmc_err = ERR_NO;
 
 int main() {
+  (void)malloc(100000);
   cmc_conn conn = cmc_conn_init(765);
 
   conn.sockfd = socket(AF_INET, SOCK_STREAM, 0);
-  ERR_IF_NOT(conn.sockfd, ERR_SOCKET, return 1;);
+  ERR_IF(conn.sockfd < 0, ERR_SOCKET, goto err_conn_fail;);
 
   ERR_IF_LESS_THAN_ZERO(
       connect(conn.sockfd, (struct sockaddr *)&conn.addr, sizeof(conn.addr)),
-      ERR_CONNETING, return 1;);
-
+      ERR_CONNETING, goto err_conn_fail;);
+  
   C2S_handshake_handshake_packet handshake = (C2S_handshake_handshake_packet){
       .next_state = CMC_CONN_STATE_LOGIN,
       .server_port = 25565,
@@ -49,6 +51,7 @@ int main() {
           unpack_S2C_login_set_compression_packet(raw_packet);
       conn.compression_threshold = packet.threshold;
       cmc_free_S2C_login_set_compression_packet(&packet);
+      printf("set compression threshold to %zd\n", conn.compression_threshold);
       break;
     }
     case CMC_S2C_LOGIN_DISCONNECT_NAME_ID: {
@@ -73,11 +76,23 @@ int main() {
       break;
     }
     case CMC_S2C_PLAY_KEEP_ALIVE_NAME_ID: {
-      S2C_play_keep_alive_packet packet = unpack_S2C_play_keep_alive_packet(raw_packet);
+      S2C_play_keep_alive_packet packet =
+          unpack_S2C_play_keep_alive_packet(raw_packet);
       printf("pog: %ld\n", packet.keep_alive_id_long);
-      C2S_play_keep_alive_packet pong = {.keep_alive_id_long = packet.keep_alive_id_long, .keep_alive_id = packet.keep_alive_id};
+      cmc_buffer_print_info(raw_packet);
+      C2S_play_keep_alive_packet pong = {.keep_alive_id_long =
+                                             packet.keep_alive_id_long,
+                                         .keep_alive_id = packet.keep_alive_id};
       cmc_send_C2S_play_keep_alive_packet(&conn, &pong);
       cmc_free_S2C_play_keep_alive_packet(&packet);
+      break;
+    }
+    case CMC_S2C_PLAY_DISCONNECT_NAME_ID: {
+      S2C_play_disconnect_packet packet =
+          unpack_S2C_play_disconnect_packet(raw_packet);
+      cmc_free_S2C_play_disconnect_packet(&packet);
+      cmc_conn_close(&conn);
+      break;
     }
     default: {
       // printf("pnid %s packetid %d\n", cmc_packet_name_id_string(pnid),
@@ -90,8 +105,11 @@ err_close_conn:
   if (conn.state != CMC_CONN_STATE_OFFLINE) {
     cmc_conn_close(&conn);
   }
+err_conn_fail:
   if (cmc_err) {
     printf("error: %s\n", cmc_err_as_str(cmc_err));
+    perror("errorno");
+    return 1;
   }
   return 0;
 }
