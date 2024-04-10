@@ -1,6 +1,6 @@
 # for var names see $info make section 10.3
-CFLAGS = -O2 -ggdb -Wall -Wextra -W # -fsanitize=address,undefined
-LDFLAGS = # -fsanitize=address,undefined
+CFLAGS = -O2 -ggdb -Wall -Wextra -fsanitize=address,undefined
+LDFLAGS = -fsanitize=address,undefined
 LDLIBS = -lz -lcrypto -lssl -lcurl
 
 

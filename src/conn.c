@@ -4,7 +4,7 @@
 #include "packet_types.h"
 #include "packets.h"
 #include <arpa/inet.h>
-#include <assert.h>
+#include "assert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -143,6 +143,7 @@ inline void print_bytes_py(unsigned char *bytes, size_t len) {
 }
 
 void cmc_conn_send_packet(struct cmc_conn *conn, cmc_buffer *buff) {
+  assert(buff->length > 0, return;);
   cmc_buffer *compressed_buffer = cmc_buffer_init(conn->protocol_version);
   if (conn->compression_threshold >= 0) {
     if (buff->length >= (size_t)conn->compression_threshold) {
@@ -160,13 +161,14 @@ void cmc_conn_send_packet(struct cmc_conn *conn, cmc_buffer *buff) {
     cmc_buffer_pack(compressed_buffer, buff->data, buff->length);
   }
 
-  cmc_buffer *tmp_buff = cmc_buffer_init(conn->protocol_version);
-  cmc_buffer_pack_varint(tmp_buff, compressed_buffer->length);
+  cmc_buffer *packet_size_buffer = cmc_buffer_init(conn->protocol_version);
+  cmc_buffer_pack_varint(packet_size_buffer, compressed_buffer->length);
 
-  compressed_buffer = cmc_buffer_combine(tmp_buff, compressed_buffer);
+  compressed_buffer = cmc_buffer_combine(packet_size_buffer, compressed_buffer);
   ERR_IF_NOT_ZERO(send_all(conn->sockfd, compressed_buffer->data,
                            compressed_buffer->length),
                   ERR_SENDING, );
+  cmc_buffer_print_info(compressed_buffer);
   cmc_buffer_free(compressed_buffer);
   return;
 
