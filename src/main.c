@@ -6,10 +6,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-enum cmc_err cmc_err = ERR_NO;
+cmc_err_auto cmc_err = (struct cmc_err_extra){.err_type=ERR_NO};
 
 int main() {
-  (void)malloc(100000);
   cmc_conn conn = cmc_conn_init(765);
 
   conn.sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -106,8 +105,8 @@ err_close_conn:
     cmc_conn_close(&conn);
   }
 err_conn_fail:
-  if (cmc_err) {
-    printf("error: %s\n", cmc_err_as_str(cmc_err));
+  if (cmc_err.err_type) {
+    printf("error: %s at %s:%d\n", cmc_err_as_str(cmc_err), cmc_err.file, cmc_err.line);
     perror("errorno");
     return 1;
   }

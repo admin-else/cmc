@@ -26,23 +26,11 @@
 #include <string.h>
 
 // Utils and macros
-
-#define TEXT_BUFFER_INIT                                                       \
-  (text_buffer) { NULL, 0, 0 }
-
-#ifdef __GNUC__
-#define likely(x) __builtin_expect(!!(x), 1)
-#define unlikely(x) __builtin_expect((x), 0)
-#else
-#define likely(x) (x)
-#define unlikely(x) (x)
-#endif
-
 /*
  * Is the list all one type? If yes, return the type. Otherwise, return
  * TAG_END
  */
-static nbt_type list_is_homogenous(const struct nbt_list *list) {
+static nbt_type cmc_nbt_is_list_homogenous(const struct nbt_list *list) {
   nbt_type type = TAG_END;
 
   const struct list_head *pos;
@@ -626,7 +614,7 @@ static void dump_string_binary(const char *name, cmc_buffer *buff) {
 static void __dump_binary(const cmc_nbt *, bool, cmc_buffer *buff);
 
 static void dump_list_binary(const struct nbt_list *list, cmc_buffer *buff) {
-  nbt_type type = list_is_homogenous(list);
+  nbt_type type = cmc_nbt_is_list_homogenous(list);
 
   size_t len = list_length(&list->entry);
 
