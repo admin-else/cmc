@@ -43,5 +43,3 @@ void cmc_conn_send_packet(struct cmc_conn *conn, cmc_buffer *buff);
 cmc_buffer *cmc_conn_recive_packet(struct cmc_conn *conn);
 
 void cmc_conn_close(struct cmc_conn *conn);
-
-void cmc_conn_login(struct cmc_conn *conn);

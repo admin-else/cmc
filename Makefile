@@ -10,16 +10,16 @@ FUZZ_DIR = fuzz_input  # Create a directory for fuzz test cases
 
 .PHONY: all clean dirs
 
-all: dirs packeter
+all: dirs cmc
 
 dirs:
 	mkdir -p ./bin
 
 run: all
-	bin/packeter
+	bin/cmc
 
-packeter: $(OBJ)
-	$(CC) -o bin/packeter $^ $(LDFLAGS) $(LDLIBS)
+cmc: $(OBJ)
+	$(CC) -o bin/cmc $^ $(LDFLAGS) $(LDLIBS)
 
 bin/%.o: src/%.c
 	$(CC) -o $@ -c $< $(CFLAGS)
@@ -38,5 +38,5 @@ fuzz: $(OBJ)
 	mkdir -p ./$(FUZZ_DIR)
 	# Copy your valid test cases to the fuzz directory if needed
 	# cp valid_test_case.bin ./$(FUZZ_DIR)/
-	$(CC) -o ./bin/packeter-fuzz $^ $(CFLAGS) -fsanitize=fuzzer,address $(LDFLAGS)
-	./bin/packeter-fuzz ./$(FUZZ_DIR)
+	$(CC) -o ./bin/cmc-fuzz $^ $(CFLAGS) -fsanitize=fuzzer,address $(LDFLAGS)
+	./bin/cmc-fuzz ./$(FUZZ_DIR)
