@@ -1,12 +1,6 @@
-#include "conn.h"
-#include "err.h"
-#include "heap_utils.h"
-#include "packet_types.h"
-#include "packets.h"
+#include <cmc.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-cmc_err_auto cmc_err = (struct cmc_err_extra){.err_type=ERR_NO};
 
 int main() {
   cmc_conn conn = cmc_conn_init(765);
@@ -105,8 +99,13 @@ err_close_conn:
     cmc_conn_close(&conn);
   }
 err_conn_fail:
+#if CMC_ERR_EXTRA
   if (cmc_err.err_type) {
     printf("error: %s at %s:%d\n", cmc_err_as_str(cmc_err), cmc_err.file, cmc_err.line);
+#else
+    if (cmc_err) {
+    printf("error: %s\n", cmc_err_as_str(cmc_err));
+#endif
     perror("errorno");
     return 1;
   }

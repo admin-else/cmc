@@ -3,3 +3,4 @@ example-data/
 fuzz/
 .*/
 bin/
+build/

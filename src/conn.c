@@ -1,10 +1,10 @@
+#include "assert.h"
 #include "buffer.h"
 #include "err.h"
 #include "heap_utils.h"
 #include "packet_types.h"
 #include "packets.h"
 #include <arpa/inet.h>
-#include "assert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -31,7 +31,7 @@ struct cmc_conn cmc_conn_init(int protocol_version) {
 void cmc_conn_close(struct cmc_conn *conn) {
   if (conn->state == CMC_CONN_STATE_OFFLINE)
     return;
-  ERR_IF_NOT_ZERO(close(conn->sockfd), ERR_CLOSING, return;);
+  ERR_IF_NOT_ZERO(close(conn->sockfd), CMC_ERR_CLOSING, return;);
   conn->state = CMC_CONN_STATE_OFFLINE;
   conn->sockfd = -1;
 }
@@ -70,17 +70,18 @@ cmc_buffer *cmc_conn_recive_packet(struct cmc_conn *conn) {
   int32_t packet_len = 0;
   for (int i = 0; i < 5; i++) {
     uint8_t b;
-    ERR_IF(recv(conn->sockfd, &b, 1, 0) != 1, ERR_RECV, return NULL;);
+    ERR_IF(recv(conn->sockfd, &b, 1, 0) != 1, CMC_ERR_RECV, return NULL;);
     packet_len |= (b & 0x7F) << (7 * i);
     if (!(b & 0x80))
       break;
   }
 
-  ERR_IF_LESS_OR_EQ_TO_ZERO(packet_len, ERR_INVALID_PACKET_LEN, return NULL;);
+  ERR_IF_LESS_OR_EQ_TO_ZERO(packet_len, CMC_ERR_INVALID_PACKET_LEN,
+                            return NULL;);
 
   cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
   cmc_buffer_pack(buff, NULL, packet_len);
-  ERR_IF(recv_all(conn->sockfd, buff->data, packet_len) == -1, ERR_RECV,
+  ERR_IF(recv_all(conn->sockfd, buff->data, packet_len) == -1, CMC_ERR_RECV,
          goto on_err1;);
 
   if (conn->compression_threshold == -1)
@@ -104,15 +105,15 @@ cmc_buffer *cmc_conn_recive_packet(struct cmc_conn *conn) {
   strm.avail_out = decompressed_length;
   strm.next_out = (Bytef *)decompressed_data;
 
-  ERR_IF(inflateInit(&strm) != Z_OK, ERR_ZLIB_INIT, goto on_err2;);
+  ERR_IF(inflateInit(&strm) != Z_OK, CMC_ERR_ZLIB_INIT, goto on_err2;);
 
-  ERR_IF(inflate(&strm, Z_FINISH) != Z_STREAM_END, ERR_ZLIB_INFLATE,
+  ERR_IF(inflate(&strm, Z_FINISH) != Z_STREAM_END, CMC_ERR_ZLIB_INFLATE,
          goto on_err3;);
 
   size_t real_decompressed_length = strm.total_out;
 
   inflateEnd(&strm);
-  ERR_IF(real_decompressed_length != decompressed_length, ERR_SENDER_LYING,
+  ERR_IF(real_decompressed_length != decompressed_length, CMC_ERR_SENDER_LYING,
          goto on_err2;);
 
   cmc_buffer_free(buff);
@@ -143,7 +144,6 @@ inline void print_bytes_py(unsigned char *bytes, size_t len) {
 }
 
 void cmc_conn_send_packet(struct cmc_conn *conn, cmc_buffer *buff) {
-  assert(buff->length > 0, return;);
   cmc_buffer *compressed_buffer = cmc_buffer_init(conn->protocol_version);
   if (conn->compression_threshold >= 0) {
     if (buff->length >= (size_t)conn->compression_threshold) {
@@ -152,7 +152,7 @@ void cmc_conn_send_packet(struct cmc_conn *conn, cmc_buffer *buff) {
       Bytef *compressedData = (Bytef *)MALLOC(compressedSize);
       ERR_IF(compress(compressedData, &compressedSize, buff->data,
                       buff->length) != Z_OK,
-             ERR_ZLIB_COMPRESS, goto on_error;);
+             CMC_ERR_ZLIB_COMPRESS, goto on_error;);
     } else {
       cmc_buffer_pack_varint(compressed_buffer, 0);
       cmc_buffer_pack(compressed_buffer, buff->data, buff->length);
@@ -167,7 +167,7 @@ void cmc_conn_send_packet(struct cmc_conn *conn, cmc_buffer *buff) {
   compressed_buffer = cmc_buffer_combine(packet_size_buffer, compressed_buffer);
   ERR_IF_NOT_ZERO(send_all(conn->sockfd, compressed_buffer->data,
                            compressed_buffer->length),
-                  ERR_SENDING, );
+                  CMC_ERR_SENDING, );
   cmc_buffer_print_info(compressed_buffer);
   cmc_buffer_free(compressed_buffer);
   return;

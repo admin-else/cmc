@@ -47,7 +47,6 @@ cmc_buffer *cmc_buffer_init(int protocol_version) {
 }
 
 void cmc_buffer_free(cmc_buffer *buffer) {
-  assert(buffer != NULL, return;);
   if (buffer->capacity) {
     FREE(buffer->data);
   }
@@ -65,10 +64,10 @@ cmc_buffer *cmc_buffer_combine(cmc_buffer *buff1, cmc_buffer *buff2) {
 
 void cmc_buffer_pack(cmc_buffer *buffer, const void *data, size_t data_size) {
   if (buffer == NULL) {
-    ERR(ERR_INVALID_ARGUMENTS, return;);
+    ERR(CMC_ERR_INVALID_ARGUMENTS, return;);
     return;
   }
-  
+
   if (data_size == 0)
     return; // we dont have to do anything...
 
@@ -85,7 +84,7 @@ void cmc_buffer_pack(cmc_buffer *buffer, const void *data, size_t data_size) {
     unsigned char *new_data =
         (unsigned char *)realloc(buffer->data, new_capacity);
     if (new_data == NULL)
-      ERR(ERR_MEM, return;);
+      ERR(CMC_ERR_MEM, return;);
 
     buffer->data = new_data;
     buffer->capacity = new_capacity;
@@ -98,9 +97,9 @@ void cmc_buffer_pack(cmc_buffer *buffer, const void *data, size_t data_size) {
 
 unsigned char *cmc_buffer_unpack(cmc_buffer *buffer, size_t n) {
   if (n <= 0 || buffer == NULL)
-    ERR(ERR_INVALID_ARGUMENTS, return NULL;);
+    ERR(CMC_ERR_INVALID_ARGUMENTS, return NULL;);
   if (buffer->position + n > buffer->length)
-    ERR(ERR_BUFFER_OVERFLOW, return NULL;);
+    ERR(CMC_ERR_BUFFER_OVERFLOW, return NULL;);
 
   unsigned char *readData = MALLOC(n);
   memcpy(readData, buffer->data + buffer->position, n);
@@ -187,7 +186,7 @@ void cmc_buffer_pack_string_w_max_len(cmc_buffer *buff, const char *value,
                                       int max_len) {
   int str_len = strlen(value);
   if (str_len > max_len)
-    ERR(ERR_STRING_LENGHT, return;);
+    ERR(CMC_ERR_STRING_LENGHT, return;);
   cmc_buffer_pack_varint(buff, str_len);
   cmc_buffer_pack(buff, value, str_len);
 }
@@ -200,7 +199,7 @@ char *cmc_buffer_unpack_string_w_max_len(cmc_buffer *buff, int max_len) {
   int str_len = cmc_buffer_unpack_varint(buff);
   ERR_CHECK(return NULL;);
   if (str_len > max_len * 4 || str_len < 0)
-    ERR(ERR_INVALID_ARGUMENTS, return NULL;);
+    ERR(CMC_ERR_INVALID_ARGUMENTS, return NULL;);
 
   if (str_len == 0) {
     char *str = MALLOC(1);
@@ -209,7 +208,7 @@ char *cmc_buffer_unpack_string_w_max_len(cmc_buffer *buff, int max_len) {
   }
 
   if (buff == NULL || buff->position + str_len > buff->length)
-    ERR(ERR_BUFFER_OVERFLOW, return NULL;);
+    ERR(CMC_ERR_BUFFER_OVERFLOW, return NULL;);
 
   char *str = (char *)MALLOC(str_len + 1);
 
@@ -386,7 +385,7 @@ cmc_entity_metadata cmc_buffer_unpack_entity_metadata(cmc_buffer *buff) {
         realloc(meta_data.entries,
                 (meta_data.size + 1) * sizeof(cmc_entity_metadata_entry));
     if (new_entries == NULL) {
-      ERR(ERR_MEM, goto on_error;);
+      ERR(CMC_ERR_MEM, goto on_error;);
     }
 
     meta_data.entries = new_entries;
@@ -410,8 +409,8 @@ void free_entity_metadata(cmc_entity_metadata metadata) {
         metadata.entries + i * sizeof(cmc_entity_metadata_entry);
     switch (entry->type) {
     case ENTITY_METADATA_ENTRY_TYPE_SLOT:
-      // free_slot(entry->payload.slot_data);
-      ERR(ERR_NOT_IMPLEMENTED_YET, );
+      free_slot(entry->payload.slot_data);
+      ERR(CMC_ERR_NOT_IMPLEMENTED_YET, );
       break;
     case ENTITY_METADATA_ENTRY_TYPE_STRING:
       FREE(entry->payload.string_data);
