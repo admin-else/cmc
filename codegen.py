@@ -143,10 +143,10 @@ def unpack_method(inp):
     for pv, data in inp["packet_data"].items():
         code += f"case {pv}: {{" + unpack_method_content("packet.", data['content_str'], ord("i"), inp['name']) + "break;}"
     code += f"""default: 
-                 ERR(ERR_UNSUPPORTED_PROTOCOL_VERSION, return packet;);
+                 ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return packet;);
                }}
                ERR_CHECK(goto err;);
-               if(buff->position != buff->length) ERR(ERR_BUFFER_UNDERUN, goto err;);
+               if(buff->position != buff->length) ERR(CMC_ERR_BUFFER_UNDERUN, goto err;);
                return packet;
                err:
                  cmc_free_{inp['name']}_packet(&packet);
@@ -341,6 +341,10 @@ def main():
     replace_code_segments(
         "\n".join([f"void cmc_free_{inp['name']}_packet({inp['name']}_packet *packet);" for inp in mc_packet_exps if not inp["is_empty"]]), "free_methods_h"
     )
+    with open("errors.txt", "r") as f:
+        errs = [e for e in f.read().split() if e and not e.startswith("#")]
+        replace_code_segments(",".join(["CMC_ERR_" + e.upper() for e in errs if e]), "error_def")
+        replace_code_segments("\n".join([f"ERRID2STR_HELPER(CMC_ERR_{e})" for e in errs if e]), "error_helper")
 
     replace_code_segments(packet_id_to_packet_name_id(mc_packet_exps), "packet_id_to_packet_name_id")
 

@@ -1,36 +1,10 @@
 #pragma once
 
 enum cmc_err_type {
-  ERR_NO,
-  ERR_MEM,
-  ERR_CONNETING,
-  ERR_SOCKET,
-  ERR_CLOSING,
-  ERR_RECV,
-  ERR_INVALID_PACKET_LEN,
-  ERR_ZLIB_INIT,
-  ERR_ZLIB_INFLATE,
-  ERR_SENDER_LYING,
-  ERR_ZLIB_COMPRESS,
-  ERR_SENDING,
-  ERR_KICKED_WHILE_LOGIN,
-  ERR_SERVER_ONLINE_MODE,
-  ERR_UNKOWN_PACKET,
-  ERR_MALLOC_ZERO,
-  ERR_INVALID_ARGUMENTS,
-  ERR_BUFFER_UNDERUN,
-  ERR_BUFFER_OVERFLOW,
-  ERR_STRING_LENGHT,
-  ERR_INVALID_STRING,
-  ERR_INVALID_LENGHT,
-  ERR_INVALID_NBT_TAG_TYPE,
-  ERR_NOT_IMPLEMENTED_YET,
-  ERR_ASSERT,
-  ERR_UNSUPPORTED_PROTOCOL_VERSION,
-  ERR_UNEXPECTED_PACKET
+  // CGSS: error_def
+CMC_ERR_NO,CMC_ERR_MEM,CMC_ERR_CONNETING,CMC_ERR_SOCKET,CMC_ERR_CLOSING,CMC_ERR_RECV,CMC_ERR_INVALID_PACKET_LEN,CMC_ERR_ZLIB_INIT,CMC_ERR_ZLIB_INFLATE,CMC_ERR_SENDER_LYING,CMC_ERR_ZLIB_COMPRESS,CMC_ERR_SENDING,CMC_ERR_KICKED_WHILE_LOGIN,CMC_ERR_SERVER_ONLINE_MODE,CMC_ERR_UNKOWN_PACKET,CMC_ERR_MALLOC_ZERO,CMC_ERR_INVALID_ARGUMENTS,CMC_ERR_BUFFER_UNDERUN,CMC_ERR_BUFFER_OVERFLOW,CMC_ERR_STRING_LENGHT,CMC_ERR_INVALID_STRING,CMC_ERR_INVALID_LENGHT,CMC_ERR_INVALID_NBT_TAG_TYPE,CMC_ERR_NOT_IMPLEMENTED_YET,CMC_ERR_ASSERT,CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION,CMC_ERR_UNEXPECTED_PACKET
+// CGSE: error_def
 };
-
-#define CMC_ERR_EXTRA 1
 
 #if CMC_ERR_EXTRA
 struct cmc_err_extra {
@@ -55,7 +29,6 @@ typedef struct cmc_err_extra cmc_err_auto;
   code;                                                                        \
   ERR_CHECK(action)
 
-
 #else
 #define ERR(err, action)                                                       \
   do {                                                                         \
@@ -69,7 +42,6 @@ typedef struct cmc_err_extra cmc_err_auto;
 #define ERR_ABLE(code, action)                                                 \
   code;                                                                        \
   ERR_CHECK(action)
-
 
 typedef enum cmc_err_type cmc_err_auto;
 
