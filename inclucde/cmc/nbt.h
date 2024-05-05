@@ -14,9 +14,9 @@
 
 #pragma once
 
-#include "buffer.h"
-#include "list.h"
-#include "nbt_types.h"
+#include <cmc/buffer.h>
+#include <cmc/list.h>
+#include <cmc/nbt_types.h>
 #include <stdint.h>
 
 cmc_nbt *nbt_parse_named_tag(cmc_buffer *buff);

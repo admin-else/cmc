@@ -12,7 +12,7 @@
  * https://github.dev/chmod222/cNBT.
  */
 #pragma once
-#include "list.h"
+#include <cmc/list.h>
 #include <stdint.h>
 
 typedef enum {

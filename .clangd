@@ -1,0 +1,4 @@
+CompileFlags:
+  Add:
+    - "-Iinclude"
+    - "-I/data/src/c/cmc/inclucde"

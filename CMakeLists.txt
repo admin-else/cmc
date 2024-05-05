@@ -1,34 +1,26 @@
 cmake_minimum_required(VERSION 3.5)
 project(cmc_project C)
 
-# Set Compiler Flags
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -ggdb -Wall -Wextra -fPIC")
-# Add necessary flags if needed
-# set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address,undefined -DCMC_ERR_EXTRA")
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Release")
+endif()
 
-# Find Libraries (if needed)
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O2 -Wall -Wextra -fPIC")
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0 -ggdb -Wall -Wextra -fPIC -fsanitize=address,undefined -DCMC_ERR_EXTRA")
+
 find_package(ZLIB REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(CURL REQUIRED)
 
-# Include Directories
-include_directories(include ${ZLIB_INCLUDE_DIRS} ${OPENSSL_INCLUDE_DIR} ${CURL_INCLUDE_DIR})
+include_directories(${CMAKE_SOURCE_DIR}/inclucde ${ZLIB_INCLUDE_DIRS} ${OPENSSL_INCLUDE_DIR} ${CURL_INCLUDE_DIR})
 
-# Source Files
 file(GLOB_RECURSE SRC_FILES ${CMAKE_SOURCE_DIR}/src/*.c)
 
-# Create Executable/Library
 add_library(cmc SHARED ${SRC_FILES})
+add_library(cmc_static STATIC ${SRC_FILES})
 
-# Link Libraries
 target_link_libraries(cmc PRIVATE ${ZLIB_LIBRARIES} ${OPENSSL_LIBRARIES} ${CURL_LIBRARIES})
-
-# Custom Targets
-add_custom_target(run
-    COMMAND ${CMAKE_BINARY_DIR}/bin/cmc
-    DEPENDS cmc
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-)
+target_link_libraries(cmc_static PRIVATE ${ZLIB_LIBRARIES} ${OPENSSL_LIBRARIES} ${CURL_LIBRARIES})
 
 add_custom_target(format
     COMMAND clang-format -i ${SRC_FILES}
@@ -41,11 +33,6 @@ add_custom_target(codegen
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
-# Clean Target
-add_custom_target(clean-all
-    COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/bin/*
-    COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/CMakeFiles
-    COMMAND ${CMAKE_COMMAND} -E remove ${CMAKE_BINARY_DIR}/cmake_install.cmake
-    COMMAND ${CMAKE_COMMAND} -E remove ${CMAKE_BINARY_DIR}/CMakeCache.txt
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-)
+install(TARGETS cmc LIBRARY DESTINATION lib)
+install(TARGETS cmc_static ARCHIVE DESTINATION lib)
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION include)
