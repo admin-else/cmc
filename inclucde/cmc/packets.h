@@ -1,8 +1,8 @@
 #pragma once
 
-#include "buffer.h"
-#include "conn.h"
-#include "packet_types.h"
+#include <cmc/buffer.h>
+#include <cmc/conn.h>
+#include <cmc/packet_types.h>
 #include <stdbool.h>
 
 typedef enum {

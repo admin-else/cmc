@@ -1,8 +1,7 @@
-#include "buffer.h"
-#include "assert.h"
-#include "err.h"
-#include "heap_utils.h"
-#include "nbt.h"
+#include <cmc/buffer.h>
+#include <cmc/err.h>
+#include <cmc/heap_utils.h>
+#include <cmc/nbt.h>
 #include <ctype.h>
 #include <endian.h>
 #include <stdbool.h>

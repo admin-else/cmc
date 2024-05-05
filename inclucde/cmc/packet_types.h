@@ -1,6 +1,6 @@
 #pragma once
-#include "buffer.h"
-#include "nbt_types.h"
+#include <cmc/buffer.h>
+#include <cmc/nbt_types.h>
 
 // there are some circular include shenanigans with cmc_conn and packets header
 // that the reason for the existence of this file

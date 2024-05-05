@@ -1,4 +1,4 @@
-#include "err.h"
+#include <cmc/err.h>
 
 const char *cmc_err_as_str(cmc_err_auto err) {
 #define ERRID2STR_HELPER(ERR)                                                  \

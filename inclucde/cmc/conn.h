@@ -1,7 +1,7 @@
 #pragma once
 
-#include "buffer.h"
-#include "packet_types.h"
+#include <cmc/buffer.h>
+#include <cmc/packet_types.h>
 #include <netinet/in.h>
 #include <stddef.h>
 #include <stdint.h>
