@@ -1,14 +1,10 @@
 #include <cmc/err.h>
 
-const char *cmc_err_as_str(cmc_err_auto err) {
+const char *cmc_err_as_str(cmc_err_extra err) {
 #define ERRID2STR_HELPER(ERR)                                                  \
   case ERR:                                                                    \
     return #ERR;
-#if CMC_ERR_EXTRA
   switch (err.err_type) {
-#else
-  switch (err) {
-#endif
     ERRID2STR_HELPER(CMC_ERR_NO)
     ERRID2STR_HELPER(CMC_ERR_MEM)
     ERRID2STR_HELPER(CMC_ERR_CONNETING)
