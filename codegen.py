@@ -63,7 +63,7 @@ def replace_code_segments(replacement_code, tag):
     start_tag = f"// CGSS: {tag}"  # Code Generator Segment Start
     end_tag   = f"// CGSE: {tag}"  # Code Generator Segment End
 
-    for file_name in os.listdir("./src"):
+    for file_name in os.listdir("./src").extend(os.listdir("./include/cmc")):
         if file_name.endswith(".c") or file_name.endswith(".h"):
             file_path = os.path.join("./src", file_name)
 
