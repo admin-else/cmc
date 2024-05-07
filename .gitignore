@@ -4,3 +4,4 @@ fuzz/
 .*/
 bin/
 build/
+__pycache__/

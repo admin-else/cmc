@@ -30,19 +30,16 @@ enum cmc_err_type {
   CMC_ERR_UNEXPECTED_PACKET
 };
 
-#if CMC_ERR_EXTRA
-struct cmc_err_extra {
+typedef struct {
   enum cmc_err_type err_type;
   const char *file;
   int line;
-};
-
-typedef struct cmc_err_extra cmc_err_auto;
+} cmc_err_extra;
 
 #define ERR(err, action)                                                       \
   do {                                                                         \
-    cmc_err = (struct cmc_err_extra){                                          \
-        .file = __FILE__, .line = __LINE__, .err_type = err};                  \
+    cmc_err =                                                                  \
+        (cmc_err_extra){.file = __FILE__, .line = __LINE__, .err_type = err};  \
     action                                                                     \
   } while (0)
 #define ERR_CHECK(action)                                                      \
@@ -52,24 +49,6 @@ typedef struct cmc_err_extra cmc_err_auto;
 #define ERR_ABLE(code, action)                                                 \
   code;                                                                        \
   ERR_CHECK(action)
-
-#else
-#define ERR(err, action)                                                       \
-  do {                                                                         \
-    cmc_err = err;                                                             \
-    action                                                                     \
-  } while (0)
-#define ERR_CHECK(action)                                                      \
-  if (cmc_err) {                                                               \
-    action                                                                     \
-  }
-#define ERR_ABLE(code, action)                                                 \
-  code;                                                                        \
-  ERR_CHECK(action)
-
-typedef enum cmc_err_type cmc_err_auto;
-
-#endif
 
 #define ERR_IF(conditon, err, action)                                          \
   {                                                                            \
@@ -87,6 +66,8 @@ typedef enum cmc_err_type cmc_err_auto;
 #define ERR_IF_LESS_OR_EQ_TO_ZERO(val, err, action)                            \
   ERR_IF_VAL_TO_CONDITION(val, <= 0, err, action)
 
-extern cmc_err_auto cmc_err;
+#define ERR_INITIAL (cmc_err_extra){.file = NULL, .line = 0, .err_type = CMC_ERR_NO}
 
-const char *cmc_err_as_str(cmc_err_auto err);
+extern cmc_err_extra cmc_err;
+
+const char *cmc_err_as_str(cmc_err_extra err);

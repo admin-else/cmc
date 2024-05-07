@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <cmc/err.h>
 
-cmc_err_auto cmc_err;
+cmc_err_extra cmc_err = ERR_INITIAL;
 
 int main() {
   puts("test");
