@@ -1,7 +1,9 @@
-# What is this???
+# What is this libary supposed to do
 
-A passion project of mine also linux only becouse windows bad lmao. (just to learn low level stuff)
+- Connect to a minecraft server with a socket that has special methods to recive minecraft packets
 
-This libary is the minecraft protocole in c.
+- Decode and encode minecraft packets over all versions
 
-i will not make a api documentation becouse i dont like it myself and i didnt even do most of it.
+# What thiis libary is NOT supposed to do
+
+- handle any comunications
