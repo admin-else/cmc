@@ -12,9 +12,9 @@
  * https://github.dev/chmod222/cNBT.
  */
 
-#include <cmc/text_buffer.h>
-#include <cmc/heap_utils.h>
 #include <assert.h>
+#include <cmc/heap_utils.h>
+#include <cmc/text_buffer.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>

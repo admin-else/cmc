@@ -1,10 +1,10 @@
-#include <cmc/packets.h>
 #include <cmc/buffer.h>
 #include <cmc/conn.h>
 #include <cmc/err.h>
 #include <cmc/heap_utils.h>
 #include <cmc/nbt.h>
 #include <cmc/packet_types.h>
+#include <cmc/packets.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
