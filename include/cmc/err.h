@@ -1,7 +1,6 @@
 #pragma once
 
 enum cmc_err_type {
-  // CGSS: error_def
   CMC_ERR_NO,
   CMC_ERR_MEM,
   CMC_ERR_CONNETING,
@@ -29,7 +28,6 @@ enum cmc_err_type {
   CMC_ERR_ASSERT,
   CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION,
   CMC_ERR_UNEXPECTED_PACKET
-  // CGSE: error_def
 };
 
 #if CMC_ERR_EXTRA

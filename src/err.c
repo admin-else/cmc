@@ -9,7 +9,6 @@ const char *cmc_err_as_str(cmc_err_auto err) {
 #else
   switch (err) {
 #endif
-    // CGSS: error_helper
     ERRID2STR_HELPER(CMC_ERR_NO)
     ERRID2STR_HELPER(CMC_ERR_MEM)
     ERRID2STR_HELPER(CMC_ERR_CONNETING)
@@ -37,7 +36,6 @@ const char *cmc_err_as_str(cmc_err_auto err) {
     ERRID2STR_HELPER(CMC_ERR_ASSERT)
     ERRID2STR_HELPER(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION)
     ERRID2STR_HELPER(CMC_ERR_UNEXPECTED_PACKET)
-// CGSE: error_helper
 #undef ERRID2STR_HELPER
   default:
     return "invalid error id";
