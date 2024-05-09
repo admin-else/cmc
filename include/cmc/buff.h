@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cmc/nbt_types.h>
+#include <cmc/err.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -11,19 +12,22 @@ typedef struct {
   size_t length;
   size_t capacity;
   int protocol_version;
-} cmc_buffer;
+  cmc_err_extra err;
+} cmc_buff;
+/*
+May return null if malloc failed.
+*/
+cmc_buff *cmc_buff_init(int protocol_version);
+void cmc_buff_print_info(cmc_buff *buff);
+void cmc_buff_free(cmc_buff *buff);
+cmc_buff *cmc_buff_combine(cmc_buff *buff, cmc_buff *tmp);
 
-cmc_buffer *cmc_buffer_init(int protocol_version);
-void cmc_buffer_print_info(cmc_buffer *buff);
-void cmc_buffer_free(cmc_buffer *buffer);
-cmc_buffer *cmc_buffer_combine(cmc_buffer *buff1, cmc_buffer *buff2);
-
-void cmc_buffer_pack(cmc_buffer *buffer, const void *data, size_t data_size);
-unsigned char *cmc_buffer_unpack(cmc_buffer *buffer, size_t n);
+cmc_err cmc_buff_pack(cmc_buff *buff, const void *data, size_t data_size);
+void *cmc_buff_unpack(cmc_buff *buff, size_t n);
 
 #define NUM_PACK_AND_UNPACK_FUNC_FACTORY_H(name, type)                         \
-  type cmc_buffer_unpack_##name(cmc_buffer *buffer);                           \
-  void cmc_buffer_pack_##name(cmc_buffer *buffer, type data);
+  type cmc_buff_unpack_##name(cmc_buff *buff);                           \
+  cmc_err cmc_buff_pack_##name(cmc_buff *buff, type data);
 
 NUM_PACK_AND_UNPACK_FUNC_FACTORY_H(char, char);
 NUM_PACK_AND_UNPACK_FUNC_FACTORY_H(byte, unsigned char);
@@ -39,19 +43,19 @@ NUM_PACK_AND_UNPACK_FUNC_FACTORY_H(double, double);
 #undef NUM_PACK_AND_UNPACK_FUNC_FACTORY_H
 
 // booleans
-void cmc_buffer_pack_bool(cmc_buffer *buffer, bool value);
-bool cmc_buffer_unpack_bool(cmc_buffer *buffer);
+cmc_err cmc_buff_pack_bool(cmc_buff *buff, bool value);
+bool cmc_buff_unpack_bool(cmc_buff *buff);
 
 // varints
-void cmc_buffer_pack_varint(cmc_buffer *buff, int value);
-int32_t cmc_buffer_unpack_varint(cmc_buffer *buff);
+cmc_err cmc_buff_pack_varint(cmc_buff *buff, int n);
+int32_t cmc_buff_unpack_varint(cmc_buff *buff);
 
 // strings
-void cmc_buffer_pack_string_w_max_len(cmc_buffer *buff, const char *value,
-                                      int max_len);
-void cmc_buffer_pack_string(cmc_buffer *buff, const char *value);
-char *cmc_buffer_unpack_string_w_max_len(cmc_buffer *buff, int max_len);
-char *cmc_buffer_unpack_string(cmc_buffer *buff);
+cmc_err cmc_buff_pack_string_w_max_len(cmc_buff *buff, const char *str,
+                                    size_t max_len);
+cmc_err cmc_buff_pack_string(cmc_buff *buff, const char *value);
+char *cmc_buff_unpack_string_w_max_len(cmc_buff *buff, int max_len);
+char *cmc_buff_unpack_string(cmc_buff *buff);
 void free_string(char *str);
 
 // Block pos
@@ -61,17 +65,17 @@ typedef struct {
   long z;
 } cmc_block_pos;
 
-void cmc_buffer_pack_position(cmc_buffer *buff, cmc_block_pos pos);
-cmc_block_pos cmc_buffer_unpack_position(cmc_buffer *buff);
+cmc_err cmc_buff_pack_position(cmc_buff *buff, cmc_block_pos pos);
+cmc_block_pos cmc_buff_unpack_position(cmc_buff *buff);
 
 // nbt
-cmc_nbt *cmc_buffer_unpack_nbt(cmc_buffer *buff);
-void cmc_buffer_pack_nbt(cmc_buffer *buff, cmc_nbt *nbt);
+cmc_nbt *cmc_buff_unpack_nbt(cmc_buff *buff);
+cmc_err cmc_buff_pack_nbt(cmc_buff *buff, cmc_nbt *nbt);
 
 // byte arrays
-cmc_buffer *cmc_buffer_unpack_byte_array(cmc_buffer *buff);
-void cmc_buffer_pack_byte_array(cmc_buffer *buff, cmc_buffer *byte_array);
-#define free_byte_array cmc_buffer_free
+cmc_buff *cmc_buff_unpack_byte_array(cmc_buff *buff);
+cmc_err cmc_buff_pack_byte_array(cmc_buff *buff, cmc_buff *byte_array);
+#define free_byte_array cmc_buff_free
 
 // Slots
 typedef struct {
@@ -81,8 +85,8 @@ typedef struct {
   cmc_nbt *tag_compound;
 } cmc_slot;
 
-void cmc_buffer_pack_slot(cmc_buffer *buff, cmc_slot *slot);
-cmc_slot *cmc_buffer_unpack_slot(cmc_buffer *buff);
+cmc_err cmc_buff_pack_slot(cmc_buff *buff, cmc_slot *slot);
+cmc_slot *cmc_buff_unpack_slot(cmc_buff *buff);
 void free_slot(cmc_slot *slot);
 
 // Entity metadata
@@ -121,12 +125,12 @@ typedef struct {
   cmc_entity_metadata_entry *entries;
 } cmc_entity_metadata;
 
-void cmc_buffer_pack_entity_metadata(cmc_buffer *buff,
-                                     cmc_entity_metadata metadata);
+cmc_err cmc_buff_pack_entity_metadata(cmc_buff *buff,
+                                   cmc_entity_metadata metadata);
 
-cmc_entity_metadata cmc_buffer_unpack_entity_metadata(cmc_buffer *buff);
+cmc_entity_metadata cmc_buff_unpack_entity_metadata(cmc_buff *buff);
 
-void free_entity_metadata(cmc_entity_metadata metadata);
+cmc_err free_entity_metadata(cmc_entity_metadata metadata);
 
 // uuids
 typedef struct {
@@ -134,8 +138,8 @@ typedef struct {
   uint64_t lower;
 } cmc_uuid;
 
-cmc_uuid cmc_buffer_unpack_uuid(cmc_buffer *buff);
-void cmc_buffer_pack_uuid(cmc_buffer *buff, cmc_uuid uuid);
+cmc_uuid cmc_buff_unpack_uuid(cmc_buff *buff);
+void cmc_buff_pack_uuid(cmc_buff *buff, cmc_uuid uuid);
 
 // array
 typedef struct {

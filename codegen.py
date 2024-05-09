@@ -19,7 +19,7 @@ type_map = {
     "s": ["char *",               "string",          True,   "NULL",                    ],
     "p": ["cmc_block_pos ",       "position",        False,  "{.x=0,.y=0,.z=0}",        ],
     "n": ["cmc_nbt *",            "nbt",             True,   "NULL",                    ],
-    "a": ["cmc_buffer *",         "byte_array",      True,   "NULL",                    ],
+    "a": ["cmc_buff *",         "byte_array",      True,   "NULL",                    ],
     "S": ["cmc_slot *",           "slot",            True,   "NULL",                    ],
     "m": ["cmc_entity_metadata ", "entity_metadata", True,   "{.size=0,.entries=NULL}", ],
     "u": ["cmc_uuid ",             "uuid",           False,  "{.lower=0,.upper=0}",     ],
@@ -63,7 +63,7 @@ def replace_code_segments(replacement_code, tag):
     start_tag = f"// CGSS: {tag}"  # Code Generator Segment Start
     end_tag   = f"// CGSE: {tag}"  # Code Generator Segment End
 
-    for file_name in os.listdir("./src").extend(os.listdir("./include/cmc")):
+    for file_name in os.walk("."):
         if file_name.endswith(".c") or file_name.endswith(".h"):
             file_path = os.path.join("./src", file_name)
 
@@ -123,13 +123,13 @@ for(int {deepnessc} = 0; i < {to_unpack_to}{name}.len; ++{deepnessc}) {{
             code += unpack_method_content(f"p_{name}->", array_exp, deepness+1, packet_name)
             code += "}"
         else:
-            code += f"{to_unpack_to}{exp_data}=cmc_buffer_unpack_{type_map[sym[0]][1]}(buff);"
+            code += f"{to_unpack_to}{exp_data}=cmc_buff_unpack_{type_map[sym[0]][1]}(buff);"
     return code
 
 def unpack_method(inp):
     if inp["is_empty"]:
         return ""
-    code = f"{inp['name']}_packet unpack_{inp['name']}_packet(cmc_buffer *buff)"
+    code = f"{inp['name']}_packet unpack_{inp['name']}_packet(cmc_buff *buff)"
     empty = "{" 
     #empty += ",".join([f".{entry[1:]}={type_map[entry[0]][3]}" for entry in inp['type_def_content']])
     for entry in inp['type_def_content']:
@@ -165,26 +165,26 @@ def send_method_content(data, to_send, deepness, packet_name):
             code += send_method_content(array_exp, f"p_{name}->", deepness+1, packet_name)
             code += "}"
         else:
-            code += f"cmc_buffer_pack_{type_map[symbol[0]][1]}(buff, {to_send}{name});"
+            code += f"cmc_buff_pack_{type_map[symbol[0]][1]}(buff, {to_send}{name});"
     return code
 
 
 def send_method(inp):
     code = "void cmc_send_{}_packet(cmc_conn *conn{})".format(inp['name'], f", {inp['name']}_packet *packet" if not inp["is_empty"] else "")
-    code += "{cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);"
+    code += "{cmc_buff *buff = cmc_buff_init(conn->protocol_version);"
     code += "switch(conn->protocol_version) {"
     for pv, data in inp["packet_data"].items():
         code += f"case {pv}: {{" 
-        code += f"cmc_buffer_pack_varint(buff, {data['packet_id']});"
+        code += f"cmc_buff_pack_varint(buff, {data['packet_id']});"
         if "content" in data:
             code += send_method_content(data["content_str"], "packet->", ord("i"), inp['name'])
         code += "break;}"
     code += """default: 
-        cmc_buffer_free(buff);
+        cmc_buff_free(buff);
         ERR(ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
     }
     cmc_conn_send_packet(conn, buff);
-    cmc_buffer_free(buff);
+    cmc_buff_free(buff);
     }\n\n"""
 
     return code
@@ -312,7 +312,7 @@ def main():
         "unpack_methods_c",
     )
     replace_code_segments(
-        "".join([f"{inp['name']}_packet unpack_{inp['name']}_packet(cmc_buffer *buff);" if not inp['is_empty'] else "" for inp in mc_packet_exps]),
+        "".join([f"{inp['name']}_packet unpack_{inp['name']}_packet(cmc_buff *buff);" if not inp['is_empty'] else "" for inp in mc_packet_exps]),
         "unpack_methods_h",
     )
     # packet unpack methods header

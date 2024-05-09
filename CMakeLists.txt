@@ -14,7 +14,6 @@ find_package(ZLIB REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(CURL REQUIRED)
 
-
 file(GLOB_RECURSE SRC_FILES ${CMAKE_SOURCE_DIR}/src/*.c)
 
 add_library(cmc SHARED ${SRC_FILES})
@@ -32,7 +31,7 @@ add_custom_target(format
 )
 
 add_custom_target(codegen
-    COMMAND python3 codegen.py
+    COMMAND ${CMAKE_COMMAND} -E chdir ${CMAKE_SOURCE_DIR} python3 codegen.py
     COMMAND clang-format -i ${SRC_FILES} ${CMAKE_SOURCE_DIR}/include/cmc/*
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )

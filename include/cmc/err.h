@@ -1,6 +1,6 @@
 #pragma once
 
-enum cmc_err_type {
+typedef enum {
   CMC_ERR_NO,
   CMC_ERR_MEM,
   CMC_ERR_CONNETING,
@@ -18,8 +18,8 @@ enum cmc_err_type {
   CMC_ERR_UNKOWN_PACKET,
   CMC_ERR_MALLOC_ZERO,
   CMC_ERR_INVALID_ARGUMENTS,
-  CMC_ERR_BUFFER_UNDERUN,
-  CMC_ERR_BUFFER_OVERFLOW,
+  CMC_ERR_BUFF_UNDERUN,
+  CMC_ERR_BUFF_OVERFLOW,
   CMC_ERR_STRING_LENGHT,
   CMC_ERR_INVALID_STRING,
   CMC_ERR_INVALID_LENGHT,
@@ -27,47 +27,18 @@ enum cmc_err_type {
   CMC_ERR_NOT_IMPLEMENTED_YET,
   CMC_ERR_ASSERT,
   CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION,
-  CMC_ERR_UNEXPECTED_PACKET
-};
+  CMC_ERR_UNEXPECTED_PACKET,
+  CMC_ERR_REALLOC_ZERO,
+  CMC_ERR_NEGATIVE_STRING_LENGHT
+} cmc_err;
 
 typedef struct {
-  enum cmc_err_type err_type;
+  cmc_err err;
   const char *file;
   int line;
 } cmc_err_extra;
 
-#define ERR(err, action)                                                       \
-  do {                                                                         \
-    cmc_err =                                                                  \
-        (cmc_err_extra){.file = __FILE__, .line = __LINE__, .err_type = err};  \
-    action                                                                     \
-  } while (0)
-#define ERR_CHECK(action)                                                      \
-  if (cmc_err.err_type) {                                                      \
-    action                                                                     \
-  }
-#define ERR_ABLE(code, action)                                                 \
-  code;                                                                        \
-  ERR_CHECK(action)
+const char *cmc_err_as_str(cmc_err err);
 
-#define ERR_IF(conditon, err, action)                                          \
-  {                                                                            \
-    if (conditon) {                                                            \
-      ERR(err, action);                                                        \
-    }                                                                          \
-  }
-#define ERR_IF_NOT(val, err, action) ERR_IF(!(val), err, action)
-#define ERR_IF_VAL_TO_CONDITION(val, conditon, err, action)                    \
-  ERR_IF(val conditon, err, action)
-#define ERR_IF_LESS_THAN_ZERO(val, err, action)                                \
-  ERR_IF_VAL_TO_CONDITION(val, < 0, err, action)
-#define ERR_IF_NOT_ZERO(val, err, action)                                      \
-  ERR_IF_VAL_TO_CONDITION(val, != 0, err, action)
-#define ERR_IF_LESS_OR_EQ_TO_ZERO(val, err, action)                            \
-  ERR_IF_VAL_TO_CONDITION(val, <= 0, err, action)
-
-#define ERR_INITIAL (cmc_err_extra){.file = NULL, .line = 0, .err_type = CMC_ERR_NO}
-
-extern cmc_err_extra cmc_err;
-
-const char *cmc_err_as_str(cmc_err_extra err);
+#define CMC_ERR_EXTRA_INIT                                                     \
+  (cmc_err_extra) { .err = CMC_ERR_NO, .file = NULL, .line = 0 }
