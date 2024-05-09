@@ -11,31 +11,22 @@
 #include <unistd.h>
 #include <zlib.h>
 
-struct cmc_conn cmc_conn_init(int protocol_version) {
-  struct cmc_conn conn;
-  struct sockaddr_in localhost;
-  localhost.sin_family = AF_INET;
-  localhost.sin_port = htons(25565);
-  inet_pton(AF_INET, "127.0.0.1", &(localhost.sin_addr));
-
-  conn.addr = localhost;
-  conn.name = "Bot";
-  conn.state = CMC_CONN_STATE_OFFLINE;
-  conn.compression_threshold = -1;
-  conn.sockfd = -1;
-  conn.protocol_version = protocol_version;
-  return conn;
+cmc_conn cmc_conn_init(int protocol_version) {
+  return (cmc_conn){.state = CMC_CONN_STATE_OFFLINE,
+                    .compression_threshold = -1,
+                    .sockfd = -1,
+                    .protocol_version = protocol_version};
 }
 
-void cmc_conn_close(struct cmc_conn *conn) {
+cmc_err cmc_conn_close(cmc_conn *conn) {
   if (conn->state == CMC_CONN_STATE_OFFLINE)
     return;
-  ERR_IF_NOT_ZERO(close(conn->sockfd), CMC_ERR_CLOSING, return;);
+  CMC_ERRCR_IF_NOT(close(conn->sockfd), CMC_ERR_CLOSING);
   conn->state = CMC_CONN_STATE_OFFLINE;
   conn->sockfd = -1;
 }
 
-int send_all(int socket, const void *buffer, size_t length) {
+static int send_all(int socket, const void *buffer, size_t length) {
   size_t total_sent = 0;
 
   while (total_sent < length) {
@@ -50,7 +41,7 @@ int send_all(int socket, const void *buffer, size_t length) {
   return 0; // Success
 }
 
-int recv_all(int socket, void *buffer, size_t length) {
+static int recv_all(int socket, void *buffer, size_t length) {
   size_t total_received = 0;
 
   while (total_received < length) {
@@ -65,7 +56,7 @@ int recv_all(int socket, void *buffer, size_t length) {
   return 0;
 }
 
-cmc_buffer *cmc_conn_recive_packet(struct cmc_conn *conn) {
+cmc_buffer *cmc_conn_recive_packet(cmc_conn *conn) {
   int32_t packet_len = 0;
   for (int i = 0; i < 5; i++) {
     uint8_t b;
@@ -142,7 +133,7 @@ inline void print_bytes_py(unsigned char *bytes, size_t len) {
   printf("'\n");
 }
 
-void cmc_conn_send_packet(struct cmc_conn *conn, cmc_buffer *buff) {
+void cmc_conn_send_packet(cmc_conn *conn, cmc_buffer *buff) {
   cmc_buffer *compressed_buffer = cmc_buffer_init(conn->protocol_version);
   if (conn->compression_threshold >= 0) {
     if (buff->length >= (size_t)conn->compression_threshold) {
