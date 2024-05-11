@@ -1,15 +1,15 @@
 #include <arpa/inet.h>
-#include <cmc/buffer.h>
+#include <cmc/buff.h>
 #include <cmc/err.h>
 #include <cmc/heap_utils.h>
-#include <cmc/packet_types.h>
-#include <cmc/packets.h>
+#include <cmc/conn.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
 #include <zlib.h>
+#include "err.h"
 
 cmc_conn cmc_conn_init(int protocol_version) {
   return (cmc_conn){.state = CMC_CONN_STATE_OFFLINE,
@@ -20,17 +20,18 @@ cmc_conn cmc_conn_init(int protocol_version) {
 
 cmc_err cmc_conn_close(cmc_conn *conn) {
   if (conn->state == CMC_CONN_STATE_OFFLINE)
-    return;
-  CMC_ERRCR_IF_NOT(close(conn->sockfd), CMC_ERR_CLOSING);
+    return CMC_ERR_NO;
+  CMC_ERRRC_IF(close(conn->sockfd), CMC_ERR_CLOSING);
   conn->state = CMC_CONN_STATE_OFFLINE;
   conn->sockfd = -1;
+  return CMC_ERR_NO;
 }
 
-static int send_all(int socket, const void *buffer, size_t length) {
+static int send_all(int socket, const void *buff, size_t length) {
   size_t total_sent = 0;
 
   while (total_sent < length) {
-    ssize_t sent = send(socket, buffer + total_sent, length - total_sent, 0);
+    ssize_t sent = send(socket, buff + total_sent, length - total_sent, 0);
 
     if (sent == -1)
       return -1;
@@ -41,12 +42,12 @@ static int send_all(int socket, const void *buffer, size_t length) {
   return 0; // Success
 }
 
-static int recv_all(int socket, void *buffer, size_t length) {
+static int recv_all(int socket, void *buff, size_t length) {
   size_t total_received = 0;
 
   while (total_received < length) {
     ssize_t bytes_received = // sorry janfel ): dereferencing ‘void *’ pointer
-        recv(socket, buffer + total_received, length - total_received, 0);
+        recv(socket, buff + total_received, length - total_received, 0);
 
     if (bytes_received <= 0)
       return -1;
@@ -56,34 +57,34 @@ static int recv_all(int socket, void *buffer, size_t length) {
   return 0;
 }
 
-cmc_buffer *cmc_conn_recive_packet(cmc_conn *conn) {
+cmc_buff *cmc_conn_recive_packet(cmc_conn *conn) {
   int32_t packet_len = 0;
   for (int i = 0; i < 5; i++) {
     uint8_t b;
-    ERR_IF(recv(conn->sockfd, &b, 1, 0) != 1, CMC_ERR_RECV, return NULL;);
+    CMC_ERRC_IF(recv(conn->sockfd, &b, 1, 0) != 1, CMC_ERR_RECV, return NULL;);
     packet_len |= (b & 0x7F) << (7 * i);
     if (!(b & 0x80))
       break;
   }
 
-  ERR_IF_LESS_OR_EQ_TO_ZERO(packet_len, CMC_ERR_INVALID_PACKET_LEN,
+  CMC_ERRC_IF(packet_len <= 0, CMC_ERR_INVALID_PACKET_LEN,
                             return NULL;);
 
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
-  cmc_buffer_pack(buff, NULL, packet_len);
-  ERR_IF(recv_all(conn->sockfd, buff->data, packet_len) == -1, CMC_ERR_RECV,
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
+  cmc_buff_pack(buff, NULL, packet_len);
+  CMC_ERRC_IF(recv_all(conn->sockfd, buff->data, packet_len) == -1, CMC_ERR_RECV,
          goto on_err1;);
 
   if (conn->compression_threshold == -1)
     return buff;
 
-  int decompressed_length_signed = cmc_buffer_unpack_varint(buff);
+  int decompressed_length_signed = cmc_buff_unpack_varint(buff);
   if (decompressed_length_signed <= 0)
     return buff;
 
   size_t decompressed_length = decompressed_length_signed;
 
-  unsigned char *decompressed_data = MALLOC(decompressed_length);
+  unsigned char *decompressed_data = CMC_ERRC_ABLE(cmc_malloc(decompressed_length, &conn->err), goto on_err1);
 
   z_stream strm;
   strm.zalloc = Z_NULL;
@@ -95,20 +96,20 @@ cmc_buffer *cmc_conn_recive_packet(cmc_conn *conn) {
   strm.avail_out = decompressed_length;
   strm.next_out = (Bytef *)decompressed_data;
 
-  ERR_IF(inflateInit(&strm) != Z_OK, CMC_ERR_ZLIB_INIT, goto on_err2;);
+  CMC_ERRC_IF(inflateInit(&strm) != Z_OK, CMC_ERR_ZLIB_INIT, goto on_err2;);
 
-  ERR_IF(inflate(&strm, Z_FINISH) != Z_STREAM_END, CMC_ERR_ZLIB_INFLATE,
+  CMC_ERRC_IF(inflate(&strm, Z_FINISH) != Z_STREAM_END, CMC_ERR_ZLIB_INFLATE,
          goto on_err3;);
 
   size_t real_decompressed_length = strm.total_out;
 
   inflateEnd(&strm);
-  ERR_IF(real_decompressed_length != decompressed_length, CMC_ERR_SENDER_LYING,
+  CMC_ERRC_IF(real_decompressed_length != decompressed_length, CMC_ERR_SENDER_LYING,
          goto on_err2;);
 
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 
-  cmc_buffer *decompressed_buff = cmc_buffer_init(conn->protocol_version);
+  cmc_buff *decompressed_buff = cmc_buff_init(conn->protocol_version);
   decompressed_buff->data = decompressed_data;
   decompressed_buff->capacity = decompressed_length;
   decompressed_buff->length = decompressed_length;
@@ -119,50 +120,41 @@ cmc_buffer *cmc_conn_recive_packet(cmc_conn *conn) {
 on_err3:
   inflateEnd(&strm);
 on_err2:
-  FREE(decompressed_data);
+  free(decompressed_data);
 on_err1:
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
   return NULL;
 }
 
-inline void print_bytes_py(unsigned char *bytes, size_t len) {
-  printf("b'");
-  for (size_t i = 0; i < len; i++) {
-    printf("\\x%02X", bytes[i]);
-  }
-  printf("'\n");
-}
-
-void cmc_conn_send_packet(cmc_conn *conn, cmc_buffer *buff) {
-  cmc_buffer *compressed_buffer = cmc_buffer_init(conn->protocol_version);
+void cmc_conn_send_packet(cmc_conn *conn, cmc_buff *buff) {
+  cmc_buff *compressed_buff = cmc_buff_init(conn->protocol_version);
   if (conn->compression_threshold >= 0) {
     if (buff->length >= (size_t)conn->compression_threshold) {
-      cmc_buffer_pack_varint(compressed_buffer, buff->length);
+      cmc_buff_pack_varint(compressed_buff, buff->length);
       uLong compressedSize = compressBound(buff->length);
-      Bytef *compressedData = (Bytef *)MALLOC(compressedSize);
-      ERR_IF(compress(compressedData, &compressedSize, buff->data,
+      Bytef *compressedData = CMC_ERRC_ABLE(cmc_malloc(compressedSize, &buff->err), goto on_error);
+      CMC_ERRC_IF(compress(compressedData, &compressedSize, buff->data,
                       buff->length) != Z_OK,
              CMC_ERR_ZLIB_COMPRESS, goto on_error;);
     } else {
-      cmc_buffer_pack_varint(compressed_buffer, 0);
-      cmc_buffer_pack(compressed_buffer, buff->data, buff->length);
+      cmc_buff_pack_varint(compressed_buff, 0);
+      cmc_buff_pack(compressed_buff, buff->data, buff->length);
     }
   } else {
-    cmc_buffer_pack(compressed_buffer, buff->data, buff->length);
+    cmc_buff_pack(compressed_buff, buff->data, buff->length);
   }
 
-  cmc_buffer *packet_size_buffer = cmc_buffer_init(conn->protocol_version);
-  cmc_buffer_pack_varint(packet_size_buffer, compressed_buffer->length);
+  cmc_buff *packet_size_buff = cmc_buff_init(conn->protocol_version);
+  cmc_buff_pack_varint(packet_size_buff, compressed_buff->length);
 
-  compressed_buffer = cmc_buffer_combine(packet_size_buffer, compressed_buffer);
-  ERR_IF_NOT_ZERO(send_all(conn->sockfd, compressed_buffer->data,
-                           compressed_buffer->length),
+  compressed_buff = cmc_buff_combine(packet_size_buff, compressed_buff);
+  CMC_ERRC_IF(send_all(conn->sockfd, compressed_buff->data,
+                           compressed_buff->length) != 0,
                   CMC_ERR_SENDING, );
-  cmc_buffer_print_info(compressed_buffer);
-  cmc_buffer_free(compressed_buffer);
+  cmc_buff_free(compressed_buff);
   return;
 
 on_error:
-  cmc_buffer_free(compressed_buffer);
+  cmc_buff_free(compressed_buff);
   return;
 }

@@ -1,5 +1,5 @@
 #pragma once
-#include <cmc/buffer.h>
+#include <cmc/buff.h>
 #include <cmc/nbt_types.h>
 
 // there are some circular include shenanigans with cmc_conn and packets header

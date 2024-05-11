@@ -2,6 +2,7 @@
 this file contains crypto and compression
 
 */
+#include "err.h"
 #include <cmc/heap_utils.h>
 #include <openssl/bio.h>
 #include <openssl/evp.h>
@@ -41,8 +42,8 @@ RSA *pubkeyDER_to_RSA(uint8_t *pubkeyDER, size_t pubkeyDER_len, char **errmsg) {
   return pubkeyRSA;
 }*/
 
-unsigned char *generate_random_bytes(int len) {
-  unsigned char *generated_bytes = MALLOC(len);
+unsigned char *generate_random_bytes(int len, cmc_err_extra *err) {
+  unsigned char *generated_bytes = CMC_ERR_ABLE(cmc_malloc(len, err), return NULL);
 
   for (int i = 0; i < len; i++) {
     generated_bytes[i] = rand() % 0xFF;
@@ -50,7 +51,7 @@ unsigned char *generate_random_bytes(int len) {
   return generated_bytes;
 }
 
-char *mc_sha_final(EVP_MD_CTX *mdctx) {
+char *mc_sha_final(EVP_MD_CTX *mdctx, cmc_err_extra *err) {
   unsigned char hash[SHA_DIGEST_LENGTH];
   EVP_DigestFinal(mdctx, hash, NULL);
 
@@ -77,7 +78,7 @@ char *mc_sha_final(EVP_MD_CTX *mdctx) {
 
   // Create a new string starting from the first non-zero character
   size_t final_strlen = (41 + negativ) - i;
-  char *final_result = MALLOC(final_strlen);
+  char *final_result = CMC_ERR_ABLE(cmc_malloc(final_strlen, err), return NULL;);
   strcpy(negativ + final_result, &result[i]);
   if (negativ)
     final_result[0] = '-';
