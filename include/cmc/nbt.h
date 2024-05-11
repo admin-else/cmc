@@ -14,16 +14,12 @@
 
 #pragma once
 
-#include <cmc/buffer.h>
+#include <cmc/buff.h>
 #include <cmc/list.h>
 #include <cmc/nbt_types.h>
 #include <stdint.h>
 
-cmc_nbt *nbt_parse_named_tag(cmc_buffer *buff);
-
-#define free_nbt nbt_free
-void nbt_free(cmc_nbt *tree);
-
-char *nbt_dump_ascii(const cmc_nbt *tree);
-
-cmc_buffer *nbt_dump_binary(const cmc_nbt *tree);
+void cmc_nbt_free(cmc_nbt *tree);
+cmc_nbt *cmc_nbt_parse(cmc_buff *buff);
+cmc_buff *cmc_nbt_text(const cmc_nbt *tree);
+cmc_buff *cmc_nbt_dump(const cmc_nbt *tree);

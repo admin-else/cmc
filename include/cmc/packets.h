@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cmc/buffer.h>
+#include <cmc/buff.h>
 #include <cmc/conn.h>
 #include <cmc/packet_types.h>
 #include <stdbool.h>

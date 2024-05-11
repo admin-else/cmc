@@ -168,6 +168,7 @@ cmc_err cmc_buff_pack_varint(cmc_buff *buff, int n) {
     if (number == 0)
       break;
   }
+  return CMC_ERR_NO;
 }
 
 int32_t cmc_buff_unpack_varint(cmc_buff *buff) {
@@ -249,24 +250,26 @@ cmc_block_pos cmc_buff_unpack_position(cmc_buff *buff) {
 
   // this is for negatives
   pos.x = (pos.x >= 33554432) ? (pos.x % 67108864) : pos.x;
-  pos.y = (pos.y >= 2048) ? (pos.y % 4096) : pos.y;
+  pos.y = (pos.y >= 2048)     ? (pos.y % 4096)     : pos.y;
   pos.z = (pos.z >= 33554432) ? (pos.z % 67108864) : pos.z;
 
   return pos;
 }
 
 cmc_nbt *cmc_buff_unpack_nbt(cmc_buff *buff) {
-  return nbt_parse_named_tag(buff);
+  return cmc_nbt_parse(buff);
 }
 
 cmc_err cmc_buff_pack_nbt(cmc_buff *buff, cmc_nbt *nbt) {
-  cmc_buff *tmp_buff = CMC_ERRRB_ABLE(nbt_dump_binary(nbt));
+  cmc_buff *tmp_buff = CMC_ERRRB_ABLE(cmc_nbt_dump(nbt));
   cmc_buff_combine(buff, tmp_buff);
+  return CMC_ERR_NO;
 }
 
 cmc_err cmc_buff_pack_byte_array(cmc_buff *buff, cmc_buff *byte_array) {
   CMC_ERRRB_ABLE(cmc_buff_pack_varint(buff, byte_array->length));
   CMC_ERRRB_ABLE(cmc_buff_pack(buff, byte_array->data, byte_array->length));
+  return CMC_ERR_NO;
 }
 
 cmc_buff *cmc_buff_unpack_byte_array(cmc_buff *buff) {
@@ -293,14 +296,15 @@ cmc_err cmc_buff_pack_slot(cmc_buff *buff, cmc_slot *slot) {
   CMC_ERRRB_ABLE(cmc_buff_pack_char(buff, slot->slot_size));
   CMC_ERRRB_ABLE(cmc_buff_pack_short(buff, slot->meta_data));
   CMC_ERRRB_ABLE(cmc_buff_pack_nbt(buff, slot->tag_compound));
+  return CMC_ERR_NO;
 }
-
 
 cmc_slot *cmc_buff_unpack_slot(cmc_buff *buff) {
   short item_id = CMC_ERRB_ABLE(cmc_buff_unpack_short(buff), return NULL;);
   if (item_id < 0)
     return NULL;
-  cmc_slot *slot = CMC_ERRB_ABLE(cmc_malloc(sizeof(cmc_slot), &buff->err), return NULL;);
+  cmc_slot *slot =
+      CMC_ERRB_ABLE(cmc_malloc(sizeof(cmc_slot), &buff->err), return NULL;);
   slot->item_id = item_id;
   slot->slot_size = CMC_ERRB_ABLE(cmc_buff_unpack_byte(buff), goto err;);
   slot->meta_data = CMC_ERRB_ABLE(cmc_buff_unpack_short(buff), goto err;);
@@ -349,6 +353,7 @@ cmc_err cmc_buff_pack_entity_metadata(cmc_buff *buff,
     }
   }
   CMC_ERRRB_ABLE(cmc_buff_pack_byte(buff, 127));
+  return CMC_ERR_NO;
 }
 
 cmc_entity_metadata cmc_buff_unpack_entity_metadata(cmc_buff *buff) {
@@ -425,7 +430,7 @@ cmc_entity_metadata cmc_buff_unpack_entity_metadata(cmc_buff *buff) {
   return meta_data;
 
 on_error:
-  CMC_ERRB_ABLE(free_entity_metadata(meta_data),);
+  CMC_ERRB_ABLE(free_entity_metadata(meta_data), );
   return EMPTY_ENTITY_METADATA;
 }
 
@@ -435,22 +440,23 @@ cmc_err free_entity_metadata(cmc_entity_metadata metadata) {
         metadata.entries + i * sizeof(cmc_entity_metadata_entry);
     switch (entry->type) {
     case ENTITY_METADATA_ENTRY_TYPE_SLOT:
-      CMC_ERRR_ABLE(free_slot(entry->payload.slot_data), break;);
+      free_slot(entry->payload.slot_data);
       break;
     case ENTITY_METADATA_ENTRY_TYPE_STRING:
-      free(entry->payload.string_data);
+      free_string(entry->payload.string_data);
       break;
     default:
       break;
     }
   }
   free(metadata.entries);
+  return CMC_ERR_NO;
 }
 
 void free_string(char *str) { free(str); }
 
 void free_slot(cmc_slot *slot) {
-  nbt_free(slot->tag_compound);
+  cmc_nbt_free(slot->tag_compound);
   free(slot);
 }
 

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cmc/buff.h>
-#include <cmc/packet_types.h>
 #include <netinet/in.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -24,6 +23,7 @@ typedef struct {
   ssize_t compression_threshold;
   char *name;
   int protocol_version;
+  cmc_err_extra err;
 } cmc_conn;
 
 cmc_conn cmc_conn_init(int protocol_version);
@@ -36,4 +36,4 @@ void cmc_conn_send_and_free_buffer(cmc_conn *conn, cmc_buff *buff);
 
 void cmc_conn_send_packet(cmc_conn *conn, cmc_buff *buff);
 
-void cmc_conn_close(cmc_conn *conn);
+cmc_err cmc_conn_close(cmc_conn *conn);

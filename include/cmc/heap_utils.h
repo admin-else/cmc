@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cmc/conn.h>
 #include <cmc/err.h>
 #include <stddef.h>
 
