@@ -113,6 +113,8 @@ def type_def(inp):
     code = type_def_content(inp["type_def_content_str"], inp["name"], f"{inp['name']}_packet")    
     return code
 
+#packet.properties.data = CMC_ERRB_ABLE(cmc_malloc(
+#        packet.properties.len * sizeof(S2C_play_entity_properties_properties), &buff->err), goto err;);
 def unpack_method_content(to_unpack_to, exp, deepness, packet_name):
     code = ""
     for sym in careful_split(exp):
@@ -122,7 +124,7 @@ def unpack_method_content(to_unpack_to, exp, deepness, packet_name):
             name, array_exp, key = split_array_exp(sym)
             deepnessc = chr(deepness)
             code += f"""{to_unpack_to}{name}.len = {to_unpack_to}{key};
-{to_unpack_to}{name}.data = MALLOC({to_unpack_to}{name}.len * sizeof({packet_name}_{name}));
+{to_unpack_to}{name}.data = CMC_ERRB_ABLE(cmc_malloc({to_unpack_to}{name}.len * sizeof({packet_name}_{name}), &buff->err), goto err;);
 for(int {deepnessc} = 0; i < {to_unpack_to}{name}.len; ++{deepnessc}) {{
 {packet_name}_{name} *p_{name} = {deepnessc} * sizeof(*p_{name}) + ({packet_name}_{name} *){to_unpack_to}{name}.data;"""
             code += unpack_method_content(f"p_{name}->", array_exp, deepness+1, packet_name)
@@ -148,10 +150,10 @@ def unpack_method(inp):
     for pv, data in inp["packet_data"].items():
         code += f"case {pv}: {{" + unpack_method_content("packet.", data['content_str'], ord("i"), inp['name']) + "break;}"
     code += f"""default: 
-                 ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return packet;);
+                 CMC_ERRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return packet;);
                }}
-               ERR_CHECK(goto err;);
-               if(buff->position != buff->length) ERR(CMC_ERR_BUFFER_UNDERUN, goto err;);
+               CMC_ERRB_ABLE(,goto err);
+               if(buff->position != buff->length) CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
                return packet;
                err:
                  cmc_free_{inp['name']}_packet(&packet);
@@ -190,6 +192,7 @@ def send_method(inp):
     }
     cmc_conn_send_packet(conn, buff);
     cmc_buff_free(buff);
+    return CMC_ERR_NO;
     }\n\n"""
 
     return code

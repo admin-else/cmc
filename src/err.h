@@ -84,4 +84,5 @@ B(uff): like conn but into buffer
   CMC_ERRA_IF(condition, conn->err, err_type, action)
 
 #define CMC_ERRC_ABLE(code, action) CMC_ERRA_ABLE(code, conn->err.err, action)
+#define CMC_ERRC(code, action) CMC_ERRA(code, conn->err.err, action)
 #define CMC_ERR_ABLE(code, action) CMC_ERRA_ABLE(code, err->err, action)
