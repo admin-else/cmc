@@ -1,6 +1,7 @@
 import os
 import re
 from pprint import pprint
+import glob
 
 type_map = {
 #  TYPE  |code tpye               |method type      |is heap |default value
@@ -19,12 +20,14 @@ type_map = {
     "s": ["char *",               "string",          True,   "NULL",                    ],
     "p": ["cmc_block_pos ",       "position",        False,  "{.x=0,.y=0,.z=0}",        ],
     "n": ["cmc_nbt *",            "nbt",             True,   "NULL",                    ],
-    "a": ["cmc_buff *",         "byte_array",      True,   "NULL",                    ],
+    "a": ["cmc_buff *",           "buff",            True,   "NULL",                    ],
     "S": ["cmc_slot *",           "slot",            True,   "NULL",                    ],
     "m": ["cmc_entity_metadata ", "entity_metadata", True,   "{.size=0,.entries=NULL}", ],
     "u": ["cmc_uuid ",             "uuid",           False,  "{.lower=0,.upper=0}",     ],
     "A": ["cmc_array ",            None,             True,   "{.data=NULL,.len=0}",     ],
 }
+
+replacement_paths = ["src/*.c", "include/cmc/*.h"]
 
 def split_array_exp(inp):
     name = inp[:inp.find("[")]
@@ -59,29 +62,31 @@ def careful_split(exp):
     out.append(curr_str)
     return out
 
+def get_absolute_paths(file_paths):
+    absolute_paths = []
+    for file_path in file_paths:
+        matches = glob.glob(file_path)
+        for match in matches:
+            absolute_path = os.path.abspath(match)
+            absolute_paths.append(absolute_path)
+    return absolute_paths
+
 def replace_code_segments(replacement_code, tag):
     start_tag = f"// CGSS: {tag}"  # Code Generator Segment Start
     end_tag   = f"// CGSE: {tag}"  # Code Generator Segment End
 
-    for file_name in os.walk("."):
-        if file_name.endswith(".c") or file_name.endswith(".h"):
-            file_path = os.path.join("./src", file_name)
-
-            with open(file_path, "r") as file:
-                file_content = file.read()
-
-            pattern = re.compile(
-                f"({re.escape(start_tag)}).*?({re.escape(end_tag)})", re.DOTALL
-            )
-            if not pattern.search(file_content):
-                continue
-
-            file_content = pattern.sub(rf"\1\n{replacement_code}\n\2", file_content)
-
-            with open(file_path, "w") as file:
-                file.write(file_content)
-
-            return
+    for file_path in get_absolute_paths(replacement_paths):
+        with open(file_path, "r") as file:
+            file_content = file.read()
+        pattern = re.compile(
+            f"({re.escape(start_tag)}).*?({re.escape(end_tag)})", re.DOTALL
+        )
+        if not pattern.search(file_content):
+            continue
+        file_content = pattern.sub(rf"\1\n{replacement_code}\n\2", file_content)
+        with open(file_path, "w") as file:
+            file.write(file_content)
+        return
 
     raise ValueError(f"didnt find tag {tag}")
 
@@ -170,7 +175,7 @@ def send_method_content(data, to_send, deepness, packet_name):
 
 
 def send_method(inp):
-    code = "void cmc_send_{}_packet(cmc_conn *conn{})".format(inp['name'], f", {inp['name']}_packet *packet" if not inp["is_empty"] else "")
+    code = "cmc_err cmc_send_{}_packet(cmc_conn *conn{})".format(inp['name'], f", {inp['name']}_packet *packet" if not inp["is_empty"] else "")
     code += "{cmc_buff *buff = cmc_buff_init(conn->protocol_version);"
     code += "switch(conn->protocol_version) {"
     for pv, data in inp["packet_data"].items():
@@ -181,7 +186,7 @@ def send_method(inp):
         code += "break;}"
     code += """default: 
         cmc_buff_free(buff);
-        ERR(ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+        CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
     }
     cmc_conn_send_packet(conn, buff);
     cmc_buff_free(buff);
@@ -217,10 +222,10 @@ def free_method_content(exp, tofree, deepness, packet_name):
 {packet_name}_{name} *p_{name} = {deepnessc} * sizeof(*p_{name}) + ({packet_name}_{name} *){tofree}->{name}.data;"""
                 code += free_method_content(array_exp, f"p_{name}", deepness+1, packet_name)
                 code += f"""}}
-FREE({tofree}->{name}.data);
+free({tofree}->{name}.data);
 {tofree}->{name}.len = 0;"""
             else:
-                code += f"free_{type_map[exp_type][1]}({tofree}->{exp_data});"
+                code += f"cmc_{type_map[exp_type][1]}_free({tofree}->{exp_data});"
     return code
 
 def free_method(inp):
@@ -324,7 +329,7 @@ def main():
 
     # packet send methods header
     replace_code_segments(
-        "".join(["void cmc_send_{}_packet(cmc_conn *conn{});".format(inp['name'], f", {inp['name']}_packet *packet" if not inp["is_empty"] else "") for inp in mc_packet_exps]),
+        "".join(["cmc_err cmc_send_{}_packet(cmc_conn *conn{});".format(inp['name'], f", {inp['name']}_packet *packet" if not inp["is_empty"] else "") for inp in mc_packet_exps]),
         "send_methods_h",
     )
 

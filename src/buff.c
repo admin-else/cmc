@@ -186,26 +186,28 @@ int32_t cmc_buff_unpack_varint(cmc_buff *buff) {
 char *cmc_buff_unpack_string_w_max_len(cmc_buff *buff, int max_len) {
   assert(buff);
   assert(max_len > 0);
+
   int n = CMC_ERRB_ABLE(cmc_buff_unpack_varint(buff), return NULL;);
+
   if (max_len * 4 < n)
     CMC_ERRB(CMC_ERR_STRING_LENGHT, return NULL;);
   if (n < 0)
     CMC_ERRB(CMC_ERR_NEGATIVE_STRING_LENGHT, return NULL;);
-  char *str_no_terminator =
-      CMC_ERRB_ABLE(cmc_buff_unpack(buff, n), return NULL;);
-  char *str = CMC_ERRB_ABLE(cmc_malloc(n + 1, &buff->err), return NULL;);
-  memcpy(str, str_no_terminator, n);
-  free(str_no_terminator);
+
+  char *str = CMC_ERRB_ABLE(cmc_buff_unpack(buff, n), return NULL;);
+
+  CMC_ERRB_ABLE(cmc_realloc(str, n + 1, &buff->err), goto err);
   str[n] = '\0';
+
   int utf_str_len = 0;
   for (int i = 0; i < n; ++i)
     if ((str[i] & 0xC0) != 0x80)
       ++utf_str_len;
-  CMC_ERRB_IF(utf_str_len > max_len, CMC_ERR_STRING_LENGHT, {
-    free(str);
-    return NULL;
-  });
+  CMC_ERRB_IF(utf_str_len > max_len, CMC_ERR_STRING_LENGHT, goto err;);
   return str;
+err:
+  free(str);
+  return NULL;
 }
 
 cmc_err cmc_buff_pack_string_w_max_len(cmc_buff *buff, const char *str,
@@ -250,15 +252,13 @@ cmc_block_pos cmc_buff_unpack_position(cmc_buff *buff) {
 
   // this is for negatives
   pos.x = (pos.x >= 33554432) ? (pos.x % 67108864) : pos.x;
-  pos.y = (pos.y >= 2048)     ? (pos.y % 4096)     : pos.y;
+  pos.y = (pos.y >= 2048) ? (pos.y % 4096) : pos.y;
   pos.z = (pos.z >= 33554432) ? (pos.z % 67108864) : pos.z;
 
   return pos;
 }
 
-cmc_nbt *cmc_buff_unpack_nbt(cmc_buff *buff) {
-  return cmc_nbt_parse(buff);
-}
+cmc_nbt *cmc_buff_unpack_nbt(cmc_buff *buff) { return cmc_nbt_parse(buff); }
 
 cmc_err cmc_buff_pack_nbt(cmc_buff *buff, cmc_nbt *nbt) {
   cmc_buff *tmp_buff = CMC_ERRRB_ABLE(cmc_nbt_dump(nbt));
@@ -278,9 +278,12 @@ cmc_buff *cmc_buff_unpack_byte_array(cmc_buff *buff) {
   cmc_buff *ret =
       CMC_ERRB_ABLE(cmc_buff_init(buff->protocol_version), return NULL;);
   void *tmp = CMC_ERRB_ABLE(cmc_buff_unpack(buff, ret_buff_len), goto err;);
-  CMC_ERRB_ABLE(cmc_buff_pack(ret, tmp, ret_buff_len), goto err;);
-  free(ret);
+  CMC_ERRB_ABLE(cmc_buff_pack(ret, tmp, ret_buff_len), goto err1;);
+  free(tmp);
+
   return ret;
+err1:
+  free(tmp);
 err:
   free(ret);
   return NULL;
