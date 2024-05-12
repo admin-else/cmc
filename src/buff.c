@@ -173,14 +173,14 @@ cmc_err cmc_buff_pack_varint(cmc_buff *buff, int n) {
 
 int32_t cmc_buff_unpack_varint(cmc_buff *buff) {
   assert(buff);
-  uint32_t number = 0;
+  int32_t number = 0;
   for (int i = 0; i < 5; i++) {
     uint8_t b = CMC_ERRB_ABLE(cmc_buff_unpack_byte(buff), return 0);
     number |= (b & VARINT_SEGMENT_BITS) << (7 * i);
     if (!(b & VARINT_CONTINUE_BIT))
       break;
   }
-  return (int32_t)number;
+  return number;
 }
 
 char *cmc_buff_unpack_string_w_max_len(cmc_buff *buff, int max_len) {
@@ -266,13 +266,13 @@ cmc_err cmc_buff_pack_nbt(cmc_buff *buff, cmc_nbt *nbt) {
   return CMC_ERR_NO;
 }
 
-cmc_err cmc_buff_pack_byte_array(cmc_buff *buff, cmc_buff *byte_array) {
-  CMC_ERRRB_ABLE(cmc_buff_pack_varint(buff, byte_array->length));
-  CMC_ERRRB_ABLE(cmc_buff_pack(buff, byte_array->data, byte_array->length));
+cmc_err cmc_buff_pack_buff(cmc_buff *buff, cmc_buff *buff2) {
+  CMC_ERRRB_ABLE(cmc_buff_pack_varint(buff, buff2->length));
+  CMC_ERRRB_ABLE(cmc_buff_pack(buff, buff2->data, buff2->length));
   return CMC_ERR_NO;
 }
 
-cmc_buff *cmc_buff_unpack_byte_array(cmc_buff *buff) {
+cmc_buff *cmc_buff_unpack_buff(cmc_buff *buff) {
   int ret_buff_len = CMC_ERRB_ABLE(cmc_buff_unpack_varint(buff), return NULL);
 
   cmc_buff *ret =
@@ -433,20 +433,20 @@ cmc_entity_metadata cmc_buff_unpack_entity_metadata(cmc_buff *buff) {
   return meta_data;
 
 on_error:
-  CMC_ERRB_ABLE(free_entity_metadata(meta_data), );
+  CMC_ERRB_ABLE(cmc_entity_metadata_free(meta_data), );
   return EMPTY_ENTITY_METADATA;
 }
 
-cmc_err free_entity_metadata(cmc_entity_metadata metadata) {
+cmc_err cmc_entity_metadata_free(cmc_entity_metadata metadata) {
   for (size_t i = 0; i < metadata.size; i++) {
     cmc_entity_metadata_entry *entry =
         metadata.entries + i * sizeof(cmc_entity_metadata_entry);
     switch (entry->type) {
     case ENTITY_METADATA_ENTRY_TYPE_SLOT:
-      free_slot(entry->payload.slot_data);
+      cmc_slot_free(entry->payload.slot_data);
       break;
     case ENTITY_METADATA_ENTRY_TYPE_STRING:
-      free_string(entry->payload.string_data);
+      cmc_string_free(entry->payload.string_data);
       break;
     default:
       break;
@@ -456,9 +456,9 @@ cmc_err free_entity_metadata(cmc_entity_metadata metadata) {
   return CMC_ERR_NO;
 }
 
-void free_string(char *str) { free(str); }
+void cmc_string_free(char *str) { free(str); }
 
-void free_slot(cmc_slot *slot) {
+void cmc_slot_free(cmc_slot *slot) {
   cmc_nbt_free(slot->tag_compound);
   free(slot);
 }

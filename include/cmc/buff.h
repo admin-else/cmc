@@ -56,7 +56,7 @@ cmc_err cmc_buff_pack_string_w_max_len(cmc_buff *buff, const char *str,
 cmc_err cmc_buff_pack_string(cmc_buff *buff, const char *value);
 char *cmc_buff_unpack_string_w_max_len(cmc_buff *buff, int max_len);
 char *cmc_buff_unpack_string(cmc_buff *buff);
-void free_string(char *str);
+void cmc_string_free(char *str);
 
 // Block pos
 typedef struct {
@@ -73,9 +73,8 @@ cmc_nbt *cmc_buff_unpack_nbt(cmc_buff *buff);
 cmc_err cmc_buff_pack_nbt(cmc_buff *buff, cmc_nbt *nbt);
 
 // byte arrays
-cmc_buff *cmc_buff_unpack_byte_array(cmc_buff *buff);
-cmc_err cmc_buff_pack_byte_array(cmc_buff *buff, cmc_buff *byte_array);
-#define free_byte_array cmc_buff_free
+cmc_buff *cmc_buff_unpack_buff(cmc_buff *buff);
+cmc_err cmc_buff_pack_buff(cmc_buff *buff, cmc_buff *buff2);
 
 // Slots
 typedef struct {
@@ -87,7 +86,7 @@ typedef struct {
 
 cmc_err cmc_buff_pack_slot(cmc_buff *buff, cmc_slot *slot);
 cmc_slot *cmc_buff_unpack_slot(cmc_buff *buff);
-void free_slot(cmc_slot *slot);
+void cmc_slot_free(cmc_slot *slot);
 
 // Entity metadata
 typedef enum {
@@ -130,7 +129,7 @@ cmc_err cmc_buff_pack_entity_metadata(cmc_buff *buff,
 
 cmc_entity_metadata cmc_buff_unpack_entity_metadata(cmc_buff *buff);
 
-cmc_err free_entity_metadata(cmc_entity_metadata metadata);
+cmc_err cmc_entity_metadata_free(cmc_entity_metadata metadata);
 
 // uuids
 typedef struct {
