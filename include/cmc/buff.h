@@ -1,7 +1,7 @@
 #pragma once
 
-#include <cmc/nbt_types.h>
 #include <cmc/err.h>
+#include <cmc/nbt_types.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -26,7 +26,7 @@ cmc_err cmc_buff_pack(cmc_buff *buff, const void *data, size_t data_size);
 void *cmc_buff_unpack(cmc_buff *buff, size_t n);
 
 #define NUM_PACK_AND_UNPACK_FUNC_FACTORY_H(name, type)                         \
-  type cmc_buff_unpack_##name(cmc_buff *buff);                           \
+  type cmc_buff_unpack_##name(cmc_buff *buff);                                 \
   cmc_err cmc_buff_pack_##name(cmc_buff *buff, type data);
 
 NUM_PACK_AND_UNPACK_FUNC_FACTORY_H(char, char);
@@ -52,7 +52,7 @@ int32_t cmc_buff_unpack_varint(cmc_buff *buff);
 
 // strings
 cmc_err cmc_buff_pack_string_w_max_len(cmc_buff *buff, const char *str,
-                                    size_t max_len);
+                                       size_t max_len);
 cmc_err cmc_buff_pack_string(cmc_buff *buff, const char *value);
 char *cmc_buff_unpack_string_w_max_len(cmc_buff *buff, int max_len);
 char *cmc_buff_unpack_string(cmc_buff *buff);
@@ -126,7 +126,7 @@ typedef struct {
 } cmc_entity_metadata;
 
 cmc_err cmc_buff_pack_entity_metadata(cmc_buff *buff,
-                                   cmc_entity_metadata metadata);
+                                      cmc_entity_metadata metadata);
 
 cmc_entity_metadata cmc_buff_unpack_entity_metadata(cmc_buff *buff);
 

@@ -1,4 +1,5 @@
-#include <cmc/buffer.h>
+#include "err.h"
+#include <cmc/buff.h>
 #include <cmc/conn.h>
 #include <cmc/err.h>
 #include <cmc/heap_utils.h>
@@ -198,8 +199,73 @@ const char *cmc_packet_name_id_string(cmc_packet_name_id id) {
   switch (id) {
     HELPER(CMC_UNKOWN_NAME_ID);
     // CGSS: packet_name_id_string
-HELPER(CMC_C2S_HANDSHAKE_HANDSHAKE_NAME_ID);HELPER(CMC_S2C_STATUS_RESPONSE_NAME_ID);HELPER(CMC_S2C_STATUS_PONG_NAME_ID);HELPER(CMC_C2S_STATUS_REQUEST_NAME_ID);HELPER(CMC_C2S_STATUS_PING_NAME_ID);HELPER(CMC_S2C_LOGIN_DISCONNECT_NAME_ID);HELPER(CMC_S2C_LOGIN_ENCRYPTION_REQUEST_NAME_ID);HELPER(CMC_S2C_LOGIN_SUCCESS_NAME_ID);HELPER(CMC_S2C_LOGIN_SET_COMPRESSION_NAME_ID);HELPER(CMC_C2S_LOGIN_START_NAME_ID);HELPER(CMC_C2S_LOGIN_ENCRYPTION_RESPONSE_NAME_ID);HELPER(CMC_C2S_LOGIN_ACKNOWLEDGED_NAME_ID);HELPER(CMC_S2C_CONFIG_PLUGIN_MESSAGE_NAME_ID);HELPER(CMC_S2C_CONFIG_DISCONNECT_NAME_ID);HELPER(CMC_S2C_CONFIG_FINISH_NAME_ID);HELPER(CMC_S2C_CONFIG_KEEP_ALIVE_NAME_ID);HELPER(CMC_S2C_CONFIG_PING_NAME_ID);HELPER(CMC_S2C_CONFIG_REGISTRY_DATA_NAME_ID);HELPER(CMC_S2C_CONFIG_REMOVE_RESOURCE_PACK_NAME_ID);HELPER(CMC_S2C_CONFIG_ADD_RESOURCE_PACK_NAME_ID);HELPER(CMC_C2S_PLAY_KEEP_ALIVE_NAME_ID);HELPER(CMC_S2C_PLAY_KEEP_ALIVE_NAME_ID);HELPER(CMC_S2C_PLAY_DISCONNECT_NAME_ID);HELPER(CMC_S2C_PLAY_JOIN_GAME_NAME_ID);HELPER(CMC_S2C_PLAY_CHAT_MESSAGE_NAME_ID);HELPER(CMC_S2C_PLAY_TIME_UPDATE_NAME_ID);HELPER(CMC_S2C_PLAY_ENTITY_EQUIPMENT_NAME_ID);HELPER(CMC_S2C_PLAY_SPAWN_POSITION_NAME_ID);HELPER(CMC_S2C_PLAY_UPDATE_HEALTH_NAME_ID);HELPER(CMC_S2C_PLAY_RESPAWN_NAME_ID);HELPER(CMC_S2C_PLAY_PLAYER_LOOK_AND_POSITION_NAME_ID);HELPER(CMC_S2C_PLAY_HELD_ITEM_CHANGE_NAME_ID);HELPER(CMC_S2C_PLAY_USE_BED_NAME_ID);HELPER(CMC_S2C_PLAY_ANIMATION_NAME_ID);HELPER(CMC_S2C_PLAY_SPAWN_PLAYER_NAME_ID);HELPER(CMC_S2C_PLAY_COLLECT_ITEM_NAME_ID);HELPER(CMC_S2C_PLAY_SPAWN_MOB_NAME_ID);HELPER(CMC_S2C_PLAY_SPAWN_PAINTING_NAME_ID);HELPER(CMC_S2C_PLAY_SPAWN_EXPERIENCE_ORB_NAME_ID);HELPER(CMC_S2C_PLAY_ENTITY_VELOCITY_NAME_ID);HELPER(CMC_S2C_PLAY_ENTITY_NAME_ID);HELPER(CMC_S2C_PLAY_ENTITY_RELATIVE_MOVE_NAME_ID);HELPER(CMC_S2C_PLAY_ENTITY_LOOK_NAME_ID);HELPER(CMC_S2C_PLAY_ENTITY_LOOK_AND_RELATIVE_MOVE_NAME_ID);HELPER(CMC_S2C_PLAY_ENTITY_TELEPORT_NAME_ID);HELPER(CMC_S2C_PLAY_ENTITY_HEAD_LOOK_NAME_ID);HELPER(CMC_S2C_PLAY_ENTITY_STATUS_NAME_ID);HELPER(CMC_S2C_PLAY_ATTACH_ENTITY_NAME_ID);HELPER(CMC_S2C_PLAY_ENTITY_METADATA_NAME_ID);HELPER(CMC_S2C_PLAY_ENTITY_EFFECT_NAME_ID);HELPER(CMC_S2C_PLAY_REMOVE_ENTITY_EFFECT_NAME_ID);HELPER(CMC_S2C_PLAY_SET_EXPERIENCE_NAME_ID);HELPER(CMC_S2C_PLAY_ENTITY_PROPERTIES_NAME_ID);HELPER(CMC_S2C_PLAY_CHUNK_DATA_NAME_ID);HELPER(CMC_S2C_PLAY_MULTI_BLOCK_CHANGE_NAME_ID);HELPER(CMC_S2C_PLAY_BLOCK_CHANGE_NAME_ID);HELPER(CMC_S2C_PLAY_BLOCK_ACTION_NAME_ID);HELPER(CMC_S2C_PLAY_BLOCK_BREAK_ANIMATION_NAME_ID);HELPER(CMC_S2C_PLAY_MAP_CHUNK_BULK_NAME_ID);HELPER(CMC_S2C_PLAY_EXPLOSION_NAME_ID);HELPER(CMC_S2C_PLAY_EFFECT_NAME_ID);HELPER(CMC_S2C_PLAY_SOUND_EFFECT_NAME_ID);HELPER(CMC_S2C_PLAY_CHANGE_GAME_STATE_NAME_ID);HELPER(CMC_S2C_PLAY_PLAYER_ABILITIES_NAME_ID);HELPER(CMC_S2C_PLAY_PLUGIN_MESSAGE_NAME_ID);HELPER(CMC_S2C_PLAY_CHANGE_DIFFICULTY_NAME_ID);
-// CGSE: packet_name_id_string
+    HELPER(CMC_C2S_HANDSHAKE_HANDSHAKE_NAME_ID);
+    HELPER(CMC_S2C_STATUS_RESPONSE_NAME_ID);
+    HELPER(CMC_S2C_STATUS_PONG_NAME_ID);
+    HELPER(CMC_C2S_STATUS_REQUEST_NAME_ID);
+    HELPER(CMC_C2S_STATUS_PING_NAME_ID);
+    HELPER(CMC_S2C_LOGIN_DISCONNECT_NAME_ID);
+    HELPER(CMC_S2C_LOGIN_ENCRYPTION_REQUEST_NAME_ID);
+    HELPER(CMC_S2C_LOGIN_SUCCESS_NAME_ID);
+    HELPER(CMC_S2C_LOGIN_SET_COMPRESSION_NAME_ID);
+    HELPER(CMC_C2S_LOGIN_START_NAME_ID);
+    HELPER(CMC_C2S_LOGIN_ENCRYPTION_RESPONSE_NAME_ID);
+    HELPER(CMC_C2S_LOGIN_ACKNOWLEDGED_NAME_ID);
+    HELPER(CMC_S2C_CONFIG_PLUGIN_MESSAGE_NAME_ID);
+    HELPER(CMC_S2C_CONFIG_DISCONNECT_NAME_ID);
+    HELPER(CMC_S2C_CONFIG_FINISH_NAME_ID);
+    HELPER(CMC_S2C_CONFIG_KEEP_ALIVE_NAME_ID);
+    HELPER(CMC_S2C_CONFIG_PING_NAME_ID);
+    HELPER(CMC_S2C_CONFIG_REGISTRY_DATA_NAME_ID);
+    HELPER(CMC_S2C_CONFIG_REMOVE_RESOURCE_PACK_NAME_ID);
+    HELPER(CMC_S2C_CONFIG_ADD_RESOURCE_PACK_NAME_ID);
+    HELPER(CMC_C2S_PLAY_KEEP_ALIVE_NAME_ID);
+    HELPER(CMC_S2C_PLAY_KEEP_ALIVE_NAME_ID);
+    HELPER(CMC_S2C_PLAY_DISCONNECT_NAME_ID);
+    HELPER(CMC_S2C_PLAY_JOIN_GAME_NAME_ID);
+    HELPER(CMC_S2C_PLAY_CHAT_MESSAGE_NAME_ID);
+    HELPER(CMC_S2C_PLAY_TIME_UPDATE_NAME_ID);
+    HELPER(CMC_S2C_PLAY_ENTITY_EQUIPMENT_NAME_ID);
+    HELPER(CMC_S2C_PLAY_SPAWN_POSITION_NAME_ID);
+    HELPER(CMC_S2C_PLAY_UPDATE_HEALTH_NAME_ID);
+    HELPER(CMC_S2C_PLAY_RESPAWN_NAME_ID);
+    HELPER(CMC_S2C_PLAY_PLAYER_LOOK_AND_POSITION_NAME_ID);
+    HELPER(CMC_S2C_PLAY_HELD_ITEM_CHANGE_NAME_ID);
+    HELPER(CMC_S2C_PLAY_USE_BED_NAME_ID);
+    HELPER(CMC_S2C_PLAY_ANIMATION_NAME_ID);
+    HELPER(CMC_S2C_PLAY_SPAWN_PLAYER_NAME_ID);
+    HELPER(CMC_S2C_PLAY_COLLECT_ITEM_NAME_ID);
+    HELPER(CMC_S2C_PLAY_SPAWN_MOB_NAME_ID);
+    HELPER(CMC_S2C_PLAY_SPAWN_PAINTING_NAME_ID);
+    HELPER(CMC_S2C_PLAY_SPAWN_EXPERIENCE_ORB_NAME_ID);
+    HELPER(CMC_S2C_PLAY_ENTITY_VELOCITY_NAME_ID);
+    HELPER(CMC_S2C_PLAY_ENTITY_NAME_ID);
+    HELPER(CMC_S2C_PLAY_ENTITY_RELATIVE_MOVE_NAME_ID);
+    HELPER(CMC_S2C_PLAY_ENTITY_LOOK_NAME_ID);
+    HELPER(CMC_S2C_PLAY_ENTITY_LOOK_AND_RELATIVE_MOVE_NAME_ID);
+    HELPER(CMC_S2C_PLAY_ENTITY_TELEPORT_NAME_ID);
+    HELPER(CMC_S2C_PLAY_ENTITY_HEAD_LOOK_NAME_ID);
+    HELPER(CMC_S2C_PLAY_ENTITY_STATUS_NAME_ID);
+    HELPER(CMC_S2C_PLAY_ATTACH_ENTITY_NAME_ID);
+    HELPER(CMC_S2C_PLAY_ENTITY_METADATA_NAME_ID);
+    HELPER(CMC_S2C_PLAY_ENTITY_EFFECT_NAME_ID);
+    HELPER(CMC_S2C_PLAY_REMOVE_ENTITY_EFFECT_NAME_ID);
+    HELPER(CMC_S2C_PLAY_SET_EXPERIENCE_NAME_ID);
+    HELPER(CMC_S2C_PLAY_ENTITY_PROPERTIES_NAME_ID);
+    HELPER(CMC_S2C_PLAY_CHUNK_DATA_NAME_ID);
+    HELPER(CMC_S2C_PLAY_MULTI_BLOCK_CHANGE_NAME_ID);
+    HELPER(CMC_S2C_PLAY_BLOCK_CHANGE_NAME_ID);
+    HELPER(CMC_S2C_PLAY_BLOCK_ACTION_NAME_ID);
+    HELPER(CMC_S2C_PLAY_BLOCK_BREAK_ANIMATION_NAME_ID);
+    HELPER(CMC_S2C_PLAY_MAP_CHUNK_BULK_NAME_ID);
+    HELPER(CMC_S2C_PLAY_EXPLOSION_NAME_ID);
+    HELPER(CMC_S2C_PLAY_EFFECT_NAME_ID);
+    HELPER(CMC_S2C_PLAY_SOUND_EFFECT_NAME_ID);
+    HELPER(CMC_S2C_PLAY_CHANGE_GAME_STATE_NAME_ID);
+    HELPER(CMC_S2C_PLAY_PLAYER_ABILITIES_NAME_ID);
+    HELPER(CMC_S2C_PLAY_PLUGIN_MESSAGE_NAME_ID);
+    HELPER(CMC_S2C_PLAY_CHANGE_DIFFICULTY_NAME_ID);
+    // CGSE: packet_name_id_string
   default:
     return "CMC_INVALID_NAME_ID";
   }
@@ -209,51 +275,52 @@ HELPER(CMC_C2S_HANDSHAKE_HANDSHAKE_NAME_ID);HELPER(CMC_S2C_STATUS_RESPONSE_NAME_
 // CGSS: free_methods_c
 void cmc_free_C2S_handshake_handshake_packet(
     C2S_handshake_handshake_packet *packet) {
-  free_string(packet->server_addr);
+  cmc_string_free(packet->server_addr);
 }
 void cmc_free_S2C_status_response_packet(S2C_status_response_packet *packet) {
-  free_string(packet->response);
+  cmc_string_free(packet->response);
 }
 void cmc_free_S2C_status_pong_packet(S2C_status_pong_packet *packet) {
   (void)packet;
 }
+
 void cmc_free_C2S_status_ping_packet(C2S_status_ping_packet *packet) {
   (void)packet;
 }
 void cmc_free_S2C_login_disconnect_packet(S2C_login_disconnect_packet *packet) {
-  free_string(packet->reason);
+  cmc_string_free(packet->reason);
 }
 void cmc_free_S2C_login_encryption_request_packet(
     S2C_login_encryption_request_packet *packet) {
-  free_byte_array(packet->verify_token);
-  free_string(packet->server_id);
-  free_byte_array(packet->public_key);
+  cmc_buff_free(packet->verify_token);
+  cmc_buff_free(packet->public_key);
+  cmc_string_free(packet->server_id);
 }
 void cmc_free_S2C_login_success_packet(S2C_login_success_packet *packet) {
-  free_string(packet->name);
-  free_string(packet->uuid_str);
+  cmc_string_free(packet->uuid_str);
+  cmc_string_free(packet->name);
 }
 void cmc_free_S2C_login_set_compression_packet(
     S2C_login_set_compression_packet *packet) {
   (void)packet;
 }
 void cmc_free_C2S_login_start_packet(C2S_login_start_packet *packet) {
-  free_string(packet->name);
+  cmc_string_free(packet->name);
 }
 void cmc_free_C2S_login_encryption_response_packet(
     C2S_login_encryption_response_packet *packet) {
-  free_byte_array(packet->verify_token);
-  free_byte_array(packet->shared_secret);
+  cmc_buff_free(packet->verify_token);
+  cmc_buff_free(packet->shared_secret);
 }
 
 void cmc_free_S2C_config_plugin_message_packet(
     S2C_config_plugin_message_packet *packet) {
-  free_byte_array(packet->data);
-  free_string(packet->channel);
+  cmc_buff_free(packet->data);
+  cmc_string_free(packet->channel);
 }
 void cmc_free_S2C_config_disconnect_packet(
     S2C_config_disconnect_packet *packet) {
-  free_string(packet->reason);
+  cmc_string_free(packet->reason);
 }
 
 void cmc_free_S2C_config_keep_alive_packet(
@@ -265,7 +332,7 @@ void cmc_free_S2C_config_ping_packet(S2C_config_ping_packet *packet) {
 }
 void cmc_free_S2C_config_registry_data_packet(
     S2C_config_registry_data_packet *packet) {
-  free_nbt(packet->registry_codec);
+  cmc_nbt_free(packet->registry_codec);
 }
 
 void cmc_free_C2S_play_keep_alive_packet(C2S_play_keep_alive_packet *packet) {
@@ -275,22 +342,22 @@ void cmc_free_S2C_play_keep_alive_packet(S2C_play_keep_alive_packet *packet) {
   (void)packet;
 }
 void cmc_free_S2C_play_disconnect_packet(S2C_play_disconnect_packet *packet) {
-  free_string(packet->reason);
-  free_nbt(packet->reason_nbt);
+  cmc_nbt_free(packet->reason_nbt);
+  cmc_string_free(packet->reason);
 }
 void cmc_free_S2C_play_join_game_packet(S2C_play_join_game_packet *packet) {
-  free_string(packet->level_type);
+  cmc_string_free(packet->level_type);
 }
 void cmc_free_S2C_play_chat_message_packet(
     S2C_play_chat_message_packet *packet) {
-  free_string(packet->message);
+  cmc_string_free(packet->message);
 }
 void cmc_free_S2C_play_time_update_packet(S2C_play_time_update_packet *packet) {
   (void)packet;
 }
 void cmc_free_S2C_play_entity_equipment_packet(
     S2C_play_entity_equipment_packet *packet) {
-  free_slot(packet->item);
+  cmc_slot_free(packet->item);
 }
 void cmc_free_S2C_play_spawn_position_packet(
     S2C_play_spawn_position_packet *packet) {
@@ -301,7 +368,7 @@ void cmc_free_S2C_play_update_health_packet(
   (void)packet;
 }
 void cmc_free_S2C_play_respawn_packet(S2C_play_respawn_packet *packet) {
-  free_string(packet->level_type);
+  cmc_string_free(packet->level_type);
 }
 void cmc_free_S2C_play_player_look_and_position_packet(
     S2C_play_player_look_and_position_packet *packet) {
@@ -319,18 +386,18 @@ void cmc_free_S2C_play_animation_packet(S2C_play_animation_packet *packet) {
 }
 void cmc_free_S2C_play_spawn_player_packet(
     S2C_play_spawn_player_packet *packet) {
-  free_entity_metadata(packet->meta_data);
+  cmc_entity_metadata_free(packet->meta_data);
 }
 void cmc_free_S2C_play_collect_item_packet(
     S2C_play_collect_item_packet *packet) {
   (void)packet;
 }
 void cmc_free_S2C_play_spawn_mob_packet(S2C_play_spawn_mob_packet *packet) {
-  free_entity_metadata(packet->meta_data);
+  cmc_entity_metadata_free(packet->meta_data);
 }
 void cmc_free_S2C_play_spawn_painting_packet(
     S2C_play_spawn_painting_packet *packet) {
-  free_string(packet->title);
+  cmc_string_free(packet->title);
 }
 void cmc_free_S2C_play_spawn_experience_orb_packet(
     S2C_play_spawn_experience_orb_packet *packet) {
@@ -372,7 +439,7 @@ void cmc_free_S2C_play_attach_entity_packet(
 }
 void cmc_free_S2C_play_entity_metadata_packet(
     S2C_play_entity_metadata_packet *packet) {
-  free_entity_metadata(packet->meta_data);
+  cmc_entity_metadata_free(packet->meta_data);
 }
 void cmc_free_S2C_play_entity_effect_packet(
     S2C_play_entity_effect_packet *packet) {
@@ -392,20 +459,20 @@ void cmc_free_S2C_play_entity_properties_packet(
     S2C_play_entity_properties_properties *p_properties =
         i * sizeof(*p_properties) +
         (S2C_play_entity_properties_properties *)packet->properties.data;
-    free_string(p_properties->key);
+    cmc_string_free(p_properties->key);
     for (int j = 0; p_properties->modifiers.len; ++j) {
       S2C_play_entity_properties_modifiers *p_modifiers =
           j * sizeof(*p_modifiers) +
           (S2C_play_entity_properties_modifiers *)p_properties->modifiers.data;
     }
-    FREE(p_properties->modifiers.data);
+    free(p_properties->modifiers.data);
     p_properties->modifiers.len = 0;
   }
-  FREE(packet->properties.data);
+  free(packet->properties.data);
   packet->properties.len = 0;
 }
 void cmc_free_S2C_play_chunk_data_packet(S2C_play_chunk_data_packet *packet) {
-  free_byte_array(packet->chunk);
+  cmc_buff_free(packet->chunk);
 }
 void cmc_free_S2C_play_multi_block_change_packet(
     S2C_play_multi_block_change_packet *packet) {
@@ -414,7 +481,7 @@ void cmc_free_S2C_play_multi_block_change_packet(
         i * sizeof(*p_records) +
         (S2C_play_multi_block_change_records *)packet->records.data;
   }
-  FREE(packet->records.data);
+  free(packet->records.data);
   packet->records.len = 0;
 }
 void cmc_free_S2C_play_block_change_packet(
@@ -436,9 +503,9 @@ void cmc_free_S2C_play_map_chunk_bulk_packet(
         i * sizeof(*p_chunk_columns) +
         (S2C_play_map_chunk_bulk_chunk_columns *)packet->chunk_columns.data;
   }
-  FREE(packet->chunk_columns.data);
+  free(packet->chunk_columns.data);
   packet->chunk_columns.len = 0;
-  free_byte_array(packet->chunk);
+  cmc_buff_free(packet->chunk);
 }
 void cmc_free_S2C_play_explosion_packet(S2C_play_explosion_packet *packet) {
   for (int i = 0; packet->records.len; ++i) {
@@ -446,7 +513,7 @@ void cmc_free_S2C_play_explosion_packet(S2C_play_explosion_packet *packet) {
         i * sizeof(*p_records) +
         (S2C_play_explosion_records *)packet->records.data;
   }
-  FREE(packet->records.data);
+  free(packet->records.data);
   packet->records.len = 0;
 }
 void cmc_free_S2C_play_effect_packet(S2C_play_effect_packet *packet) {
@@ -454,7 +521,7 @@ void cmc_free_S2C_play_effect_packet(S2C_play_effect_packet *packet) {
 }
 void cmc_free_S2C_play_sound_effect_packet(
     S2C_play_sound_effect_packet *packet) {
-  free_string(packet->sound_name);
+  cmc_string_free(packet->sound_name);
 }
 void cmc_free_S2C_play_change_game_state_packet(
     S2C_play_change_game_state_packet *packet) {
@@ -466,8 +533,8 @@ void cmc_free_S2C_play_player_abilities_packet(
 }
 void cmc_free_S2C_play_plugin_message_packet(
     S2C_play_plugin_message_packet *packet) {
-  free_byte_array(packet->data);
-  free_string(packet->channel);
+  cmc_buff_free(packet->data);
+  cmc_string_free(packet->channel);
 }
 void cmc_free_S2C_play_change_difficulty_packet(
     S2C_play_change_difficulty_packet *packet) {
@@ -476,1394 +543,1414 @@ void cmc_free_S2C_play_change_difficulty_packet(
 // CGSE: free_methods_c
 
 // CGSS: send_methods_c
-void cmc_send_C2S_handshake_handshake_packet(
+cmc_err cmc_send_C2S_handshake_handshake_packet(
     cmc_conn *conn, C2S_handshake_handshake_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 765: {
-    cmc_buffer_pack_varint(buff, 0x00);
-    cmc_buffer_pack_varint(buff, packet->protocole_version);
-    cmc_buffer_pack_string(buff, packet->server_addr);
-    cmc_buffer_pack_ushort(buff, packet->server_port);
-    cmc_buffer_pack_varint(buff, packet->next_state);
+    cmc_buff_pack_varint(buff, 0x00);
+    cmc_buff_pack_varint(buff, packet->protocole_version);
+    cmc_buff_pack_string(buff, packet->server_addr);
+    cmc_buff_pack_ushort(buff, packet->server_port);
+    cmc_buff_pack_varint(buff, packet->next_state);
     break;
   }
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x00);
-    cmc_buffer_pack_varint(buff, packet->protocole_version);
-    cmc_buffer_pack_string(buff, packet->server_addr);
-    cmc_buffer_pack_ushort(buff, packet->server_port);
-    cmc_buffer_pack_varint(buff, packet->next_state);
+    cmc_buff_pack_varint(buff, 0x00);
+    cmc_buff_pack_varint(buff, packet->protocole_version);
+    cmc_buff_pack_string(buff, packet->server_addr);
+    cmc_buff_pack_ushort(buff, packet->server_port);
+    cmc_buff_pack_varint(buff, packet->next_state);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_status_response_packet(cmc_conn *conn,
-                                         S2C_status_response_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+cmc_err
+cmc_send_S2C_status_response_packet(cmc_conn *conn,
+                                    S2C_status_response_packet *packet) {
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 765: {
-    cmc_buffer_pack_varint(buff, 0x00);
-    cmc_buffer_pack_string(buff, packet->response);
+    cmc_buff_pack_varint(buff, 0x00);
+    cmc_buff_pack_string(buff, packet->response);
     break;
   }
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x00);
-    cmc_buffer_pack_string(buff, packet->response);
+    cmc_buff_pack_varint(buff, 0x00);
+    cmc_buff_pack_string(buff, packet->response);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_status_pong_packet(cmc_conn *conn,
-                                     S2C_status_pong_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+cmc_err cmc_send_S2C_status_pong_packet(cmc_conn *conn,
+                                        S2C_status_pong_packet *packet) {
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 765: {
-    cmc_buffer_pack_varint(buff, 0x01);
-    cmc_buffer_pack_long(buff, packet->payload);
+    cmc_buff_pack_varint(buff, 0x01);
+    cmc_buff_pack_long(buff, packet->payload);
     break;
   }
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x01);
-    cmc_buffer_pack_long(buff, packet->payload);
+    cmc_buff_pack_varint(buff, 0x01);
+    cmc_buff_pack_long(buff, packet->payload);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_C2S_status_request_packet(cmc_conn *conn) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+cmc_err cmc_send_C2S_status_request_packet(cmc_conn *conn) {
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 765: {
-    cmc_buffer_pack_varint(buff, 0x00);
+    cmc_buff_pack_varint(buff, 0x00);
     break;
   }
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x00);
+    cmc_buff_pack_varint(buff, 0x00);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_C2S_status_ping_packet(cmc_conn *conn,
-                                     C2S_status_ping_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+cmc_err cmc_send_C2S_status_ping_packet(cmc_conn *conn,
+                                        C2S_status_ping_packet *packet) {
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 765: {
-    cmc_buffer_pack_varint(buff, 0x01);
-    cmc_buffer_pack_long(buff, packet->payload);
+    cmc_buff_pack_varint(buff, 0x01);
+    cmc_buff_pack_long(buff, packet->payload);
     break;
   }
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x01);
-    cmc_buffer_pack_long(buff, packet->payload);
+    cmc_buff_pack_varint(buff, 0x01);
+    cmc_buff_pack_long(buff, packet->payload);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_login_disconnect_packet(cmc_conn *conn,
-                                          S2C_login_disconnect_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+cmc_err
+cmc_send_S2C_login_disconnect_packet(cmc_conn *conn,
+                                     S2C_login_disconnect_packet *packet) {
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 765: {
-    cmc_buffer_pack_varint(buff, 0x00);
-    cmc_buffer_pack_string(buff, packet->reason);
+    cmc_buff_pack_varint(buff, 0x00);
+    cmc_buff_pack_string(buff, packet->reason);
     break;
   }
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x00);
-    cmc_buffer_pack_string(buff, packet->reason);
+    cmc_buff_pack_varint(buff, 0x00);
+    cmc_buff_pack_string(buff, packet->reason);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_login_encryption_request_packet(
+cmc_err cmc_send_S2C_login_encryption_request_packet(
     cmc_conn *conn, S2C_login_encryption_request_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 765: {
-    cmc_buffer_pack_varint(buff, 0x01);
-    cmc_buffer_pack_string(buff, packet->server_id);
-    cmc_buffer_pack_byte_array(buff, packet->public_key);
-    cmc_buffer_pack_byte_array(buff, packet->verify_token);
+    cmc_buff_pack_varint(buff, 0x01);
+    cmc_buff_pack_string(buff, packet->server_id);
+    cmc_buff_pack_buff(buff, packet->public_key);
+    cmc_buff_pack_buff(buff, packet->verify_token);
     break;
   }
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x01);
-    cmc_buffer_pack_string(buff, packet->server_id);
-    cmc_buffer_pack_byte_array(buff, packet->public_key);
-    cmc_buffer_pack_byte_array(buff, packet->verify_token);
+    cmc_buff_pack_varint(buff, 0x01);
+    cmc_buff_pack_string(buff, packet->server_id);
+    cmc_buff_pack_buff(buff, packet->public_key);
+    cmc_buff_pack_buff(buff, packet->verify_token);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_login_success_packet(cmc_conn *conn,
-                                       S2C_login_success_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+cmc_err cmc_send_S2C_login_success_packet(cmc_conn *conn,
+                                          S2C_login_success_packet *packet) {
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 765: {
-    cmc_buffer_pack_varint(buff, 0x02);
-    cmc_buffer_pack_uuid(buff, packet->uuid);
-    cmc_buffer_pack_string(buff, packet->name);
-    cmc_buffer_pack_varint(buff, packet->properties_count);
+    cmc_buff_pack_varint(buff, 0x02);
+    cmc_buff_pack_uuid(buff, packet->uuid);
+    cmc_buff_pack_string(buff, packet->name);
+    cmc_buff_pack_varint(buff, packet->properties_count);
     break;
   }
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x02);
-    cmc_buffer_pack_string(buff, packet->uuid_str);
-    cmc_buffer_pack_string(buff, packet->name);
+    cmc_buff_pack_varint(buff, 0x02);
+    cmc_buff_pack_string(buff, packet->uuid_str);
+    cmc_buff_pack_string(buff, packet->name);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_login_set_compression_packet(
+cmc_err cmc_send_S2C_login_set_compression_packet(
     cmc_conn *conn, S2C_login_set_compression_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 765: {
-    cmc_buffer_pack_varint(buff, 0x03);
-    cmc_buffer_pack_varint(buff, packet->threshold);
+    cmc_buff_pack_varint(buff, 0x03);
+    cmc_buff_pack_varint(buff, packet->threshold);
     break;
   }
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x03);
-    cmc_buffer_pack_varint(buff, packet->threshold);
+    cmc_buff_pack_varint(buff, 0x03);
+    cmc_buff_pack_varint(buff, packet->threshold);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_C2S_login_start_packet(cmc_conn *conn,
-                                     C2S_login_start_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+cmc_err cmc_send_C2S_login_start_packet(cmc_conn *conn,
+                                        C2S_login_start_packet *packet) {
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 765: {
-    cmc_buffer_pack_varint(buff, 0x00);
-    cmc_buffer_pack_string(buff, packet->name);
-    cmc_buffer_pack_uuid(buff, packet->uuid);
+    cmc_buff_pack_varint(buff, 0x00);
+    cmc_buff_pack_string(buff, packet->name);
+    cmc_buff_pack_uuid(buff, packet->uuid);
     break;
   }
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x00);
-    cmc_buffer_pack_string(buff, packet->name);
+    cmc_buff_pack_varint(buff, 0x00);
+    cmc_buff_pack_string(buff, packet->name);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_C2S_login_encryption_response_packet(
+cmc_err cmc_send_C2S_login_encryption_response_packet(
     cmc_conn *conn, C2S_login_encryption_response_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 765: {
-    cmc_buffer_pack_varint(buff, 0x01);
-    cmc_buffer_pack_byte_array(buff, packet->shared_secret);
-    cmc_buffer_pack_byte_array(buff, packet->verify_token);
+    cmc_buff_pack_varint(buff, 0x01);
+    cmc_buff_pack_buff(buff, packet->shared_secret);
+    cmc_buff_pack_buff(buff, packet->verify_token);
     break;
   }
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x01);
-    cmc_buffer_pack_byte_array(buff, packet->shared_secret);
-    cmc_buffer_pack_byte_array(buff, packet->verify_token);
+    cmc_buff_pack_varint(buff, 0x01);
+    cmc_buff_pack_buff(buff, packet->shared_secret);
+    cmc_buff_pack_buff(buff, packet->verify_token);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_C2S_login_acknowledged_packet(cmc_conn *conn) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+cmc_err cmc_send_C2S_login_acknowledged_packet(cmc_conn *conn) {
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 765: {
-    cmc_buffer_pack_varint(buff, 0x03);
+    cmc_buff_pack_varint(buff, 0x03);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_config_plugin_message_packet(
+cmc_err cmc_send_S2C_config_plugin_message_packet(
     cmc_conn *conn, S2C_config_plugin_message_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 765: {
-    cmc_buffer_pack_varint(buff, 0x00);
-    cmc_buffer_pack_string(buff, packet->channel);
-    cmc_buffer_pack_byte_array(buff, packet->data);
+    cmc_buff_pack_varint(buff, 0x00);
+    cmc_buff_pack_string(buff, packet->channel);
+    cmc_buff_pack_buff(buff, packet->data);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_config_disconnect_packet(
-    cmc_conn *conn, S2C_config_disconnect_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+cmc_err
+cmc_send_S2C_config_disconnect_packet(cmc_conn *conn,
+                                      S2C_config_disconnect_packet *packet) {
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 765: {
-    cmc_buffer_pack_varint(buff, 0x01);
-    cmc_buffer_pack_string(buff, packet->reason);
+    cmc_buff_pack_varint(buff, 0x01);
+    cmc_buff_pack_string(buff, packet->reason);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_config_finish_packet(cmc_conn *conn) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+cmc_err cmc_send_S2C_config_finish_packet(cmc_conn *conn) {
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 765: {
-    cmc_buffer_pack_varint(buff, 0x02);
+    cmc_buff_pack_varint(buff, 0x02);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_config_keep_alive_packet(
-    cmc_conn *conn, S2C_config_keep_alive_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+cmc_err
+cmc_send_S2C_config_keep_alive_packet(cmc_conn *conn,
+                                      S2C_config_keep_alive_packet *packet) {
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 765: {
-    cmc_buffer_pack_varint(buff, 0x03);
-    cmc_buffer_pack_long(buff, packet->keep_alive_id);
+    cmc_buff_pack_varint(buff, 0x03);
+    cmc_buff_pack_long(buff, packet->keep_alive_id);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_config_ping_packet(cmc_conn *conn,
-                                     S2C_config_ping_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+cmc_err cmc_send_S2C_config_ping_packet(cmc_conn *conn,
+                                        S2C_config_ping_packet *packet) {
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 765: {
-    cmc_buffer_pack_varint(buff, 0x04);
-    cmc_buffer_pack_int(buff, packet->id);
+    cmc_buff_pack_varint(buff, 0x04);
+    cmc_buff_pack_int(buff, packet->id);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_config_registry_data_packet(
+cmc_err cmc_send_S2C_config_registry_data_packet(
     cmc_conn *conn, S2C_config_registry_data_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 765: {
-    cmc_buffer_pack_varint(buff, 0x05);
-    cmc_buffer_pack_nbt(buff, packet->registry_codec);
+    cmc_buff_pack_varint(buff, 0x05);
+    cmc_buff_pack_nbt(buff, packet->registry_codec);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_config_remove_resource_pack_packet(cmc_conn *conn) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+cmc_err cmc_send_S2C_config_remove_resource_pack_packet(cmc_conn *conn) {
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 765: {
-    cmc_buffer_pack_varint(buff, 0x06);
+    cmc_buff_pack_varint(buff, 0x06);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_config_add_resource_pack_packet(cmc_conn *conn) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+cmc_err cmc_send_S2C_config_add_resource_pack_packet(cmc_conn *conn) {
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 765: {
-    cmc_buffer_pack_varint(buff, 0x07);
+    cmc_buff_pack_varint(buff, 0x07);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_C2S_play_keep_alive_packet(cmc_conn *conn,
-                                         C2S_play_keep_alive_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+cmc_err
+cmc_send_C2S_play_keep_alive_packet(cmc_conn *conn,
+                                    C2S_play_keep_alive_packet *packet) {
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 765: {
-    cmc_buffer_pack_varint(buff, 0x15);
-    cmc_buffer_pack_long(buff, packet->keep_alive_id_long);
+    cmc_buff_pack_varint(buff, 0x15);
+    cmc_buff_pack_long(buff, packet->keep_alive_id_long);
     break;
   }
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x00);
-    cmc_buffer_pack_varint(buff, packet->keep_alive_id);
+    cmc_buff_pack_varint(buff, 0x00);
+    cmc_buff_pack_varint(buff, packet->keep_alive_id);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_keep_alive_packet(cmc_conn *conn,
-                                         S2C_play_keep_alive_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+cmc_err
+cmc_send_S2C_play_keep_alive_packet(cmc_conn *conn,
+                                    S2C_play_keep_alive_packet *packet) {
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 765: {
-    cmc_buffer_pack_varint(buff, 0x24);
-    cmc_buffer_pack_long(buff, packet->keep_alive_id_long);
+    cmc_buff_pack_varint(buff, 0x24);
+    cmc_buff_pack_long(buff, packet->keep_alive_id_long);
     break;
   }
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x00);
-    cmc_buffer_pack_varint(buff, packet->keep_alive_id);
+    cmc_buff_pack_varint(buff, 0x00);
+    cmc_buff_pack_varint(buff, packet->keep_alive_id);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_disconnect_packet(cmc_conn *conn,
-                                         S2C_play_disconnect_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+cmc_err
+cmc_send_S2C_play_disconnect_packet(cmc_conn *conn,
+                                    S2C_play_disconnect_packet *packet) {
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 765: {
-    cmc_buffer_pack_varint(buff, 0x1B);
-    cmc_buffer_pack_nbt(buff, packet->reason_nbt);
+    cmc_buff_pack_varint(buff, 0x1B);
+    cmc_buff_pack_nbt(buff, packet->reason_nbt);
     break;
   }
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x40);
-    cmc_buffer_pack_string(buff, packet->reason);
+    cmc_buff_pack_varint(buff, 0x40);
+    cmc_buff_pack_string(buff, packet->reason);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_join_game_packet(cmc_conn *conn,
-                                        S2C_play_join_game_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+cmc_err cmc_send_S2C_play_join_game_packet(cmc_conn *conn,
+                                           S2C_play_join_game_packet *packet) {
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x01);
-    cmc_buffer_pack_int(buff, packet->entity_id);
-    cmc_buffer_pack_byte(buff, packet->gamemode);
-    cmc_buffer_pack_char(buff, packet->dimension);
-    cmc_buffer_pack_byte(buff, packet->difficulty);
-    cmc_buffer_pack_byte(buff, packet->max_players);
-    cmc_buffer_pack_string(buff, packet->level_type);
-    cmc_buffer_pack_bool(buff, packet->reduced_debug_info);
+    cmc_buff_pack_varint(buff, 0x01);
+    cmc_buff_pack_int(buff, packet->entity_id);
+    cmc_buff_pack_byte(buff, packet->gamemode);
+    cmc_buff_pack_char(buff, packet->dimension);
+    cmc_buff_pack_byte(buff, packet->difficulty);
+    cmc_buff_pack_byte(buff, packet->max_players);
+    cmc_buff_pack_string(buff, packet->level_type);
+    cmc_buff_pack_bool(buff, packet->reduced_debug_info);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_chat_message_packet(
-    cmc_conn *conn, S2C_play_chat_message_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+cmc_err
+cmc_send_S2C_play_chat_message_packet(cmc_conn *conn,
+                                      S2C_play_chat_message_packet *packet) {
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x02);
-    cmc_buffer_pack_string(buff, packet->message);
-    cmc_buffer_pack_char(buff, packet->position);
+    cmc_buff_pack_varint(buff, 0x02);
+    cmc_buff_pack_string(buff, packet->message);
+    cmc_buff_pack_char(buff, packet->position);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_time_update_packet(cmc_conn *conn,
-                                          S2C_play_time_update_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+cmc_err
+cmc_send_S2C_play_time_update_packet(cmc_conn *conn,
+                                     S2C_play_time_update_packet *packet) {
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x03);
-    cmc_buffer_pack_long(buff, packet->world_age);
-    cmc_buffer_pack_long(buff, packet->time_of_day);
+    cmc_buff_pack_varint(buff, 0x03);
+    cmc_buff_pack_long(buff, packet->world_age);
+    cmc_buff_pack_long(buff, packet->time_of_day);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_entity_equipment_packet(
+cmc_err cmc_send_S2C_play_entity_equipment_packet(
     cmc_conn *conn, S2C_play_entity_equipment_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x04);
-    cmc_buffer_pack_varint(buff, packet->entity_id);
-    cmc_buffer_pack_short(buff, packet->slot);
-    cmc_buffer_pack_slot(buff, packet->item);
+    cmc_buff_pack_varint(buff, 0x04);
+    cmc_buff_pack_varint(buff, packet->entity_id);
+    cmc_buff_pack_short(buff, packet->slot);
+    cmc_buff_pack_slot(buff, packet->item);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_spawn_position_packet(
+cmc_err cmc_send_S2C_play_spawn_position_packet(
     cmc_conn *conn, S2C_play_spawn_position_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x05);
-    cmc_buffer_pack_position(buff, packet->location);
+    cmc_buff_pack_varint(buff, 0x05);
+    cmc_buff_pack_position(buff, packet->location);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_update_health_packet(
-    cmc_conn *conn, S2C_play_update_health_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+cmc_err
+cmc_send_S2C_play_update_health_packet(cmc_conn *conn,
+                                       S2C_play_update_health_packet *packet) {
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x06);
-    cmc_buffer_pack_float(buff, packet->health);
-    cmc_buffer_pack_varint(buff, packet->food);
-    cmc_buffer_pack_float(buff, packet->food_saturation);
+    cmc_buff_pack_varint(buff, 0x06);
+    cmc_buff_pack_float(buff, packet->health);
+    cmc_buff_pack_varint(buff, packet->food);
+    cmc_buff_pack_float(buff, packet->food_saturation);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_respawn_packet(cmc_conn *conn,
-                                      S2C_play_respawn_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+cmc_err cmc_send_S2C_play_respawn_packet(cmc_conn *conn,
+                                         S2C_play_respawn_packet *packet) {
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x07);
-    cmc_buffer_pack_int(buff, packet->dimesion);
-    cmc_buffer_pack_byte(buff, packet->difficulty);
-    cmc_buffer_pack_byte(buff, packet->gamemode);
-    cmc_buffer_pack_string(buff, packet->level_type);
+    cmc_buff_pack_varint(buff, 0x07);
+    cmc_buff_pack_int(buff, packet->dimesion);
+    cmc_buff_pack_byte(buff, packet->difficulty);
+    cmc_buff_pack_byte(buff, packet->gamemode);
+    cmc_buff_pack_string(buff, packet->level_type);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_player_look_and_position_packet(
+cmc_err cmc_send_S2C_play_player_look_and_position_packet(
     cmc_conn *conn, S2C_play_player_look_and_position_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x08);
-    cmc_buffer_pack_double(buff, packet->x);
-    cmc_buffer_pack_double(buff, packet->y);
-    cmc_buffer_pack_double(buff, packet->z);
-    cmc_buffer_pack_float(buff, packet->yaw);
-    cmc_buffer_pack_float(buff, packet->pitch);
-    cmc_buffer_pack_byte(buff, packet->flags);
+    cmc_buff_pack_varint(buff, 0x08);
+    cmc_buff_pack_double(buff, packet->x);
+    cmc_buff_pack_double(buff, packet->y);
+    cmc_buff_pack_double(buff, packet->z);
+    cmc_buff_pack_float(buff, packet->yaw);
+    cmc_buff_pack_float(buff, packet->pitch);
+    cmc_buff_pack_byte(buff, packet->flags);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_held_item_change_packet(
+cmc_err cmc_send_S2C_play_held_item_change_packet(
     cmc_conn *conn, S2C_play_held_item_change_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x09);
-    cmc_buffer_pack_char(buff, packet->slot);
+    cmc_buff_pack_varint(buff, 0x09);
+    cmc_buff_pack_char(buff, packet->slot);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_use_bed_packet(cmc_conn *conn,
-                                      S2C_play_use_bed_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+cmc_err cmc_send_S2C_play_use_bed_packet(cmc_conn *conn,
+                                         S2C_play_use_bed_packet *packet) {
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x0A);
-    cmc_buffer_pack_varint(buff, packet->entity_id);
-    cmc_buffer_pack_position(buff, packet->location);
+    cmc_buff_pack_varint(buff, 0x0A);
+    cmc_buff_pack_varint(buff, packet->entity_id);
+    cmc_buff_pack_position(buff, packet->location);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_animation_packet(cmc_conn *conn,
-                                        S2C_play_animation_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+cmc_err cmc_send_S2C_play_animation_packet(cmc_conn *conn,
+                                           S2C_play_animation_packet *packet) {
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x0B);
-    cmc_buffer_pack_varint(buff, packet->entity_id);
-    cmc_buffer_pack_byte(buff, packet->animation);
+    cmc_buff_pack_varint(buff, 0x0B);
+    cmc_buff_pack_varint(buff, packet->entity_id);
+    cmc_buff_pack_byte(buff, packet->animation);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_spawn_player_packet(
-    cmc_conn *conn, S2C_play_spawn_player_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+cmc_err
+cmc_send_S2C_play_spawn_player_packet(cmc_conn *conn,
+                                      S2C_play_spawn_player_packet *packet) {
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x0C);
-    cmc_buffer_pack_varint(buff, packet->entity_id);
-    cmc_buffer_pack_uuid(buff, packet->uuid);
-    cmc_buffer_pack_int(buff, packet->x);
-    cmc_buffer_pack_int(buff, packet->y);
-    cmc_buffer_pack_int(buff, packet->z);
-    cmc_buffer_pack_byte(buff, packet->yaw);
-    cmc_buffer_pack_byte(buff, packet->pitch);
-    cmc_buffer_pack_short(buff, packet->current_item);
-    cmc_buffer_pack_entity_metadata(buff, packet->meta_data);
+    cmc_buff_pack_varint(buff, 0x0C);
+    cmc_buff_pack_varint(buff, packet->entity_id);
+    cmc_buff_pack_uuid(buff, packet->uuid);
+    cmc_buff_pack_int(buff, packet->x);
+    cmc_buff_pack_int(buff, packet->y);
+    cmc_buff_pack_int(buff, packet->z);
+    cmc_buff_pack_byte(buff, packet->yaw);
+    cmc_buff_pack_byte(buff, packet->pitch);
+    cmc_buff_pack_short(buff, packet->current_item);
+    cmc_buff_pack_entity_metadata(buff, packet->meta_data);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_collect_item_packet(
-    cmc_conn *conn, S2C_play_collect_item_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+cmc_err
+cmc_send_S2C_play_collect_item_packet(cmc_conn *conn,
+                                      S2C_play_collect_item_packet *packet) {
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x0D);
-    cmc_buffer_pack_varint(buff, packet->collected_entity_id);
-    cmc_buffer_pack_varint(buff, packet->collector_entity_id);
+    cmc_buff_pack_varint(buff, 0x0D);
+    cmc_buff_pack_varint(buff, packet->collected_entity_id);
+    cmc_buff_pack_varint(buff, packet->collector_entity_id);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_spawn_mob_packet(cmc_conn *conn,
-                                        S2C_play_spawn_mob_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+cmc_err cmc_send_S2C_play_spawn_mob_packet(cmc_conn *conn,
+                                           S2C_play_spawn_mob_packet *packet) {
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x0F);
-    cmc_buffer_pack_varint(buff, packet->entity_id);
-    cmc_buffer_pack_byte(buff, packet->type);
-    cmc_buffer_pack_int(buff, packet->x);
-    cmc_buffer_pack_int(buff, packet->y);
-    cmc_buffer_pack_int(buff, packet->z);
-    cmc_buffer_pack_byte(buff, packet->yaw);
-    cmc_buffer_pack_byte(buff, packet->pitch);
-    cmc_buffer_pack_byte(buff, packet->head_pitch);
-    cmc_buffer_pack_short(buff, packet->x_vel);
-    cmc_buffer_pack_short(buff, packet->y_vel);
-    cmc_buffer_pack_short(buff, packet->z_vel);
-    cmc_buffer_pack_entity_metadata(buff, packet->meta_data);
+    cmc_buff_pack_varint(buff, 0x0F);
+    cmc_buff_pack_varint(buff, packet->entity_id);
+    cmc_buff_pack_byte(buff, packet->type);
+    cmc_buff_pack_int(buff, packet->x);
+    cmc_buff_pack_int(buff, packet->y);
+    cmc_buff_pack_int(buff, packet->z);
+    cmc_buff_pack_byte(buff, packet->yaw);
+    cmc_buff_pack_byte(buff, packet->pitch);
+    cmc_buff_pack_byte(buff, packet->head_pitch);
+    cmc_buff_pack_short(buff, packet->x_vel);
+    cmc_buff_pack_short(buff, packet->y_vel);
+    cmc_buff_pack_short(buff, packet->z_vel);
+    cmc_buff_pack_entity_metadata(buff, packet->meta_data);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_spawn_painting_packet(
+cmc_err cmc_send_S2C_play_spawn_painting_packet(
     cmc_conn *conn, S2C_play_spawn_painting_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x10);
-    cmc_buffer_pack_varint(buff, packet->entity_id);
-    cmc_buffer_pack_string(buff, packet->title);
-    cmc_buffer_pack_position(buff, packet->location);
-    cmc_buffer_pack_byte(buff, packet->direction);
+    cmc_buff_pack_varint(buff, 0x10);
+    cmc_buff_pack_varint(buff, packet->entity_id);
+    cmc_buff_pack_string(buff, packet->title);
+    cmc_buff_pack_position(buff, packet->location);
+    cmc_buff_pack_byte(buff, packet->direction);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_spawn_experience_orb_packet(
+cmc_err cmc_send_S2C_play_spawn_experience_orb_packet(
     cmc_conn *conn, S2C_play_spawn_experience_orb_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x11);
-    cmc_buffer_pack_varint(buff, packet->entity_id);
-    cmc_buffer_pack_int(buff, packet->x);
-    cmc_buffer_pack_int(buff, packet->y);
-    cmc_buffer_pack_int(buff, packet->z);
-    cmc_buffer_pack_short(buff, packet->count);
+    cmc_buff_pack_varint(buff, 0x11);
+    cmc_buff_pack_varint(buff, packet->entity_id);
+    cmc_buff_pack_int(buff, packet->x);
+    cmc_buff_pack_int(buff, packet->y);
+    cmc_buff_pack_int(buff, packet->z);
+    cmc_buff_pack_short(buff, packet->count);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_entity_velocity_packet(
+cmc_err cmc_send_S2C_play_entity_velocity_packet(
     cmc_conn *conn, S2C_play_entity_velocity_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x12);
-    cmc_buffer_pack_varint(buff, packet->entity_id);
-    cmc_buffer_pack_short(buff, packet->x_vel);
-    cmc_buffer_pack_short(buff, packet->y_vel);
-    cmc_buffer_pack_short(buff, packet->z_vel);
+    cmc_buff_pack_varint(buff, 0x12);
+    cmc_buff_pack_varint(buff, packet->entity_id);
+    cmc_buff_pack_short(buff, packet->x_vel);
+    cmc_buff_pack_short(buff, packet->y_vel);
+    cmc_buff_pack_short(buff, packet->z_vel);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_entity_packet(cmc_conn *conn,
-                                     S2C_play_entity_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+cmc_err cmc_send_S2C_play_entity_packet(cmc_conn *conn,
+                                        S2C_play_entity_packet *packet) {
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x14);
-    cmc_buffer_pack_varint(buff, packet->entity_id);
+    cmc_buff_pack_varint(buff, 0x14);
+    cmc_buff_pack_varint(buff, packet->entity_id);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_entity_relative_move_packet(
+cmc_err cmc_send_S2C_play_entity_relative_move_packet(
     cmc_conn *conn, S2C_play_entity_relative_move_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x15);
-    cmc_buffer_pack_varint(buff, packet->entity_id);
-    cmc_buffer_pack_char(buff, packet->delta_x);
-    cmc_buffer_pack_char(buff, packet->delta_y);
-    cmc_buffer_pack_char(buff, packet->delta_z);
-    cmc_buffer_pack_bool(buff, packet->on_ground);
+    cmc_buff_pack_varint(buff, 0x15);
+    cmc_buff_pack_varint(buff, packet->entity_id);
+    cmc_buff_pack_char(buff, packet->delta_x);
+    cmc_buff_pack_char(buff, packet->delta_y);
+    cmc_buff_pack_char(buff, packet->delta_z);
+    cmc_buff_pack_bool(buff, packet->on_ground);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_entity_look_packet(cmc_conn *conn,
-                                          S2C_play_entity_look_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+cmc_err
+cmc_send_S2C_play_entity_look_packet(cmc_conn *conn,
+                                     S2C_play_entity_look_packet *packet) {
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x16);
-    cmc_buffer_pack_varint(buff, packet->entity_id);
-    cmc_buffer_pack_byte(buff, packet->yaw);
-    cmc_buffer_pack_byte(buff, packet->pitch);
-    cmc_buffer_pack_bool(buff, packet->on_ground);
+    cmc_buff_pack_varint(buff, 0x16);
+    cmc_buff_pack_varint(buff, packet->entity_id);
+    cmc_buff_pack_byte(buff, packet->yaw);
+    cmc_buff_pack_byte(buff, packet->pitch);
+    cmc_buff_pack_bool(buff, packet->on_ground);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_entity_look_and_relative_move_packet(
+cmc_err cmc_send_S2C_play_entity_look_and_relative_move_packet(
     cmc_conn *conn, S2C_play_entity_look_and_relative_move_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x17);
-    cmc_buffer_pack_varint(buff, packet->entity_id);
-    cmc_buffer_pack_char(buff, packet->delta_x);
-    cmc_buffer_pack_char(buff, packet->delta_y);
-    cmc_buffer_pack_char(buff, packet->delta_z);
-    cmc_buffer_pack_byte(buff, packet->yaw);
-    cmc_buffer_pack_byte(buff, packet->pitch);
-    cmc_buffer_pack_bool(buff, packet->on_ground);
+    cmc_buff_pack_varint(buff, 0x17);
+    cmc_buff_pack_varint(buff, packet->entity_id);
+    cmc_buff_pack_char(buff, packet->delta_x);
+    cmc_buff_pack_char(buff, packet->delta_y);
+    cmc_buff_pack_char(buff, packet->delta_z);
+    cmc_buff_pack_byte(buff, packet->yaw);
+    cmc_buff_pack_byte(buff, packet->pitch);
+    cmc_buff_pack_bool(buff, packet->on_ground);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_entity_teleport_packet(
+cmc_err cmc_send_S2C_play_entity_teleport_packet(
     cmc_conn *conn, S2C_play_entity_teleport_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x18);
-    cmc_buffer_pack_varint(buff, packet->entity_id);
-    cmc_buffer_pack_int(buff, packet->x);
-    cmc_buffer_pack_int(buff, packet->y);
-    cmc_buffer_pack_int(buff, packet->z);
-    cmc_buffer_pack_byte(buff, packet->yaw);
-    cmc_buffer_pack_byte(buff, packet->pitch);
-    cmc_buffer_pack_bool(buff, packet->on_ground);
+    cmc_buff_pack_varint(buff, 0x18);
+    cmc_buff_pack_varint(buff, packet->entity_id);
+    cmc_buff_pack_int(buff, packet->x);
+    cmc_buff_pack_int(buff, packet->y);
+    cmc_buff_pack_int(buff, packet->z);
+    cmc_buff_pack_byte(buff, packet->yaw);
+    cmc_buff_pack_byte(buff, packet->pitch);
+    cmc_buff_pack_bool(buff, packet->on_ground);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_entity_head_look_packet(
+cmc_err cmc_send_S2C_play_entity_head_look_packet(
     cmc_conn *conn, S2C_play_entity_head_look_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x19);
-    cmc_buffer_pack_varint(buff, packet->entity_id);
-    cmc_buffer_pack_byte(buff, packet->head_yaw);
+    cmc_buff_pack_varint(buff, 0x19);
+    cmc_buff_pack_varint(buff, packet->entity_id);
+    cmc_buff_pack_byte(buff, packet->head_yaw);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_entity_status_packet(
-    cmc_conn *conn, S2C_play_entity_status_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+cmc_err
+cmc_send_S2C_play_entity_status_packet(cmc_conn *conn,
+                                       S2C_play_entity_status_packet *packet) {
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x1A);
-    cmc_buffer_pack_int(buff, packet->entity_id);
-    cmc_buffer_pack_char(buff, packet->entity_status);
+    cmc_buff_pack_varint(buff, 0x1A);
+    cmc_buff_pack_int(buff, packet->entity_id);
+    cmc_buff_pack_char(buff, packet->entity_status);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_attach_entity_packet(
-    cmc_conn *conn, S2C_play_attach_entity_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+cmc_err
+cmc_send_S2C_play_attach_entity_packet(cmc_conn *conn,
+                                       S2C_play_attach_entity_packet *packet) {
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x1B);
-    cmc_buffer_pack_int(buff, packet->entity_id);
-    cmc_buffer_pack_int(buff, packet->vehicle_id);
-    cmc_buffer_pack_bool(buff, packet->leash);
+    cmc_buff_pack_varint(buff, 0x1B);
+    cmc_buff_pack_int(buff, packet->entity_id);
+    cmc_buff_pack_int(buff, packet->vehicle_id);
+    cmc_buff_pack_bool(buff, packet->leash);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_entity_metadata_packet(
+cmc_err cmc_send_S2C_play_entity_metadata_packet(
     cmc_conn *conn, S2C_play_entity_metadata_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x1C);
-    cmc_buffer_pack_varint(buff, packet->entity_id);
-    cmc_buffer_pack_entity_metadata(buff, packet->meta_data);
+    cmc_buff_pack_varint(buff, 0x1C);
+    cmc_buff_pack_varint(buff, packet->entity_id);
+    cmc_buff_pack_entity_metadata(buff, packet->meta_data);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_entity_effect_packet(
-    cmc_conn *conn, S2C_play_entity_effect_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+cmc_err
+cmc_send_S2C_play_entity_effect_packet(cmc_conn *conn,
+                                       S2C_play_entity_effect_packet *packet) {
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x1D);
-    cmc_buffer_pack_varint(buff, packet->entity_id);
-    cmc_buffer_pack_char(buff, packet->effect_id);
-    cmc_buffer_pack_char(buff, packet->amplifier);
-    cmc_buffer_pack_varint(buff, packet->duration);
-    cmc_buffer_pack_bool(buff, packet->hide_particles);
+    cmc_buff_pack_varint(buff, 0x1D);
+    cmc_buff_pack_varint(buff, packet->entity_id);
+    cmc_buff_pack_char(buff, packet->effect_id);
+    cmc_buff_pack_char(buff, packet->amplifier);
+    cmc_buff_pack_varint(buff, packet->duration);
+    cmc_buff_pack_bool(buff, packet->hide_particles);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_remove_entity_effect_packet(
+cmc_err cmc_send_S2C_play_remove_entity_effect_packet(
     cmc_conn *conn, S2C_play_remove_entity_effect_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x1E);
-    cmc_buffer_pack_varint(buff, packet->entity_id);
-    cmc_buffer_pack_char(buff, packet->effect_id);
+    cmc_buff_pack_varint(buff, 0x1E);
+    cmc_buff_pack_varint(buff, packet->entity_id);
+    cmc_buff_pack_char(buff, packet->effect_id);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_set_experience_packet(
+cmc_err cmc_send_S2C_play_set_experience_packet(
     cmc_conn *conn, S2C_play_set_experience_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x1F);
-    cmc_buffer_pack_float(buff, packet->experience_bar);
-    cmc_buffer_pack_varint(buff, packet->level);
-    cmc_buffer_pack_varint(buff, packet->total_experience);
+    cmc_buff_pack_varint(buff, 0x1F);
+    cmc_buff_pack_float(buff, packet->experience_bar);
+    cmc_buff_pack_varint(buff, packet->level);
+    cmc_buff_pack_varint(buff, packet->total_experience);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_entity_properties_packet(
+cmc_err cmc_send_S2C_play_entity_properties_packet(
     cmc_conn *conn, S2C_play_entity_properties_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x20);
-    cmc_buffer_pack_varint(buff, packet->entity_id);
-    cmc_buffer_pack_int(buff, packet->properties_count);
+    cmc_buff_pack_varint(buff, 0x20);
+    cmc_buff_pack_varint(buff, packet->entity_id);
+    cmc_buff_pack_int(buff, packet->properties_count);
     for (int i = 0; i < packet->properties.len; ++i) {
       S2C_play_entity_properties_properties *p_properties =
           i * sizeof(S2C_play_entity_properties_properties) +
           packet->properties.data;
-      cmc_buffer_pack_string(buff, p_properties->key);
-      cmc_buffer_pack_double(buff, p_properties->value);
-      cmc_buffer_pack_varint(buff, p_properties->num_of_modifiers);
+      cmc_buff_pack_string(buff, p_properties->key);
+      cmc_buff_pack_double(buff, p_properties->value);
+      cmc_buff_pack_varint(buff, p_properties->num_of_modifiers);
       for (int j = 0; j < p_properties->modifiers.len; ++j) {
         S2C_play_entity_properties_modifiers *p_modifiers =
             j * sizeof(S2C_play_entity_properties_modifiers) +
             p_properties->modifiers.data;
-        cmc_buffer_pack_double(buff, p_modifiers->amount);
-        cmc_buffer_pack_char(buff, p_modifiers->operation);
+        cmc_buff_pack_double(buff, p_modifiers->amount);
+        cmc_buff_pack_char(buff, p_modifiers->operation);
       }
     }
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_chunk_data_packet(cmc_conn *conn,
-                                         S2C_play_chunk_data_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+cmc_err
+cmc_send_S2C_play_chunk_data_packet(cmc_conn *conn,
+                                    S2C_play_chunk_data_packet *packet) {
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x21);
-    cmc_buffer_pack_int(buff, packet->chunk_x);
-    cmc_buffer_pack_int(buff, packet->chunk_z);
-    cmc_buffer_pack_bool(buff, packet->ground_up_continuous);
-    cmc_buffer_pack_ushort(buff, packet->primary_bitmask);
-    cmc_buffer_pack_byte_array(buff, packet->chunk);
+    cmc_buff_pack_varint(buff, 0x21);
+    cmc_buff_pack_int(buff, packet->chunk_x);
+    cmc_buff_pack_int(buff, packet->chunk_z);
+    cmc_buff_pack_bool(buff, packet->ground_up_continuous);
+    cmc_buff_pack_ushort(buff, packet->primary_bitmask);
+    cmc_buff_pack_buff(buff, packet->chunk);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_multi_block_change_packet(
+cmc_err cmc_send_S2C_play_multi_block_change_packet(
     cmc_conn *conn, S2C_play_multi_block_change_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x22);
-    cmc_buffer_pack_int(buff, packet->chunk_x);
-    cmc_buffer_pack_int(buff, packet->chunk_z);
-    cmc_buffer_pack_varint(buff, packet->record_count);
+    cmc_buff_pack_varint(buff, 0x22);
+    cmc_buff_pack_int(buff, packet->chunk_x);
+    cmc_buff_pack_int(buff, packet->chunk_z);
+    cmc_buff_pack_varint(buff, packet->record_count);
     for (int i = 0; i < packet->records.len; ++i) {
       S2C_play_multi_block_change_records *p_records =
           i * sizeof(S2C_play_multi_block_change_records) +
           packet->records.data;
-      cmc_buffer_pack_byte(buff, p_records->horizontal_position);
-      cmc_buffer_pack_byte(buff, p_records->vertical_position);
-      cmc_buffer_pack_varint(buff, p_records->block_id);
+      cmc_buff_pack_byte(buff, p_records->horizontal_position);
+      cmc_buff_pack_byte(buff, p_records->vertical_position);
+      cmc_buff_pack_varint(buff, p_records->block_id);
     }
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_block_change_packet(
-    cmc_conn *conn, S2C_play_block_change_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+cmc_err
+cmc_send_S2C_play_block_change_packet(cmc_conn *conn,
+                                      S2C_play_block_change_packet *packet) {
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x23);
-    cmc_buffer_pack_position(buff, packet->location);
-    cmc_buffer_pack_varint(buff, packet->block_id);
+    cmc_buff_pack_varint(buff, 0x23);
+    cmc_buff_pack_position(buff, packet->location);
+    cmc_buff_pack_varint(buff, packet->block_id);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_block_action_packet(
-    cmc_conn *conn, S2C_play_block_action_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+cmc_err
+cmc_send_S2C_play_block_action_packet(cmc_conn *conn,
+                                      S2C_play_block_action_packet *packet) {
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x24);
-    cmc_buffer_pack_position(buff, packet->location);
-    cmc_buffer_pack_byte(buff, packet->block_data_1);
-    cmc_buffer_pack_byte(buff, packet->block_data_2);
-    cmc_buffer_pack_varint(buff, packet->block_type);
+    cmc_buff_pack_varint(buff, 0x24);
+    cmc_buff_pack_position(buff, packet->location);
+    cmc_buff_pack_byte(buff, packet->block_data_1);
+    cmc_buff_pack_byte(buff, packet->block_data_2);
+    cmc_buff_pack_varint(buff, packet->block_type);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_block_break_animation_packet(
+cmc_err cmc_send_S2C_play_block_break_animation_packet(
     cmc_conn *conn, S2C_play_block_break_animation_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x25);
-    cmc_buffer_pack_varint(buff, packet->entity_id);
-    cmc_buffer_pack_position(buff, packet->location);
-    cmc_buffer_pack_char(buff, packet->destroy_stage);
+    cmc_buff_pack_varint(buff, 0x25);
+    cmc_buff_pack_varint(buff, packet->entity_id);
+    cmc_buff_pack_position(buff, packet->location);
+    cmc_buff_pack_char(buff, packet->destroy_stage);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_map_chunk_bulk_packet(
+cmc_err cmc_send_S2C_play_map_chunk_bulk_packet(
     cmc_conn *conn, S2C_play_map_chunk_bulk_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x26);
-    cmc_buffer_pack_bool(buff, packet->sky_light_sent);
-    cmc_buffer_pack_varint(buff, packet->chunk_column_count);
+    cmc_buff_pack_varint(buff, 0x26);
+    cmc_buff_pack_bool(buff, packet->sky_light_sent);
+    cmc_buff_pack_varint(buff, packet->chunk_column_count);
     for (int i = 0; i < packet->chunk_columns.len; ++i) {
       S2C_play_map_chunk_bulk_chunk_columns *p_chunk_columns =
           i * sizeof(S2C_play_map_chunk_bulk_chunk_columns) +
           packet->chunk_columns.data;
-      cmc_buffer_pack_int(buff, p_chunk_columns->chunk_x);
-      cmc_buffer_pack_int(buff, p_chunk_columns->chunk_z);
-      cmc_buffer_pack_ushort(buff, p_chunk_columns->bit_mask);
+      cmc_buff_pack_int(buff, p_chunk_columns->chunk_x);
+      cmc_buff_pack_int(buff, p_chunk_columns->chunk_z);
+      cmc_buff_pack_ushort(buff, p_chunk_columns->bit_mask);
     }
-    cmc_buffer_pack_byte_array(buff, packet->chunk);
+    cmc_buff_pack_buff(buff, packet->chunk);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_explosion_packet(cmc_conn *conn,
-                                        S2C_play_explosion_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+cmc_err cmc_send_S2C_play_explosion_packet(cmc_conn *conn,
+                                           S2C_play_explosion_packet *packet) {
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x27);
-    cmc_buffer_pack_float(buff, packet->x);
-    cmc_buffer_pack_float(buff, packet->y);
-    cmc_buffer_pack_float(buff, packet->z);
-    cmc_buffer_pack_float(buff, packet->radius);
-    cmc_buffer_pack_int(buff, packet->record_count);
+    cmc_buff_pack_varint(buff, 0x27);
+    cmc_buff_pack_float(buff, packet->x);
+    cmc_buff_pack_float(buff, packet->y);
+    cmc_buff_pack_float(buff, packet->z);
+    cmc_buff_pack_float(buff, packet->radius);
+    cmc_buff_pack_int(buff, packet->record_count);
     for (int i = 0; i < packet->records.len; ++i) {
       S2C_play_explosion_records *p_records =
           i * sizeof(S2C_play_explosion_records) + packet->records.data;
-      cmc_buffer_pack_char(buff, p_records->x_offset);
-      cmc_buffer_pack_char(buff, p_records->y_offset);
-      cmc_buffer_pack_char(buff, p_records->z_offset);
+      cmc_buff_pack_char(buff, p_records->x_offset);
+      cmc_buff_pack_char(buff, p_records->y_offset);
+      cmc_buff_pack_char(buff, p_records->z_offset);
     }
-    cmc_buffer_pack_float(buff, packet->x_player_vel);
-    cmc_buffer_pack_float(buff, packet->y_player_vel);
-    cmc_buffer_pack_float(buff, packet->z_player_vel);
+    cmc_buff_pack_float(buff, packet->x_player_vel);
+    cmc_buff_pack_float(buff, packet->y_player_vel);
+    cmc_buff_pack_float(buff, packet->z_player_vel);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_effect_packet(cmc_conn *conn,
-                                     S2C_play_effect_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+cmc_err cmc_send_S2C_play_effect_packet(cmc_conn *conn,
+                                        S2C_play_effect_packet *packet) {
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x28);
-    cmc_buffer_pack_int(buff, packet->effect_id);
-    cmc_buffer_pack_position(buff, packet->location);
-    cmc_buffer_pack_int(buff, packet->data);
-    cmc_buffer_pack_bool(buff, packet->d);
-    cmc_buffer_pack_int(buff, packet->particle_id);
-    cmc_buffer_pack_bool(buff, packet->long_distances);
-    cmc_buffer_pack_float(buff, packet->x);
-    cmc_buffer_pack_float(buff, packet->y);
-    cmc_buffer_pack_float(buff, packet->z);
-    cmc_buffer_pack_float(buff, packet->x_offset);
-    cmc_buffer_pack_float(buff, packet->y_offset);
-    cmc_buffer_pack_float(buff, packet->z_offset);
-    cmc_buffer_pack_float(buff, packet->particle_data);
-    cmc_buffer_pack_int(buff, packet->particle_count);
-    cmc_buffer_pack_int(buff, packet->sable_relative_volume);
+    cmc_buff_pack_varint(buff, 0x28);
+    cmc_buff_pack_int(buff, packet->effect_id);
+    cmc_buff_pack_position(buff, packet->location);
+    cmc_buff_pack_int(buff, packet->data);
+    cmc_buff_pack_bool(buff, packet->d);
+    cmc_buff_pack_int(buff, packet->particle_id);
+    cmc_buff_pack_bool(buff, packet->long_distances);
+    cmc_buff_pack_float(buff, packet->x);
+    cmc_buff_pack_float(buff, packet->y);
+    cmc_buff_pack_float(buff, packet->z);
+    cmc_buff_pack_float(buff, packet->x_offset);
+    cmc_buff_pack_float(buff, packet->y_offset);
+    cmc_buff_pack_float(buff, packet->z_offset);
+    cmc_buff_pack_float(buff, packet->particle_data);
+    cmc_buff_pack_int(buff, packet->particle_count);
+    cmc_buff_pack_int(buff, packet->sable_relative_volume);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_sound_effect_packet(
-    cmc_conn *conn, S2C_play_sound_effect_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+cmc_err
+cmc_send_S2C_play_sound_effect_packet(cmc_conn *conn,
+                                      S2C_play_sound_effect_packet *packet) {
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x29);
-    cmc_buffer_pack_string(buff, packet->sound_name);
-    cmc_buffer_pack_int(buff, packet->x);
-    cmc_buffer_pack_int(buff, packet->y);
-    cmc_buffer_pack_int(buff, packet->z);
-    cmc_buffer_pack_float(buff, packet->volume);
-    cmc_buffer_pack_byte(buff, packet->pitch);
+    cmc_buff_pack_varint(buff, 0x29);
+    cmc_buff_pack_string(buff, packet->sound_name);
+    cmc_buff_pack_int(buff, packet->x);
+    cmc_buff_pack_int(buff, packet->y);
+    cmc_buff_pack_int(buff, packet->z);
+    cmc_buff_pack_float(buff, packet->volume);
+    cmc_buff_pack_byte(buff, packet->pitch);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_change_game_state_packet(
+cmc_err cmc_send_S2C_play_change_game_state_packet(
     cmc_conn *conn, S2C_play_change_game_state_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x2B);
-    cmc_buffer_pack_byte(buff, packet->reason);
-    cmc_buffer_pack_float(buff, packet->value);
+    cmc_buff_pack_varint(buff, 0x2B);
+    cmc_buff_pack_byte(buff, packet->reason);
+    cmc_buff_pack_float(buff, packet->value);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_player_abilities_packet(
+cmc_err cmc_send_S2C_play_player_abilities_packet(
     cmc_conn *conn, S2C_play_player_abilities_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x39);
-    cmc_buffer_pack_char(buff, packet->flags);
-    cmc_buffer_pack_float(buff, packet->flying_speed);
-    cmc_buffer_pack_float(buff, packet->fov_modifier);
+    cmc_buff_pack_varint(buff, 0x39);
+    cmc_buff_pack_char(buff, packet->flags);
+    cmc_buff_pack_float(buff, packet->flying_speed);
+    cmc_buff_pack_float(buff, packet->fov_modifier);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_plugin_message_packet(
+cmc_err cmc_send_S2C_play_plugin_message_packet(
     cmc_conn *conn, S2C_play_plugin_message_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x3F);
-    cmc_buffer_pack_string(buff, packet->channel);
-    cmc_buffer_pack_byte_array(buff, packet->data);
+    cmc_buff_pack_varint(buff, 0x3F);
+    cmc_buff_pack_string(buff, packet->channel);
+    cmc_buff_pack_buff(buff, packet->data);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
-void cmc_send_S2C_play_change_difficulty_packet(
+cmc_err cmc_send_S2C_play_change_difficulty_packet(
     cmc_conn *conn, S2C_play_change_difficulty_packet *packet) {
-  cmc_buffer *buff = cmc_buffer_init(conn->protocol_version);
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   switch (conn->protocol_version) {
   case 47: {
-    cmc_buffer_pack_varint(buff, 0x41);
-    cmc_buffer_pack_byte(buff, packet->difficulty);
+    cmc_buff_pack_varint(buff, 0x41);
+    cmc_buff_pack_byte(buff, packet->difficulty);
     break;
   }
   default:
-    cmc_buffer_free(buff);
-    ERR(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return;);
+    cmc_buff_free(buff);
+    CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
   }
   cmc_conn_send_packet(conn, buff);
-  cmc_buffer_free(buff);
+  cmc_buff_free(buff);
 }
 
 // CGSE: send_methods_c
 
 // CGSS: unpack_methods_c
 C2S_handshake_handshake_packet
-unpack_C2S_handshake_handshake_packet(cmc_buffer *buff) {
+unpack_C2S_handshake_handshake_packet(cmc_buff *buff) {
   C2S_handshake_handshake_packet packet = {
-      .server_addr = NULL,
       .protocole_version = 0,
+      .server_addr = NULL,
       .server_port = 0,
       .next_state = 0,
   };
   switch (buff->protocol_version) {
   case 765: {
-    packet.protocole_version = cmc_buffer_unpack_varint(buff);
-    packet.server_addr = cmc_buffer_unpack_string(buff);
-    packet.server_port = cmc_buffer_unpack_ushort(buff);
-    packet.next_state = cmc_buffer_unpack_varint(buff);
+    packet.protocole_version = cmc_buff_unpack_varint(buff);
+    packet.server_addr = cmc_buff_unpack_string(buff);
+    packet.server_port = cmc_buff_unpack_ushort(buff);
+    packet.next_state = cmc_buff_unpack_varint(buff);
     break;
   }
   case 47: {
-    packet.protocole_version = cmc_buffer_unpack_varint(buff);
-    packet.server_addr = cmc_buffer_unpack_string(buff);
-    packet.server_port = cmc_buffer_unpack_ushort(buff);
-    packet.next_state = cmc_buffer_unpack_varint(buff);
+    packet.protocole_version = cmc_buff_unpack_varint(buff);
+    packet.server_addr = cmc_buff_unpack_string(buff);
+    packet.server_port = cmc_buff_unpack_ushort(buff);
+    packet.next_state = cmc_buff_unpack_varint(buff);
     break;
   }
   default:
@@ -1876,24 +1963,24 @@ unpack_C2S_handshake_handshake_packet(cmc_buffer *buff) {
 err:
   cmc_free_C2S_handshake_handshake_packet(&packet);
   return (C2S_handshake_handshake_packet){
-      .server_addr = NULL,
       .protocole_version = 0,
+      .server_addr = NULL,
       .server_port = 0,
       .next_state = 0,
   };
 }
 
-S2C_status_response_packet unpack_S2C_status_response_packet(cmc_buffer *buff) {
+S2C_status_response_packet unpack_S2C_status_response_packet(cmc_buff *buff) {
   S2C_status_response_packet packet = {
       .response = NULL,
   };
   switch (buff->protocol_version) {
   case 765: {
-    packet.response = cmc_buffer_unpack_string(buff);
+    packet.response = cmc_buff_unpack_string(buff);
     break;
   }
   case 47: {
-    packet.response = cmc_buffer_unpack_string(buff);
+    packet.response = cmc_buff_unpack_string(buff);
     break;
   }
   default:
@@ -1910,17 +1997,17 @@ err:
   };
 }
 
-S2C_status_pong_packet unpack_S2C_status_pong_packet(cmc_buffer *buff) {
+S2C_status_pong_packet unpack_S2C_status_pong_packet(cmc_buff *buff) {
   S2C_status_pong_packet packet = {
       .payload = 0,
   };
   switch (buff->protocol_version) {
   case 765: {
-    packet.payload = cmc_buffer_unpack_long(buff);
+    packet.payload = cmc_buff_unpack_long(buff);
     break;
   }
   case 47: {
-    packet.payload = cmc_buffer_unpack_long(buff);
+    packet.payload = cmc_buff_unpack_long(buff);
     break;
   }
   default:
@@ -1937,17 +2024,17 @@ err:
   };
 }
 
-C2S_status_ping_packet unpack_C2S_status_ping_packet(cmc_buffer *buff) {
+C2S_status_ping_packet unpack_C2S_status_ping_packet(cmc_buff *buff) {
   C2S_status_ping_packet packet = {
       .payload = 0,
   };
   switch (buff->protocol_version) {
   case 765: {
-    packet.payload = cmc_buffer_unpack_long(buff);
+    packet.payload = cmc_buff_unpack_long(buff);
     break;
   }
   case 47: {
-    packet.payload = cmc_buffer_unpack_long(buff);
+    packet.payload = cmc_buff_unpack_long(buff);
     break;
   }
   default:
@@ -1964,18 +2051,17 @@ err:
   };
 }
 
-S2C_login_disconnect_packet
-unpack_S2C_login_disconnect_packet(cmc_buffer *buff) {
+S2C_login_disconnect_packet unpack_S2C_login_disconnect_packet(cmc_buff *buff) {
   S2C_login_disconnect_packet packet = {
       .reason = NULL,
   };
   switch (buff->protocol_version) {
   case 765: {
-    packet.reason = cmc_buffer_unpack_string(buff);
+    packet.reason = cmc_buff_unpack_string(buff);
     break;
   }
   case 47: {
-    packet.reason = cmc_buffer_unpack_string(buff);
+    packet.reason = cmc_buff_unpack_string(buff);
     break;
   }
   default:
@@ -1993,23 +2079,23 @@ err:
 }
 
 S2C_login_encryption_request_packet
-unpack_S2C_login_encryption_request_packet(cmc_buffer *buff) {
+unpack_S2C_login_encryption_request_packet(cmc_buff *buff) {
   S2C_login_encryption_request_packet packet = {
       .verify_token = NULL,
-      .server_id = NULL,
       .public_key = NULL,
+      .server_id = NULL,
   };
   switch (buff->protocol_version) {
   case 765: {
-    packet.server_id = cmc_buffer_unpack_string(buff);
-    packet.public_key = cmc_buffer_unpack_byte_array(buff);
-    packet.verify_token = cmc_buffer_unpack_byte_array(buff);
+    packet.server_id = cmc_buff_unpack_string(buff);
+    packet.public_key = cmc_buff_unpack_buff(buff);
+    packet.verify_token = cmc_buff_unpack_buff(buff);
     break;
   }
   case 47: {
-    packet.server_id = cmc_buffer_unpack_string(buff);
-    packet.public_key = cmc_buffer_unpack_byte_array(buff);
-    packet.verify_token = cmc_buffer_unpack_byte_array(buff);
+    packet.server_id = cmc_buff_unpack_string(buff);
+    packet.public_key = cmc_buff_unpack_buff(buff);
+    packet.verify_token = cmc_buff_unpack_buff(buff);
     break;
   }
   default:
@@ -2023,28 +2109,28 @@ err:
   cmc_free_S2C_login_encryption_request_packet(&packet);
   return (S2C_login_encryption_request_packet){
       .verify_token = NULL,
-      .server_id = NULL,
       .public_key = NULL,
+      .server_id = NULL,
   };
 }
 
-S2C_login_success_packet unpack_S2C_login_success_packet(cmc_buffer *buff) {
+S2C_login_success_packet unpack_S2C_login_success_packet(cmc_buff *buff) {
   S2C_login_success_packet packet = {
-      .name = NULL,
+      .uuid_str = NULL,
       .properties_count = 0,
       .uuid = {.lower = 0, .upper = 0},
-      .uuid_str = NULL,
+      .name = NULL,
   };
   switch (buff->protocol_version) {
   case 765: {
-    packet.uuid = cmc_buffer_unpack_uuid(buff);
-    packet.name = cmc_buffer_unpack_string(buff);
-    packet.properties_count = cmc_buffer_unpack_varint(buff);
+    packet.uuid = cmc_buff_unpack_uuid(buff);
+    packet.name = cmc_buff_unpack_string(buff);
+    packet.properties_count = cmc_buff_unpack_varint(buff);
     break;
   }
   case 47: {
-    packet.uuid_str = cmc_buffer_unpack_string(buff);
-    packet.name = cmc_buffer_unpack_string(buff);
+    packet.uuid_str = cmc_buff_unpack_string(buff);
+    packet.name = cmc_buff_unpack_string(buff);
     break;
   }
   default:
@@ -2057,25 +2143,25 @@ S2C_login_success_packet unpack_S2C_login_success_packet(cmc_buffer *buff) {
 err:
   cmc_free_S2C_login_success_packet(&packet);
   return (S2C_login_success_packet){
-      .name = NULL,
+      .uuid_str = NULL,
       .properties_count = 0,
       .uuid = {.lower = 0, .upper = 0},
-      .uuid_str = NULL,
+      .name = NULL,
   };
 }
 
 S2C_login_set_compression_packet
-unpack_S2C_login_set_compression_packet(cmc_buffer *buff) {
+unpack_S2C_login_set_compression_packet(cmc_buff *buff) {
   S2C_login_set_compression_packet packet = {
       .threshold = 0,
   };
   switch (buff->protocol_version) {
   case 765: {
-    packet.threshold = cmc_buffer_unpack_varint(buff);
+    packet.threshold = cmc_buff_unpack_varint(buff);
     break;
   }
   case 47: {
-    packet.threshold = cmc_buffer_unpack_varint(buff);
+    packet.threshold = cmc_buff_unpack_varint(buff);
     break;
   }
   default:
@@ -2092,19 +2178,19 @@ err:
   };
 }
 
-C2S_login_start_packet unpack_C2S_login_start_packet(cmc_buffer *buff) {
+C2S_login_start_packet unpack_C2S_login_start_packet(cmc_buff *buff) {
   C2S_login_start_packet packet = {
-      .name = NULL,
       .uuid = {.lower = 0, .upper = 0},
+      .name = NULL,
   };
   switch (buff->protocol_version) {
   case 765: {
-    packet.name = cmc_buffer_unpack_string(buff);
-    packet.uuid = cmc_buffer_unpack_uuid(buff);
+    packet.name = cmc_buff_unpack_string(buff);
+    packet.uuid = cmc_buff_unpack_uuid(buff);
     break;
   }
   case 47: {
-    packet.name = cmc_buffer_unpack_string(buff);
+    packet.name = cmc_buff_unpack_string(buff);
     break;
   }
   default:
@@ -2117,26 +2203,26 @@ C2S_login_start_packet unpack_C2S_login_start_packet(cmc_buffer *buff) {
 err:
   cmc_free_C2S_login_start_packet(&packet);
   return (C2S_login_start_packet){
-      .name = NULL,
       .uuid = {.lower = 0, .upper = 0},
+      .name = NULL,
   };
 }
 
 C2S_login_encryption_response_packet
-unpack_C2S_login_encryption_response_packet(cmc_buffer *buff) {
+unpack_C2S_login_encryption_response_packet(cmc_buff *buff) {
   C2S_login_encryption_response_packet packet = {
       .verify_token = NULL,
       .shared_secret = NULL,
   };
   switch (buff->protocol_version) {
   case 765: {
-    packet.shared_secret = cmc_buffer_unpack_byte_array(buff);
-    packet.verify_token = cmc_buffer_unpack_byte_array(buff);
+    packet.shared_secret = cmc_buff_unpack_buff(buff);
+    packet.verify_token = cmc_buff_unpack_buff(buff);
     break;
   }
   case 47: {
-    packet.shared_secret = cmc_buffer_unpack_byte_array(buff);
-    packet.verify_token = cmc_buffer_unpack_byte_array(buff);
+    packet.shared_secret = cmc_buff_unpack_buff(buff);
+    packet.verify_token = cmc_buff_unpack_buff(buff);
     break;
   }
   default:
@@ -2155,15 +2241,15 @@ err:
 }
 
 S2C_config_plugin_message_packet
-unpack_S2C_config_plugin_message_packet(cmc_buffer *buff) {
+unpack_S2C_config_plugin_message_packet(cmc_buff *buff) {
   S2C_config_plugin_message_packet packet = {
       .data = NULL,
       .channel = NULL,
   };
   switch (buff->protocol_version) {
   case 765: {
-    packet.channel = cmc_buffer_unpack_string(buff);
-    packet.data = cmc_buffer_unpack_byte_array(buff);
+    packet.channel = cmc_buff_unpack_string(buff);
+    packet.data = cmc_buff_unpack_buff(buff);
     break;
   }
   default:
@@ -2182,13 +2268,13 @@ err:
 }
 
 S2C_config_disconnect_packet
-unpack_S2C_config_disconnect_packet(cmc_buffer *buff) {
+unpack_S2C_config_disconnect_packet(cmc_buff *buff) {
   S2C_config_disconnect_packet packet = {
       .reason = NULL,
   };
   switch (buff->protocol_version) {
   case 765: {
-    packet.reason = cmc_buffer_unpack_string(buff);
+    packet.reason = cmc_buff_unpack_string(buff);
     break;
   }
   default:
@@ -2206,13 +2292,13 @@ err:
 }
 
 S2C_config_keep_alive_packet
-unpack_S2C_config_keep_alive_packet(cmc_buffer *buff) {
+unpack_S2C_config_keep_alive_packet(cmc_buff *buff) {
   S2C_config_keep_alive_packet packet = {
       .keep_alive_id = 0,
   };
   switch (buff->protocol_version) {
   case 765: {
-    packet.keep_alive_id = cmc_buffer_unpack_long(buff);
+    packet.keep_alive_id = cmc_buff_unpack_long(buff);
     break;
   }
   default:
@@ -2229,13 +2315,13 @@ err:
   };
 }
 
-S2C_config_ping_packet unpack_S2C_config_ping_packet(cmc_buffer *buff) {
+S2C_config_ping_packet unpack_S2C_config_ping_packet(cmc_buff *buff) {
   S2C_config_ping_packet packet = {
       .id = 0,
   };
   switch (buff->protocol_version) {
   case 765: {
-    packet.id = cmc_buffer_unpack_int(buff);
+    packet.id = cmc_buff_unpack_int(buff);
     break;
   }
   default:
@@ -2253,13 +2339,13 @@ err:
 }
 
 S2C_config_registry_data_packet
-unpack_S2C_config_registry_data_packet(cmc_buffer *buff) {
+unpack_S2C_config_registry_data_packet(cmc_buff *buff) {
   S2C_config_registry_data_packet packet = {
       .registry_codec = NULL,
   };
   switch (buff->protocol_version) {
   case 765: {
-    packet.registry_codec = cmc_buffer_unpack_nbt(buff);
+    packet.registry_codec = cmc_buff_unpack_nbt(buff);
     break;
   }
   default:
@@ -2276,18 +2362,18 @@ err:
   };
 }
 
-C2S_play_keep_alive_packet unpack_C2S_play_keep_alive_packet(cmc_buffer *buff) {
+C2S_play_keep_alive_packet unpack_C2S_play_keep_alive_packet(cmc_buff *buff) {
   C2S_play_keep_alive_packet packet = {
       .keep_alive_id = 0,
       .keep_alive_id_long = 0,
   };
   switch (buff->protocol_version) {
   case 765: {
-    packet.keep_alive_id_long = cmc_buffer_unpack_long(buff);
+    packet.keep_alive_id_long = cmc_buff_unpack_long(buff);
     break;
   }
   case 47: {
-    packet.keep_alive_id = cmc_buffer_unpack_varint(buff);
+    packet.keep_alive_id = cmc_buff_unpack_varint(buff);
     break;
   }
   default:
@@ -2305,18 +2391,18 @@ err:
   };
 }
 
-S2C_play_keep_alive_packet unpack_S2C_play_keep_alive_packet(cmc_buffer *buff) {
+S2C_play_keep_alive_packet unpack_S2C_play_keep_alive_packet(cmc_buff *buff) {
   S2C_play_keep_alive_packet packet = {
       .keep_alive_id = 0,
       .keep_alive_id_long = 0,
   };
   switch (buff->protocol_version) {
   case 765: {
-    packet.keep_alive_id_long = cmc_buffer_unpack_long(buff);
+    packet.keep_alive_id_long = cmc_buff_unpack_long(buff);
     break;
   }
   case 47: {
-    packet.keep_alive_id = cmc_buffer_unpack_varint(buff);
+    packet.keep_alive_id = cmc_buff_unpack_varint(buff);
     break;
   }
   default:
@@ -2334,18 +2420,18 @@ err:
   };
 }
 
-S2C_play_disconnect_packet unpack_S2C_play_disconnect_packet(cmc_buffer *buff) {
+S2C_play_disconnect_packet unpack_S2C_play_disconnect_packet(cmc_buff *buff) {
   S2C_play_disconnect_packet packet = {
-      .reason = NULL,
       .reason_nbt = NULL,
+      .reason = NULL,
   };
   switch (buff->protocol_version) {
   case 765: {
-    packet.reason_nbt = cmc_buffer_unpack_nbt(buff);
+    packet.reason_nbt = cmc_buff_unpack_nbt(buff);
     break;
   }
   case 47: {
-    packet.reason = cmc_buffer_unpack_string(buff);
+    packet.reason = cmc_buff_unpack_string(buff);
     break;
   }
   default:
@@ -2358,30 +2444,30 @@ S2C_play_disconnect_packet unpack_S2C_play_disconnect_packet(cmc_buffer *buff) {
 err:
   cmc_free_S2C_play_disconnect_packet(&packet);
   return (S2C_play_disconnect_packet){
-      .reason = NULL,
       .reason_nbt = NULL,
+      .reason = NULL,
   };
 }
 
-S2C_play_join_game_packet unpack_S2C_play_join_game_packet(cmc_buffer *buff) {
+S2C_play_join_game_packet unpack_S2C_play_join_game_packet(cmc_buff *buff) {
   S2C_play_join_game_packet packet = {
-      .entity_id = 0,
       .max_players = 0,
-      .reduced_debug_info = false,
       .difficulty = 0,
-      .gamemode = 0,
-      .dimension = 0,
       .level_type = NULL,
+      .dimension = 0,
+      .reduced_debug_info = false,
+      .gamemode = 0,
+      .entity_id = 0,
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.entity_id = cmc_buffer_unpack_int(buff);
-    packet.gamemode = cmc_buffer_unpack_byte(buff);
-    packet.dimension = cmc_buffer_unpack_char(buff);
-    packet.difficulty = cmc_buffer_unpack_byte(buff);
-    packet.max_players = cmc_buffer_unpack_byte(buff);
-    packet.level_type = cmc_buffer_unpack_string(buff);
-    packet.reduced_debug_info = cmc_buffer_unpack_bool(buff);
+    packet.entity_id = cmc_buff_unpack_int(buff);
+    packet.gamemode = cmc_buff_unpack_byte(buff);
+    packet.dimension = cmc_buff_unpack_char(buff);
+    packet.difficulty = cmc_buff_unpack_byte(buff);
+    packet.max_players = cmc_buff_unpack_byte(buff);
+    packet.level_type = cmc_buff_unpack_string(buff);
+    packet.reduced_debug_info = cmc_buff_unpack_bool(buff);
     break;
   }
   default:
@@ -2394,26 +2480,26 @@ S2C_play_join_game_packet unpack_S2C_play_join_game_packet(cmc_buffer *buff) {
 err:
   cmc_free_S2C_play_join_game_packet(&packet);
   return (S2C_play_join_game_packet){
-      .entity_id = 0,
       .max_players = 0,
-      .reduced_debug_info = false,
       .difficulty = 0,
-      .gamemode = 0,
-      .dimension = 0,
       .level_type = NULL,
+      .dimension = 0,
+      .reduced_debug_info = false,
+      .gamemode = 0,
+      .entity_id = 0,
   };
 }
 
 S2C_play_chat_message_packet
-unpack_S2C_play_chat_message_packet(cmc_buffer *buff) {
+unpack_S2C_play_chat_message_packet(cmc_buff *buff) {
   S2C_play_chat_message_packet packet = {
       .position = 0,
       .message = NULL,
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.message = cmc_buffer_unpack_string(buff);
-    packet.position = cmc_buffer_unpack_char(buff);
+    packet.message = cmc_buff_unpack_string(buff);
+    packet.position = cmc_buff_unpack_char(buff);
     break;
   }
   default:
@@ -2431,16 +2517,15 @@ err:
   };
 }
 
-S2C_play_time_update_packet
-unpack_S2C_play_time_update_packet(cmc_buffer *buff) {
+S2C_play_time_update_packet unpack_S2C_play_time_update_packet(cmc_buff *buff) {
   S2C_play_time_update_packet packet = {
       .world_age = 0,
       .time_of_day = 0,
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.world_age = cmc_buffer_unpack_long(buff);
-    packet.time_of_day = cmc_buffer_unpack_long(buff);
+    packet.world_age = cmc_buff_unpack_long(buff);
+    packet.time_of_day = cmc_buff_unpack_long(buff);
     break;
   }
   default:
@@ -2459,17 +2544,17 @@ err:
 }
 
 S2C_play_entity_equipment_packet
-unpack_S2C_play_entity_equipment_packet(cmc_buffer *buff) {
+unpack_S2C_play_entity_equipment_packet(cmc_buff *buff) {
   S2C_play_entity_equipment_packet packet = {
-      .slot = 0,
       .item = NULL,
+      .slot = 0,
       .entity_id = 0,
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.entity_id = cmc_buffer_unpack_varint(buff);
-    packet.slot = cmc_buffer_unpack_short(buff);
-    packet.item = cmc_buffer_unpack_slot(buff);
+    packet.entity_id = cmc_buff_unpack_varint(buff);
+    packet.slot = cmc_buff_unpack_short(buff);
+    packet.item = cmc_buff_unpack_slot(buff);
     break;
   }
   default:
@@ -2482,20 +2567,20 @@ unpack_S2C_play_entity_equipment_packet(cmc_buffer *buff) {
 err:
   cmc_free_S2C_play_entity_equipment_packet(&packet);
   return (S2C_play_entity_equipment_packet){
-      .slot = 0,
       .item = NULL,
+      .slot = 0,
       .entity_id = 0,
   };
 }
 
 S2C_play_spawn_position_packet
-unpack_S2C_play_spawn_position_packet(cmc_buffer *buff) {
+unpack_S2C_play_spawn_position_packet(cmc_buff *buff) {
   S2C_play_spawn_position_packet packet = {
       .location = {.x = 0, .y = 0, .z = 0},
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.location = cmc_buffer_unpack_position(buff);
+    packet.location = cmc_buff_unpack_position(buff);
     break;
   }
   default:
@@ -2513,17 +2598,17 @@ err:
 }
 
 S2C_play_update_health_packet
-unpack_S2C_play_update_health_packet(cmc_buffer *buff) {
+unpack_S2C_play_update_health_packet(cmc_buff *buff) {
   S2C_play_update_health_packet packet = {
-      .food_saturation = 0,
       .food = 0,
+      .food_saturation = 0,
       .health = 0,
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.health = cmc_buffer_unpack_float(buff);
-    packet.food = cmc_buffer_unpack_varint(buff);
-    packet.food_saturation = cmc_buffer_unpack_float(buff);
+    packet.health = cmc_buff_unpack_float(buff);
+    packet.food = cmc_buff_unpack_varint(buff);
+    packet.food_saturation = cmc_buff_unpack_float(buff);
     break;
   }
   default:
@@ -2536,13 +2621,13 @@ unpack_S2C_play_update_health_packet(cmc_buffer *buff) {
 err:
   cmc_free_S2C_play_update_health_packet(&packet);
   return (S2C_play_update_health_packet){
-      .food_saturation = 0,
       .food = 0,
+      .food_saturation = 0,
       .health = 0,
   };
 }
 
-S2C_play_respawn_packet unpack_S2C_play_respawn_packet(cmc_buffer *buff) {
+S2C_play_respawn_packet unpack_S2C_play_respawn_packet(cmc_buff *buff) {
   S2C_play_respawn_packet packet = {
       .dimesion = 0,
       .difficulty = 0,
@@ -2551,10 +2636,10 @@ S2C_play_respawn_packet unpack_S2C_play_respawn_packet(cmc_buffer *buff) {
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.dimesion = cmc_buffer_unpack_int(buff);
-    packet.difficulty = cmc_buffer_unpack_byte(buff);
-    packet.gamemode = cmc_buffer_unpack_byte(buff);
-    packet.level_type = cmc_buffer_unpack_string(buff);
+    packet.dimesion = cmc_buff_unpack_int(buff);
+    packet.difficulty = cmc_buff_unpack_byte(buff);
+    packet.gamemode = cmc_buff_unpack_byte(buff);
+    packet.level_type = cmc_buff_unpack_string(buff);
     break;
   }
   default:
@@ -2575,23 +2660,23 @@ err:
 }
 
 S2C_play_player_look_and_position_packet
-unpack_S2C_play_player_look_and_position_packet(cmc_buffer *buff) {
+unpack_S2C_play_player_look_and_position_packet(cmc_buff *buff) {
   S2C_play_player_look_and_position_packet packet = {
-      .flags = 0,
-      .z = 0,
       .yaw = 0,
       .pitch = 0,
       .y = 0,
+      .flags = 0,
       .x = 0,
+      .z = 0,
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.x = cmc_buffer_unpack_double(buff);
-    packet.y = cmc_buffer_unpack_double(buff);
-    packet.z = cmc_buffer_unpack_double(buff);
-    packet.yaw = cmc_buffer_unpack_float(buff);
-    packet.pitch = cmc_buffer_unpack_float(buff);
-    packet.flags = cmc_buffer_unpack_byte(buff);
+    packet.x = cmc_buff_unpack_double(buff);
+    packet.y = cmc_buff_unpack_double(buff);
+    packet.z = cmc_buff_unpack_double(buff);
+    packet.yaw = cmc_buff_unpack_float(buff);
+    packet.pitch = cmc_buff_unpack_float(buff);
+    packet.flags = cmc_buff_unpack_byte(buff);
     break;
   }
   default:
@@ -2604,23 +2689,23 @@ unpack_S2C_play_player_look_and_position_packet(cmc_buffer *buff) {
 err:
   cmc_free_S2C_play_player_look_and_position_packet(&packet);
   return (S2C_play_player_look_and_position_packet){
-      .flags = 0,
-      .z = 0,
       .yaw = 0,
       .pitch = 0,
       .y = 0,
+      .flags = 0,
       .x = 0,
+      .z = 0,
   };
 }
 
 S2C_play_held_item_change_packet
-unpack_S2C_play_held_item_change_packet(cmc_buffer *buff) {
+unpack_S2C_play_held_item_change_packet(cmc_buff *buff) {
   S2C_play_held_item_change_packet packet = {
       .slot = 0,
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.slot = cmc_buffer_unpack_char(buff);
+    packet.slot = cmc_buff_unpack_char(buff);
     break;
   }
   default:
@@ -2637,15 +2722,15 @@ err:
   };
 }
 
-S2C_play_use_bed_packet unpack_S2C_play_use_bed_packet(cmc_buffer *buff) {
+S2C_play_use_bed_packet unpack_S2C_play_use_bed_packet(cmc_buff *buff) {
   S2C_play_use_bed_packet packet = {
       .location = {.x = 0, .y = 0, .z = 0},
       .entity_id = 0,
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.entity_id = cmc_buffer_unpack_varint(buff);
-    packet.location = cmc_buffer_unpack_position(buff);
+    packet.entity_id = cmc_buff_unpack_varint(buff);
+    packet.location = cmc_buff_unpack_position(buff);
     break;
   }
   default:
@@ -2663,15 +2748,15 @@ err:
   };
 }
 
-S2C_play_animation_packet unpack_S2C_play_animation_packet(cmc_buffer *buff) {
+S2C_play_animation_packet unpack_S2C_play_animation_packet(cmc_buff *buff) {
   S2C_play_animation_packet packet = {
       .animation = 0,
       .entity_id = 0,
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.entity_id = cmc_buffer_unpack_varint(buff);
-    packet.animation = cmc_buffer_unpack_byte(buff);
+    packet.entity_id = cmc_buff_unpack_varint(buff);
+    packet.animation = cmc_buff_unpack_byte(buff);
     break;
   }
   default:
@@ -2690,29 +2775,29 @@ err:
 }
 
 S2C_play_spawn_player_packet
-unpack_S2C_play_spawn_player_packet(cmc_buffer *buff) {
+unpack_S2C_play_spawn_player_packet(cmc_buff *buff) {
   S2C_play_spawn_player_packet packet = {
       .meta_data = {.size = 0, .entries = NULL},
-      .z = 0,
-      .current_item = 0,
-      .yaw = 0,
-      .x = 0,
-      .uuid = {.lower = 0, .upper = 0},
-      .y = 0,
       .pitch = 0,
+      .y = 0,
+      .z = 0,
+      .uuid = {.lower = 0, .upper = 0},
       .entity_id = 0,
+      .yaw = 0,
+      .current_item = 0,
+      .x = 0,
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.entity_id = cmc_buffer_unpack_varint(buff);
-    packet.uuid = cmc_buffer_unpack_uuid(buff);
-    packet.x = cmc_buffer_unpack_int(buff);
-    packet.y = cmc_buffer_unpack_int(buff);
-    packet.z = cmc_buffer_unpack_int(buff);
-    packet.yaw = cmc_buffer_unpack_byte(buff);
-    packet.pitch = cmc_buffer_unpack_byte(buff);
-    packet.current_item = cmc_buffer_unpack_short(buff);
-    packet.meta_data = cmc_buffer_unpack_entity_metadata(buff);
+    packet.entity_id = cmc_buff_unpack_varint(buff);
+    packet.uuid = cmc_buff_unpack_uuid(buff);
+    packet.x = cmc_buff_unpack_int(buff);
+    packet.y = cmc_buff_unpack_int(buff);
+    packet.z = cmc_buff_unpack_int(buff);
+    packet.yaw = cmc_buff_unpack_byte(buff);
+    packet.pitch = cmc_buff_unpack_byte(buff);
+    packet.current_item = cmc_buff_unpack_short(buff);
+    packet.meta_data = cmc_buff_unpack_entity_metadata(buff);
     break;
   }
   default:
@@ -2726,27 +2811,27 @@ err:
   cmc_free_S2C_play_spawn_player_packet(&packet);
   return (S2C_play_spawn_player_packet){
       .meta_data = {.size = 0, .entries = NULL},
-      .z = 0,
-      .current_item = 0,
-      .yaw = 0,
-      .x = 0,
-      .uuid = {.lower = 0, .upper = 0},
-      .y = 0,
       .pitch = 0,
+      .y = 0,
+      .z = 0,
+      .uuid = {.lower = 0, .upper = 0},
       .entity_id = 0,
+      .yaw = 0,
+      .current_item = 0,
+      .x = 0,
   };
 }
 
 S2C_play_collect_item_packet
-unpack_S2C_play_collect_item_packet(cmc_buffer *buff) {
+unpack_S2C_play_collect_item_packet(cmc_buff *buff) {
   S2C_play_collect_item_packet packet = {
-      .collector_entity_id = 0,
       .collected_entity_id = 0,
+      .collector_entity_id = 0,
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.collected_entity_id = cmc_buffer_unpack_varint(buff);
-    packet.collector_entity_id = cmc_buffer_unpack_varint(buff);
+    packet.collected_entity_id = cmc_buff_unpack_varint(buff);
+    packet.collector_entity_id = cmc_buff_unpack_varint(buff);
     break;
   }
   default:
@@ -2759,40 +2844,40 @@ unpack_S2C_play_collect_item_packet(cmc_buffer *buff) {
 err:
   cmc_free_S2C_play_collect_item_packet(&packet);
   return (S2C_play_collect_item_packet){
-      .collector_entity_id = 0,
       .collected_entity_id = 0,
+      .collector_entity_id = 0,
   };
 }
 
-S2C_play_spawn_mob_packet unpack_S2C_play_spawn_mob_packet(cmc_buffer *buff) {
+S2C_play_spawn_mob_packet unpack_S2C_play_spawn_mob_packet(cmc_buff *buff) {
   S2C_play_spawn_mob_packet packet = {
       .meta_data = {.size = 0, .entries = NULL},
-      .x_vel = 0,
-      .z = 0,
+      .pitch = 0,
       .z_vel = 0,
-      .yaw = 0,
-      .x = 0,
       .y = 0,
       .y_vel = 0,
-      .head_pitch = 0,
+      .z = 0,
       .type = 0,
-      .pitch = 0,
       .entity_id = 0,
+      .yaw = 0,
+      .x_vel = 0,
+      .head_pitch = 0,
+      .x = 0,
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.entity_id = cmc_buffer_unpack_varint(buff);
-    packet.type = cmc_buffer_unpack_byte(buff);
-    packet.x = cmc_buffer_unpack_int(buff);
-    packet.y = cmc_buffer_unpack_int(buff);
-    packet.z = cmc_buffer_unpack_int(buff);
-    packet.yaw = cmc_buffer_unpack_byte(buff);
-    packet.pitch = cmc_buffer_unpack_byte(buff);
-    packet.head_pitch = cmc_buffer_unpack_byte(buff);
-    packet.x_vel = cmc_buffer_unpack_short(buff);
-    packet.y_vel = cmc_buffer_unpack_short(buff);
-    packet.z_vel = cmc_buffer_unpack_short(buff);
-    packet.meta_data = cmc_buffer_unpack_entity_metadata(buff);
+    packet.entity_id = cmc_buff_unpack_varint(buff);
+    packet.type = cmc_buff_unpack_byte(buff);
+    packet.x = cmc_buff_unpack_int(buff);
+    packet.y = cmc_buff_unpack_int(buff);
+    packet.z = cmc_buff_unpack_int(buff);
+    packet.yaw = cmc_buff_unpack_byte(buff);
+    packet.pitch = cmc_buff_unpack_byte(buff);
+    packet.head_pitch = cmc_buff_unpack_byte(buff);
+    packet.x_vel = cmc_buff_unpack_short(buff);
+    packet.y_vel = cmc_buff_unpack_short(buff);
+    packet.z_vel = cmc_buff_unpack_short(buff);
+    packet.meta_data = cmc_buff_unpack_entity_metadata(buff);
     break;
   }
   default:
@@ -2806,34 +2891,34 @@ err:
   cmc_free_S2C_play_spawn_mob_packet(&packet);
   return (S2C_play_spawn_mob_packet){
       .meta_data = {.size = 0, .entries = NULL},
-      .x_vel = 0,
-      .z = 0,
+      .pitch = 0,
       .z_vel = 0,
-      .yaw = 0,
-      .x = 0,
       .y = 0,
       .y_vel = 0,
-      .head_pitch = 0,
+      .z = 0,
       .type = 0,
-      .pitch = 0,
       .entity_id = 0,
+      .yaw = 0,
+      .x_vel = 0,
+      .head_pitch = 0,
+      .x = 0,
   };
 }
 
 S2C_play_spawn_painting_packet
-unpack_S2C_play_spawn_painting_packet(cmc_buffer *buff) {
+unpack_S2C_play_spawn_painting_packet(cmc_buff *buff) {
   S2C_play_spawn_painting_packet packet = {
-      .direction = 0,
-      .title = NULL,
       .location = {.x = 0, .y = 0, .z = 0},
+      .title = NULL,
       .entity_id = 0,
+      .direction = 0,
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.entity_id = cmc_buffer_unpack_varint(buff);
-    packet.title = cmc_buffer_unpack_string(buff);
-    packet.location = cmc_buffer_unpack_position(buff);
-    packet.direction = cmc_buffer_unpack_byte(buff);
+    packet.entity_id = cmc_buff_unpack_varint(buff);
+    packet.title = cmc_buff_unpack_string(buff);
+    packet.location = cmc_buff_unpack_position(buff);
+    packet.direction = cmc_buff_unpack_byte(buff);
     break;
   }
   default:
@@ -2846,29 +2931,29 @@ unpack_S2C_play_spawn_painting_packet(cmc_buffer *buff) {
 err:
   cmc_free_S2C_play_spawn_painting_packet(&packet);
   return (S2C_play_spawn_painting_packet){
-      .direction = 0,
-      .title = NULL,
       .location = {.x = 0, .y = 0, .z = 0},
+      .title = NULL,
       .entity_id = 0,
+      .direction = 0,
   };
 }
 
 S2C_play_spawn_experience_orb_packet
-unpack_S2C_play_spawn_experience_orb_packet(cmc_buffer *buff) {
+unpack_S2C_play_spawn_experience_orb_packet(cmc_buff *buff) {
   S2C_play_spawn_experience_orb_packet packet = {
-      .z = 0,
-      .x = 0,
       .y = 0,
-      .count = 0,
+      .z = 0,
       .entity_id = 0,
+      .x = 0,
+      .count = 0,
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.entity_id = cmc_buffer_unpack_varint(buff);
-    packet.x = cmc_buffer_unpack_int(buff);
-    packet.y = cmc_buffer_unpack_int(buff);
-    packet.z = cmc_buffer_unpack_int(buff);
-    packet.count = cmc_buffer_unpack_short(buff);
+    packet.entity_id = cmc_buff_unpack_varint(buff);
+    packet.x = cmc_buff_unpack_int(buff);
+    packet.y = cmc_buff_unpack_int(buff);
+    packet.z = cmc_buff_unpack_int(buff);
+    packet.count = cmc_buff_unpack_short(buff);
     break;
   }
   default:
@@ -2881,28 +2966,28 @@ unpack_S2C_play_spawn_experience_orb_packet(cmc_buffer *buff) {
 err:
   cmc_free_S2C_play_spawn_experience_orb_packet(&packet);
   return (S2C_play_spawn_experience_orb_packet){
-      .z = 0,
-      .x = 0,
       .y = 0,
-      .count = 0,
+      .z = 0,
       .entity_id = 0,
+      .x = 0,
+      .count = 0,
   };
 }
 
 S2C_play_entity_velocity_packet
-unpack_S2C_play_entity_velocity_packet(cmc_buffer *buff) {
+unpack_S2C_play_entity_velocity_packet(cmc_buff *buff) {
   S2C_play_entity_velocity_packet packet = {
-      .x_vel = 0,
-      .y_vel = 0,
       .z_vel = 0,
       .entity_id = 0,
+      .y_vel = 0,
+      .x_vel = 0,
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.entity_id = cmc_buffer_unpack_varint(buff);
-    packet.x_vel = cmc_buffer_unpack_short(buff);
-    packet.y_vel = cmc_buffer_unpack_short(buff);
-    packet.z_vel = cmc_buffer_unpack_short(buff);
+    packet.entity_id = cmc_buff_unpack_varint(buff);
+    packet.x_vel = cmc_buff_unpack_short(buff);
+    packet.y_vel = cmc_buff_unpack_short(buff);
+    packet.z_vel = cmc_buff_unpack_short(buff);
     break;
   }
   default:
@@ -2915,20 +3000,20 @@ unpack_S2C_play_entity_velocity_packet(cmc_buffer *buff) {
 err:
   cmc_free_S2C_play_entity_velocity_packet(&packet);
   return (S2C_play_entity_velocity_packet){
-      .x_vel = 0,
-      .y_vel = 0,
       .z_vel = 0,
       .entity_id = 0,
+      .y_vel = 0,
+      .x_vel = 0,
   };
 }
 
-S2C_play_entity_packet unpack_S2C_play_entity_packet(cmc_buffer *buff) {
+S2C_play_entity_packet unpack_S2C_play_entity_packet(cmc_buff *buff) {
   S2C_play_entity_packet packet = {
       .entity_id = 0,
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.entity_id = cmc_buffer_unpack_varint(buff);
+    packet.entity_id = cmc_buff_unpack_varint(buff);
     break;
   }
   default:
@@ -2946,21 +3031,21 @@ err:
 }
 
 S2C_play_entity_relative_move_packet
-unpack_S2C_play_entity_relative_move_packet(cmc_buffer *buff) {
+unpack_S2C_play_entity_relative_move_packet(cmc_buff *buff) {
   S2C_play_entity_relative_move_packet packet = {
       .on_ground = false,
-      .delta_x = 0,
-      .delta_z = 0,
       .delta_y = 0,
+      .delta_z = 0,
       .entity_id = 0,
+      .delta_x = 0,
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.entity_id = cmc_buffer_unpack_varint(buff);
-    packet.delta_x = cmc_buffer_unpack_char(buff);
-    packet.delta_y = cmc_buffer_unpack_char(buff);
-    packet.delta_z = cmc_buffer_unpack_char(buff);
-    packet.on_ground = cmc_buffer_unpack_bool(buff);
+    packet.entity_id = cmc_buff_unpack_varint(buff);
+    packet.delta_x = cmc_buff_unpack_char(buff);
+    packet.delta_y = cmc_buff_unpack_char(buff);
+    packet.delta_z = cmc_buff_unpack_char(buff);
+    packet.on_ground = cmc_buff_unpack_bool(buff);
     break;
   }
   default:
@@ -2974,27 +3059,26 @@ err:
   cmc_free_S2C_play_entity_relative_move_packet(&packet);
   return (S2C_play_entity_relative_move_packet){
       .on_ground = false,
-      .delta_x = 0,
-      .delta_z = 0,
       .delta_y = 0,
+      .delta_z = 0,
       .entity_id = 0,
+      .delta_x = 0,
   };
 }
 
-S2C_play_entity_look_packet
-unpack_S2C_play_entity_look_packet(cmc_buffer *buff) {
+S2C_play_entity_look_packet unpack_S2C_play_entity_look_packet(cmc_buff *buff) {
   S2C_play_entity_look_packet packet = {
-      .yaw = 0,
-      .on_ground = false,
       .pitch = 0,
+      .on_ground = false,
       .entity_id = 0,
+      .yaw = 0,
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.entity_id = cmc_buffer_unpack_varint(buff);
-    packet.yaw = cmc_buffer_unpack_byte(buff);
-    packet.pitch = cmc_buffer_unpack_byte(buff);
-    packet.on_ground = cmc_buffer_unpack_bool(buff);
+    packet.entity_id = cmc_buff_unpack_varint(buff);
+    packet.yaw = cmc_buff_unpack_byte(buff);
+    packet.pitch = cmc_buff_unpack_byte(buff);
+    packet.on_ground = cmc_buff_unpack_bool(buff);
     break;
   }
   default:
@@ -3007,33 +3091,33 @@ unpack_S2C_play_entity_look_packet(cmc_buffer *buff) {
 err:
   cmc_free_S2C_play_entity_look_packet(&packet);
   return (S2C_play_entity_look_packet){
-      .yaw = 0,
-      .on_ground = false,
       .pitch = 0,
+      .on_ground = false,
       .entity_id = 0,
+      .yaw = 0,
   };
 }
 
 S2C_play_entity_look_and_relative_move_packet
-unpack_S2C_play_entity_look_and_relative_move_packet(cmc_buffer *buff) {
+unpack_S2C_play_entity_look_and_relative_move_packet(cmc_buff *buff) {
   S2C_play_entity_look_and_relative_move_packet packet = {
-      .on_ground = false,
-      .delta_x = 0,
-      .yaw = 0,
-      .delta_z = 0,
-      .delta_y = 0,
       .pitch = 0,
+      .on_ground = false,
+      .delta_y = 0,
+      .delta_z = 0,
       .entity_id = 0,
+      .yaw = 0,
+      .delta_x = 0,
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.entity_id = cmc_buffer_unpack_varint(buff);
-    packet.delta_x = cmc_buffer_unpack_char(buff);
-    packet.delta_y = cmc_buffer_unpack_char(buff);
-    packet.delta_z = cmc_buffer_unpack_char(buff);
-    packet.yaw = cmc_buffer_unpack_byte(buff);
-    packet.pitch = cmc_buffer_unpack_byte(buff);
-    packet.on_ground = cmc_buffer_unpack_bool(buff);
+    packet.entity_id = cmc_buff_unpack_varint(buff);
+    packet.delta_x = cmc_buff_unpack_char(buff);
+    packet.delta_y = cmc_buff_unpack_char(buff);
+    packet.delta_z = cmc_buff_unpack_char(buff);
+    packet.yaw = cmc_buff_unpack_byte(buff);
+    packet.pitch = cmc_buff_unpack_byte(buff);
+    packet.on_ground = cmc_buff_unpack_bool(buff);
     break;
   }
   default:
@@ -3046,36 +3130,36 @@ unpack_S2C_play_entity_look_and_relative_move_packet(cmc_buffer *buff) {
 err:
   cmc_free_S2C_play_entity_look_and_relative_move_packet(&packet);
   return (S2C_play_entity_look_and_relative_move_packet){
-      .on_ground = false,
-      .delta_x = 0,
-      .yaw = 0,
-      .delta_z = 0,
-      .delta_y = 0,
       .pitch = 0,
+      .on_ground = false,
+      .delta_y = 0,
+      .delta_z = 0,
       .entity_id = 0,
+      .yaw = 0,
+      .delta_x = 0,
   };
 }
 
 S2C_play_entity_teleport_packet
-unpack_S2C_play_entity_teleport_packet(cmc_buffer *buff) {
+unpack_S2C_play_entity_teleport_packet(cmc_buff *buff) {
   S2C_play_entity_teleport_packet packet = {
-      .z = 0,
+      .pitch = 0,
+      .y = 0,
       .on_ground = false,
+      .z = 0,
+      .entity_id = 0,
       .yaw = 0,
       .x = 0,
-      .y = 0,
-      .pitch = 0,
-      .entity_id = 0,
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.entity_id = cmc_buffer_unpack_varint(buff);
-    packet.x = cmc_buffer_unpack_int(buff);
-    packet.y = cmc_buffer_unpack_int(buff);
-    packet.z = cmc_buffer_unpack_int(buff);
-    packet.yaw = cmc_buffer_unpack_byte(buff);
-    packet.pitch = cmc_buffer_unpack_byte(buff);
-    packet.on_ground = cmc_buffer_unpack_bool(buff);
+    packet.entity_id = cmc_buff_unpack_varint(buff);
+    packet.x = cmc_buff_unpack_int(buff);
+    packet.y = cmc_buff_unpack_int(buff);
+    packet.z = cmc_buff_unpack_int(buff);
+    packet.yaw = cmc_buff_unpack_byte(buff);
+    packet.pitch = cmc_buff_unpack_byte(buff);
+    packet.on_ground = cmc_buff_unpack_bool(buff);
     break;
   }
   default:
@@ -3088,26 +3172,26 @@ unpack_S2C_play_entity_teleport_packet(cmc_buffer *buff) {
 err:
   cmc_free_S2C_play_entity_teleport_packet(&packet);
   return (S2C_play_entity_teleport_packet){
-      .z = 0,
+      .pitch = 0,
+      .y = 0,
       .on_ground = false,
+      .z = 0,
+      .entity_id = 0,
       .yaw = 0,
       .x = 0,
-      .y = 0,
-      .pitch = 0,
-      .entity_id = 0,
   };
 }
 
 S2C_play_entity_head_look_packet
-unpack_S2C_play_entity_head_look_packet(cmc_buffer *buff) {
+unpack_S2C_play_entity_head_look_packet(cmc_buff *buff) {
   S2C_play_entity_head_look_packet packet = {
       .head_yaw = 0,
       .entity_id = 0,
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.entity_id = cmc_buffer_unpack_varint(buff);
-    packet.head_yaw = cmc_buffer_unpack_byte(buff);
+    packet.entity_id = cmc_buff_unpack_varint(buff);
+    packet.head_yaw = cmc_buff_unpack_byte(buff);
     break;
   }
   default:
@@ -3126,15 +3210,15 @@ err:
 }
 
 S2C_play_entity_status_packet
-unpack_S2C_play_entity_status_packet(cmc_buffer *buff) {
+unpack_S2C_play_entity_status_packet(cmc_buff *buff) {
   S2C_play_entity_status_packet packet = {
-      .entity_id = 0,
       .entity_status = 0,
+      .entity_id = 0,
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.entity_id = cmc_buffer_unpack_int(buff);
-    packet.entity_status = cmc_buffer_unpack_char(buff);
+    packet.entity_id = cmc_buff_unpack_int(buff);
+    packet.entity_status = cmc_buff_unpack_char(buff);
     break;
   }
   default:
@@ -3147,23 +3231,23 @@ unpack_S2C_play_entity_status_packet(cmc_buffer *buff) {
 err:
   cmc_free_S2C_play_entity_status_packet(&packet);
   return (S2C_play_entity_status_packet){
-      .entity_id = 0,
       .entity_status = 0,
+      .entity_id = 0,
   };
 }
 
 S2C_play_attach_entity_packet
-unpack_S2C_play_attach_entity_packet(cmc_buffer *buff) {
+unpack_S2C_play_attach_entity_packet(cmc_buff *buff) {
   S2C_play_attach_entity_packet packet = {
-      .entity_id = 0,
       .vehicle_id = 0,
       .leash = false,
+      .entity_id = 0,
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.entity_id = cmc_buffer_unpack_int(buff);
-    packet.vehicle_id = cmc_buffer_unpack_int(buff);
-    packet.leash = cmc_buffer_unpack_bool(buff);
+    packet.entity_id = cmc_buff_unpack_int(buff);
+    packet.vehicle_id = cmc_buff_unpack_int(buff);
+    packet.leash = cmc_buff_unpack_bool(buff);
     break;
   }
   default:
@@ -3176,22 +3260,22 @@ unpack_S2C_play_attach_entity_packet(cmc_buffer *buff) {
 err:
   cmc_free_S2C_play_attach_entity_packet(&packet);
   return (S2C_play_attach_entity_packet){
-      .entity_id = 0,
       .vehicle_id = 0,
       .leash = false,
+      .entity_id = 0,
   };
 }
 
 S2C_play_entity_metadata_packet
-unpack_S2C_play_entity_metadata_packet(cmc_buffer *buff) {
+unpack_S2C_play_entity_metadata_packet(cmc_buff *buff) {
   S2C_play_entity_metadata_packet packet = {
       .meta_data = {.size = 0, .entries = NULL},
       .entity_id = 0,
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.entity_id = cmc_buffer_unpack_varint(buff);
-    packet.meta_data = cmc_buffer_unpack_entity_metadata(buff);
+    packet.entity_id = cmc_buff_unpack_varint(buff);
+    packet.meta_data = cmc_buff_unpack_entity_metadata(buff);
     break;
   }
   default:
@@ -3210,21 +3294,21 @@ err:
 }
 
 S2C_play_entity_effect_packet
-unpack_S2C_play_entity_effect_packet(cmc_buffer *buff) {
+unpack_S2C_play_entity_effect_packet(cmc_buff *buff) {
   S2C_play_entity_effect_packet packet = {
+      .duration = 0,
       .effect_id = 0,
+      .entity_id = 0,
       .hide_particles = false,
       .amplifier = 0,
-      .duration = 0,
-      .entity_id = 0,
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.entity_id = cmc_buffer_unpack_varint(buff);
-    packet.effect_id = cmc_buffer_unpack_char(buff);
-    packet.amplifier = cmc_buffer_unpack_char(buff);
-    packet.duration = cmc_buffer_unpack_varint(buff);
-    packet.hide_particles = cmc_buffer_unpack_bool(buff);
+    packet.entity_id = cmc_buff_unpack_varint(buff);
+    packet.effect_id = cmc_buff_unpack_char(buff);
+    packet.amplifier = cmc_buff_unpack_char(buff);
+    packet.duration = cmc_buff_unpack_varint(buff);
+    packet.hide_particles = cmc_buff_unpack_bool(buff);
     break;
   }
   default:
@@ -3237,24 +3321,24 @@ unpack_S2C_play_entity_effect_packet(cmc_buffer *buff) {
 err:
   cmc_free_S2C_play_entity_effect_packet(&packet);
   return (S2C_play_entity_effect_packet){
+      .duration = 0,
       .effect_id = 0,
+      .entity_id = 0,
       .hide_particles = false,
       .amplifier = 0,
-      .duration = 0,
-      .entity_id = 0,
   };
 }
 
 S2C_play_remove_entity_effect_packet
-unpack_S2C_play_remove_entity_effect_packet(cmc_buffer *buff) {
+unpack_S2C_play_remove_entity_effect_packet(cmc_buff *buff) {
   S2C_play_remove_entity_effect_packet packet = {
       .effect_id = 0,
       .entity_id = 0,
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.entity_id = cmc_buffer_unpack_varint(buff);
-    packet.effect_id = cmc_buffer_unpack_char(buff);
+    packet.entity_id = cmc_buff_unpack_varint(buff);
+    packet.effect_id = cmc_buff_unpack_char(buff);
     break;
   }
   default:
@@ -3273,17 +3357,17 @@ err:
 }
 
 S2C_play_set_experience_packet
-unpack_S2C_play_set_experience_packet(cmc_buffer *buff) {
+unpack_S2C_play_set_experience_packet(cmc_buff *buff) {
   S2C_play_set_experience_packet packet = {
+      .level = 0,
       .experience_bar = 0,
       .total_experience = 0,
-      .level = 0,
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.experience_bar = cmc_buffer_unpack_float(buff);
-    packet.level = cmc_buffer_unpack_varint(buff);
-    packet.total_experience = cmc_buffer_unpack_varint(buff);
+    packet.experience_bar = cmc_buff_unpack_float(buff);
+    packet.level = cmc_buff_unpack_varint(buff);
+    packet.total_experience = cmc_buff_unpack_varint(buff);
     break;
   }
   default:
@@ -3296,23 +3380,23 @@ unpack_S2C_play_set_experience_packet(cmc_buffer *buff) {
 err:
   cmc_free_S2C_play_set_experience_packet(&packet);
   return (S2C_play_set_experience_packet){
+      .level = 0,
       .experience_bar = 0,
       .total_experience = 0,
-      .level = 0,
   };
 }
 
 S2C_play_entity_properties_packet
-unpack_S2C_play_entity_properties_packet(cmc_buffer *buff) {
+unpack_S2C_play_entity_properties_packet(cmc_buff *buff) {
   S2C_play_entity_properties_packet packet = {
-      .properties_count = 0,
       .properties = {.data = NULL, .len = 0},
+      .properties_count = 0,
       .entity_id = 0,
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.entity_id = cmc_buffer_unpack_varint(buff);
-    packet.properties_count = cmc_buffer_unpack_int(buff);
+    packet.entity_id = cmc_buff_unpack_varint(buff);
+    packet.properties_count = cmc_buff_unpack_int(buff);
     packet.properties.len = packet.properties_count;
     packet.properties.data = MALLOC(
         packet.properties.len * sizeof(S2C_play_entity_properties_properties));
@@ -3320,9 +3404,9 @@ unpack_S2C_play_entity_properties_packet(cmc_buffer *buff) {
       S2C_play_entity_properties_properties *p_properties =
           i * sizeof(*p_properties) +
           (S2C_play_entity_properties_properties *)packet.properties.data;
-      p_properties->key = cmc_buffer_unpack_string(buff);
-      p_properties->value = cmc_buffer_unpack_double(buff);
-      p_properties->num_of_modifiers = cmc_buffer_unpack_varint(buff);
+      p_properties->key = cmc_buff_unpack_string(buff);
+      p_properties->value = cmc_buff_unpack_double(buff);
+      p_properties->num_of_modifiers = cmc_buff_unpack_varint(buff);
       p_properties->modifiers.len = p_properties->num_of_modifiers;
       p_properties->modifiers.data =
           MALLOC(p_properties->modifiers.len *
@@ -3331,8 +3415,8 @@ unpack_S2C_play_entity_properties_packet(cmc_buffer *buff) {
         S2C_play_entity_properties_modifiers *p_modifiers =
             j * sizeof(*p_modifiers) + (S2C_play_entity_properties_modifiers *)
                                            p_properties->modifiers.data;
-        p_modifiers->amount = cmc_buffer_unpack_double(buff);
-        p_modifiers->operation = cmc_buffer_unpack_char(buff);
+        p_modifiers->amount = cmc_buff_unpack_double(buff);
+        p_modifiers->operation = cmc_buff_unpack_char(buff);
       }
     }
     break;
@@ -3347,27 +3431,27 @@ unpack_S2C_play_entity_properties_packet(cmc_buffer *buff) {
 err:
   cmc_free_S2C_play_entity_properties_packet(&packet);
   return (S2C_play_entity_properties_packet){
-      .properties_count = 0,
       .properties = {.data = NULL, .len = 0},
+      .properties_count = 0,
       .entity_id = 0,
   };
 }
 
-S2C_play_chunk_data_packet unpack_S2C_play_chunk_data_packet(cmc_buffer *buff) {
+S2C_play_chunk_data_packet unpack_S2C_play_chunk_data_packet(cmc_buff *buff) {
   S2C_play_chunk_data_packet packet = {
-      .chunk_z = 0,
-      .primary_bitmask = 0,
-      .chunk = NULL,
-      .chunk_x = 0,
       .ground_up_continuous = false,
+      .primary_bitmask = 0,
+      .chunk_z = 0,
+      .chunk_x = 0,
+      .chunk = NULL,
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.chunk_x = cmc_buffer_unpack_int(buff);
-    packet.chunk_z = cmc_buffer_unpack_int(buff);
-    packet.ground_up_continuous = cmc_buffer_unpack_bool(buff);
-    packet.primary_bitmask = cmc_buffer_unpack_ushort(buff);
-    packet.chunk = cmc_buffer_unpack_byte_array(buff);
+    packet.chunk_x = cmc_buff_unpack_int(buff);
+    packet.chunk_z = cmc_buff_unpack_int(buff);
+    packet.ground_up_continuous = cmc_buff_unpack_bool(buff);
+    packet.primary_bitmask = cmc_buff_unpack_ushort(buff);
+    packet.chunk = cmc_buff_unpack_buff(buff);
     break;
   }
   default:
@@ -3380,27 +3464,27 @@ S2C_play_chunk_data_packet unpack_S2C_play_chunk_data_packet(cmc_buffer *buff) {
 err:
   cmc_free_S2C_play_chunk_data_packet(&packet);
   return (S2C_play_chunk_data_packet){
-      .chunk_z = 0,
-      .primary_bitmask = 0,
-      .chunk = NULL,
-      .chunk_x = 0,
       .ground_up_continuous = false,
+      .primary_bitmask = 0,
+      .chunk_z = 0,
+      .chunk_x = 0,
+      .chunk = NULL,
   };
 }
 
 S2C_play_multi_block_change_packet
-unpack_S2C_play_multi_block_change_packet(cmc_buffer *buff) {
+unpack_S2C_play_multi_block_change_packet(cmc_buff *buff) {
   S2C_play_multi_block_change_packet packet = {
       .record_count = 0,
-      .chunk_x = 0,
-      .records = {.data = NULL, .len = 0},
       .chunk_z = 0,
+      .records = {.data = NULL, .len = 0},
+      .chunk_x = 0,
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.chunk_x = cmc_buffer_unpack_int(buff);
-    packet.chunk_z = cmc_buffer_unpack_int(buff);
-    packet.record_count = cmc_buffer_unpack_varint(buff);
+    packet.chunk_x = cmc_buff_unpack_int(buff);
+    packet.chunk_z = cmc_buff_unpack_int(buff);
+    packet.record_count = cmc_buff_unpack_varint(buff);
     packet.records.len = packet.record_count;
     packet.records.data = MALLOC(packet.records.len *
                                  sizeof(S2C_play_multi_block_change_records));
@@ -3408,9 +3492,9 @@ unpack_S2C_play_multi_block_change_packet(cmc_buffer *buff) {
       S2C_play_multi_block_change_records *p_records =
           i * sizeof(*p_records) +
           (S2C_play_multi_block_change_records *)packet.records.data;
-      p_records->horizontal_position = cmc_buffer_unpack_byte(buff);
-      p_records->vertical_position = cmc_buffer_unpack_byte(buff);
-      p_records->block_id = cmc_buffer_unpack_varint(buff);
+      p_records->horizontal_position = cmc_buff_unpack_byte(buff);
+      p_records->vertical_position = cmc_buff_unpack_byte(buff);
+      p_records->block_id = cmc_buff_unpack_varint(buff);
     }
     break;
   }
@@ -3425,22 +3509,22 @@ err:
   cmc_free_S2C_play_multi_block_change_packet(&packet);
   return (S2C_play_multi_block_change_packet){
       .record_count = 0,
-      .chunk_x = 0,
-      .records = {.data = NULL, .len = 0},
       .chunk_z = 0,
+      .records = {.data = NULL, .len = 0},
+      .chunk_x = 0,
   };
 }
 
 S2C_play_block_change_packet
-unpack_S2C_play_block_change_packet(cmc_buffer *buff) {
+unpack_S2C_play_block_change_packet(cmc_buff *buff) {
   S2C_play_block_change_packet packet = {
       .location = {.x = 0, .y = 0, .z = 0},
       .block_id = 0,
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.location = cmc_buffer_unpack_position(buff);
-    packet.block_id = cmc_buffer_unpack_varint(buff);
+    packet.location = cmc_buff_unpack_position(buff);
+    packet.block_id = cmc_buff_unpack_varint(buff);
     break;
   }
   default:
@@ -3459,19 +3543,19 @@ err:
 }
 
 S2C_play_block_action_packet
-unpack_S2C_play_block_action_packet(cmc_buffer *buff) {
+unpack_S2C_play_block_action_packet(cmc_buff *buff) {
   S2C_play_block_action_packet packet = {
       .block_type = 0,
-      .block_data_1 = 0,
-      .location = {.x = 0, .y = 0, .z = 0},
       .block_data_2 = 0,
+      .location = {.x = 0, .y = 0, .z = 0},
+      .block_data_1 = 0,
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.location = cmc_buffer_unpack_position(buff);
-    packet.block_data_1 = cmc_buffer_unpack_byte(buff);
-    packet.block_data_2 = cmc_buffer_unpack_byte(buff);
-    packet.block_type = cmc_buffer_unpack_varint(buff);
+    packet.location = cmc_buff_unpack_position(buff);
+    packet.block_data_1 = cmc_buff_unpack_byte(buff);
+    packet.block_data_2 = cmc_buff_unpack_byte(buff);
+    packet.block_type = cmc_buff_unpack_varint(buff);
     break;
   }
   default:
@@ -3485,24 +3569,24 @@ err:
   cmc_free_S2C_play_block_action_packet(&packet);
   return (S2C_play_block_action_packet){
       .block_type = 0,
-      .block_data_1 = 0,
-      .location = {.x = 0, .y = 0, .z = 0},
       .block_data_2 = 0,
+      .location = {.x = 0, .y = 0, .z = 0},
+      .block_data_1 = 0,
   };
 }
 
 S2C_play_block_break_animation_packet
-unpack_S2C_play_block_break_animation_packet(cmc_buffer *buff) {
+unpack_S2C_play_block_break_animation_packet(cmc_buff *buff) {
   S2C_play_block_break_animation_packet packet = {
-      .destroy_stage = 0,
       .location = {.x = 0, .y = 0, .z = 0},
+      .destroy_stage = 0,
       .entity_id = 0,
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.entity_id = cmc_buffer_unpack_varint(buff);
-    packet.location = cmc_buffer_unpack_position(buff);
-    packet.destroy_stage = cmc_buffer_unpack_char(buff);
+    packet.entity_id = cmc_buff_unpack_varint(buff);
+    packet.location = cmc_buff_unpack_position(buff);
+    packet.destroy_stage = cmc_buff_unpack_char(buff);
     break;
   }
   default:
@@ -3515,24 +3599,24 @@ unpack_S2C_play_block_break_animation_packet(cmc_buffer *buff) {
 err:
   cmc_free_S2C_play_block_break_animation_packet(&packet);
   return (S2C_play_block_break_animation_packet){
-      .destroy_stage = 0,
       .location = {.x = 0, .y = 0, .z = 0},
+      .destroy_stage = 0,
       .entity_id = 0,
   };
 }
 
 S2C_play_map_chunk_bulk_packet
-unpack_S2C_play_map_chunk_bulk_packet(cmc_buffer *buff) {
+unpack_S2C_play_map_chunk_bulk_packet(cmc_buff *buff) {
   S2C_play_map_chunk_bulk_packet packet = {
+      .chunk_column_count = 0,
       .sky_light_sent = false,
       .chunk_columns = {.data = NULL, .len = 0},
-      .chunk_column_count = 0,
       .chunk = NULL,
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.sky_light_sent = cmc_buffer_unpack_bool(buff);
-    packet.chunk_column_count = cmc_buffer_unpack_varint(buff);
+    packet.sky_light_sent = cmc_buff_unpack_bool(buff);
+    packet.chunk_column_count = cmc_buff_unpack_varint(buff);
     packet.chunk_columns.len = packet.chunk_column_count;
     packet.chunk_columns.data =
         MALLOC(packet.chunk_columns.len *
@@ -3541,11 +3625,11 @@ unpack_S2C_play_map_chunk_bulk_packet(cmc_buffer *buff) {
       S2C_play_map_chunk_bulk_chunk_columns *p_chunk_columns =
           i * sizeof(*p_chunk_columns) +
           (S2C_play_map_chunk_bulk_chunk_columns *)packet.chunk_columns.data;
-      p_chunk_columns->chunk_x = cmc_buffer_unpack_int(buff);
-      p_chunk_columns->chunk_z = cmc_buffer_unpack_int(buff);
-      p_chunk_columns->bit_mask = cmc_buffer_unpack_ushort(buff);
+      p_chunk_columns->chunk_x = cmc_buff_unpack_int(buff);
+      p_chunk_columns->chunk_z = cmc_buff_unpack_int(buff);
+      p_chunk_columns->bit_mask = cmc_buff_unpack_ushort(buff);
     }
-    packet.chunk = cmc_buffer_unpack_byte_array(buff);
+    packet.chunk = cmc_buff_unpack_buff(buff);
     break;
   }
   default:
@@ -3558,32 +3642,32 @@ unpack_S2C_play_map_chunk_bulk_packet(cmc_buffer *buff) {
 err:
   cmc_free_S2C_play_map_chunk_bulk_packet(&packet);
   return (S2C_play_map_chunk_bulk_packet){
+      .chunk_column_count = 0,
       .sky_light_sent = false,
       .chunk_columns = {.data = NULL, .len = 0},
-      .chunk_column_count = 0,
       .chunk = NULL,
   };
 }
 
-S2C_play_explosion_packet unpack_S2C_play_explosion_packet(cmc_buffer *buff) {
+S2C_play_explosion_packet unpack_S2C_play_explosion_packet(cmc_buff *buff) {
   S2C_play_explosion_packet packet = {
-      .records = {.data = NULL, .len = 0},
-      .y = 0,
-      .y_player_vel = 0,
-      .x_player_vel = 0,
-      .record_count = 0,
       .x = 0,
-      .z = 0,
+      .y_player_vel = 0,
+      .record_count = 0,
+      .records = {.data = NULL, .len = 0},
       .radius = 0,
+      .x_player_vel = 0,
       .z_player_vel = 0,
+      .y = 0,
+      .z = 0,
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.x = cmc_buffer_unpack_float(buff);
-    packet.y = cmc_buffer_unpack_float(buff);
-    packet.z = cmc_buffer_unpack_float(buff);
-    packet.radius = cmc_buffer_unpack_float(buff);
-    packet.record_count = cmc_buffer_unpack_int(buff);
+    packet.x = cmc_buff_unpack_float(buff);
+    packet.y = cmc_buff_unpack_float(buff);
+    packet.z = cmc_buff_unpack_float(buff);
+    packet.radius = cmc_buff_unpack_float(buff);
+    packet.record_count = cmc_buff_unpack_int(buff);
     packet.records.len = packet.record_count;
     packet.records.data =
         MALLOC(packet.records.len * sizeof(S2C_play_explosion_records));
@@ -3591,13 +3675,13 @@ S2C_play_explosion_packet unpack_S2C_play_explosion_packet(cmc_buffer *buff) {
       S2C_play_explosion_records *p_records =
           i * sizeof(*p_records) +
           (S2C_play_explosion_records *)packet.records.data;
-      p_records->x_offset = cmc_buffer_unpack_char(buff);
-      p_records->y_offset = cmc_buffer_unpack_char(buff);
-      p_records->z_offset = cmc_buffer_unpack_char(buff);
+      p_records->x_offset = cmc_buff_unpack_char(buff);
+      p_records->y_offset = cmc_buff_unpack_char(buff);
+      p_records->z_offset = cmc_buff_unpack_char(buff);
     }
-    packet.x_player_vel = cmc_buffer_unpack_float(buff);
-    packet.y_player_vel = cmc_buffer_unpack_float(buff);
-    packet.z_player_vel = cmc_buffer_unpack_float(buff);
+    packet.x_player_vel = cmc_buff_unpack_float(buff);
+    packet.y_player_vel = cmc_buff_unpack_float(buff);
+    packet.z_player_vel = cmc_buff_unpack_float(buff);
     break;
   }
   default:
@@ -3610,53 +3694,53 @@ S2C_play_explosion_packet unpack_S2C_play_explosion_packet(cmc_buffer *buff) {
 err:
   cmc_free_S2C_play_explosion_packet(&packet);
   return (S2C_play_explosion_packet){
-      .records = {.data = NULL, .len = 0},
-      .y = 0,
-      .y_player_vel = 0,
-      .x_player_vel = 0,
-      .record_count = 0,
       .x = 0,
-      .z = 0,
+      .y_player_vel = 0,
+      .record_count = 0,
+      .records = {.data = NULL, .len = 0},
       .radius = 0,
+      .x_player_vel = 0,
       .z_player_vel = 0,
+      .y = 0,
+      .z = 0,
   };
 }
 
-S2C_play_effect_packet unpack_S2C_play_effect_packet(cmc_buffer *buff) {
+S2C_play_effect_packet unpack_S2C_play_effect_packet(cmc_buff *buff) {
   S2C_play_effect_packet packet = {
-      .particle_data = 0,
       .y_offset = 0,
-      .y = 0,
-      .particle_id = 0,
-      .x_offset = 0,
-      .location = {.x = 0, .y = 0, .z = 0},
-      .sable_relative_volume = 0,
-      .particle_count = 0,
-      .effect_id = 0,
-      .d = false,
-      .z_offset = 0,
-      .z = 0,
       .x = 0,
       .long_distances = false,
+      .sable_relative_volume = 0,
+      .location = {.x = 0, .y = 0, .z = 0},
+      .z_offset = 0,
+      .effect_id = 0,
+      .d = false,
+      .particle_count = 0,
+      .x_offset = 0,
+      .particle_id = 0,
       .data = 0,
+      .y = 0,
+      .particle_data = 0,
+      .z = 0,
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.effect_id = cmc_buffer_unpack_int(buff);
-    packet.location = cmc_buffer_unpack_position(buff);
-    packet.data = cmc_buffer_unpack_int(buff);
-    packet.d = cmc_buffer_unpack_bool(buff);
-    packet.particle_id = cmc_buffer_unpack_int(buff);
-    packet.long_distances = cmc_buffer_unpack_bool(buff);
-    packet.x = cmc_buffer_unpack_float(buff);
-    packet.y = cmc_buffer_unpack_float(buff);
-    packet.z = cmc_buffer_unpack_float(buff);
-    packet.x_offset = cmc_buffer_unpack_float(buff);
-    packet.y_offset = cmc_buffer_unpack_float(buff);
-    packet.z_offset = cmc_buffer_unpack_float(buff);
-    packet.particle_data = cmc_buffer_unpack_float(buff);
-    packet.particle_count = cmc_buffer_unpack_int(buff);
-    packet.sable_relative_volume = cmc_buffer_unpack_int(buff);
+    packet.effect_id = cmc_buff_unpack_int(buff);
+    packet.location = cmc_buff_unpack_position(buff);
+    packet.data = cmc_buff_unpack_int(buff);
+    packet.d = cmc_buff_unpack_bool(buff);
+    packet.particle_id = cmc_buff_unpack_int(buff);
+    packet.long_distances = cmc_buff_unpack_bool(buff);
+    packet.x = cmc_buff_unpack_float(buff);
+    packet.y = cmc_buff_unpack_float(buff);
+    packet.z = cmc_buff_unpack_float(buff);
+    packet.x_offset = cmc_buff_unpack_float(buff);
+    packet.y_offset = cmc_buff_unpack_float(buff);
+    packet.z_offset = cmc_buff_unpack_float(buff);
+    packet.particle_data = cmc_buff_unpack_float(buff);
+    packet.particle_count = cmc_buff_unpack_int(buff);
+    packet.sable_relative_volume = cmc_buff_unpack_int(buff);
     break;
   }
   default:
@@ -3669,42 +3753,42 @@ S2C_play_effect_packet unpack_S2C_play_effect_packet(cmc_buffer *buff) {
 err:
   cmc_free_S2C_play_effect_packet(&packet);
   return (S2C_play_effect_packet){
-      .particle_data = 0,
       .y_offset = 0,
-      .y = 0,
-      .particle_id = 0,
-      .x_offset = 0,
-      .location = {.x = 0, .y = 0, .z = 0},
-      .sable_relative_volume = 0,
-      .particle_count = 0,
-      .effect_id = 0,
-      .d = false,
-      .z_offset = 0,
-      .z = 0,
       .x = 0,
       .long_distances = false,
+      .sable_relative_volume = 0,
+      .location = {.x = 0, .y = 0, .z = 0},
+      .z_offset = 0,
+      .effect_id = 0,
+      .d = false,
+      .particle_count = 0,
+      .x_offset = 0,
+      .particle_id = 0,
       .data = 0,
+      .y = 0,
+      .particle_data = 0,
+      .z = 0,
   };
 }
 
 S2C_play_sound_effect_packet
-unpack_S2C_play_sound_effect_packet(cmc_buffer *buff) {
+unpack_S2C_play_sound_effect_packet(cmc_buff *buff) {
   S2C_play_sound_effect_packet packet = {
-      .z = 0,
-      .volume = 0,
-      .x = 0,
-      .y = 0,
-      .sound_name = NULL,
       .pitch = 0,
+      .sound_name = NULL,
+      .y = 0,
+      .volume = 0,
+      .z = 0,
+      .x = 0,
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.sound_name = cmc_buffer_unpack_string(buff);
-    packet.x = cmc_buffer_unpack_int(buff);
-    packet.y = cmc_buffer_unpack_int(buff);
-    packet.z = cmc_buffer_unpack_int(buff);
-    packet.volume = cmc_buffer_unpack_float(buff);
-    packet.pitch = cmc_buffer_unpack_byte(buff);
+    packet.sound_name = cmc_buff_unpack_string(buff);
+    packet.x = cmc_buff_unpack_int(buff);
+    packet.y = cmc_buff_unpack_int(buff);
+    packet.z = cmc_buff_unpack_int(buff);
+    packet.volume = cmc_buff_unpack_float(buff);
+    packet.pitch = cmc_buff_unpack_byte(buff);
     break;
   }
   default:
@@ -3717,25 +3801,25 @@ unpack_S2C_play_sound_effect_packet(cmc_buffer *buff) {
 err:
   cmc_free_S2C_play_sound_effect_packet(&packet);
   return (S2C_play_sound_effect_packet){
-      .z = 0,
-      .volume = 0,
-      .x = 0,
-      .y = 0,
-      .sound_name = NULL,
       .pitch = 0,
+      .sound_name = NULL,
+      .y = 0,
+      .volume = 0,
+      .z = 0,
+      .x = 0,
   };
 }
 
 S2C_play_change_game_state_packet
-unpack_S2C_play_change_game_state_packet(cmc_buffer *buff) {
+unpack_S2C_play_change_game_state_packet(cmc_buff *buff) {
   S2C_play_change_game_state_packet packet = {
       .reason = 0,
       .value = 0,
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.reason = cmc_buffer_unpack_byte(buff);
-    packet.value = cmc_buffer_unpack_float(buff);
+    packet.reason = cmc_buff_unpack_byte(buff);
+    packet.value = cmc_buff_unpack_float(buff);
     break;
   }
   default:
@@ -3754,17 +3838,17 @@ err:
 }
 
 S2C_play_player_abilities_packet
-unpack_S2C_play_player_abilities_packet(cmc_buffer *buff) {
+unpack_S2C_play_player_abilities_packet(cmc_buff *buff) {
   S2C_play_player_abilities_packet packet = {
-      .flags = 0,
       .fov_modifier = 0,
+      .flags = 0,
       .flying_speed = 0,
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.flags = cmc_buffer_unpack_char(buff);
-    packet.flying_speed = cmc_buffer_unpack_float(buff);
-    packet.fov_modifier = cmc_buffer_unpack_float(buff);
+    packet.flags = cmc_buff_unpack_char(buff);
+    packet.flying_speed = cmc_buff_unpack_float(buff);
+    packet.fov_modifier = cmc_buff_unpack_float(buff);
     break;
   }
   default:
@@ -3777,22 +3861,22 @@ unpack_S2C_play_player_abilities_packet(cmc_buffer *buff) {
 err:
   cmc_free_S2C_play_player_abilities_packet(&packet);
   return (S2C_play_player_abilities_packet){
-      .flags = 0,
       .fov_modifier = 0,
+      .flags = 0,
       .flying_speed = 0,
   };
 }
 
 S2C_play_plugin_message_packet
-unpack_S2C_play_plugin_message_packet(cmc_buffer *buff) {
+unpack_S2C_play_plugin_message_packet(cmc_buff *buff) {
   S2C_play_plugin_message_packet packet = {
       .data = NULL,
       .channel = NULL,
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.channel = cmc_buffer_unpack_string(buff);
-    packet.data = cmc_buffer_unpack_byte_array(buff);
+    packet.channel = cmc_buff_unpack_string(buff);
+    packet.data = cmc_buff_unpack_buff(buff);
     break;
   }
   default:
@@ -3811,13 +3895,13 @@ err:
 }
 
 S2C_play_change_difficulty_packet
-unpack_S2C_play_change_difficulty_packet(cmc_buffer *buff) {
+unpack_S2C_play_change_difficulty_packet(cmc_buff *buff) {
   S2C_play_change_difficulty_packet packet = {
       .difficulty = 0,
   };
   switch (buff->protocol_version) {
   case 47: {
-    packet.difficulty = cmc_buffer_unpack_byte(buff);
+    packet.difficulty = cmc_buff_unpack_byte(buff);
     break;
   }
   default:

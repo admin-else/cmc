@@ -43,7 +43,8 @@ RSA *pubkeyDER_to_RSA(uint8_t *pubkeyDER, size_t pubkeyDER_len, char **errmsg) {
 }*/
 
 unsigned char *generate_random_bytes(int len, cmc_err_extra *err) {
-  unsigned char *generated_bytes = CMC_ERR_ABLE(cmc_malloc(len, err), return NULL);
+  unsigned char *generated_bytes =
+      CMC_ERR_ABLE(cmc_malloc(len, err), return NULL);
 
   for (int i = 0; i < len; i++) {
     generated_bytes[i] = rand() % 0xFF;
@@ -78,7 +79,8 @@ char *mc_sha_final(EVP_MD_CTX *mdctx, cmc_err_extra *err) {
 
   // Create a new string starting from the first non-zero character
   size_t final_strlen = (41 + negativ) - i;
-  char *final_result = CMC_ERR_ABLE(cmc_malloc(final_strlen, err), return NULL;);
+  char *final_result =
+      CMC_ERR_ABLE(cmc_malloc(final_strlen, err), return NULL;);
   strcpy(negativ + final_result, &result[i]);
   if (negativ)
     final_result[0] = '-';
