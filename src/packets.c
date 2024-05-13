@@ -331,8 +331,8 @@ void cmc_free_S2C_config_ping_packet(S2C_config_ping_packet *packet) {
   (void)packet;
 }
 void cmc_free_S2C_config_registry_data_packet(
-    S2C_config_registry_data_packet *packet) {
-  cmc_nbt_free(packet->registry_codec);
+    S2C_config_registry_data_packet *packet, cmc_err_extra *err) {
+  cmc_nbt_free(packet->registry_codec, err);
 }
 
 void cmc_free_C2S_play_keep_alive_packet(C2S_play_keep_alive_packet *packet) {
