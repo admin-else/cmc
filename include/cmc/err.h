@@ -39,6 +39,3 @@ typedef struct {
 } cmc_err_extra;
 
 const char *cmc_err_as_str(cmc_err err);
-
-#define CMC_ERR_EXTRA_INIT                                                     \
-  (cmc_err_extra) { .err = CMC_ERR_NO, .file = NULL, .line = 0 }
