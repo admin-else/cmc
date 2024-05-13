@@ -1,5 +1,6 @@
 #include "err.h"
 #include <arpa/inet.h>
+#include <assert.h>
 #include <cmc/buff.h>
 #include <cmc/conn.h>
 #include <cmc/err.h>
@@ -16,6 +17,15 @@ cmc_conn cmc_conn_init(int protocol_version) {
                     .compression_threshold = -1,
                     .sockfd = -1,
                     .protocol_version = protocol_version};
+}
+
+cmc_err cmc_conn_connect(cmc_conn *conn, struct sockaddr *addr, socklen_t addr_len) {
+  assert(conn->sockfd == -1);
+  assert(conn);
+  conn->sockfd = socket(AF_INET, SOCK_STREAM, 0);
+  CMC_ERRRC_IF(conn->sockfd == -1, CMC_ERR_SOCKET);
+  CMC_ERRRC_IF(connect(conn->sockfd, addr, addr_len) == -1, CMC_ERR_CONNETING);
+  return CMC_ERR_NO;
 }
 
 cmc_err cmc_conn_close(cmc_conn *conn) {
