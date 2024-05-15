@@ -81,9 +81,10 @@ cmc_buff *cmc_conn_recive_packet(cmc_conn *conn) {
   CMC_ERRC_IF(packet_len <= 0, CMC_ERR_INVALID_PACKET_LEN, return NULL;);
 
   cmc_buff *buff = cmc_buff_init(conn->protocol_version);
-  unsigned char *tmp = CMC_ERRC_ABLE(cmc_malloc(packet_len, &conn->err), goto on_err1);
-  CMC_ERRC_IF(recv_all(conn->sockfd, tmp, packet_len) == -1,
-              CMC_ERR_RECV, goto on_err1;);
+  unsigned char *tmp =
+      CMC_ERRC_ABLE(cmc_malloc(packet_len, &conn->err), goto on_err1);
+  CMC_ERRC_IF(recv_all(conn->sockfd, tmp, packet_len) == -1, CMC_ERR_RECV,
+              goto on_err1;);
   cmc_buff_pack(buff, tmp, packet_len);
   free(tmp);
 
