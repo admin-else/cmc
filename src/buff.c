@@ -51,7 +51,7 @@ cmc_buff *cmc_buff_init(int protocol_version) {
   buff->position = 0;
   buff->length = 0;
   buff->protocol_version = protocol_version;
-  buff->err = CMC_ERR_EXTRA_INIT;
+  buff->err = (cmc_err_extra){};
   return buff;
 }
 
