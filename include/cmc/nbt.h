@@ -21,4 +21,4 @@
 cmc_nbt *cmc_nbt_parse(cmc_buff *buff, cmc_err_extra *err);
 cmc_buff *cmc_nbt_text(const cmc_nbt *tree, cmc_err_extra *err);
 cmc_buff *cmc_nbt_dump(const cmc_nbt *tree, cmc_err_extra *err);
-cmc_err cmc_nbt_free(cmc_nbt *tree, cmc_err_extra *err);
+void cmc_nbt_free(cmc_nbt *tree, cmc_err_extra *err);

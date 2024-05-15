@@ -28,7 +28,8 @@ typedef struct {
 
 cmc_conn cmc_conn_init(int protocol_version);
 
-cmc_err cmc_conn_connect(cmc_conn *conn, struct sockaddr *addr, socklen_t addr_len);
+cmc_err cmc_conn_connect(cmc_conn *conn, struct sockaddr *addr,
+                         socklen_t addr_len);
 
 cmc_buff *cmc_conn_recive_packet(cmc_conn *conn);
 

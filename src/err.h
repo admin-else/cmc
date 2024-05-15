@@ -73,7 +73,7 @@ B(uff): like conn but into buffer
 
 #define CMC_ERRA_IF(condition, err_var, err_type, action)                      \
   if (condition) {                                                             \
-    err_var.err = err_type;                                                    \
+    CMC_ERRA(err_type, action, err_var);                                       \
     action;                                                                    \
   }
 
@@ -82,9 +82,6 @@ B(uff): like conn but into buffer
 
 #define CMC_ERRC_IF(condition, err_type, action)                               \
   CMC_ERRA_IF(condition, conn->err, err_type, action)
-
-#define CMC_ERR_EXTRA_INIT                                                     \
-  (cmc_err_extra) { .err = CMC_ERR_NO, .file = NULL, .line = 0 }
 
 #define CMC_ERRC_ABLE(code, action) CMC_ERRA_ABLE(code, conn->err.err, action)
 #define CMC_ERRC(code, action) CMC_ERRA(code, conn->err.err, action)
