@@ -451,7 +451,12 @@ cmc_err cmc_entity_metadata_free(cmc_entity_metadata metadata,
     case ENTITY_METADATA_ENTRY_TYPE_STRING:
       cmc_string_free(entry->payload.string_data);
       break;
-    default:
+    case ENTITY_METADATA_ENTRY_TYPE_BYTE:
+    case ENTITY_METADATA_ENTRY_TYPE_SHORT:
+    case ENTITY_METADATA_ENTRY_TYPE_INT:
+    case ENTITY_METADATA_ENTRY_TYPE_FLOAT:
+    case ENTITY_METADATA_ENTRY_TYPE_POSITION:
+    case ENTITY_METADATA_ENTRY_TYPE_ROTATION:
       break;
     }
   }

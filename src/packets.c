@@ -266,10 +266,10 @@ const char *cmc_packet_name_id_string(cmc_packet_name_id id) {
     HELPER(CMC_S2C_PLAY_PLUGIN_MESSAGE_NAME_ID);
     HELPER(CMC_S2C_PLAY_CHANGE_DIFFICULTY_NAME_ID);
     // CGSE: packet_name_id_string
-  default:
-    return "CMC_INVALID_NAME_ID";
   }
 #undef HELPER
+
+  return "CMC_INVALID_NAME_ID";
 }
 
 // CGSS: free_methods_c
