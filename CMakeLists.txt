@@ -10,8 +10,8 @@ endif()
 set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_STANDARD_REQUIRED TRUE)
 
-set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O2 -Wall -Wextra -fPIC")
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Og -ggdb -Wall -Wextra -fPIC -fsanitize=address,undefined")
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O2 -Wall -Wextra -Werror=switch-enum -fPIC")
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Og -ggdb -Wall -Wextra -Werror=switch-enum -fPIC -fsanitize=address,undefined")
 
 find_package(ZLIB REQUIRED)
 find_package(OpenSSL REQUIRED)

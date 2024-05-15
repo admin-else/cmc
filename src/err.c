@@ -35,7 +35,7 @@ const char *cmc_err_as_str(cmc_err err) {
     ERRID2STR_HELPER(CMC_ERR_REALLOC_ZERO)
     ERRID2STR_HELPER(CMC_ERR_NEGATIVE_STRING_LENGHT)
 #undef ERRID2STR_HELPER
-  default:
-    return "invalid error id";
   }
+
+  return "invalid error id";
 }
