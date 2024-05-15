@@ -31,8 +31,10 @@ int main() {
   TRY_CATCH(cmc_send_C2S_handshake_handshake_packet(&conn, &handshake),
             goto err2;);
 
-  cmc_free_C2S_handshake_handshake_packet(&handshake);
+  cmc_free_C2S_handshake_handshake_packet(&handshake, &conn.err);
+  TRY_CATCH(conn.err.err, goto err1;)
   TRY_CATCH(cmc_send_C2S_status_request_packet(&conn), goto err1;);
+  conn.state = CMC_CONN_STATE_STATUS;
 
   cmc_buff *packet = cmc_conn_recive_packet(&conn);
   if (!packet)
@@ -40,6 +42,8 @@ int main() {
   
   int32_t packet_id = cmc_buff_unpack_varint(packet);
   TRY_CATCH(packet->err.err, goto err3;);
+
+  printf("pid: %i\n", packet_id);
 
   cmc_packet_name_id pnid = cmc_packet_id_to_packet_name_id(packet_id, conn.state, CMC_DIRECTION_S2C, 47);
   
@@ -53,7 +57,7 @@ int main() {
   S2C_status_response_packet response = unpack_S2C_status_response_packet(packet);
   TRY_CATCH(packet->err.err, goto err3;);
   printf("status %s", response.response);
-  cmc_free_S2C_status_response_packet(&response);
+  cmc_free_S2C_status_response_packet(&response, &conn.err);
   cmc_buff_free(packet);
   cmc_conn_close(&conn);
 
@@ -62,11 +66,11 @@ err3:
   cmc_buff_free(packet);
   goto err1;
 err2:
-  cmc_free_C2S_handshake_handshake_packet(&handshake);
+  cmc_free_C2S_handshake_handshake_packet(&handshake, &conn.err);
 err1:
   cmc_conn_close(&conn);
 err:
-  printf("cmc errd at %s:%d with error %s", conn.err.file, conn.err.line,
+  printf("cmc errd at %s:%d with error %s\n", conn.err.file, conn.err.line,
          cmc_err_as_str(conn.err.err));
 
   return 1;

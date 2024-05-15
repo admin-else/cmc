@@ -25,26 +25,26 @@ typedef struct {
   char *reason;
 } S2C_login_disconnect_packet;
 typedef struct {
-  cmc_buff *verify_token;
-  char *server_id;
   cmc_buff *public_key;
+  char *server_id;
+  cmc_buff *verify_token;
 } S2C_login_encryption_request_packet;
 typedef struct {
   char *uuid_str;
-  int32_t properties_count;
   char *name;
   cmc_uuid uuid;
+  int32_t properties_count;
 } S2C_login_success_packet;
 typedef struct {
   int32_t threshold;
 } S2C_login_set_compression_packet;
 typedef struct {
-  char *name;
   cmc_uuid uuid;
+  char *name;
 } C2S_login_start_packet;
 typedef struct {
-  cmc_buff *shared_secret;
   cmc_buff *verify_token;
+  cmc_buff *shared_secret;
 } C2S_login_encryption_response_packet;
 typedef struct {
   char *channel;
@@ -71,51 +71,51 @@ typedef struct {
   int64_t keep_alive_id_long;
 } S2C_play_keep_alive_packet;
 typedef struct {
-  cmc_nbt *reason_nbt;
   char *reason;
+  cmc_nbt *reason_nbt;
 } S2C_play_disconnect_packet;
 typedef struct {
-  int32_t entity_id;
-  uint8_t difficulty;
   bool reduced_debug_info;
+  uint8_t difficulty;
   int8_t dimension;
   char *level_type;
-  uint8_t max_players;
   uint8_t gamemode;
+  uint8_t max_players;
+  int32_t entity_id;
 } S2C_play_join_game_packet;
 typedef struct {
-  char *message;
   int8_t position;
+  char *message;
 } S2C_play_chat_message_packet;
 typedef struct {
-  int64_t time_of_day;
   int64_t world_age;
+  int64_t time_of_day;
 } S2C_play_time_update_packet;
 typedef struct {
-  int32_t entity_id;
   cmc_slot *item;
   int16_t slot;
+  int32_t entity_id;
 } S2C_play_entity_equipment_packet;
 typedef struct {
   cmc_block_pos location;
 } S2C_play_spawn_position_packet;
 typedef struct {
+  int32_t food;
   float health;
   float food_saturation;
-  int32_t food;
 } S2C_play_update_health_packet;
 typedef struct {
-  int32_t dimesion;
-  char *level_type;
   uint8_t gamemode;
   uint8_t difficulty;
+  char *level_type;
+  int32_t dimesion;
 } S2C_play_respawn_packet;
 typedef struct {
+  float yaw;
   double z;
   double y;
-  double x;
   uint8_t flags;
-  float yaw;
+  double x;
   float pitch;
 } S2C_play_player_look_and_position_packet;
 typedef struct {
@@ -130,85 +130,85 @@ typedef struct {
   int32_t entity_id;
 } S2C_play_animation_packet;
 typedef struct {
-  int16_t current_item;
+  int32_t x;
+  int32_t entity_id;
+  int32_t z;
   uint8_t yaw;
   int32_t y;
-  int32_t x;
-  int32_t z;
-  int32_t entity_id;
-  cmc_entity_metadata meta_data;
-  cmc_uuid uuid;
   uint8_t pitch;
+  int16_t current_item;
+  cmc_uuid uuid;
+  cmc_entity_metadata meta_data;
 } S2C_play_spawn_player_packet;
 typedef struct {
   int32_t collected_entity_id;
   int32_t collector_entity_id;
 } S2C_play_collect_item_packet;
 typedef struct {
-  int16_t z_vel;
-  uint8_t type;
-  int16_t x_vel;
-  int16_t y_vel;
+  int32_t x;
+  int32_t entity_id;
+  int32_t z;
   uint8_t yaw;
   int32_t y;
-  int32_t x;
-  int32_t z;
-  int32_t entity_id;
-  cmc_entity_metadata meta_data;
-  uint8_t head_pitch;
+  uint8_t type;
   uint8_t pitch;
+  uint8_t head_pitch;
+  int16_t z_vel;
+  int16_t x_vel;
+  cmc_entity_metadata meta_data;
+  int16_t y_vel;
 } S2C_play_spawn_mob_packet;
 typedef struct {
   char *title;
   cmc_block_pos location;
-  int32_t entity_id;
   uint8_t direction;
+  int32_t entity_id;
 } S2C_play_spawn_painting_packet;
 typedef struct {
-  int16_t count;
-  int32_t y;
   int32_t x;
-  int32_t z;
   int32_t entity_id;
+  int32_t z;
+  int32_t y;
+  int16_t count;
 } S2C_play_spawn_experience_orb_packet;
 typedef struct {
-  int16_t z_vel;
-  int32_t entity_id;
   int16_t x_vel;
+  int16_t z_vel;
   int16_t y_vel;
+  int32_t entity_id;
 } S2C_play_entity_velocity_packet;
 typedef struct {
   int32_t entity_id;
 } S2C_play_entity_packet;
 typedef struct {
-  int8_t delta_z;
   bool on_ground;
   int32_t entity_id;
-  int8_t delta_x;
+  int8_t delta_z;
   int8_t delta_y;
+  int8_t delta_x;
 } S2C_play_entity_relative_move_packet;
 typedef struct {
-  bool on_ground;
-  int32_t entity_id;
   uint8_t yaw;
+  bool on_ground;
   uint8_t pitch;
+  int32_t entity_id;
 } S2C_play_entity_look_packet;
 typedef struct {
-  int8_t delta_z;
   bool on_ground;
-  uint8_t yaw;
-  uint8_t pitch;
   int32_t entity_id;
-  int8_t delta_x;
+  int8_t delta_z;
   int8_t delta_y;
+  uint8_t yaw;
+  int8_t delta_x;
+  uint8_t pitch;
 } S2C_play_entity_look_and_relative_move_packet;
 typedef struct {
+  int32_t x;
   bool on_ground;
+  int32_t entity_id;
+  int32_t z;
   uint8_t yaw;
   int32_t y;
-  int32_t x;
-  int32_t z;
-  int32_t entity_id;
   uint8_t pitch;
 } S2C_play_entity_teleport_packet;
 typedef struct {
@@ -216,33 +216,33 @@ typedef struct {
   int32_t entity_id;
 } S2C_play_entity_head_look_packet;
 typedef struct {
-  int32_t entity_id;
   int8_t entity_status;
+  int32_t entity_id;
 } S2C_play_entity_status_packet;
 typedef struct {
-  int32_t entity_id;
-  int32_t vehicle_id;
   bool leash;
+  int32_t vehicle_id;
+  int32_t entity_id;
 } S2C_play_attach_entity_packet;
 typedef struct {
-  int32_t entity_id;
   cmc_entity_metadata meta_data;
+  int32_t entity_id;
 } S2C_play_entity_metadata_packet;
 typedef struct {
-  int8_t effect_id;
-  int32_t duration;
   int32_t entity_id;
+  int8_t effect_id;
   int8_t amplifier;
   bool hide_particles;
+  int32_t duration;
 } S2C_play_entity_effect_packet;
 typedef struct {
-  int32_t entity_id;
   int8_t effect_id;
+  int32_t entity_id;
 } S2C_play_remove_entity_effect_packet;
 typedef struct {
+  float experience_bar;
   int32_t total_experience;
   int32_t level;
-  float experience_bar;
 } S2C_play_set_experience_packet;
 typedef struct {
   double amount;
@@ -255,16 +255,16 @@ typedef struct {
   cmc_array modifiers;
 } S2C_play_entity_properties_properties;
 typedef struct {
+  int32_t properties_count;
   cmc_array properties;
   int32_t entity_id;
-  int32_t properties_count;
 } S2C_play_entity_properties_packet;
 typedef struct {
+  uint16_t primary_bitmask;
   cmc_buff *chunk;
+  bool ground_up_continuous;
   int32_t chunk_x;
   int32_t chunk_z;
-  uint16_t primary_bitmask;
-  bool ground_up_continuous;
 } S2C_play_chunk_data_packet;
 typedef struct {
   uint8_t horizontal_position;
@@ -273,23 +273,23 @@ typedef struct {
 } S2C_play_multi_block_change_records;
 typedef struct {
   int32_t chunk_x;
-  int32_t record_count;
-  cmc_array records;
   int32_t chunk_z;
+  cmc_array records;
+  int32_t record_count;
 } S2C_play_multi_block_change_packet;
 typedef struct {
-  int32_t block_id;
   cmc_block_pos location;
+  int32_t block_id;
 } S2C_play_block_change_packet;
 typedef struct {
-  uint8_t block_data_2;
   cmc_block_pos location;
-  uint8_t block_data_1;
   int32_t block_type;
+  uint8_t block_data_1;
+  uint8_t block_data_2;
 } S2C_play_block_action_packet;
 typedef struct {
-  int8_t destroy_stage;
   cmc_block_pos location;
+  int8_t destroy_stage;
   int32_t entity_id;
 } S2C_play_block_break_animation_packet;
 typedef struct {
@@ -298,9 +298,9 @@ typedef struct {
   uint16_t bit_mask;
 } S2C_play_map_chunk_bulk_chunk_columns;
 typedef struct {
+  int32_t chunk_column_count;
   bool sky_light_sent;
   cmc_buff *chunk;
-  int32_t chunk_column_count;
   cmc_array chunk_columns;
 } S2C_play_map_chunk_bulk_packet;
 typedef struct {
@@ -309,40 +309,40 @@ typedef struct {
   int8_t z_offset;
 } S2C_play_explosion_records;
 typedef struct {
+  cmc_array records;
+  float z;
+  float x_player_vel;
+  float y;
+  int32_t record_count;
   float z_player_vel;
   float radius;
-  float z;
-  float y;
-  float x_player_vel;
-  cmc_array records;
-  float y_player_vel;
-  int32_t record_count;
   float x;
+  float y_player_vel;
 } S2C_play_explosion_packet;
 typedef struct {
-  float x_offset;
-  bool long_distances;
-  float y_offset;
-  float z_offset;
-  int32_t data;
-  int32_t particle_count;
-  float z;
-  int32_t particle_id;
-  float y;
-  int32_t effect_id;
-  float particle_data;
-  cmc_block_pos location;
-  int32_t sable_relative_volume;
   bool d;
+  bool long_distances;
+  float z;
+  float particle_data;
+  float z_offset;
+  int32_t effect_id;
+  float y_offset;
+  float y;
+  cmc_block_pos location;
+  float x_offset;
+  int32_t data;
+  int32_t sable_relative_volume;
   float x;
+  int32_t particle_id;
+  int32_t particle_count;
 } S2C_play_effect_packet;
 typedef struct {
-  char *sound_name;
-  int32_t y;
   int32_t x;
   float volume;
   int32_t z;
   uint8_t pitch;
+  int32_t y;
+  char *sound_name;
 } S2C_play_sound_effect_packet;
 typedef struct {
   float value;

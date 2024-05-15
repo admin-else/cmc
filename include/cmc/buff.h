@@ -129,7 +129,8 @@ cmc_err cmc_buff_pack_entity_metadata(cmc_buff *buff,
 
 cmc_entity_metadata cmc_buff_unpack_entity_metadata(cmc_buff *buff);
 
-cmc_err cmc_entity_metadata_free(cmc_entity_metadata metadata, cmc_err_extra *err);
+cmc_err cmc_entity_metadata_free(cmc_entity_metadata metadata,
+                                 cmc_err_extra *err);
 
 // uuids
 typedef struct {

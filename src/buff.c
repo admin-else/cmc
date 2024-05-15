@@ -163,7 +163,7 @@ cmc_err cmc_buff_pack_varint(cmc_buff *buff, int n) {
   for (int i = 0; i < 5; i++) {
     uint8_t b = number & 0x7F;
     number >>= 7;
-    b = b | (number > 0 ? 0x80 : 0);
+    b |= number > 0 ? 0x80 : 0;
     CMC_ERRRB_ABLE(cmc_buff_pack_byte(buff, b));
     if (number == 0)
       break;
@@ -196,7 +196,7 @@ char *cmc_buff_unpack_string_w_max_len(cmc_buff *buff, int max_len) {
 
   char *str = CMC_ERRB_ABLE(cmc_buff_unpack(buff, n), return NULL;);
 
-  CMC_ERRB_ABLE(cmc_realloc(str, n + 1, &buff->err), goto err);
+  str = CMC_ERRB_ABLE(cmc_realloc(str, n + 1, &buff->err), goto err);
   str[n] = '\0';
 
   int utf_str_len = 0;
@@ -258,7 +258,9 @@ cmc_block_pos cmc_buff_unpack_position(cmc_buff *buff) {
   return pos;
 }
 
-cmc_nbt *cmc_buff_unpack_nbt(cmc_buff *buff) { return cmc_nbt_parse(buff, &buff->err); }
+cmc_nbt *cmc_buff_unpack_nbt(cmc_buff *buff) {
+  return cmc_nbt_parse(buff, &buff->err);
+}
 
 cmc_err cmc_buff_pack_nbt(cmc_buff *buff, cmc_nbt *nbt) {
   cmc_buff *tmp_buff = CMC_ERRRB_ABLE(cmc_nbt_dump(nbt, &buff->err));
@@ -437,7 +439,8 @@ on_error:
   return EMPTY_ENTITY_METADATA;
 }
 
-cmc_err cmc_entity_metadata_free(cmc_entity_metadata metadata, cmc_err_extra *err) {
+cmc_err cmc_entity_metadata_free(cmc_entity_metadata metadata,
+                                 cmc_err_extra *err) {
   for (size_t i = 0; i < metadata.size; i++) {
     cmc_entity_metadata_entry *entry =
         metadata.entries + i * sizeof(cmc_entity_metadata_entry);
