@@ -194,9 +194,9 @@ char *cmc_buff_unpack_string_w_max_len(cmc_buff *buff, int max_len) {
   int n = CMC_ERRB_ABLE(cmc_buff_unpack_varint(buff), return NULL;);
 
   if (max_len * 4 < n)
-    CMC_ERRB(CMC_ERR_STRING_LENGHT, return NULL;);
+    CMC_ERRB(CMC_ERR_STRING_LENGTH, return NULL;);
   if (n < 0)
-    CMC_ERRB(CMC_ERR_NEGATIVE_STRING_LENGHT, return NULL;);
+    CMC_ERRB(CMC_ERR_NEGATIVE_STRING_LENGTH, return NULL;);
 
   char *str = CMC_ERRB_ABLE(cmc_buff_unpack(buff, n), return NULL;);
 
@@ -207,7 +207,7 @@ char *cmc_buff_unpack_string_w_max_len(cmc_buff *buff, int max_len) {
   for (int i = 0; i < n; ++i)
     if ((str[i] & 0xC0) != 0x80)
       ++utf_str_len;
-  CMC_ERRB_IF(utf_str_len > max_len, CMC_ERR_STRING_LENGHT, goto err;);
+  CMC_ERRB_IF(utf_str_len > max_len, CMC_ERR_STRING_LENGTH, goto err;);
   return str;
 err:
   free(str);
@@ -224,7 +224,7 @@ cmc_err cmc_buff_pack_string_w_max_len(cmc_buff *buff, const char *str,
     if ((str[i] & 0xC0) != 0x80)
       ++str_len;
   if (str_len > max_len)
-    CMC_ERRRB(CMC_ERR_STRING_LENGHT);
+    CMC_ERRRB(CMC_ERR_STRING_LENGTH);
   CMC_ERRRB_ABLE(cmc_buff_pack_varint(buff, str_len_bytes));
   CMC_ERRRB_ABLE(cmc_buff_pack(buff, str, str_len_bytes));
   return CMC_ERR_NO;
