@@ -2,6 +2,7 @@
 
 #include <cmc/err.h>
 #include <cmc/nbt_types.h>
+#include <cmc/protocol.h>
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -12,13 +13,14 @@ typedef struct {
   size_t position;
   size_t length;
   size_t capacity;
-  int protocol_version;
+  cmc_protocol_version protocol_version;
   cmc_err_extra err;
 } cmc_buff;
+
 /*
 May return null if malloc failed.
 */
-cmc_buff *cmc_buff_init(int protocol_version);
+cmc_buff *cmc_buff_init(cmc_protocol_version protocol_version);
 void cmc_buff_print_info(cmc_buff *buff);
 void cmc_buff_free(cmc_buff *buff);
 cmc_buff *cmc_buff_combine(cmc_buff *buff, cmc_buff *tmp);

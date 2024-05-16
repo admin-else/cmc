@@ -78,10 +78,10 @@ typedef enum {
   // CGSE: packet_name_id_define
 } cmc_packet_name_id;
 
-cmc_packet_name_id cmc_packet_id_to_packet_name_id(int packet_id,
-                                                   cmc_conn_state state,
-                                                   packet_direction direction,
-                                                   int protocol_version);
+cmc_packet_name_id
+cmc_packet_id_to_packet_name_id(int packet_id, cmc_conn_state state,
+                                packet_direction direction,
+                                cmc_protocol_version protocol_version);
 
 const char *cmc_packet_name_id_string(cmc_packet_name_id id);
 
