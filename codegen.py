@@ -170,40 +170,58 @@ def unpack_method(inp):
     ))
 
 def send_method_content(data, to_send, deepness, packet_name):
-    code = ""
-    for symbol in careful_split(data):
+    def handle_value(symbol):
         name = symbol[1:]
-        if symbol[0] == "A":
-            name, array_exp, key = split_array_exp(symbol)
-            code += f"for(int {chr(deepness)} = 0; {chr(deepness)} < {to_send}{name}.len; ++{chr(deepness)}) {{"
-            code += f"{packet_name}_{name} *p_{name} = {chr(deepness)} * sizeof({packet_name}_{name}) + {to_send}{name}.data;"
-            code += send_method_content(array_exp, f"p_{name}->", deepness+1, packet_name)
-            code += "}"
-        else:
-            code += f"cmc_buff_pack_{type_map[symbol[0]][1]}(buff, {to_send}{name});"
-    return code
+        return f"cmc_buff_pack_{type_map[symbol[0]][1]}(buff, {to_send}{name});"
+
+    def handle_array(symbol):
+        name, array_exp, _ = split_array_exp(symbol)
+        i = chr(deepness)
+        return f"""
+            for(int {i} = 0; {i} < {to_send}{name}.len; ++{i}) {{
+                {packet_name}_{name} *p_{name} =  &(({packet_name}_{name} *){to_send}{name}.data)[{i}];
+                {send_method_content(array_exp, f'p_{name}->', deepness+1, packet_name)}
+            }}
+        """
+
+    return "".join(
+        handle_array(symbol) if (symbol[0] == "A") else handle_value(symbol)
+        for symbol in careful_split(data)
+    )
 
 
 def send_method(inp):
-    code = "cmc_err cmc_send_{}_packet(cmc_conn *conn{})".format(inp['name'], f", {inp['name']}_packet *packet" if not inp["is_empty"] else "")
-    code += "{cmc_buff *buff = cmc_buff_init(conn->protocol_version);"
-    code += "switch(conn->protocol_version) {"
-    for pv, data in inp["packet_data"].items():
-        code += f"case {pv}: {{" 
-        code += f"cmc_buff_pack_varint(buff, {data['packet_id']});"
-        if "content" in data:
-            code += send_method_content(data["content_str"], "packet->", ord("i"), inp['name'])
-        code += "break;}"
-    code += """default: 
-        cmc_buff_free(buff);
-        CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
-    }
-    cmc_conn_send_packet(conn, buff);
-    cmc_buff_free(buff);
-    return CMC_ERR_NO;
-    }\n\n"""
-
-    return code
+    second_param = "" if inp["is_empty"] else f", {inp['name']}_packet *packet"
+    return "".join((
+        f"""
+        cmc_err cmc_send_{inp['name']}_packet(cmc_conn *conn{second_param}) {{
+            cmc_buff *buff = cmc_buff_init(conn->protocol_version);
+            switch(conn->protocol_version) {{
+        """,
+        *(
+            f"""
+            case {pv}: {{
+                cmc_buff_pack_varint(buff, {data['packet_id']});
+                {
+                    send_method_content(data['content_str'], 'packet->', ord('i'), inp['name'])
+                    if 'content' in data else ''
+                }
+                break;
+            }}
+            """
+            for pv, data in inp["packet_data"].items()
+        ),
+        f"""
+            default:
+                cmc_buff_free(buff);
+                CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
+            }}
+            cmc_conn_send_packet(conn, buff);
+            cmc_buff_free(buff);
+            return CMC_ERR_NO;
+        }}
+        """,
+    ))
 
 def packet_ids(mc_packet_exps):
     packet_states = ["_".join(exp.split("_")[:2]) for exp in mc_packet_exps]
