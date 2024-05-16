@@ -1,5 +1,6 @@
-#include "err.h"
 #include <cmc/nbt.h>
+
+#include "err.h"
 
 cmc_nbt *cmc_nbt_parse(cmc_buff *buff, cmc_err_extra *err) {
   (void)buff;

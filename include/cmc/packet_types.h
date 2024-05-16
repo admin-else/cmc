@@ -1,4 +1,5 @@
 #pragma once
+
 #include <cmc/buff.h>
 #include <cmc/nbt_types.h>
 
