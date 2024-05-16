@@ -74,13 +74,13 @@ def get_absolute_paths(file_paths):
 def replace_code_segments(replacement_code, tag):
     start_tag = f"// CGSS: {tag}"  # Code Generator Segment Start
     end_tag   = f"// CGSE: {tag}"  # Code Generator Segment End
+    pattern = re.compile(
+        f"({re.escape(start_tag)}).*?({re.escape(end_tag)})", re.DOTALL
+    )
 
     for file_path in get_absolute_paths(replacement_paths):
         with open(file_path, "r") as file:
             file_content = file.read()
-        pattern = re.compile(
-            f"({re.escape(start_tag)}).*?({re.escape(end_tag)})", re.DOTALL
-        )
         if not pattern.search(file_content):
             continue
         file_content = pattern.sub(rf"\1\n{replacement_code}\n\2", file_content)
@@ -110,8 +110,7 @@ def type_def_content(token, packet_name, wrap_name):
 def type_def(inp):
     if inp["is_empty"]:
         return ""
-    code = type_def_content(inp["type_def_content_str"], inp["name"], f"{inp['name']}_packet")    
-    return code
+    return type_def_content(inp["type_def_content_str"], inp["name"], f"{inp['name']}_packet")
 
 #packet.properties.data = CMC_ERRB_ABLE(cmc_malloc(
 #        packet.properties.len * sizeof(S2C_play_entity_properties_properties), &buff->err), goto err;);
@@ -307,7 +306,7 @@ def main():
     mc_packet_exps = gather_packets()
     #pprint(mc_packet_exps)
 
-    replace_code_segments("".join(f"HELPER(CMC_{inp['name'].upper()}_NAME_ID);" for inp in mc_packet_exps), "packet_name_id_string")
+    replace_code_segments("\n".join(f"HELPER(CMC_{inp['name'].upper()}_NAME_ID);" for inp in mc_packet_exps), "packet_name_id_string")
 
 
     replace_code_segments(packet_name_id_define(mc_packet_exps), "packet_name_id_define")
