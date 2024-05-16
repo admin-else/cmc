@@ -92,19 +92,25 @@ def replace_code_segments(replacement_code, tag):
 
 
 def type_def_content(token, packet_name, wrap_name):
-    code = ""
-    other_typedef = ""
+    typedefs = []
+    members = []
     for sym in careful_split(token):
         exp_data = sym[1:]
         exp_type = sym[0]
         if exp_type == "A":
-            name, array_exp, key = split_array_exp(sym)
-            other_typedef += type_def_content(array_exp, packet_name, f"{packet_name}_{name}") 
-            code += f"{type_map[exp_type][0]} {name};"
+            name, array_exp, _ = split_array_exp(sym)
+            typedefs.append(type_def_content(array_exp, packet_name, f"{packet_name}_{name}"))
+            members.append(f"{type_map[exp_type][0]} {name};")
         else:
-            code += f"{type_map[exp_type][0]} {exp_data};"
-    code = f"typedef struct {{{code}}} {wrap_name};"
-    return other_typedef + code
+            members.append(f"{type_map[exp_type][0]} {exp_data};")
+
+    typedefs.append(f"""
+        typedef struct {{
+            {''.join(members)}
+        }} {wrap_name};
+    """)
+
+    return "\n".join(typedefs)
 
 
 def type_def(inp):
