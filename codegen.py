@@ -24,7 +24,7 @@ type_map = {
     "S": ["cmc_slot *",           "slot",            True,   "NULL",                    True ],
     "m": ["cmc_entity_metadata ", "entity_metadata", True,   "{.size=0,.entries=NULL}", True ],
     "u": ["cmc_uuid ",             "uuid",           False,  "{.lower=0,.upper=0}",     False],
-    "A": ["cmc_array ",            None,             True,   "{.data=NULL,.len=0}",     False],
+    "A": ["cmc_array ",            None,             True,   "{.data=NULL,.size=0}",    False],
 }
 
 replacement_paths = ["src/*.c", "include/cmc/*.h"]
@@ -74,13 +74,13 @@ def get_absolute_paths(file_paths):
 def replace_code_segments(replacement_code, tag):
     start_tag = f"// CGSS: {tag}"  # Code Generator Segment Start
     end_tag   = f"// CGSE: {tag}"  # Code Generator Segment End
+    pattern = re.compile(
+        f"({re.escape(start_tag)}).*?({re.escape(end_tag)})", re.DOTALL
+    )
 
     for file_path in get_absolute_paths(replacement_paths):
         with open(file_path, "r") as file:
             file_content = file.read()
-        pattern = re.compile(
-            f"({re.escape(start_tag)}).*?({re.escape(end_tag)})", re.DOTALL
-        )
         if not pattern.search(file_content):
             continue
         file_content = pattern.sub(rf"\1\n{replacement_code}\n\2", file_content)
@@ -92,115 +92,145 @@ def replace_code_segments(replacement_code, tag):
 
 
 def type_def_content(token, packet_name, wrap_name):
-    code = ""
-    other_typedef = ""
+    typedefs = []
+    members = []
     for sym in careful_split(token):
         exp_data = sym[1:]
         exp_type = sym[0]
         if exp_type == "A":
-            name, array_exp, key = split_array_exp(sym)
-            other_typedef += type_def_content(array_exp, packet_name, f"{packet_name}_{name}") 
-            code += f"{type_map[exp_type][0]} {name};"
+            name, array_exp, _ = split_array_exp(sym)
+            typedefs.append(type_def_content(array_exp, packet_name, f"{packet_name}_{name}"))
+            members.append(f"{type_map[exp_type][0]} {name};")
         else:
-            code += f"{type_map[exp_type][0]} {exp_data};"
-    code = f"typedef struct {{{code}}} {wrap_name};"
-    return other_typedef + code
+            members.append(f"{type_map[exp_type][0]} {exp_data};")
+
+    typedefs.append(f"""
+        typedef struct {{
+            {''.join(members)}
+        }} {wrap_name};
+    """)
+
+    return "\n".join(typedefs)
 
 
 def type_def(inp):
     if inp["is_empty"]:
         return ""
-    code = type_def_content(inp["type_def_content_str"], inp["name"], f"{inp['name']}_packet")    
-    return code
+    return type_def_content(inp["type_def_content_str"], inp["name"], f"{inp['name']}_packet")
 
-#packet.properties.data = CMC_ERRB_ABLE(cmc_malloc(
-#        packet.properties.len * sizeof(S2C_play_entity_properties_properties), &buff->err), goto err;);
 def unpack_method_content(to_unpack_to, exp, deepness, packet_name):
-    code = ""
-    for sym in careful_split(exp):
+    def handle_value(sym):
         exp_type = sym[0]
         exp_data = sym[1:]
-        if exp_type == "A":
-            name, array_exp, key = split_array_exp(sym)
-            deepnessc = chr(deepness)
-            code += f"""{to_unpack_to}{name}.len = {to_unpack_to}{key};
-{to_unpack_to}{name}.data = CMC_ERRB_ABLE(cmc_malloc({to_unpack_to}{name}.len * sizeof({packet_name}_{name}), &buff->err), goto err;);
-for(int {deepnessc} = 0; i < {to_unpack_to}{name}.len; ++{deepnessc}) {{
-{packet_name}_{name} *p_{name} = {deepnessc} * sizeof(*p_{name}) + ({packet_name}_{name} *){to_unpack_to}{name}.data;"""
-            code += unpack_method_content(f"p_{name}->", array_exp, deepness+1, packet_name)
-            code += "}"
-        else:
-            code += f"{to_unpack_to}{exp_data}=cmc_buff_unpack_{type_map[sym[0]][1]}(buff);"
-    return code
+        exp_ctype = type_map[exp_type][1]
+        return f"{to_unpack_to}{exp_data} = cmc_buff_unpack_{exp_ctype}(buff);"
+
+    def handle_array(sym):
+        name, array_exp, key = split_array_exp(sym)
+        i = chr(deepness)
+        return f"""
+            {to_unpack_to}{name}.size = {to_unpack_to}{key};
+            {to_unpack_to}{name}.data = CMC_ERRB_ABLE(cmc_malloc({to_unpack_to}{name}.size * sizeof({packet_name}_{name}), &buff->err), goto err;);
+            for (size_t {i} = 0; {i} < {to_unpack_to}{name}.size; ++{i}) {{
+                {packet_name}_{name} *p_{name} = &(({packet_name}_{name} *){to_unpack_to}{name}.data)[{i}];
+                {unpack_method_content(f'p_{name}->', array_exp, deepness + 1, packet_name)}
+            }}
+        """
+
+    return "".join(
+        handle_array(sym) if (sym[0] == "A") else handle_value(sym)
+        for sym in careful_split(exp)
+    )
 
 def unpack_method(inp):
     if inp["is_empty"]:
         return ""
-    code = f"{inp['name']}_packet unpack_{inp['name']}_packet(cmc_buff *buff)"
-    empty = "{" 
-    #empty += ",".join([f".{entry[1:]}={type_map[entry[0]][3]}" for entry in inp['type_def_content']])
-    for entry in inp['type_def_content']:
-        name = entry[1:]
-        if entry[0] == "A":
-            name, *_ = split_array_exp(entry)
-        empty += f".{name}={type_map[entry[0]][3]},"
-    empty += "}"
-    code += f"{{{inp['name']}_packet packet = {empty};"
-    code += "switch(buff->protocol_version) {"
-    for pv, data in inp["packet_data"].items():
-        code += f"case {pv}: {{" + unpack_method_content("packet.", data['content_str'], ord("i"), inp['name']) + "break;}"
-    code += f"""default: 
-                 CMC_ERRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return packet;);
-               }}
-               CMC_ERRB_ABLE(,goto err);
-               if(buff->position != buff->length) CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
-               return packet;
-               err:
-                 cmc_free_{inp['name']}_packet(&packet, &buff->err);
-                 return ({inp['name']}_packet){empty};
-               }}\n\n"""
-    return code
+
+    return "".join((
+        f"""
+        {inp['name']}_packet unpack_{inp['name']}_packet(cmc_buff *buff) {{
+            {inp['name']}_packet packet = {{}};
+            switch(buff->protocol_version) {{
+        """,
+        *(
+            f"""
+            case CMC_PROTOCOL_VERSION_{pv}: {{
+                {unpack_method_content('packet.', data['content_str'], ord('i'), inp['name'])}
+                break;
+            }}
+            """
+            for pv, data in inp["packet_data"].items()
+        ),
+        f"""
+            default:
+                CMC_ERRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return packet;);
+            }}
+            CMC_ERRB_ABLE(,goto err);
+            if(buff->position != buff->length) CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
+            return packet;
+            err:
+                cmc_free_{inp['name']}_packet(&packet, &buff->err);
+                return ({inp['name']}_packet){{}};
+        }}
+        """,
+    ))
 
 def send_method_content(data, to_send, deepness, packet_name):
-    code = ""
-    for symbol in careful_split(data):
+    def handle_value(symbol):
         name = symbol[1:]
-        if symbol[0] == "A":
-            name, array_exp, key = split_array_exp(symbol)
-            code += f"for(int {chr(deepness)} = 0; {chr(deepness)} < {to_send}{name}.len; ++{chr(deepness)}) {{"
-            code += f"{packet_name}_{name} *p_{name} = {chr(deepness)} * sizeof({packet_name}_{name}) + {to_send}{name}.data;"
-            code += send_method_content(array_exp, f"p_{name}->", deepness+1, packet_name)
-            code += "}"
-        else:
-            code += f"cmc_buff_pack_{type_map[symbol[0]][1]}(buff, {to_send}{name});"
-    return code
+        return f"cmc_buff_pack_{type_map[symbol[0]][1]}(buff, {to_send}{name});"
+
+    def handle_array(symbol):
+        name, array_exp, _ = split_array_exp(symbol)
+        i = chr(deepness)
+        return f"""
+            for (size_t {i} = 0; {i} < {to_send}{name}.size; ++{i}) {{
+                {packet_name}_{name} *p_{name} =  &(({packet_name}_{name} *){to_send}{name}.data)[{i}];
+                {send_method_content(array_exp, f'p_{name}->', deepness+1, packet_name)}
+            }}
+        """
+
+    return "".join(
+        handle_array(symbol) if (symbol[0] == "A") else handle_value(symbol)
+        for symbol in careful_split(data)
+    )
 
 
 def send_method(inp):
-    code = "cmc_err cmc_send_{}_packet(cmc_conn *conn{})".format(inp['name'], f", {inp['name']}_packet *packet" if not inp["is_empty"] else "")
-    code += "{cmc_buff *buff = cmc_buff_init(conn->protocol_version);"
-    code += "switch(conn->protocol_version) {"
-    for pv, data in inp["packet_data"].items():
-        code += f"case {pv}: {{" 
-        code += f"cmc_buff_pack_varint(buff, {data['packet_id']});"
-        if "content" in data:
-            code += send_method_content(data["content_str"], "packet->", ord("i"), inp['name'])
-        code += "break;}"
-    code += """default: 
-        cmc_buff_free(buff);
-        CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
-    }
-    cmc_conn_send_packet(conn, buff);
-    cmc_buff_free(buff);
-    return CMC_ERR_NO;
-    }\n\n"""
-
-    return code
+    second_param = "" if inp["is_empty"] else f", {inp['name']}_packet *packet"
+    return "".join((
+        f"""
+        cmc_err cmc_send_{inp['name']}_packet(cmc_conn *conn{second_param}) {{
+            cmc_buff *buff = cmc_buff_init(conn->protocol_version);
+            switch(conn->protocol_version) {{
+        """,
+        *(
+            f"""
+            case CMC_PROTOCOL_VERSION_{pv}: {{
+                cmc_buff_pack_varint(buff, {data['packet_id']});
+                {
+                    send_method_content(data['content_str'], 'packet->', ord('i'), inp['name'])
+                    if 'content' in data else ''
+                }
+                break;
+            }}
+            """
+            for pv, data in inp["packet_data"].items()
+        ),
+        f"""
+            default:
+                cmc_buff_free(buff);
+                CMC_ERRRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION);
+            }}
+            cmc_conn_send_packet(conn, buff);
+            cmc_buff_free(buff);
+            return CMC_ERR_NO;
+        }}
+        """,
+    ))
 
 def packet_ids(mc_packet_exps):
-    packet_states = set()
-    for exp in mc_packet_exps:
-        packet_states.add("_".join(exp.split("_")[:2]))
+    packet_states = ["_".join(exp.split("_")[:2]) for exp in mc_packet_exps]
 
     code = ""
     for state in packet_states:
@@ -213,36 +243,47 @@ def packet_ids(mc_packet_exps):
     return code
 
 def free_method_content(exp, tofree, deepness, packet_name):
-    code = ""
-    for sym in careful_split(exp):
-        if type_map[sym[0]][2]:
-            exp_type = sym[0]
-            exp_data = sym[1:]
-            if exp_type == "A":
-                name, array_exp, key = split_array_exp(sym)
-                deepnessc = chr(deepness)
-                code += f"""for(int {deepnessc} = 0; {tofree}->{name}.len; ++{deepnessc}) {{
-{packet_name}_{name} *p_{name} = {deepnessc} * sizeof(*p_{name}) + ({packet_name}_{name} *){tofree}->{name}.data;"""
-                code += free_method_content(array_exp, f"p_{name}", deepness+1, packet_name)
-                code += f"""}}
-free({tofree}->{name}.data);
-{tofree}->{name}.len = 0;"""
-            else:
-                code += f"cmc_{type_map[exp_type][1]}_free({tofree}->{exp_data}{', err' if type_map[exp_type][4] else ''});"
-    return code
+    def handle_value(sym):
+        exp_type = sym[0]
+        exp_data = sym[1:]
+        second_arg = ", err" if type_map[exp_type][4] else ""
+        return f"cmc_{type_map[exp_type][1]}_free({tofree}->{exp_data}{second_arg});"
+
+    def handle_array(sym):
+        name, array_exp, _ = split_array_exp(sym)
+        i = chr(deepness)
+        loop_body = free_method_content(array_exp, f"p_{name}", deepness + 1, packet_name)
+        loop_statement = f"""
+            for (size_t {i} = 0; {i} < {tofree}->{name}.size; ++{i}) {{
+                {packet_name}_{name} *p_{name} = &(({packet_name}_{name} *){tofree}->{name}.data)[{i}];
+                {loop_body}
+            }}
+        """ if loop_body else ""
+        return f"""
+            {loop_statement}
+            free({tofree}->{name}.data);
+            {tofree}->{name}.size = 0;
+        """
+
+    return "".join(
+        handle_array(sym) if (sym[0] == "A") else handle_value(sym)
+        for sym in careful_split(exp)
+        if type_map[sym[0]][2] # is_heap(exp_type)
+    )
 
 def free_method(inp):
     if inp["is_empty"]:
         return ""
-    
-    code = f"void cmc_free_{inp['name']}_packet({inp['name']}_packet *packet, cmc_err_extra *err) {{"
-    if inp['is_heap']:
-        code += free_method_content(inp['type_def_content_str'], "packet", ord("i"), inp["name"])
-    else:
-        code += "(void)packet;"
-    code += "(void)err;" # this is bad should only do this when needed but i was lazy ok?
-    code += "}"
-    return code
+
+    return f"""
+    void cmc_free_{inp['name']}_packet({inp['name']}_packet *packet, cmc_err_extra *err) {{
+        {
+            free_method_content(inp['type_def_content_str'], 'packet', ord('i'), inp['name'])
+            if inp['is_heap'] else '(void)packet;'
+        }
+        (void)err;
+    }}
+    """
 
 def gather_packets():
     out = {}
@@ -271,16 +312,17 @@ def gather_packets():
                     out[packet_name]["packet_data"][vid]["content_str"] = symbol_str
                     out[packet_name]["is_empty"] = False
 
-                    content = set()
-                    for _, val in out[packet_name]["packet_data"].items():
+                    content = []
+                    for val in out[packet_name]["packet_data"].values():
                         for field in val["content"]:
-                            for existing_field in content:
-                                if not existing_field == field and existing_field[1:] == field[1:]:
+                            if (duplicates := [f for f in content if f[1:] == field[1:]]):
+                                if (existing_field := duplicates[0]) != field:
                                     print(f"fatal conflict between {existing_field} and {field} on {packet_name}!!!")
                                     exit(1)
-                            content.add(field)
-                            if type_map[field[0]][2]:
-                                out[packet_name]["is_heap"] = True
+                            else:
+                                content.append(field)
+                                if type_map[field[0]][2]:
+                                    out[packet_name]["is_heap"] = True
                                 
                     
                     out[packet_name]["type_def_content"] = content
@@ -292,11 +334,7 @@ def gather_packets():
     return list(out.values())
 
 def packet_name_id_define(exps):
-    names = set([exp["name"].upper() for exp in exps])
-    code = ""
-    for name in names:
-        code += f"CMC_{name}_NAME_ID,"
-    return code
+    return "".join(f"CMC_{exp['name'].upper()}_NAME_ID," for exp in exps)
 
 def packet_id_to_packet_name_id(inp):
     code = ""
@@ -310,45 +348,45 @@ def main():
     mc_packet_exps = gather_packets()
     #pprint(mc_packet_exps)
 
-    replace_code_segments("".join([f"HELPER(CMC_{inp['name'].upper()}_NAME_ID);" for inp in mc_packet_exps]), "packet_name_id_string")
+    replace_code_segments("\n".join(f"HELPER(CMC_{inp['name'].upper()}_NAME_ID);" for inp in mc_packet_exps), "packet_name_id_string")
 
 
     replace_code_segments(packet_name_id_define(mc_packet_exps), "packet_name_id_define")
 
     # packet unpack methods
     replace_code_segments(
-        "".join([unpack_method(mc_packet_exp) for mc_packet_exp in mc_packet_exps]),
+        "".join(unpack_method(mc_packet_exp) for mc_packet_exp in mc_packet_exps),
         "unpack_methods_c",
     )
     replace_code_segments(
-        "".join([f"{inp['name']}_packet unpack_{inp['name']}_packet(cmc_buff *buff);" if not inp['is_empty'] else "" for inp in mc_packet_exps]),
+        "".join(f"{inp['name']}_packet unpack_{inp['name']}_packet(cmc_buff *buff);" if not inp['is_empty'] else "" for inp in mc_packet_exps),
         "unpack_methods_h",
     )
     # packet unpack methods header
 
     replace_code_segments(
-        "".join([send_method(mc_packet_exp) for mc_packet_exp in mc_packet_exps]),
+        "".join(send_method(mc_packet_exp) for mc_packet_exp in mc_packet_exps),
         "send_methods_c",
     )
 
     # packet send methods header
     replace_code_segments(
-        "".join(["cmc_err cmc_send_{}_packet(cmc_conn *conn{});".format(inp['name'], f", {inp['name']}_packet *packet" if not inp["is_empty"] else "") for inp in mc_packet_exps]),
+        "".join("cmc_err cmc_send_{}_packet(cmc_conn *conn{});".format(inp['name'], f", {inp['name']}_packet *packet" if not inp["is_empty"] else "") for inp in mc_packet_exps),
         "send_methods_h",
     )
 
     # type defs
     replace_code_segments(
-        "".join([type_def(mc_packet_exp) for mc_packet_exp in mc_packet_exps]),
+        "".join(type_def(mc_packet_exp) for mc_packet_exp in mc_packet_exps),
         "packet_types",
     )
 
     replace_code_segments(
-        "\n".join([free_method(sym) for sym in mc_packet_exps]), "free_methods_c"
+        "\n".join(free_method(sym) for sym in mc_packet_exps), "free_methods_c"
     )
 
     replace_code_segments(
-        "\n".join([f"void cmc_free_{inp['name']}_packet({inp['name']}_packet *packet, cmc_err_extra *err);" for inp in mc_packet_exps if not inp["is_empty"]]), "free_methods_h"
+        "\n".join(f"void cmc_free_{inp['name']}_packet({inp['name']}_packet *packet, cmc_err_extra *err);" for inp in mc_packet_exps if not inp["is_empty"]), "free_methods_h"
     )
     
 if __name__ == "__main__":

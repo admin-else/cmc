@@ -1,7 +1,10 @@
 #pragma once
 
 #include <cmc/buff.h>
+#include <cmc/protocol.h>
+
 #include <netinet/in.h>
+
 #include <stddef.h>
 #include <stdint.h>
 
@@ -14,7 +17,7 @@ typedef enum {
   CMC_CONN_STATE_CONFIG
 } cmc_conn_state;
 
-typedef enum { CMC_DIRECTION_S2C, CMC_DIRECTION_C2S } packet_direction;
+typedef enum { CMC_DIRECTION_S2C, CMC_DIRECTION_C2S } cmc_packet_direction;
 
 typedef struct {
   int sockfd;
@@ -22,11 +25,11 @@ typedef struct {
   cmc_conn_state state;
   ssize_t compression_threshold;
   char *name;
-  int protocol_version;
+  cmc_protocol_version protocol_version;
   cmc_err_extra err;
 } cmc_conn;
 
-cmc_conn cmc_conn_init(int protocol_version);
+cmc_conn cmc_conn_init(cmc_protocol_version protocol_version);
 
 cmc_err cmc_conn_connect(cmc_conn *conn, struct sockaddr *addr,
                          socklen_t addr_len);

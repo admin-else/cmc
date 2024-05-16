@@ -1,18 +1,23 @@
-#include "err.h"
-#include <arpa/inet.h>
-#include <assert.h>
-#include <cmc/buff.h>
 #include <cmc/conn.h>
+
+#include <cmc/buff.h>
 #include <cmc/err.h>
 #include <cmc/heap_utils.h>
+
+#include <zlib.h>
+
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <unistd.h>
+
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/socket.h>
-#include <unistd.h>
-#include <zlib.h>
 
-cmc_conn cmc_conn_init(int protocol_version) {
+#include "err_macros.h"
+
+cmc_conn cmc_conn_init(cmc_protocol_version protocol_version) {
   return (cmc_conn){.state = CMC_CONN_STATE_OFFLINE,
                     .compression_threshold = -1,
                     .sockfd = -1,
@@ -78,12 +83,13 @@ cmc_buff *cmc_conn_recive_packet(cmc_conn *conn) {
       break;
   }
 
-  CMC_ERRC_IF(packet_len <= 0, CMC_ERR_INVALID_PACKET_LEN, return NULL;);
+  CMC_ERRC_IF(packet_len <= 0, CMC_ERR_INVALID_PACKET_LENGTH, return NULL;);
 
   cmc_buff *buff = cmc_buff_init(conn->protocol_version);
-  unsigned char *tmp = CMC_ERRC_ABLE(cmc_malloc(packet_len, &conn->err), goto on_err1);
-  CMC_ERRC_IF(recv_all(conn->sockfd, tmp, packet_len) == -1,
-              CMC_ERR_RECV, goto on_err1;);
+  unsigned char *tmp =
+      CMC_ERRC_ABLE(cmc_malloc(packet_len, &conn->err), goto on_err1);
+  CMC_ERRC_IF(recv_all(conn->sockfd, tmp, packet_len) == -1, CMC_ERR_RECV,
+              goto on_err1;);
   cmc_buff_pack(buff, tmp, packet_len);
   free(tmp);
 
