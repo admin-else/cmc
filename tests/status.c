@@ -22,11 +22,11 @@ int main() {
       cmc_conn_connect(&conn, (struct sockaddr *)&serv_addr, sizeof(serv_addr)),
       goto err;);
 
-  C2S_handshake_handshake_packet handshake;
-  handshake.next_state = CMC_CONN_STATE_STATUS;
-  handshake.protocole_version = 47;
-  handshake.server_addr = strdup("127.0.0.1");
-  handshake.server_port = 25565;
+  C2S_handshake_handshake_packet handshake = {
+      .next_state = CMC_CONN_STATE_STATUS,
+      .protocole_version = 47,
+      .server_addr = strdup("127.0.0.1"),
+      .server_port = 25565};
 
   TRY_CATCH(cmc_send_C2S_handshake_handshake_packet(&conn, &handshake),
             goto err2;);
@@ -39,22 +39,24 @@ int main() {
   cmc_buff *packet = cmc_conn_recive_packet(&conn);
   if (!packet)
     goto err;
-  
+
   int32_t packet_id = cmc_buff_unpack_varint(packet);
   TRY_CATCH(packet->err.err, goto err3;);
 
   printf("pid: %i\n", packet_id);
 
-  cmc_packet_name_id pnid = cmc_packet_id_to_packet_name_id(packet_id, conn.state, CMC_DIRECTION_S2C, 47);
-  
-  if(pnid != CMC_S2C_STATUS_RESPONSE_NAME_ID) {
+  cmc_packet_name_id pnid = cmc_packet_id_to_packet_name_id(
+      packet_id, conn.state, CMC_DIRECTION_S2C, 47);
+
+  if (pnid != CMC_S2C_STATUS_RESPONSE_NAME_ID) {
     printf("unexpected packet %s\n", cmc_packet_name_id_string(pnid));
     cmc_buff_free(packet);
     cmc_conn_close(&conn);
     return 1;
   }
 
-  S2C_status_response_packet response = unpack_S2C_status_response_packet(packet);
+  S2C_status_response_packet response =
+      unpack_S2C_status_response_packet(packet);
   TRY_CATCH(packet->err.err, goto err3;);
   printf("status %s", response.response);
   cmc_free_S2C_status_response_packet(&response, &conn.err);
