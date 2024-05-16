@@ -198,9 +198,7 @@ def send_method(inp):
     return code
 
 def packet_ids(mc_packet_exps):
-    packet_states = set()
-    for exp in mc_packet_exps:
-        packet_states.add("_".join(exp.split("_")[:2]))
+    packet_states = ["_".join(exp.split("_")[:2]) for exp in mc_packet_exps]
 
     code = ""
     for state in packet_states:
@@ -273,16 +271,17 @@ def gather_packets():
                     out[packet_name]["packet_data"][vid]["content_str"] = symbol_str
                     out[packet_name]["is_empty"] = False
 
-                    content = set()
-                    for _, val in out[packet_name]["packet_data"].items():
+                    content = []
+                    for val in out[packet_name]["packet_data"].values():
                         for field in val["content"]:
-                            for existing_field in content:
-                                if not existing_field == field and existing_field[1:] == field[1:]:
+                            if (duplicates := [f for f in content if f[1:] == field[1:]]):
+                                if (existing_field := duplicates[0]) != field:
                                     print(f"fatal conflict between {existing_field} and {field} on {packet_name}!!!")
                                     exit(1)
-                            content.add(field)
-                            if type_map[field[0]][2]:
-                                out[packet_name]["is_heap"] = True
+                            else:
+                                content.append(field)
+                                if type_map[field[0]][2]:
+                                    out[packet_name]["is_heap"] = True
                                 
                     
                     out[packet_name]["type_def_content"] = content
@@ -294,11 +293,7 @@ def gather_packets():
     return list(out.values())
 
 def packet_name_id_define(exps):
-    names = set([exp["name"].upper() for exp in exps])
-    code = ""
-    for name in names:
-        code += f"CMC_{name}_NAME_ID,"
-    return code
+    return "".join(f"CMC_{exp['name'].upper()}_NAME_ID," for exp in exps)
 
 def packet_id_to_packet_name_id(inp):
     code = ""
