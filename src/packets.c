@@ -524,17 +524,17 @@ void cmc_free_S2C_play_set_experience_packet(
 void cmc_free_S2C_play_entity_properties_packet(
     S2C_play_entity_properties_packet *packet, cmc_err_extra *err) {
 
-  for (int i = 0; i < packet->properties.len; ++i) {
+  for (size_t i = 0; i < packet->properties.size; ++i) {
     S2C_play_entity_properties_properties *p_properties =
         &((S2C_play_entity_properties_properties *)packet->properties.data)[i];
     cmc_string_free(p_properties->key);
 
     free(p_properties->modifiers.data);
-    p_properties->modifiers.len = 0;
+    p_properties->modifiers.size = 0;
   }
 
   free(packet->properties.data);
-  packet->properties.len = 0;
+  packet->properties.size = 0;
 
   (void)err;
 }
@@ -549,7 +549,7 @@ void cmc_free_S2C_play_multi_block_change_packet(
     S2C_play_multi_block_change_packet *packet, cmc_err_extra *err) {
 
   free(packet->records.data);
-  packet->records.len = 0;
+  packet->records.size = 0;
 
   (void)err;
 }
@@ -576,7 +576,7 @@ void cmc_free_S2C_play_map_chunk_bulk_packet(
     S2C_play_map_chunk_bulk_packet *packet, cmc_err_extra *err) {
 
   free(packet->chunk_columns.data);
-  packet->chunk_columns.len = 0;
+  packet->chunk_columns.size = 0;
   cmc_buff_free(packet->chunk);
   (void)err;
 }
@@ -585,7 +585,7 @@ void cmc_free_S2C_play_explosion_packet(S2C_play_explosion_packet *packet,
                                         cmc_err_extra *err) {
 
   free(packet->records.data);
-  packet->records.len = 0;
+  packet->records.size = 0;
 
   (void)err;
 }
@@ -1686,13 +1686,13 @@ cmc_err cmc_send_S2C_play_entity_properties_packet(
     cmc_buff_pack_varint(buff, 0x20);
     cmc_buff_pack_varint(buff, packet->entity_id);
     cmc_buff_pack_int(buff, packet->properties_count);
-    for (int i = 0; i < packet->properties.len; ++i) {
+    for (size_t i = 0; i < packet->properties.size; ++i) {
       S2C_play_entity_properties_properties *p_properties = &(
           (S2C_play_entity_properties_properties *)packet->properties.data)[i];
       cmc_buff_pack_string(buff, p_properties->key);
       cmc_buff_pack_double(buff, p_properties->value);
       cmc_buff_pack_varint(buff, p_properties->num_of_modifiers);
-      for (int j = 0; j < p_properties->modifiers.len; ++j) {
+      for (size_t j = 0; j < p_properties->modifiers.size; ++j) {
         S2C_play_entity_properties_modifiers *p_modifiers =
             &((S2C_play_entity_properties_modifiers *)
                   p_properties->modifiers.data)[j];
@@ -1748,7 +1748,7 @@ cmc_err cmc_send_S2C_play_multi_block_change_packet(
     cmc_buff_pack_int(buff, packet->chunk_x);
     cmc_buff_pack_int(buff, packet->chunk_z);
     cmc_buff_pack_varint(buff, packet->record_count);
-    for (int i = 0; i < packet->records.len; ++i) {
+    for (size_t i = 0; i < packet->records.size; ++i) {
       S2C_play_multi_block_change_records *p_records =
           &((S2C_play_multi_block_change_records *)packet->records.data)[i];
       cmc_buff_pack_byte(buff, p_records->horizontal_position);
@@ -1845,7 +1845,7 @@ cmc_err cmc_send_S2C_play_map_chunk_bulk_packet(
     cmc_buff_pack_varint(buff, 0x26);
     cmc_buff_pack_bool(buff, packet->sky_light_sent);
     cmc_buff_pack_varint(buff, packet->chunk_column_count);
-    for (int i = 0; i < packet->chunk_columns.len; ++i) {
+    for (size_t i = 0; i < packet->chunk_columns.size; ++i) {
       S2C_play_map_chunk_bulk_chunk_columns *p_chunk_columns =
           &((S2C_play_map_chunk_bulk_chunk_columns *)
                 packet->chunk_columns.data)[i];
@@ -1878,7 +1878,7 @@ cmc_err cmc_send_S2C_play_explosion_packet(cmc_conn *conn,
     cmc_buff_pack_float(buff, packet->z);
     cmc_buff_pack_float(buff, packet->radius);
     cmc_buff_pack_int(buff, packet->record_count);
-    for (int i = 0; i < packet->records.len; ++i) {
+    for (size_t i = 0; i < packet->records.size; ++i) {
       S2C_play_explosion_records *p_records =
           &((S2C_play_explosion_records *)packet->records.data)[i];
       cmc_buff_pack_char(buff, p_records->x_offset);
@@ -3308,25 +3308,25 @@ unpack_S2C_play_entity_properties_packet(cmc_buff *buff) {
   case 47: {
     packet.entity_id = cmc_buff_unpack_varint(buff);
     packet.properties_count = cmc_buff_unpack_int(buff);
-    packet.properties.len = packet.properties_count;
+    packet.properties.size = packet.properties_count;
     packet.properties.data = CMC_ERRB_ABLE(
-        cmc_malloc(packet.properties.len *
+        cmc_malloc(packet.properties.size *
                        sizeof(S2C_play_entity_properties_properties),
                    &buff->err),
         goto err;);
-    for (int i = 0; i < packet.properties.len; ++i) {
+    for (size_t i = 0; i < packet.properties.size; ++i) {
       S2C_play_entity_properties_properties *p_properties =
           &((S2C_play_entity_properties_properties *)packet.properties.data)[i];
       p_properties->key = cmc_buff_unpack_string(buff);
       p_properties->value = cmc_buff_unpack_double(buff);
       p_properties->num_of_modifiers = cmc_buff_unpack_varint(buff);
-      p_properties->modifiers.len = p_properties->num_of_modifiers;
+      p_properties->modifiers.size = p_properties->num_of_modifiers;
       p_properties->modifiers.data = CMC_ERRB_ABLE(
-          cmc_malloc(p_properties->modifiers.len *
+          cmc_malloc(p_properties->modifiers.size *
                          sizeof(S2C_play_entity_properties_modifiers),
                      &buff->err),
           goto err;);
-      for (int j = 0; i < p_properties->modifiers.len; ++j) {
+      for (size_t j = 0; j < p_properties->modifiers.size; ++j) {
         S2C_play_entity_properties_modifiers *p_modifiers =
             &((S2C_play_entity_properties_modifiers *)
                   p_properties->modifiers.data)[j];
@@ -3384,13 +3384,13 @@ unpack_S2C_play_multi_block_change_packet(cmc_buff *buff) {
     packet.chunk_x = cmc_buff_unpack_int(buff);
     packet.chunk_z = cmc_buff_unpack_int(buff);
     packet.record_count = cmc_buff_unpack_varint(buff);
-    packet.records.len = packet.record_count;
+    packet.records.size = packet.record_count;
     packet.records.data = CMC_ERRB_ABLE(
-        cmc_malloc(packet.records.len *
+        cmc_malloc(packet.records.size *
                        sizeof(S2C_play_multi_block_change_records),
                    &buff->err),
         goto err;);
-    for (int i = 0; i < packet.records.len; ++i) {
+    for (size_t i = 0; i < packet.records.size; ++i) {
       S2C_play_multi_block_change_records *p_records =
           &((S2C_play_multi_block_change_records *)packet.records.data)[i];
       p_records->horizontal_position = cmc_buff_unpack_byte(buff);
@@ -3493,13 +3493,13 @@ unpack_S2C_play_map_chunk_bulk_packet(cmc_buff *buff) {
   case 47: {
     packet.sky_light_sent = cmc_buff_unpack_bool(buff);
     packet.chunk_column_count = cmc_buff_unpack_varint(buff);
-    packet.chunk_columns.len = packet.chunk_column_count;
+    packet.chunk_columns.size = packet.chunk_column_count;
     packet.chunk_columns.data = CMC_ERRB_ABLE(
-        cmc_malloc(packet.chunk_columns.len *
+        cmc_malloc(packet.chunk_columns.size *
                        sizeof(S2C_play_map_chunk_bulk_chunk_columns),
                    &buff->err),
         goto err;);
-    for (int i = 0; i < packet.chunk_columns.len; ++i) {
+    for (size_t i = 0; i < packet.chunk_columns.size; ++i) {
       S2C_play_map_chunk_bulk_chunk_columns *p_chunk_columns =
           &((S2C_play_map_chunk_bulk_chunk_columns *)
                 packet.chunk_columns.data)[i];
@@ -3533,12 +3533,12 @@ S2C_play_explosion_packet unpack_S2C_play_explosion_packet(cmc_buff *buff) {
     packet.z = cmc_buff_unpack_float(buff);
     packet.radius = cmc_buff_unpack_float(buff);
     packet.record_count = cmc_buff_unpack_int(buff);
-    packet.records.len = packet.record_count;
+    packet.records.size = packet.record_count;
     packet.records.data = CMC_ERRB_ABLE(
-        cmc_malloc(packet.records.len * sizeof(S2C_play_explosion_records),
+        cmc_malloc(packet.records.size * sizeof(S2C_play_explosion_records),
                    &buff->err),
         goto err;);
-    for (int i = 0; i < packet.records.len; ++i) {
+    for (size_t i = 0; i < packet.records.size; ++i) {
       S2C_play_explosion_records *p_records =
           &((S2C_play_explosion_records *)packet.records.data)[i];
       p_records->x_offset = cmc_buff_unpack_char(buff);

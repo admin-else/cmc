@@ -24,7 +24,7 @@ type_map = {
     "S": ["cmc_slot *",           "slot",            True,   "NULL",                    True ],
     "m": ["cmc_entity_metadata ", "entity_metadata", True,   "{.size=0,.entries=NULL}", True ],
     "u": ["cmc_uuid ",             "uuid",           False,  "{.lower=0,.upper=0}",     False],
-    "A": ["cmc_array ",            None,             True,   "{.data=NULL,.len=0}",     False],
+    "A": ["cmc_array ",            None,             True,   "{.data=NULL,.size=0}",    False],
 }
 
 replacement_paths = ["src/*.c", "include/cmc/*.h"]
@@ -123,9 +123,9 @@ def unpack_method_content(to_unpack_to, exp, deepness, packet_name):
         name, array_exp, key = split_array_exp(sym)
         i = chr(deepness)
         return f"""
-            {to_unpack_to}{name}.len = {to_unpack_to}{key};
-            {to_unpack_to}{name}.data = CMC_ERRB_ABLE(cmc_malloc({to_unpack_to}{name}.len * sizeof({packet_name}_{name}), &buff->err), goto err;);
-            for(int {i} = 0; i < {to_unpack_to}{name}.len; ++{i}) {{
+            {to_unpack_to}{name}.size = {to_unpack_to}{key};
+            {to_unpack_to}{name}.data = CMC_ERRB_ABLE(cmc_malloc({to_unpack_to}{name}.size * sizeof({packet_name}_{name}), &buff->err), goto err;);
+            for (size_t {i} = 0; {i} < {to_unpack_to}{name}.size; ++{i}) {{
                 {packet_name}_{name} *p_{name} = &(({packet_name}_{name} *){to_unpack_to}{name}.data)[{i}];
                 {unpack_method_content(f'p_{name}->', array_exp, deepness + 1, packet_name)}
             }}
@@ -178,7 +178,7 @@ def send_method_content(data, to_send, deepness, packet_name):
         name, array_exp, _ = split_array_exp(symbol)
         i = chr(deepness)
         return f"""
-            for(int {i} = 0; {i} < {to_send}{name}.len; ++{i}) {{
+            for (size_t {i} = 0; {i} < {to_send}{name}.size; ++{i}) {{
                 {packet_name}_{name} *p_{name} =  &(({packet_name}_{name} *){to_send}{name}.data)[{i}];
                 {send_method_content(array_exp, f'p_{name}->', deepness+1, packet_name)}
             }}
@@ -248,7 +248,7 @@ def free_method_content(exp, tofree, deepness, packet_name):
         i = chr(deepness)
         loop_body = free_method_content(array_exp, f"p_{name}", deepness + 1, packet_name)
         loop_statement = f"""
-            for(int {i} = 0; {i} < {tofree}->{name}.len; ++{i}) {{
+            for (size_t {i} = 0; {i} < {tofree}->{name}.size; ++{i}) {{
                 {packet_name}_{name} *p_{name} = &(({packet_name}_{name} *){tofree}->{name}.data)[{i}];
                 {loop_body}
             }}
@@ -256,7 +256,7 @@ def free_method_content(exp, tofree, deepness, packet_name):
         return f"""
             {loop_statement}
             free({tofree}->{name}.data);
-            {tofree}->{name}.len = 0;
+            {tofree}->{name}.size = 0;
         """
 
     return "".join(
