@@ -20,7 +20,7 @@
   X(CMC_ERR_UNKOWN_PACKET)                                                     \
   X(CMC_ERR_MALLOC_ZERO)                                                       \
   X(CMC_ERR_INVALID_ARGUMENTS)                                                 \
-  X(CMC_ERR_BUFF_UNDERUN)                                                      \
+  X(CMC_ERR_BUFF_UNDERFLOW)                                                    \
   X(CMC_ERR_BUFF_OVERFLOW)                                                     \
   X(CMC_ERR_STRING_LENGTH)                                                     \
   X(CMC_ERR_INVALID_STRING)                                                    \
