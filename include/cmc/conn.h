@@ -17,7 +17,7 @@ typedef enum {
   CMC_CONN_STATE_CONFIG
 } cmc_conn_state;
 
-typedef enum { CMC_DIRECTION_S2C, CMC_DIRECTION_C2S } packet_direction;
+typedef enum { CMC_DIRECTION_S2C, CMC_DIRECTION_C2S } cmc_packet_direction;
 
 typedef struct {
   int sockfd;

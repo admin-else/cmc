@@ -21,7 +21,7 @@
 
 cmc_packet_name_id
 cmc_packet_id_to_packet_name_id(int packet_id, cmc_conn_state state,
-                                packet_direction direction,
+                                cmc_packet_direction direction,
                                 cmc_protocol_version protocol_version) {
 #define COMBINE_VALUES(packet_id, state, direction, protocol_version)          \
   ((((uint64_t)(packet_id)&0xFF) << 56) | ((uint64_t)(state) << 48) |          \
