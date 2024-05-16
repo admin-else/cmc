@@ -1,6 +1,6 @@
 #include <cmc/conn.h>
 
-#include "err.h"
+#include "err_macros.h"
 
 #include <cmc/buff.h>
 #include <cmc/err.h>

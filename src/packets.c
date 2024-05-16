@@ -1,6 +1,6 @@
 #include <cmc/packets.h>
 
-#include "err.h"
+#include "err_macros.h"
 
 #include <cmc/buff.h>
 #include <cmc/conn.h>

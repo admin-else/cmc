@@ -1,6 +1,6 @@
 #include <cmc/buff.h>
 
-#include "err.h"
+#include "err_macros.h"
 
 #include <cmc/err.h>
 #include <cmc/heap_utils.h>
