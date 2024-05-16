@@ -1,36 +1,49 @@
 #pragma once
 
+#include <assert.h>
+
+#define CMC_ERR_ENUM_VALUES_X                                                  \
+  X(CMC_ERR_NO)                                                                \
+  X(CMC_ERR_MEM)                                                               \
+  X(CMC_ERR_CONNETING)                                                         \
+  X(CMC_ERR_SOCKET)                                                            \
+  X(CMC_ERR_CLOSING)                                                           \
+  X(CMC_ERR_RECV)                                                              \
+  X(CMC_ERR_INVALID_PACKET_LENGTH)                                             \
+  X(CMC_ERR_ZLIB_INIT)                                                         \
+  X(CMC_ERR_ZLIB_INFLATE)                                                      \
+  X(CMC_ERR_SENDER_LYING)                                                      \
+  X(CMC_ERR_ZLIB_COMPRESS)                                                     \
+  X(CMC_ERR_SENDING)                                                           \
+  X(CMC_ERR_KICKED_WHILE_LOGIN)                                                \
+  X(CMC_ERR_SERVER_ONLINE_MODE)                                                \
+  X(CMC_ERR_UNKOWN_PACKET)                                                     \
+  X(CMC_ERR_MALLOC_ZERO)                                                       \
+  X(CMC_ERR_INVALID_ARGUMENTS)                                                 \
+  X(CMC_ERR_BUFF_UNDERUN)                                                      \
+  X(CMC_ERR_BUFF_OVERFLOW)                                                     \
+  X(CMC_ERR_STRING_LENGTH)                                                     \
+  X(CMC_ERR_INVALID_STRING)                                                    \
+  X(CMC_ERR_INVALID_LENGTH)                                                    \
+  X(CMC_ERR_INVALID_NBT_TAG_TYPE)                                              \
+  X(CMC_ERR_NOT_IMPLEMENTED_YET)                                               \
+  X(CMC_ERR_ASSERT)                                                            \
+  X(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION)                                      \
+  X(CMC_ERR_UNEXPECTED_PACKET)                                                 \
+  X(CMC_ERR_REALLOC_ZERO)                                                      \
+  X(CMC_ERR_NEGATIVE_STRING_LENGTH)
+
 typedef enum {
-  CMC_ERR_NO,
-  CMC_ERR_MEM,
-  CMC_ERR_CONNETING,
-  CMC_ERR_SOCKET,
-  CMC_ERR_CLOSING,
-  CMC_ERR_RECV,
-  CMC_ERR_INVALID_PACKET_LEN,
-  CMC_ERR_ZLIB_INIT,
-  CMC_ERR_ZLIB_INFLATE,
-  CMC_ERR_SENDER_LYING,
-  CMC_ERR_ZLIB_COMPRESS,
-  CMC_ERR_SENDING,
-  CMC_ERR_KICKED_WHILE_LOGIN,
-  CMC_ERR_SERVER_ONLINE_MODE,
-  CMC_ERR_UNKOWN_PACKET,
-  CMC_ERR_MALLOC_ZERO,
-  CMC_ERR_INVALID_ARGUMENTS,
-  CMC_ERR_BUFF_UNDERUN,
-  CMC_ERR_BUFF_OVERFLOW,
-  CMC_ERR_STRING_LENGHT,
-  CMC_ERR_INVALID_STRING,
-  CMC_ERR_INVALID_LENGHT,
-  CMC_ERR_INVALID_NBT_TAG_TYPE,
-  CMC_ERR_NOT_IMPLEMENTED_YET,
-  CMC_ERR_ASSERT,
-  CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION,
-  CMC_ERR_UNEXPECTED_PACKET,
-  CMC_ERR_REALLOC_ZERO,
-  CMC_ERR_NEGATIVE_STRING_LENGHT
+#define X(ERR) ERR,
+  CMC_ERR_ENUM_VALUES_X
+#undef X
 } cmc_err;
+
+#define X(ERR) +1 // NOLINT(bugprone-macro-parentheses)
+enum { cmc_err_enum_size = 0 CMC_ERR_ENUM_VALUES_X };
+#undef X
+
+extern const char *const cmc_err_strings[cmc_err_enum_size];
 
 typedef struct {
   cmc_err err;
@@ -38,4 +51,7 @@ typedef struct {
   int line;
 } cmc_err_extra;
 
-const char *cmc_err_as_str(cmc_err err);
+inline const char *cmc_err_as_str(cmc_err err) {
+  assert(0 <= err && err < (cmc_err)(cmc_err_enum_size));
+  return cmc_err_strings[err];
+}

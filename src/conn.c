@@ -83,7 +83,7 @@ cmc_buff *cmc_conn_recive_packet(cmc_conn *conn) {
       break;
   }
 
-  CMC_ERRC_IF(packet_len <= 0, CMC_ERR_INVALID_PACKET_LEN, return NULL;);
+  CMC_ERRC_IF(packet_len <= 0, CMC_ERR_INVALID_PACKET_LENGTH, return NULL;);
 
   cmc_buff *buff = cmc_buff_init(conn->protocol_version);
   unsigned char *tmp =
