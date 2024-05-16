@@ -276,16 +276,19 @@ const char *cmc_packet_name_id_string(cmc_packet_name_id id) {
 }
 
 // CGSS: free_methods_c
+
 void cmc_free_C2S_handshake_handshake_packet(
     C2S_handshake_handshake_packet *packet, cmc_err_extra *err) {
   cmc_string_free(packet->server_addr);
   (void)err;
 }
+
 void cmc_free_S2C_status_response_packet(S2C_status_response_packet *packet,
                                          cmc_err_extra *err) {
   cmc_string_free(packet->response);
   (void)err;
 }
+
 void cmc_free_S2C_status_pong_packet(S2C_status_pong_packet *packet,
                                      cmc_err_extra *err) {
   (void)packet;
@@ -297,11 +300,13 @@ void cmc_free_C2S_status_ping_packet(C2S_status_ping_packet *packet,
   (void)packet;
   (void)err;
 }
+
 void cmc_free_S2C_login_disconnect_packet(S2C_login_disconnect_packet *packet,
                                           cmc_err_extra *err) {
   cmc_string_free(packet->reason);
   (void)err;
 }
+
 void cmc_free_S2C_login_encryption_request_packet(
     S2C_login_encryption_request_packet *packet, cmc_err_extra *err) {
   cmc_string_free(packet->server_id);
@@ -309,180 +314,216 @@ void cmc_free_S2C_login_encryption_request_packet(
   cmc_buff_free(packet->verify_token);
   (void)err;
 }
+
 void cmc_free_S2C_login_success_packet(S2C_login_success_packet *packet,
                                        cmc_err_extra *err) {
   cmc_string_free(packet->uuid_str);
   cmc_string_free(packet->name);
   (void)err;
 }
+
 void cmc_free_S2C_login_set_compression_packet(
     S2C_login_set_compression_packet *packet, cmc_err_extra *err) {
   (void)packet;
   (void)err;
 }
+
 void cmc_free_C2S_login_start_packet(C2S_login_start_packet *packet,
                                      cmc_err_extra *err) {
   cmc_string_free(packet->name);
   (void)err;
 }
+
 void cmc_free_C2S_login_encryption_response_packet(
     C2S_login_encryption_response_packet *packet, cmc_err_extra *err) {
   cmc_buff_free(packet->shared_secret);
   cmc_buff_free(packet->verify_token);
   (void)err;
 }
+
 void cmc_free_S2C_play_keep_alive_packet(S2C_play_keep_alive_packet *packet,
                                          cmc_err_extra *err) {
   (void)packet;
   (void)err;
 }
+
 void cmc_free_S2C_play_join_game_packet(S2C_play_join_game_packet *packet,
                                         cmc_err_extra *err) {
   cmc_string_free(packet->level_type);
   (void)err;
 }
+
 void cmc_free_S2C_play_chat_message_packet(S2C_play_chat_message_packet *packet,
                                            cmc_err_extra *err) {
   cmc_string_free(packet->message);
   (void)err;
 }
+
 void cmc_free_S2C_play_time_update_packet(S2C_play_time_update_packet *packet,
                                           cmc_err_extra *err) {
   (void)packet;
   (void)err;
 }
+
 void cmc_free_S2C_play_entity_equipment_packet(
     S2C_play_entity_equipment_packet *packet, cmc_err_extra *err) {
   cmc_slot_free(packet->item, err);
   (void)err;
 }
+
 void cmc_free_S2C_play_spawn_position_packet(
     S2C_play_spawn_position_packet *packet, cmc_err_extra *err) {
   (void)packet;
   (void)err;
 }
+
 void cmc_free_S2C_play_update_health_packet(
     S2C_play_update_health_packet *packet, cmc_err_extra *err) {
   (void)packet;
   (void)err;
 }
+
 void cmc_free_S2C_play_respawn_packet(S2C_play_respawn_packet *packet,
                                       cmc_err_extra *err) {
   cmc_string_free(packet->level_type);
   (void)err;
 }
+
 void cmc_free_S2C_play_player_look_and_position_packet(
     S2C_play_player_look_and_position_packet *packet, cmc_err_extra *err) {
   (void)packet;
   (void)err;
 }
+
 void cmc_free_S2C_play_held_item_change_packet(
     S2C_play_held_item_change_packet *packet, cmc_err_extra *err) {
   (void)packet;
   (void)err;
 }
+
 void cmc_free_S2C_play_use_bed_packet(S2C_play_use_bed_packet *packet,
                                       cmc_err_extra *err) {
   (void)packet;
   (void)err;
 }
+
 void cmc_free_S2C_play_animation_packet(S2C_play_animation_packet *packet,
                                         cmc_err_extra *err) {
   (void)packet;
   (void)err;
 }
+
 void cmc_free_S2C_play_spawn_player_packet(S2C_play_spawn_player_packet *packet,
                                            cmc_err_extra *err) {
   cmc_entity_metadata_free(packet->meta_data, err);
   (void)err;
 }
+
 void cmc_free_S2C_play_collect_item_packet(S2C_play_collect_item_packet *packet,
                                            cmc_err_extra *err) {
   (void)packet;
   (void)err;
 }
+
 void cmc_free_S2C_play_spawn_mob_packet(S2C_play_spawn_mob_packet *packet,
                                         cmc_err_extra *err) {
   cmc_entity_metadata_free(packet->meta_data, err);
   (void)err;
 }
+
 void cmc_free_S2C_play_spawn_painting_packet(
     S2C_play_spawn_painting_packet *packet, cmc_err_extra *err) {
   cmc_string_free(packet->title);
   (void)err;
 }
+
 void cmc_free_S2C_play_spawn_experience_orb_packet(
     S2C_play_spawn_experience_orb_packet *packet, cmc_err_extra *err) {
   (void)packet;
   (void)err;
 }
+
 void cmc_free_S2C_play_entity_velocity_packet(
     S2C_play_entity_velocity_packet *packet, cmc_err_extra *err) {
   (void)packet;
   (void)err;
 }
+
 void cmc_free_S2C_play_entity_packet(S2C_play_entity_packet *packet,
                                      cmc_err_extra *err) {
   (void)packet;
   (void)err;
 }
+
 void cmc_free_S2C_play_entity_relative_move_packet(
     S2C_play_entity_relative_move_packet *packet, cmc_err_extra *err) {
   (void)packet;
   (void)err;
 }
+
 void cmc_free_S2C_play_entity_look_packet(S2C_play_entity_look_packet *packet,
                                           cmc_err_extra *err) {
   (void)packet;
   (void)err;
 }
+
 void cmc_free_S2C_play_entity_look_and_relative_move_packet(
     S2C_play_entity_look_and_relative_move_packet *packet, cmc_err_extra *err) {
   (void)packet;
   (void)err;
 }
+
 void cmc_free_S2C_play_entity_teleport_packet(
     S2C_play_entity_teleport_packet *packet, cmc_err_extra *err) {
   (void)packet;
   (void)err;
 }
+
 void cmc_free_S2C_play_entity_head_look_packet(
     S2C_play_entity_head_look_packet *packet, cmc_err_extra *err) {
   (void)packet;
   (void)err;
 }
+
 void cmc_free_S2C_play_entity_status_packet(
     S2C_play_entity_status_packet *packet, cmc_err_extra *err) {
   (void)packet;
   (void)err;
 }
+
 void cmc_free_S2C_play_attach_entity_packet(
     S2C_play_attach_entity_packet *packet, cmc_err_extra *err) {
   (void)packet;
   (void)err;
 }
+
 void cmc_free_S2C_play_entity_metadata_packet(
     S2C_play_entity_metadata_packet *packet, cmc_err_extra *err) {
   cmc_entity_metadata_free(packet->meta_data, err);
   (void)err;
 }
+
 void cmc_free_S2C_play_entity_effect_packet(
     S2C_play_entity_effect_packet *packet, cmc_err_extra *err) {
   (void)packet;
   (void)err;
 }
+
 void cmc_free_S2C_play_remove_entity_effect_packet(
     S2C_play_remove_entity_effect_packet *packet, cmc_err_extra *err) {
   (void)packet;
   (void)err;
 }
+
 void cmc_free_S2C_play_set_experience_packet(
     S2C_play_set_experience_packet *packet, cmc_err_extra *err) {
   (void)packet;
   (void)err;
 }
+
 void cmc_free_S2C_play_entity_properties_packet(
     S2C_play_entity_properties_packet *packet, cmc_err_extra *err) {
+
   for (int i = 0; i < packet->properties.len; ++i) {
     S2C_play_entity_properties_properties *p_properties =
         &((S2C_play_entity_properties_properties *)packet->properties.data)[i];
@@ -497,40 +538,50 @@ void cmc_free_S2C_play_entity_properties_packet(
   }
   free(packet->properties.data);
   packet->properties.len = 0;
+
   (void)err;
 }
+
 void cmc_free_S2C_play_chunk_data_packet(S2C_play_chunk_data_packet *packet,
                                          cmc_err_extra *err) {
   cmc_buff_free(packet->chunk);
   (void)err;
 }
+
 void cmc_free_S2C_play_multi_block_change_packet(
     S2C_play_multi_block_change_packet *packet, cmc_err_extra *err) {
+
   for (int i = 0; i < packet->records.len; ++i) {
     S2C_play_multi_block_change_records *p_records =
         &((S2C_play_multi_block_change_records *)packet->records.data)[i];
   }
   free(packet->records.data);
   packet->records.len = 0;
+
   (void)err;
 }
+
 void cmc_free_S2C_play_block_change_packet(S2C_play_block_change_packet *packet,
                                            cmc_err_extra *err) {
   (void)packet;
   (void)err;
 }
+
 void cmc_free_S2C_play_block_action_packet(S2C_play_block_action_packet *packet,
                                            cmc_err_extra *err) {
   (void)packet;
   (void)err;
 }
+
 void cmc_free_S2C_play_block_break_animation_packet(
     S2C_play_block_break_animation_packet *packet, cmc_err_extra *err) {
   (void)packet;
   (void)err;
 }
+
 void cmc_free_S2C_play_map_chunk_bulk_packet(
     S2C_play_map_chunk_bulk_packet *packet, cmc_err_extra *err) {
+
   for (int i = 0; i < packet->chunk_columns.len; ++i) {
     S2C_play_map_chunk_bulk_chunk_columns *p_chunk_columns = &(
         (S2C_play_map_chunk_bulk_chunk_columns *)packet->chunk_columns.data)[i];
@@ -540,53 +591,64 @@ void cmc_free_S2C_play_map_chunk_bulk_packet(
   cmc_buff_free(packet->chunk);
   (void)err;
 }
+
 void cmc_free_S2C_play_explosion_packet(S2C_play_explosion_packet *packet,
                                         cmc_err_extra *err) {
+
   for (int i = 0; i < packet->records.len; ++i) {
     S2C_play_explosion_records *p_records =
         &((S2C_play_explosion_records *)packet->records.data)[i];
   }
   free(packet->records.data);
   packet->records.len = 0;
+
   (void)err;
 }
+
 void cmc_free_S2C_play_effect_packet(S2C_play_effect_packet *packet,
                                      cmc_err_extra *err) {
   (void)packet;
   (void)err;
 }
+
 void cmc_free_S2C_play_sound_effect_packet(S2C_play_sound_effect_packet *packet,
                                            cmc_err_extra *err) {
   cmc_string_free(packet->sound_name);
   (void)err;
 }
+
 void cmc_free_S2C_play_change_game_state_packet(
     S2C_play_change_game_state_packet *packet, cmc_err_extra *err) {
   (void)packet;
   (void)err;
 }
+
 void cmc_free_S2C_play_player_abilities_packet(
     S2C_play_player_abilities_packet *packet, cmc_err_extra *err) {
   (void)packet;
   (void)err;
 }
+
 void cmc_free_S2C_play_plugin_message_packet(
     S2C_play_plugin_message_packet *packet, cmc_err_extra *err) {
   cmc_string_free(packet->channel);
   cmc_buff_free(packet->data);
   (void)err;
 }
+
 void cmc_free_S2C_play_disconnect_packet(S2C_play_disconnect_packet *packet,
                                          cmc_err_extra *err) {
   cmc_string_free(packet->reason);
   cmc_nbt_free(packet->reason_nbt, err);
   (void)err;
 }
+
 void cmc_free_S2C_play_change_difficulty_packet(
     S2C_play_change_difficulty_packet *packet, cmc_err_extra *err) {
   (void)packet;
   (void)err;
 }
+
 void cmc_free_C2S_play_keep_alive_packet(C2S_play_keep_alive_packet *packet,
                                          cmc_err_extra *err) {
   (void)packet;
@@ -599,6 +661,7 @@ void cmc_free_S2C_config_plugin_message_packet(
   cmc_buff_free(packet->data);
   (void)err;
 }
+
 void cmc_free_S2C_config_disconnect_packet(S2C_config_disconnect_packet *packet,
                                            cmc_err_extra *err) {
   cmc_string_free(packet->reason);
@@ -610,11 +673,13 @@ void cmc_free_S2C_config_keep_alive_packet(S2C_config_keep_alive_packet *packet,
   (void)packet;
   (void)err;
 }
+
 void cmc_free_S2C_config_ping_packet(S2C_config_ping_packet *packet,
                                      cmc_err_extra *err) {
   (void)packet;
   (void)err;
 }
+
 void cmc_free_S2C_config_registry_data_packet(
     S2C_config_registry_data_packet *packet, cmc_err_extra *err) {
   cmc_nbt_free(packet->registry_codec, err);
