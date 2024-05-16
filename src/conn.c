@@ -1,7 +1,5 @@
 #include <cmc/conn.h>
 
-#include "err_macros.h"
-
 #include <cmc/buff.h>
 #include <cmc/err.h>
 #include <cmc/heap_utils.h>
@@ -16,6 +14,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "err_macros.h"
 
 cmc_conn cmc_conn_init(int protocol_version) {
   return (cmc_conn){.state = CMC_CONN_STATE_OFFLINE,
