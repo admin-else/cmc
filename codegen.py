@@ -221,12 +221,14 @@ def free_method_content(exp, tofree, deepness, packet_name):
             if exp_type == "A":
                 name, array_exp, key = split_array_exp(sym)
                 deepnessc = chr(deepness)
-                code += f"""for(int {deepnessc} = 0; {tofree}->{name}.len; ++{deepnessc}) {{
-{packet_name}_{name} *p_{name} = {deepnessc} * sizeof(*p_{name}) + ({packet_name}_{name} *){tofree}->{name}.data;"""
-                code += free_method_content(array_exp, f"p_{name}", deepness+1, packet_name)
-                code += f"""}}
-free({tofree}->{name}.data);
-{tofree}->{name}.len = 0;"""
+                code += f"""
+                    for(int {deepnessc} = 0; {deepnessc} < {tofree}->{name}.len; ++{deepnessc}) {{
+                        {packet_name}_{name} *p_{name} = &(({packet_name}_{name} *){tofree}->{name}.data)[{deepnessc}];
+                        {free_method_content(array_exp, "p_" + name, deepness + 1, packet_name)}
+                    }}
+                    free({tofree}->{name}.data);
+                    {tofree}->{name}.len = 0;
+                """
             else:
                 code += f"cmc_{type_map[exp_type][1]}_free({tofree}->{exp_data}{', err' if type_map[exp_type][4] else ''});"
     return code
