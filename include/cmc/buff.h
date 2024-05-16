@@ -145,5 +145,5 @@ void cmc_buff_pack_uuid(cmc_buff *buff, cmc_uuid uuid);
 // array
 typedef struct {
   void *data;
-  int len;
+  size_t size;
 } cmc_array;
