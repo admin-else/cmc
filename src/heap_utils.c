@@ -1,6 +1,6 @@
 #include <cmc/heap_utils.h>
 
-#include "err.h"
+#include "err_macros.h"
 
 #include <cmc/err.h>
 
