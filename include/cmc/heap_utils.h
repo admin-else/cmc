@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cmc/err.h>
+
 #include <stddef.h>
 
 void *cmc_malloc(size_t n, cmc_err_extra *err);

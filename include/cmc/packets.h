@@ -3,6 +3,7 @@
 #include <cmc/buff.h>
 #include <cmc/conn.h>
 #include <cmc/packet_types.h>
+
 #include <stdbool.h>
 
 typedef enum {

@@ -1,11 +1,15 @@
-#include "err.h"
-#include <assert.h>
 #include <cmc/buff.h>
+
+#include "err.h"
+
 #include <cmc/err.h>
 #include <cmc/heap_utils.h>
 #include <cmc/nbt.h>
-#include <ctype.h>
+
 #include <endian.h>
+
+#include <assert.h>
+#include <ctype.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
