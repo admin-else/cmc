@@ -246,11 +246,15 @@ def free_method_content(exp, tofree, deepness, packet_name):
     def handle_array(sym):
         name, array_exp, _ = split_array_exp(sym)
         i = chr(deepness)
-        return f"""
+        loop_body = free_method_content(array_exp, f"p_{name}", deepness + 1, packet_name)
+        loop_statement = f"""
             for(int {i} = 0; {i} < {tofree}->{name}.len; ++{i}) {{
                 {packet_name}_{name} *p_{name} = &(({packet_name}_{name} *){tofree}->{name}.data)[{i}];
-                {free_method_content(array_exp, f'p_{name}', deepness + 1, packet_name)}
+                {loop_body}
             }}
+        """ if loop_body else ""
+        return f"""
+            {loop_statement}
             free({tofree}->{name}.data);
             {tofree}->{name}.len = 0;
         """

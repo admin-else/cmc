@@ -528,14 +528,11 @@ void cmc_free_S2C_play_entity_properties_packet(
     S2C_play_entity_properties_properties *p_properties =
         &((S2C_play_entity_properties_properties *)packet->properties.data)[i];
     cmc_string_free(p_properties->key);
-    for (int j = 0; j < p_properties->modifiers.len; ++j) {
-      S2C_play_entity_properties_modifiers *p_modifiers =
-          &((S2C_play_entity_properties_modifiers *)
-                p_properties->modifiers.data)[j];
-    }
+
     free(p_properties->modifiers.data);
     p_properties->modifiers.len = 0;
   }
+
   free(packet->properties.data);
   packet->properties.len = 0;
 
@@ -551,10 +548,6 @@ void cmc_free_S2C_play_chunk_data_packet(S2C_play_chunk_data_packet *packet,
 void cmc_free_S2C_play_multi_block_change_packet(
     S2C_play_multi_block_change_packet *packet, cmc_err_extra *err) {
 
-  for (int i = 0; i < packet->records.len; ++i) {
-    S2C_play_multi_block_change_records *p_records =
-        &((S2C_play_multi_block_change_records *)packet->records.data)[i];
-  }
   free(packet->records.data);
   packet->records.len = 0;
 
@@ -582,10 +575,6 @@ void cmc_free_S2C_play_block_break_animation_packet(
 void cmc_free_S2C_play_map_chunk_bulk_packet(
     S2C_play_map_chunk_bulk_packet *packet, cmc_err_extra *err) {
 
-  for (int i = 0; i < packet->chunk_columns.len; ++i) {
-    S2C_play_map_chunk_bulk_chunk_columns *p_chunk_columns = &(
-        (S2C_play_map_chunk_bulk_chunk_columns *)packet->chunk_columns.data)[i];
-  }
   free(packet->chunk_columns.data);
   packet->chunk_columns.len = 0;
   cmc_buff_free(packet->chunk);
@@ -595,10 +584,6 @@ void cmc_free_S2C_play_map_chunk_bulk_packet(
 void cmc_free_S2C_play_explosion_packet(S2C_play_explosion_packet *packet,
                                         cmc_err_extra *err) {
 
-  for (int i = 0; i < packet->records.len; ++i) {
-    S2C_play_explosion_records *p_records =
-        &((S2C_play_explosion_records *)packet->records.data)[i];
-  }
   free(packet->records.data);
   packet->records.len = 0;
 
