@@ -307,45 +307,45 @@ def main():
     mc_packet_exps = gather_packets()
     #pprint(mc_packet_exps)
 
-    replace_code_segments("".join([f"HELPER(CMC_{inp['name'].upper()}_NAME_ID);" for inp in mc_packet_exps]), "packet_name_id_string")
+    replace_code_segments("".join(f"HELPER(CMC_{inp['name'].upper()}_NAME_ID);" for inp in mc_packet_exps), "packet_name_id_string")
 
 
     replace_code_segments(packet_name_id_define(mc_packet_exps), "packet_name_id_define")
 
     # packet unpack methods
     replace_code_segments(
-        "".join([unpack_method(mc_packet_exp) for mc_packet_exp in mc_packet_exps]),
+        "".join(unpack_method(mc_packet_exp) for mc_packet_exp in mc_packet_exps),
         "unpack_methods_c",
     )
     replace_code_segments(
-        "".join([f"{inp['name']}_packet unpack_{inp['name']}_packet(cmc_buff *buff);" if not inp['is_empty'] else "" for inp in mc_packet_exps]),
+        "".join(f"{inp['name']}_packet unpack_{inp['name']}_packet(cmc_buff *buff);" if not inp['is_empty'] else "" for inp in mc_packet_exps),
         "unpack_methods_h",
     )
     # packet unpack methods header
 
     replace_code_segments(
-        "".join([send_method(mc_packet_exp) for mc_packet_exp in mc_packet_exps]),
+        "".join(send_method(mc_packet_exp) for mc_packet_exp in mc_packet_exps),
         "send_methods_c",
     )
 
     # packet send methods header
     replace_code_segments(
-        "".join(["cmc_err cmc_send_{}_packet(cmc_conn *conn{});".format(inp['name'], f", {inp['name']}_packet *packet" if not inp["is_empty"] else "") for inp in mc_packet_exps]),
+        "".join("cmc_err cmc_send_{}_packet(cmc_conn *conn{});".format(inp['name'], f", {inp['name']}_packet *packet" if not inp["is_empty"] else "") for inp in mc_packet_exps),
         "send_methods_h",
     )
 
     # type defs
     replace_code_segments(
-        "".join([type_def(mc_packet_exp) for mc_packet_exp in mc_packet_exps]),
+        "".join(type_def(mc_packet_exp) for mc_packet_exp in mc_packet_exps),
         "packet_types",
     )
 
     replace_code_segments(
-        "\n".join([free_method(sym) for sym in mc_packet_exps]), "free_methods_c"
+        "\n".join(free_method(sym) for sym in mc_packet_exps), "free_methods_c"
     )
 
     replace_code_segments(
-        "\n".join([f"void cmc_free_{inp['name']}_packet({inp['name']}_packet *packet, cmc_err_extra *err);" for inp in mc_packet_exps if not inp["is_empty"]]), "free_methods_h"
+        "\n".join(f"void cmc_free_{inp['name']}_packet({inp['name']}_packet *packet, cmc_err_extra *err);" for inp in mc_packet_exps if not inp["is_empty"]), "free_methods_h"
     )
     
 if __name__ == "__main__":
