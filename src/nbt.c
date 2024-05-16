@@ -1,8 +1,8 @@
 #include <cmc/nbt.h>
 
-#include "err_macros.h"
-
 #include <cmc/err.h>
+
+#include "err_macros.h"
 
 cmc_nbt *cmc_nbt_parse(cmc_buff *buff, cmc_err_extra *err) {
   (void)buff;

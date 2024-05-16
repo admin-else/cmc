@@ -1,7 +1,5 @@
 #include <cmc/packets.h>
 
-#include "err_macros.h"
-
 #include <cmc/buff.h>
 #include <cmc/conn.h>
 #include <cmc/err.h>
@@ -13,6 +11,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "err_macros.h"
 
 #define UNPACK_ERR_HANDELER                                                    \
   ERR_CHECK(return packet;);                                                   \

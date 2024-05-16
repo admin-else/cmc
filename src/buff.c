@@ -1,7 +1,5 @@
 #include <cmc/buff.h>
 
-#include "err_macros.h"
-
 #include <cmc/err.h>
 #include <cmc/heap_utils.h>
 #include <cmc/nbt.h>
@@ -16,6 +14,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "err_macros.h"
 
 #define VARINT_SEGMENT_BITS 0x7F
 #define VARINT_CONTINUE_BIT 0x80
@@ -155,10 +155,7 @@ bool cmc_buff_unpack_bool(cmc_buff *buff) {
   unsigned char *data = cmc_buff_unpack(buff, 1);
   unsigned char byte_val = *data;
   free(data);
-  if (byte_val)
-    return true;
-  else
-    return false;
+  return byte_val;
 }
 
 cmc_err cmc_buff_pack_varint(cmc_buff *buff, int n) {
