@@ -12,9 +12,16 @@ find_package(ZLIB REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(CURL REQUIRED)
 
-file(GLOB_RECURSE SRC_FILES src/*.c)
+add_library(cmc
+    src/buff.c
+    src/conn.c
+    src/crypto.c
+    src/err.c
+    src/heap_utils.c
+    src/nbt.c
+    src/packets.c
+)
 
-add_library(cmc ${SRC_FILES})
 target_link_libraries(cmc PRIVATE ZLIB::ZLIB OpenSSL::SSL CURL::libcurl)
 target_include_directories(cmc PUBLIC include)
 
@@ -44,14 +51,8 @@ endif()
 include(CTest)
 
 if(BUILD_TESTING)
-    file(GLOB TEST_SOURCES tests/*.c)
-    foreach(TEST_SOURCE ${TEST_SOURCES})
-        get_filename_component(TEST_NAME ${TEST_SOURCE} NAME_WE)
-        set(TEST_TARGET "${TEST_NAME}_test")
-        add_executable(${TEST_TARGET} ${TEST_SOURCE})
-        target_link_libraries(${TEST_TARGET} PRIVATE cmc)
-    endforeach()
-
+    add_executable(status_test tests/status.c)
+    target_link_libraries(status_test PRIVATE cmc)
     add_test(NAME status COMMAND status_test)
 endif()
 
