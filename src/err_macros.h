@@ -13,12 +13,7 @@ A(bstaract): parent of all other types you can also use it in weird situations
 R(eturns): returns error in the function instead of reqiring action
 C(onn): writes err into conn instead of err
 B(uff): like conn but into buffer
-
-
-
 */
-
-#include <cmc/err.h>
 
 #define CMC_ERRA(err_type, action, err_var)                                    \
   do {                                                                         \

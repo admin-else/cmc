@@ -1,8 +1,12 @@
-#include "err.h"
+#include <cmc/heap_utils.h>
+
 #include <cmc/err.h>
+
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#include "err_macros.h"
 
 void *cmc_malloc(size_t n, cmc_err_extra *err) {
   if (n == 0)

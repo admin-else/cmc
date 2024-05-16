@@ -1,49 +1,61 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.15)
 project(cmc_project C)
 
-
 # Use cmake generator expressions https://cmake.org/cmake/help/latest/manual/cmake-generator-expressions.7.html
-if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE "Release")
-endif()
 
-set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O2 -Wall -Wextra -fPIC")
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Og -ggdb -Wall -Wextra -fPIC -fsanitize=address,undefined")
+set(CMAKE_C_STANDARD 23)
+set(CMAKE_C_STANDARD_REQUIRED TRUE)
+
+option(BUILD_SHARED_LIBS "Build shared libraries" ON)
 
 find_package(ZLIB REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(CURL REQUIRED)
 
-file(GLOB_RECURSE SRC_FILES ${CMAKE_SOURCE_DIR}/src/*.c)
+add_library(cmc
+    src/buff.c
+    src/conn.c
+    src/err.c
+    src/heap_utils.c
+    src/nbt.c
+    src/packets.c
+)
 
-add_library(cmc SHARED ${SRC_FILES})
-add_library(cmc_static STATIC ${SRC_FILES})
+target_link_libraries(cmc PRIVATE ZLIB::ZLIB OpenSSL::SSL CURL::libcurl)
+target_include_directories(cmc PUBLIC include)
 
-target_link_libraries(cmc PRIVATE ${ZLIB_LIBRARIES} ${OPENSSL_LIBRARIES} ${CURL_LIBRARIES})
-target_link_libraries(cmc_static PRIVATE ${ZLIB_LIBRARIES} ${OPENSSL_LIBRARIES} ${CURL_LIBRARIES})
-
-target_include_directories(cmc PUBLIC ${CMAKE_SOURCE_DIR}/include)
-target_include_directories(cmc_static PUBLIC ${CMAKE_SOURCE_DIR}/include)
+if(MSVC)
+    target_compile_options(cmc PRIVATE /W4)
+else()
+    target_compile_options(cmc PRIVATE -Wall -Wextra -Werror=switch)
+    target_compile_options(cmc PUBLIC $<$<CONFIG:DEBUG>:-fsanitize=address,undefined>)
+    target_link_options(cmc PUBLIC $<$<CONFIG:DEBUG>:-fsanitize=address,undefined>)
+endif()
 
 add_custom_target(format
-    COMMAND clang-format -i ${SRC_FILES} ${CMAKE_SOURCE_DIR}/include/cmc/*
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMAND clang-format -i src/* include/cmc/*
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 add_custom_target(codegen
-    COMMAND ${CMAKE_COMMAND} -E chdir ${CMAKE_SOURCE_DIR} python3 codegen.py
-    COMMAND clang-format -i ${SRC_FILES} ${CMAKE_SOURCE_DIR}/include/cmc/*
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMAND python3 codegen.py
+    COMMAND clang-format -i src/* include/cmc/*
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-install(TARGETS cmc LIBRARY DESTINATION lib)
-install(TARGETS cmc_static ARCHIVE DESTINATION lib)
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION include)
+if(NOT PROJECT_IS_TOP_LEVEL)
+    return()
+endif()
 
-file(GLOB TEST_SOURCES ${CMAKE_SOURCE_DIR}/tests/*.c)
-foreach(TEST_SOURCE ${TEST_SOURCES})
-    get_filename_component(TEST_NAME ${TEST_SOURCE} NAME_WE)
-    add_executable(${TEST_NAME} ${TEST_SOURCE})
-    target_link_libraries(${TEST_NAME} PRIVATE cmc ${ZLIB_LIBRARIES} ${OPENSSL_LIBRARIES} ${CURL_LIBRARIES})
-    add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
-endforeach()
+include(CTest)
+
+if(BUILD_TESTING)
+    add_executable(status_test tests/status.c)
+    target_link_libraries(status_test PRIVATE cmc)
+    add_test(NAME status COMMAND status_test)
+endif()
+
+include(GNUInstallDirs)
+
+install(TARGETS cmc)
+install(DIRECTORY include/ TYPE INCLUDE)

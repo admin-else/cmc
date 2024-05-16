@@ -1,17 +1,21 @@
-#include "err.h"
-#include <assert.h>
 #include <cmc/buff.h>
+
 #include <cmc/err.h>
 #include <cmc/heap_utils.h>
 #include <cmc/nbt.h>
-#include <ctype.h>
+
 #include <endian.h>
+
+#include <assert.h>
+#include <ctype.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "err_macros.h"
 
 #define VARINT_SEGMENT_BITS 0x7F
 #define VARINT_CONTINUE_BIT 0x80
@@ -42,7 +46,7 @@ void cmc_buff_print_info(cmc_buff *buff) {
   printf("'\n");
 }
 
-cmc_buff *cmc_buff_init(int protocol_version) {
+cmc_buff *cmc_buff_init(cmc_protocol_version protocol_version) {
   cmc_buff *buff = malloc(sizeof(cmc_buff));
   if (!buff)
     return NULL;
@@ -51,7 +55,7 @@ cmc_buff *cmc_buff_init(int protocol_version) {
   buff->position = 0;
   buff->length = 0;
   buff->protocol_version = protocol_version;
-  buff->err = CMC_ERR_EXTRA_INIT;
+  buff->err = (cmc_err_extra){};
   return buff;
 }
 
@@ -151,10 +155,7 @@ bool cmc_buff_unpack_bool(cmc_buff *buff) {
   unsigned char *data = cmc_buff_unpack(buff, 1);
   unsigned char byte_val = *data;
   free(data);
-  if (byte_val)
-    return true;
-  else
-    return false;
+  return byte_val;
 }
 
 cmc_err cmc_buff_pack_varint(cmc_buff *buff, int n) {
@@ -190,9 +191,9 @@ char *cmc_buff_unpack_string_w_max_len(cmc_buff *buff, int max_len) {
   int n = CMC_ERRB_ABLE(cmc_buff_unpack_varint(buff), return NULL;);
 
   if (max_len * 4 < n)
-    CMC_ERRB(CMC_ERR_STRING_LENGHT, return NULL;);
+    CMC_ERRB(CMC_ERR_STRING_LENGTH, return NULL;);
   if (n < 0)
-    CMC_ERRB(CMC_ERR_NEGATIVE_STRING_LENGHT, return NULL;);
+    CMC_ERRB(CMC_ERR_NEGATIVE_STRING_LENGTH, return NULL;);
 
   char *str = CMC_ERRB_ABLE(cmc_buff_unpack(buff, n), return NULL;);
 
@@ -203,7 +204,7 @@ char *cmc_buff_unpack_string_w_max_len(cmc_buff *buff, int max_len) {
   for (int i = 0; i < n; ++i)
     if ((str[i] & 0xC0) != 0x80)
       ++utf_str_len;
-  CMC_ERRB_IF(utf_str_len > max_len, CMC_ERR_STRING_LENGHT, goto err;);
+  CMC_ERRB_IF(utf_str_len > max_len, CMC_ERR_STRING_LENGTH, goto err;);
   return str;
 err:
   free(str);
@@ -220,7 +221,7 @@ cmc_err cmc_buff_pack_string_w_max_len(cmc_buff *buff, const char *str,
     if ((str[i] & 0xC0) != 0x80)
       ++str_len;
   if (str_len > max_len)
-    CMC_ERRRB(CMC_ERR_STRING_LENGHT);
+    CMC_ERRRB(CMC_ERR_STRING_LENGTH);
   CMC_ERRRB_ABLE(cmc_buff_pack_varint(buff, str_len_bytes));
   CMC_ERRRB_ABLE(cmc_buff_pack(buff, str, str_len_bytes));
   return CMC_ERR_NO;
@@ -451,7 +452,12 @@ cmc_err cmc_entity_metadata_free(cmc_entity_metadata metadata,
     case ENTITY_METADATA_ENTRY_TYPE_STRING:
       cmc_string_free(entry->payload.string_data);
       break;
-    default:
+    case ENTITY_METADATA_ENTRY_TYPE_BYTE:
+    case ENTITY_METADATA_ENTRY_TYPE_SHORT:
+    case ENTITY_METADATA_ENTRY_TYPE_INT:
+    case ENTITY_METADATA_ENTRY_TYPE_FLOAT:
+    case ENTITY_METADATA_ENTRY_TYPE_POSITION:
+    case ENTITY_METADATA_ENTRY_TYPE_ROTATION:
       break;
     }
   }
