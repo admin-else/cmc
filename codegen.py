@@ -237,38 +237,43 @@ def packet_ids(mc_packet_exps):
     return code
 
 def free_method_content(exp, tofree, deepness, packet_name):
-    code = ""
-    for sym in careful_split(exp):
-        if type_map[sym[0]][2]:
-            exp_type = sym[0]
-            exp_data = sym[1:]
-            if exp_type == "A":
-                name, array_exp, key = split_array_exp(sym)
-                deepnessc = chr(deepness)
-                code += f"""
-                    for(int {deepnessc} = 0; {deepnessc} < {tofree}->{name}.len; ++{deepnessc}) {{
-                        {packet_name}_{name} *p_{name} = &(({packet_name}_{name} *){tofree}->{name}.data)[{deepnessc}];
-                        {free_method_content(array_exp, "p_" + name, deepness + 1, packet_name)}
-                    }}
-                    free({tofree}->{name}.data);
-                    {tofree}->{name}.len = 0;
-                """
-            else:
-                code += f"cmc_{type_map[exp_type][1]}_free({tofree}->{exp_data}{', err' if type_map[exp_type][4] else ''});"
-    return code
+    def handle_value(sym):
+        exp_type = sym[0]
+        exp_data = sym[1:]
+        second_arg = ", err" if type_map[exp_type][4] else ""
+        return f"cmc_{type_map[exp_type][1]}_free({tofree}->{exp_data}{second_arg});"
+
+    def handle_array(sym):
+        name, array_exp, _ = split_array_exp(sym)
+        i = chr(deepness)
+        return f"""
+            for(int {i} = 0; {i} < {tofree}->{name}.len; ++{i}) {{
+                {packet_name}_{name} *p_{name} = &(({packet_name}_{name} *){tofree}->{name}.data)[{i}];
+                {free_method_content(array_exp, f'p_{name}', deepness + 1, packet_name)}
+            }}
+            free({tofree}->{name}.data);
+            {tofree}->{name}.len = 0;
+        """
+
+    return "".join(
+        handle_array(sym) if (sym[0] == "A") else handle_value(sym)
+        for sym in careful_split(exp)
+        if type_map[sym[0]][2] # is_heap(exp_type)
+    )
 
 def free_method(inp):
     if inp["is_empty"]:
         return ""
-    
-    code = f"void cmc_free_{inp['name']}_packet({inp['name']}_packet *packet, cmc_err_extra *err) {{"
-    if inp['is_heap']:
-        code += free_method_content(inp['type_def_content_str'], "packet", ord("i"), inp["name"])
-    else:
-        code += "(void)packet;"
-    code += "(void)err;" # this is bad should only do this when needed but i was lazy ok?
-    code += "}"
-    return code
+
+    return f"""
+    void cmc_free_{inp['name']}_packet({inp['name']}_packet *packet, cmc_err_extra *err) {{
+        {
+            free_method_content(inp['type_def_content_str'], 'packet', ord('i'), inp['name'])
+            if inp['is_heap'] else '(void)packet;'
+        }
+        (void)err;
+    }}
+    """
 
 def gather_packets():
     out = {}
