@@ -112,53 +112,62 @@ def type_def(inp):
         return ""
     return type_def_content(inp["type_def_content_str"], inp["name"], f"{inp['name']}_packet")
 
-#packet.properties.data = CMC_ERRB_ABLE(cmc_malloc(
-#        packet.properties.len * sizeof(S2C_play_entity_properties_properties), &buff->err), goto err;);
 def unpack_method_content(to_unpack_to, exp, deepness, packet_name):
-    code = ""
-    for sym in careful_split(exp):
+    def handle_value(sym):
         exp_type = sym[0]
         exp_data = sym[1:]
-        if exp_type == "A":
-            name, array_exp, key = split_array_exp(sym)
-            deepnessc = chr(deepness)
-            code += f"""{to_unpack_to}{name}.len = {to_unpack_to}{key};
-{to_unpack_to}{name}.data = CMC_ERRB_ABLE(cmc_malloc({to_unpack_to}{name}.len * sizeof({packet_name}_{name}), &buff->err), goto err;);
-for(int {deepnessc} = 0; i < {to_unpack_to}{name}.len; ++{deepnessc}) {{
-{packet_name}_{name} *p_{name} = {deepnessc} * sizeof(*p_{name}) + ({packet_name}_{name} *){to_unpack_to}{name}.data;"""
-            code += unpack_method_content(f"p_{name}->", array_exp, deepness+1, packet_name)
-            code += "}"
-        else:
-            code += f"{to_unpack_to}{exp_data}=cmc_buff_unpack_{type_map[sym[0]][1]}(buff);"
-    return code
+        exp_ctype = type_map[exp_type][1]
+        return f"{to_unpack_to}{exp_data} = cmc_buff_unpack_{exp_ctype}(buff);"
+
+    def handle_array(sym):
+        name, array_exp, key = split_array_exp(sym)
+        i = chr(deepness)
+        return f"""
+            {to_unpack_to}{name}.len = {to_unpack_to}{key};
+            {to_unpack_to}{name}.data = CMC_ERRB_ABLE(cmc_malloc({to_unpack_to}{name}.len * sizeof({packet_name}_{name}), &buff->err), goto err;);
+            for(int {i} = 0; i < {to_unpack_to}{name}.len; ++{i}) {{
+                {packet_name}_{name} *p_{name} = &(({packet_name}_{name} *){to_unpack_to}{name}.data)[{i}];
+                {unpack_method_content(f'p_{name}->', array_exp, deepness + 1, packet_name)}
+            }}
+        """
+
+    return "".join(
+        handle_array(sym) if (sym[0] == "A") else handle_value(sym)
+        for sym in careful_split(exp)
+    )
 
 def unpack_method(inp):
     if inp["is_empty"]:
         return ""
-    code = f"{inp['name']}_packet unpack_{inp['name']}_packet(cmc_buff *buff)"
-    empty = "{" 
-    #empty += ",".join([f".{entry[1:]}={type_map[entry[0]][3]}" for entry in inp['type_def_content']])
-    for entry in inp['type_def_content']:
-        name = entry[1:]
-        if entry[0] == "A":
-            name, *_ = split_array_exp(entry)
-        empty += f".{name}={type_map[entry[0]][3]},"
-    empty += "}"
-    code += f"{{{inp['name']}_packet packet = {empty};"
-    code += "switch(buff->protocol_version) {"
-    for pv, data in inp["packet_data"].items():
-        code += f"case {pv}: {{" + unpack_method_content("packet.", data['content_str'], ord("i"), inp['name']) + "break;}"
-    code += f"""default: 
-                 CMC_ERRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return packet;);
-               }}
-               CMC_ERRB_ABLE(,goto err);
-               if(buff->position != buff->length) CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
-               return packet;
-               err:
-                 cmc_free_{inp['name']}_packet(&packet, &buff->err);
-                 return ({inp['name']}_packet){empty};
-               }}\n\n"""
-    return code
+
+    return "".join((
+        f"""
+        {inp['name']}_packet unpack_{inp['name']}_packet(cmc_buff *buff) {{
+            {inp['name']}_packet packet = {{}};
+            switch(buff->protocol_version) {{
+        """,
+        *(
+            f"""
+            case {pv}: {{
+                {unpack_method_content('packet.', data['content_str'], ord('i'), inp['name'])}
+                break;
+            }}
+            """
+            for pv, data in inp["packet_data"].items()
+        ),
+        f"""
+            default:
+                CMC_ERRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return packet;);
+            }}
+            CMC_ERRB_ABLE(,goto err);
+            if(buff->position != buff->length) CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+            return packet;
+            err:
+                cmc_free_{inp['name']}_packet(&packet, &buff->err);
+                return ({inp['name']}_packet){{}};
+        }}
+        """,
+    ))
 
 def send_method_content(data, to_send, deepness, packet_name):
     code = ""
