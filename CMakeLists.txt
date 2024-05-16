@@ -15,7 +15,6 @@ find_package(CURL REQUIRED)
 add_library(cmc
     src/buff.c
     src/conn.c
-    src/crypto.c
     src/err.c
     src/heap_utils.c
     src/nbt.c
