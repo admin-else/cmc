@@ -6,7 +6,7 @@ to ensure these macros work
 */
 
 /*
-A documentation for the error handlers
+A (kinda)documentation for the error handlers
 CMC_ERR???
 
 A(bstaract): parent of all other types you can also use it in weird situations
