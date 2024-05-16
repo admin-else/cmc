@@ -166,7 +166,7 @@ def unpack_method(inp):
                 CMC_ERRB(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION, return packet;);
             }}
             CMC_ERRB_ABLE(,goto err);
-            if(buff->position != buff->length) CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+            if(buff->position != buff->length) CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
             return packet;
             err:
                 cmc_free_{inp['name']}_packet(&packet, &buff->err);

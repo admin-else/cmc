@@ -17,7 +17,7 @@
 #define UNPACK_ERR_HANDELER                                                    \
   ERR_CHECK(return packet;);                                                   \
   if (buff->position != buff->length)                                          \
-    ERR(ERR_BUFFER_UNDERUN, return packet;);
+    ERR(ERR_BUFFER_UNDERFLOW, return packet;);
 
 cmc_packet_name_id
 cmc_packet_id_to_packet_name_id(int packet_id, cmc_conn_state state,
@@ -2309,7 +2309,7 @@ unpack_C2S_handshake_handshake_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_C2S_handshake_handshake_packet(&packet, &buff->err);
@@ -2335,7 +2335,7 @@ S2C_status_response_packet unpack_S2C_status_response_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_status_response_packet(&packet, &buff->err);
@@ -2361,7 +2361,7 @@ S2C_status_pong_packet unpack_S2C_status_pong_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_status_pong_packet(&packet, &buff->err);
@@ -2387,7 +2387,7 @@ C2S_status_ping_packet unpack_C2S_status_ping_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_C2S_status_ping_packet(&packet, &buff->err);
@@ -2413,7 +2413,7 @@ S2C_login_disconnect_packet unpack_S2C_login_disconnect_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_login_disconnect_packet(&packet, &buff->err);
@@ -2444,7 +2444,7 @@ unpack_S2C_login_encryption_request_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_login_encryption_request_packet(&packet, &buff->err);
@@ -2473,7 +2473,7 @@ S2C_login_success_packet unpack_S2C_login_success_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_login_success_packet(&packet, &buff->err);
@@ -2500,7 +2500,7 @@ unpack_S2C_login_set_compression_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_login_set_compression_packet(&packet, &buff->err);
@@ -2527,7 +2527,7 @@ C2S_login_start_packet unpack_C2S_login_start_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_C2S_login_start_packet(&packet, &buff->err);
@@ -2556,7 +2556,7 @@ unpack_C2S_login_encryption_response_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_C2S_login_encryption_response_packet(&packet, &buff->err);
@@ -2582,7 +2582,7 @@ S2C_play_keep_alive_packet unpack_S2C_play_keep_alive_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_keep_alive_packet(&packet, &buff->err);
@@ -2609,7 +2609,7 @@ S2C_play_join_game_packet unpack_S2C_play_join_game_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_join_game_packet(&packet, &buff->err);
@@ -2632,7 +2632,7 @@ unpack_S2C_play_chat_message_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_chat_message_packet(&packet, &buff->err);
@@ -2654,7 +2654,7 @@ S2C_play_time_update_packet unpack_S2C_play_time_update_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_time_update_packet(&packet, &buff->err);
@@ -2678,7 +2678,7 @@ unpack_S2C_play_entity_equipment_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_entity_equipment_packet(&packet, &buff->err);
@@ -2700,7 +2700,7 @@ unpack_S2C_play_spawn_position_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_spawn_position_packet(&packet, &buff->err);
@@ -2724,7 +2724,7 @@ unpack_S2C_play_update_health_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_update_health_packet(&packet, &buff->err);
@@ -2748,7 +2748,7 @@ S2C_play_respawn_packet unpack_S2C_play_respawn_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_respawn_packet(&packet, &buff->err);
@@ -2775,7 +2775,7 @@ unpack_S2C_play_player_look_and_position_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_player_look_and_position_packet(&packet, &buff->err);
@@ -2797,7 +2797,7 @@ unpack_S2C_play_held_item_change_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_held_item_change_packet(&packet, &buff->err);
@@ -2819,7 +2819,7 @@ S2C_play_use_bed_packet unpack_S2C_play_use_bed_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_use_bed_packet(&packet, &buff->err);
@@ -2841,7 +2841,7 @@ S2C_play_animation_packet unpack_S2C_play_animation_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_animation_packet(&packet, &buff->err);
@@ -2871,7 +2871,7 @@ unpack_S2C_play_spawn_player_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_spawn_player_packet(&packet, &buff->err);
@@ -2894,7 +2894,7 @@ unpack_S2C_play_collect_item_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_collect_item_packet(&packet, &buff->err);
@@ -2926,7 +2926,7 @@ S2C_play_spawn_mob_packet unpack_S2C_play_spawn_mob_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_spawn_mob_packet(&packet, &buff->err);
@@ -2951,7 +2951,7 @@ unpack_S2C_play_spawn_painting_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_spawn_painting_packet(&packet, &buff->err);
@@ -2977,7 +2977,7 @@ unpack_S2C_play_spawn_experience_orb_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_spawn_experience_orb_packet(&packet, &buff->err);
@@ -3002,7 +3002,7 @@ unpack_S2C_play_entity_velocity_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_entity_velocity_packet(&packet, &buff->err);
@@ -3023,7 +3023,7 @@ S2C_play_entity_packet unpack_S2C_play_entity_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_entity_packet(&packet, &buff->err);
@@ -3049,7 +3049,7 @@ unpack_S2C_play_entity_relative_move_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_entity_relative_move_packet(&packet, &buff->err);
@@ -3073,7 +3073,7 @@ S2C_play_entity_look_packet unpack_S2C_play_entity_look_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_entity_look_packet(&packet, &buff->err);
@@ -3101,7 +3101,7 @@ unpack_S2C_play_entity_look_and_relative_move_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_entity_look_and_relative_move_packet(&packet, &buff->err);
@@ -3129,7 +3129,7 @@ unpack_S2C_play_entity_teleport_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_entity_teleport_packet(&packet, &buff->err);
@@ -3152,7 +3152,7 @@ unpack_S2C_play_entity_head_look_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_entity_head_look_packet(&packet, &buff->err);
@@ -3175,7 +3175,7 @@ unpack_S2C_play_entity_status_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_entity_status_packet(&packet, &buff->err);
@@ -3199,7 +3199,7 @@ unpack_S2C_play_attach_entity_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_attach_entity_packet(&packet, &buff->err);
@@ -3222,7 +3222,7 @@ unpack_S2C_play_entity_metadata_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_entity_metadata_packet(&packet, &buff->err);
@@ -3248,7 +3248,7 @@ unpack_S2C_play_entity_effect_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_entity_effect_packet(&packet, &buff->err);
@@ -3271,7 +3271,7 @@ unpack_S2C_play_remove_entity_effect_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_remove_entity_effect_packet(&packet, &buff->err);
@@ -3295,7 +3295,7 @@ unpack_S2C_play_set_experience_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_set_experience_packet(&packet, &buff->err);
@@ -3345,7 +3345,7 @@ unpack_S2C_play_entity_properties_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_entity_properties_packet(&packet, &buff->err);
@@ -3370,7 +3370,7 @@ S2C_play_chunk_data_packet unpack_S2C_play_chunk_data_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_chunk_data_packet(&packet, &buff->err);
@@ -3408,7 +3408,7 @@ unpack_S2C_play_multi_block_change_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_multi_block_change_packet(&packet, &buff->err);
@@ -3431,7 +3431,7 @@ unpack_S2C_play_block_change_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_block_change_packet(&packet, &buff->err);
@@ -3456,7 +3456,7 @@ unpack_S2C_play_block_action_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_block_action_packet(&packet, &buff->err);
@@ -3480,7 +3480,7 @@ unpack_S2C_play_block_break_animation_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_block_break_animation_packet(&packet, &buff->err);
@@ -3518,7 +3518,7 @@ unpack_S2C_play_map_chunk_bulk_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_map_chunk_bulk_packet(&packet, &buff->err);
@@ -3558,7 +3558,7 @@ S2C_play_explosion_packet unpack_S2C_play_explosion_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_explosion_packet(&packet, &buff->err);
@@ -3593,7 +3593,7 @@ S2C_play_effect_packet unpack_S2C_play_effect_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_effect_packet(&packet, &buff->err);
@@ -3620,7 +3620,7 @@ unpack_S2C_play_sound_effect_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_sound_effect_packet(&packet, &buff->err);
@@ -3643,7 +3643,7 @@ unpack_S2C_play_change_game_state_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_change_game_state_packet(&packet, &buff->err);
@@ -3667,7 +3667,7 @@ unpack_S2C_play_player_abilities_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_player_abilities_packet(&packet, &buff->err);
@@ -3690,7 +3690,7 @@ unpack_S2C_play_plugin_message_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_plugin_message_packet(&packet, &buff->err);
@@ -3716,7 +3716,7 @@ S2C_play_disconnect_packet unpack_S2C_play_disconnect_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_disconnect_packet(&packet, &buff->err);
@@ -3738,7 +3738,7 @@ unpack_S2C_play_change_difficulty_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_play_change_difficulty_packet(&packet, &buff->err);
@@ -3764,7 +3764,7 @@ C2S_play_keep_alive_packet unpack_C2S_play_keep_alive_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_C2S_play_keep_alive_packet(&packet, &buff->err);
@@ -3787,7 +3787,7 @@ unpack_S2C_config_plugin_message_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_config_plugin_message_packet(&packet, &buff->err);
@@ -3809,7 +3809,7 @@ unpack_S2C_config_disconnect_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_config_disconnect_packet(&packet, &buff->err);
@@ -3831,7 +3831,7 @@ unpack_S2C_config_keep_alive_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_config_keep_alive_packet(&packet, &buff->err);
@@ -3852,7 +3852,7 @@ S2C_config_ping_packet unpack_S2C_config_ping_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_config_ping_packet(&packet, &buff->err);
@@ -3874,7 +3874,7 @@ unpack_S2C_config_registry_data_packet(cmc_buff *buff) {
   }
   CMC_ERRB_ABLE(, goto err);
   if (buff->position != buff->length)
-    CMC_ERRB(CMC_ERR_BUFF_UNDERUN, goto err;);
+    CMC_ERRB(CMC_ERR_BUFF_UNDERFLOW, goto err;);
   return packet;
 err:
   cmc_free_S2C_config_registry_data_packet(&packet, &buff->err);
