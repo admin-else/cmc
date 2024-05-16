@@ -46,7 +46,7 @@ void cmc_buff_print_info(cmc_buff *buff) {
   printf("'\n");
 }
 
-cmc_buff *cmc_buff_init(int protocol_version) {
+cmc_buff *cmc_buff_init(cmc_protocol_version protocol_version) {
   cmc_buff *buff = malloc(sizeof(cmc_buff));
   if (!buff)
     return NULL;

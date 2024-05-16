@@ -17,7 +17,7 @@
 
 #include "err_macros.h"
 
-cmc_conn cmc_conn_init(int protocol_version) {
+cmc_conn cmc_conn_init(cmc_protocol_version protocol_version) {
   return (cmc_conn){.state = CMC_CONN_STATE_OFFLINE,
                     .compression_threshold = -1,
                     .sockfd = -1,

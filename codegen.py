@@ -148,7 +148,7 @@ def unpack_method(inp):
         """,
         *(
             f"""
-            case {pv}: {{
+            case CMC_PROTOCOL_VERSION_{pv}: {{
                 {unpack_method_content('packet.', data['content_str'], ord('i'), inp['name'])}
                 break;
             }}
@@ -200,7 +200,7 @@ def send_method(inp):
         """,
         *(
             f"""
-            case {pv}: {{
+            case CMC_PROTOCOL_VERSION_{pv}: {{
                 cmc_buff_pack_varint(buff, {data['packet_id']});
                 {
                     send_method_content(data['content_str'], 'packet->', ord('i'), inp['name'])
