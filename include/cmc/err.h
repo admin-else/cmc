@@ -31,7 +31,10 @@
   X(CMC_ERR_UNSUPPORTED_PROTOCOL_VERSION)                                      \
   X(CMC_ERR_UNEXPECTED_PACKET)                                                 \
   X(CMC_ERR_REALLOC_ZERO)                                                      \
-  X(CMC_ERR_NEGATIVE_STRING_LENGTH)
+  X(CMC_ERR_NEGATIVE_STRING_LENGTH)                                            \
+  X(CMC_ERR_NBT_UNEXPECTED_TAG_END)                                            \
+  X(CMC_ERR_NBT_NEGATIVE_LIST_LEN)                                             \
+  X(CMC_ERR_NBT_BAD_LIST)
 
 typedef enum {
 #define X(ERR) ERR,

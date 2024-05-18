@@ -13,8 +13,6 @@
  */
 #pragma once
 
-#include <cmc/list.h>
-
 #include <stdint.h>
 
 typedef enum {
@@ -33,6 +31,26 @@ typedef enum {
   CMC_NBT_TAG_LONG_ARRAY = 12
 } cmc_nbt_type;
 
+typedef struct {
+  unsigned char *data;
+  int32_t length;
+} cmc_nbt_byte_array;
+
+typedef struct {
+  int32_t *data;
+  int32_t length;
+} cmc_nbt_int_array;
+
+typedef struct cmc_nbt_long_array {
+  int64_t *data;
+  int32_t length;
+} cmc_nbt_long_array;
+
+typedef struct {
+  struct cmc_nbt **data;
+  int32_t length;
+} cmc_nbt_compound;
+
 typedef struct cmc_nbt {
   cmc_nbt_type type;
   char *name;
@@ -44,27 +62,10 @@ typedef struct cmc_nbt {
     int64_t tag_long;
     float tag_float;
     double tag_double;
-
-    struct cmc_nbt_byte_array {
-      unsigned char *data;
-      int32_t length;
-    } tag_byte_array;
-
-    struct cmc_nbt_int_array {
-      int32_t *data;
-      int32_t length;
-    } tag_int_array;
-
-    struct cmc_nbt_long_array {
-      int64_t *data;
-      int32_t length;
-    } tag_long_array;
-
+    cmc_nbt_byte_array tag_byte_array;
+    cmc_nbt_int_array tag_int_array;
+    cmc_nbt_long_array tag_long_array;
     char *tag_string;
-
-    struct cmc_nbt_list {
-      struct cmc_nbt *data;
-      struct list_head entry;
-    } *tag_list, *tag_compound;
+    cmc_nbt_compound tag_compound;
   } payload;
 } cmc_nbt;

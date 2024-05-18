@@ -27,6 +27,7 @@ cmc_buff *cmc_buff_combine(cmc_buff *buff, cmc_buff *tmp);
 
 cmc_err cmc_buff_pack(cmc_buff *buff, const void *data, size_t data_size);
 void *cmc_buff_unpack(cmc_buff *buff, size_t n);
+cmc_err cmc_buff_unpack_into(cmc_buff *buff, size_t n, void *write_to);
 
 #define NUM_PACK_AND_UNPACK_FUNC_FACTORY_H(name, type)                         \
   type cmc_buff_unpack_##name(cmc_buff *buff);                                 \
