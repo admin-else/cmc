@@ -51,6 +51,26 @@ typedef struct {
   int32_t length;
 } cmc_nbt_compound;
 
+struct cmc_nbt_list;
+
+struct cmc_nbt_list {
+  cmc_nbt_type type;
+  int32_t length;
+  union {
+    unsigned char *tag_byte;
+    int16_t *tag_short;
+    int32_t *tag_int;
+    int64_t *tag_long;
+    cmc_nbt_byte_array *tag_byte_array;
+    cmc_nbt_int_array *tag_int_array;
+    cmc_nbt_long_array *tag_long_array;
+    char **tag_string;
+    struct cmc_nbt_list *tag_list;
+  } payload;
+};
+
+typedef struct cmc_nbt_list cmc_nbt_list;
+
 typedef struct cmc_nbt {
   cmc_nbt_type type;
   char *name;

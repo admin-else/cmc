@@ -115,14 +115,13 @@ void *cmc_buff_unpack(cmc_buff *buff, size_t n) {
   return read_data;
 }
 
-
-// May in to future also implement 
+// May in to future also implement
 cmc_err cmc_buff_unpack_into(cmc_buff *buff, size_t n, void *write_to) {
   assert(n > 0);
   assert(buff);
   if (buff->position + n > buff->length)
     CMC_ERRRB(CMC_ERR_BUFF_OVERFLOW);
-  
+
   memcpy(write_to, buff->data + buff->position, n);
   buff->position += n;
   return CMC_ERR_NO;
@@ -272,9 +271,7 @@ cmc_block_pos cmc_buff_unpack_position(cmc_buff *buff) {
   return pos;
 }
 
-cmc_nbt *cmc_buff_unpack_nbt(cmc_buff *buff) {
-  return cmc_nbt_parse(buff);
-}
+cmc_nbt *cmc_buff_unpack_nbt(cmc_buff *buff) { return cmc_nbt_parse(buff); }
 
 cmc_err cmc_buff_pack_nbt(cmc_buff *buff, cmc_nbt *nbt) {
   cmc_buff *tmp_buff = CMC_ERRRB_ABLE(cmc_nbt_dump(nbt, &buff->err));
@@ -449,18 +446,17 @@ cmc_entity_metadata cmc_buff_unpack_entity_metadata(cmc_buff *buff) {
   return meta_data;
 
 on_error:
-  CMC_ERRB_ABLE(cmc_entity_metadata_free(meta_data, &buff->err), );
+  CMC_ERRB_ABLE(cmc_entity_metadata_free(meta_data), );
   return EMPTY_ENTITY_METADATA;
 }
 
-cmc_err cmc_entity_metadata_free(cmc_entity_metadata metadata,
-                                 cmc_err_extra *err) {
+cmc_err cmc_entity_metadata_free(cmc_entity_metadata metadata) {
   for (size_t i = 0; i < metadata.size; i++) {
     cmc_entity_metadata_entry *entry =
         metadata.entries + i * sizeof(cmc_entity_metadata_entry);
     switch (entry->type) {
     case ENTITY_METADATA_ENTRY_TYPE_SLOT:
-      cmc_slot_free(entry->payload.slot_data, err);
+      cmc_slot_free(entry->payload.slot_data);
       break;
     case ENTITY_METADATA_ENTRY_TYPE_STRING:
       cmc_string_free(entry->payload.string_data);
@@ -480,10 +476,9 @@ cmc_err cmc_entity_metadata_free(cmc_entity_metadata metadata,
 
 void cmc_string_free(char *str) { free(str); }
 
-cmc_err cmc_slot_free(cmc_slot *slot, cmc_err_extra *err) {
+void cmc_slot_free(cmc_slot *slot) {
   cmc_nbt_free(slot->tag_compound);
   free(slot);
-  return err->err;
 }
 
 cmc_uuid cmc_buff_unpack_uuid(cmc_buff *buff) {

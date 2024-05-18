@@ -5,26 +5,26 @@ import glob
 
 type_map = {
 #  TYPE  |code tpye               |method type      |is heap |default value
-    "b": ["int8_t ",              "char",            False,  "0",                       False],
-    "B": ["uint8_t ",             "byte",            False,  "0",                       False],
-    "h": ["int16_t ",             "short",           False,  "0",                       False],
-    "H": ["uint16_t ",            "ushort",          False,  "0",                       False],
-    "i": ["int32_t ",             "int",             False,  "0",                       False],
-    "I": ["uint32_t ",            "uint",            False,  "0",                       False],
-    "l": ["int64_t ",             "long",            False,  "0",                       False],
-    "L": ["uint64_t ",            "ulong",           False,  "0",                       False],
-    "f": ["float ",               "float",           False,  "0",                       False],
-    "d": ["double ",              "double",          False,  "0",                       False],
-    "?": ["bool ",                "bool",            False,  "false",                   False],
-    "v": ["int32_t ",             "varint",          False,  "0",                       False],
-    "s": ["char *",               "string",          True,   "NULL",                    False],
-    "p": ["cmc_block_pos ",       "position",        False,  "{.x=0,.y=0,.z=0}",        False],
-    "n": ["cmc_nbt *",            "nbt",             True,   "NULL",                    True ],
-    "a": ["cmc_buff *",           "buff",            True,   "NULL",                    False],
-    "S": ["cmc_slot *",           "slot",            True,   "NULL",                    True ],
-    "m": ["cmc_entity_metadata ", "entity_metadata", True,   "{.size=0,.entries=NULL}", True ],
-    "u": ["cmc_uuid ",             "uuid",           False,  "{.lower=0,.upper=0}",     False],
-    "A": ["cmc_array ",            None,             True,   "{.data=NULL,.size=0}",    False],
+    "b": ["int8_t ",              "char",            False,  "0",                       ],
+    "B": ["uint8_t ",             "byte",            False,  "0",                       ],
+    "h": ["int16_t ",             "short",           False,  "0",                       ],
+    "H": ["uint16_t ",            "ushort",          False,  "0",                       ],
+    "i": ["int32_t ",             "int",             False,  "0",                       ],
+    "I": ["uint32_t ",            "uint",            False,  "0",                       ],
+    "l": ["int64_t ",             "long",            False,  "0",                       ],
+    "L": ["uint64_t ",            "ulong",           False,  "0",                       ],
+    "f": ["float ",               "float",           False,  "0",                       ],
+    "d": ["double ",              "double",          False,  "0",                       ],
+    "?": ["bool ",                "bool",            False,  "false",                   ],
+    "v": ["int32_t ",             "varint",          False,  "0",                       ],
+    "s": ["char *",               "string",          True,   "NULL",                    ],
+    "p": ["cmc_block_pos ",       "position",        False,  "{.x=0,.y=0,.z=0}",        ],
+    "n": ["cmc_nbt *",            "nbt",             True,   "NULL",                    ],
+    "a": ["cmc_buff *",           "buff",            True,   "NULL",                    ],
+    "S": ["cmc_slot *",           "slot",            True,   "NULL",                    ],
+    "m": ["cmc_entity_metadata ", "entity_metadata", True,   "{.size=0,.entries=NULL}", ],
+    "u": ["cmc_uuid ",             "uuid",           False,  "{.lower=0,.upper=0}",     ],
+    "A": ["cmc_array ",            None,             True,   "{.data=NULL,.size=0}",    ],
 }
 
 replacement_paths = ["src/*.c", "include/cmc/*.h"]
@@ -246,8 +246,7 @@ def free_method_content(exp, tofree, deepness, packet_name):
     def handle_value(sym):
         exp_type = sym[0]
         exp_data = sym[1:]
-        second_arg = ", err" if type_map[exp_type][4] else ""
-        return f"cmc_{type_map[exp_type][1]}_free({tofree}->{exp_data}{second_arg});"
+        return f"cmc_{type_map[exp_type][1]}_free({tofree}->{exp_data});"
 
     def handle_array(sym):
         name, array_exp, _ = split_array_exp(sym)

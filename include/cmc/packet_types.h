@@ -38,10 +38,10 @@ typedef struct {
 } S2C_login_encryption_request_packet;
 
 typedef struct {
-  char *uuid_str;
-  char *name;
   cmc_uuid uuid;
+  char *name;
   int32_t properties_count;
+  char *uuid_str;
 } S2C_login_success_packet;
 
 typedef struct {
@@ -59,9 +59,40 @@ typedef struct {
 } C2S_login_encryption_response_packet;
 
 typedef struct {
-  int32_t keep_alive_id;
+  char *channel;
+  cmc_buff *data;
+} S2C_config_plugin_message_packet;
+
+typedef struct {
+  char *reason;
+} S2C_config_disconnect_packet;
+
+typedef struct {
+  int64_t keep_alive_id;
+} S2C_config_keep_alive_packet;
+
+typedef struct {
+  int32_t id;
+} S2C_config_ping_packet;
+
+typedef struct {
+  cmc_nbt *registry_codec;
+} S2C_config_registry_data_packet;
+
+typedef struct {
   int64_t keep_alive_id_long;
+  int32_t keep_alive_id;
+} C2S_play_keep_alive_packet;
+
+typedef struct {
+  int64_t keep_alive_id_long;
+  int32_t keep_alive_id;
 } S2C_play_keep_alive_packet;
+
+typedef struct {
+  cmc_nbt *reason_nbt;
+  char *reason;
+} S2C_play_disconnect_packet;
 
 typedef struct {
   int32_t entity_id;
@@ -394,38 +425,7 @@ typedef struct {
 } S2C_play_plugin_message_packet;
 
 typedef struct {
-  char *reason;
-  cmc_nbt *reason_nbt;
-} S2C_play_disconnect_packet;
-
-typedef struct {
   uint8_t difficulty;
 } S2C_play_change_difficulty_packet;
-
-typedef struct {
-  int32_t keep_alive_id;
-  int64_t keep_alive_id_long;
-} C2S_play_keep_alive_packet;
-
-typedef struct {
-  char *channel;
-  cmc_buff *data;
-} S2C_config_plugin_message_packet;
-
-typedef struct {
-  char *reason;
-} S2C_config_disconnect_packet;
-
-typedef struct {
-  int64_t keep_alive_id;
-} S2C_config_keep_alive_packet;
-
-typedef struct {
-  int32_t id;
-} S2C_config_ping_packet;
-
-typedef struct {
-  cmc_nbt *registry_codec;
-} S2C_config_registry_data_packet;
 
 // CGSE: packet_types

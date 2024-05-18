@@ -17,7 +17,6 @@
 #include <cmc/buff.h>
 #include <cmc/nbt_types.h>
 
-
 cmc_nbt *cmc_nbt_init(cmc_err_extra *err);
 cmc_nbt *cmc_nbt_parse(cmc_buff *buff);
 cmc_buff *cmc_nbt_text(const cmc_nbt *tree, cmc_err_extra *err);
