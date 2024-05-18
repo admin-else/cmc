@@ -115,6 +115,19 @@ void *cmc_buff_unpack(cmc_buff *buff, size_t n) {
   return read_data;
 }
 
+
+// May in to future also implement 
+cmc_err cmc_buff_unpack_into(cmc_buff *buff, size_t n, void *write_to) {
+  assert(n > 0);
+  assert(buff);
+  if (buff->position + n > buff->length)
+    CMC_ERRRB(CMC_ERR_BUFF_OVERFLOW);
+  
+  memcpy(write_to, buff->data + buff->position, n);
+  buff->position += n;
+  return CMC_ERR_NO;
+}
+
 #define NUM_PACK_AND_UNPACK_FUNC_FACTORY(name, type)                           \
   type cmc_buff_unpack_##name(cmc_buff *buff) {                                \
     void *data = CMC_ERRB_ABLE(cmc_buff_unpack(buff, sizeof(type)), return 0); \
@@ -260,7 +273,7 @@ cmc_block_pos cmc_buff_unpack_position(cmc_buff *buff) {
 }
 
 cmc_nbt *cmc_buff_unpack_nbt(cmc_buff *buff) {
-  return cmc_nbt_parse(buff, &buff->err);
+  return cmc_nbt_parse(buff);
 }
 
 cmc_err cmc_buff_pack_nbt(cmc_buff *buff, cmc_nbt *nbt) {
@@ -468,7 +481,7 @@ cmc_err cmc_entity_metadata_free(cmc_entity_metadata metadata,
 void cmc_string_free(char *str) { free(str); }
 
 cmc_err cmc_slot_free(cmc_slot *slot, cmc_err_extra *err) {
-  cmc_nbt_free(slot->tag_compound, err);
+  cmc_nbt_free(slot->tag_compound);
   free(slot);
   return err->err;
 }
