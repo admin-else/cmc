@@ -125,7 +125,7 @@ cmc_nbt *cmc_nbt_parse(cmc_buff *buff) {
     int32_t len = CMC_ERRB_ABLE(cmc_nbt_unpack_int(buff), goto err_free_nbt;);
     if (len < 0)
       CMC_ERRB(CMC_ERR_NBT_NEGATIVE_LIST_LEN, goto err_free_nbt;);
-    if(list_type != CMC_NBT_TAG_END && len == 0)
+    if (list_type != CMC_NBT_TAG_END && len == 0)
       CMC_ERRB(CMC_ERR_NBT_BAD_LIST, goto err_free_nbt;);
     break;
   }
