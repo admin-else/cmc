@@ -62,6 +62,89 @@ cmc_nbt *cmc_nbt_init(cmc_err_extra *err) {
   return tree;
 }
 
+cmc_nbt_list cmc_nbt_parse_list(cmc_buff *buff) {
+  cmc_nbt_type list_type = CMC_ERRB_ABLE(cmc_nbt_unpack_byte(buff), return (cmc_nbt_list){};);
+  int32_t len = CMC_ERRB_ABLE(cmc_nbt_unpack_int(buff), return (cmc_nbt_list){};);
+
+  if(len < 0) CMC_ERRB(CMC_ERR_NBT_BAD_LIST, return (cmc_nbt_list){};);
+  if(len == 0) {
+    if (list_type != CMC_NBT_TAG_END) {
+      CMC_ERRB(CMC_ERR_NBT_BAD_LIST, return (cmc_nbt_list){};);
+    }
+    return (cmc_nbt_list){};
+  }
+
+
+  cmc_nbt_list list = (cmc_nbt_list){};
+  #define ACLLOC_HELPER(tag) list.payload.tag_##tag = CMC_ERRB_ABLE(cmc_malloc(*list.payload.tag_##tag, &buff->err), return );
+  switch (list_type) {
+  case CMC_NBT_TAG_BYTE:
+    for (int32_t i = 0; i < len; i++) {
+      
+    }
+    break;
+  case CMC_NBT_TAG_SHORT:
+    for (int32_t i = 0; i < len; i++) {
+      
+    }
+    break;
+  case CMC_NBT_TAG_INT:
+    for (int32_t i = 0; i < len; i++) {
+      
+    }
+    break;
+  case CMC_NBT_TAG_LONG:
+    for (int32_t i = 0; i < len; i++) {
+      
+    }
+    break;
+  case CMC_NBT_TAG_FLOAT:
+    for (int32_t i = 0; i < len; i++) {
+      
+    }
+    break;
+  case CMC_NBT_TAG_DOUBLE:
+    for (int32_t i = 0; i < len; i++) {
+      
+    }
+    break;
+  case CMC_NBT_TAG_BYTE_ARRAY:
+    for (int32_t i = 0; i < len; i++) {
+      
+    }
+    break;
+  case CMC_NBT_TAG_STRING:
+    for (int32_t i = 0; i < len; i++) {
+      
+    }
+    break;
+  case CMC_NBT_TAG_LIST:
+    for (int32_t i = 0; i < len; i++) {
+      
+    }
+    break;
+  case CMC_NBT_TAG_COMPOUND:
+    for (int32_t i = 0; i < len; i++) {
+      
+    }
+    break;
+  case CMC_NBT_TAG_INT_ARRAY:
+    for (int32_t i = 0; i < len; i++) {
+      
+    }
+    break;
+  case CMC_NBT_TAG_LONG_ARRAY:
+    for (int32_t i = 0; i < len; i++) {
+      
+    }
+    break;
+  case CMC_NBT_TAG_END:
+    break; // Cant happen 
+  }
+
+  return list;
+}
+
 cmc_nbt *cmc_nbt_parse(cmc_buff *buff) {
   assert(buff);
   cmc_nbt *tree = cmc_nbt_init(&buff->err);
@@ -129,7 +212,10 @@ cmc_nbt *cmc_nbt_parse(cmc_buff *buff) {
       CMC_ERRB(CMC_ERR_NBT_BAD_LIST, goto err_free_nbt;);
     break;
   }
-  case CMC_NBT_TAG_COMPOUND:
+  case CMC_NBT_TAG_COMPOUND: {
+    tree->payload.tag_list = CMC_ERRB_ABLE(cmc_nbt_parse_list(buff), goto err_free_nbt;);
+    break;
+  }
   case CMC_NBT_TAG_INT_ARRAY:
     tree->payload.tag_int_array.length =
         CMC_ERRB_ABLE(cmc_nbt_unpack_int(buff), goto err_free_nbt;);
