@@ -57,15 +57,17 @@ struct cmc_nbt_list {
   cmc_nbt_type type;
   int32_t length;
   union {
-    unsigned char *tag_byte;
+    int8_t *tag_byte;
     int16_t *tag_short;
     int32_t *tag_int;
     int64_t *tag_long;
+    float *tag_float;
+    double *tag_double;
     cmc_nbt_byte_array *tag_byte_array;
     cmc_nbt_int_array *tag_int_array;
     cmc_nbt_long_array *tag_long_array;
     char **tag_string;
-    struct cmc_nbt_list *tag_list;
+    cmc_nbt_compound *tag_compound;
   } payload;
 };
 
@@ -87,5 +89,6 @@ typedef struct cmc_nbt {
     cmc_nbt_long_array tag_long_array;
     char *tag_string;
     cmc_nbt_compound tag_compound;
+    cmc_nbt_list tag_list;
   } payload;
 } cmc_nbt;
