@@ -114,9 +114,16 @@ def type_def_content(token, packet_name, wrap_name):
 
 
 def type_def(inp):
+    t = ""
     if inp["is_empty"]:
         return ""
-    return type_def_content(inp["type_def_content_str"], inp["name"], f"{inp['name']}_packet")
+    lastdata = None
+    for pvid in sorted(inp["packet_data"]): # sorted ensures the the lowest come first
+        print(pvid)
+        if lastdata != inp["packet_data"][pvid]["content_str"]:
+            t += type_def_content(inp["packet_data"][pvid]["content_str"], inp["name"], f"cmc_packet_{inp['name']}_{pvid}")
+        lastdata = inp["packet_data"][pvid]["content_str"]
+    return t
 
 def unpack_method_content(to_unpack_to, exp, deepness, packet_name):
     def handle_value(sym):
@@ -275,7 +282,7 @@ def free_method(inp):
         return ""
 
     return f"""
-    void cmc_free_{inp['name']}_packet({inp['name']}_packet *packet, cmc_err_extra *err) {{
+    void cmc_free_{inp['name']}_packet({inp['name']}_packet *packet) {{
         {
             free_method_content(inp['type_def_content_str'], 'packet', ord('i'), inp['name'])
             if inp['is_heap'] else '(void)packet;'
@@ -346,6 +353,12 @@ def packet_id_to_packet_name_id(inp):
 def main():
     mc_packet_exps = gather_packets()
     #pprint(mc_packet_exps)
+    
+    # type defs
+    replace_code_segments(
+        "".join(type_def(mc_packet_exp) for mc_packet_exp in mc_packet_exps),
+        "packet_types",
+    )
 
     replace_code_segments("\n".join(f"HELPER(CMC_{inp['name'].upper()}_NAME_ID);" for inp in mc_packet_exps), "packet_name_id_string")
 
@@ -374,11 +387,7 @@ def main():
         "send_methods_h",
     )
 
-    # type defs
-    replace_code_segments(
-        "".join(type_def(mc_packet_exp) for mc_packet_exp in mc_packet_exps),
-        "packet_types",
-    )
+    
 
     replace_code_segments(
         "\n".join(free_method(sym) for sym in mc_packet_exps), "free_methods_c"

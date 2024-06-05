@@ -5,9 +5,6 @@
 
 #include <netinet/in.h>
 
-#include <stddef.h>
-#include <stdint.h>
-
 typedef enum {
   CMC_CONN_STATE_OFFLINE,
   CMC_CONN_STATE_STATUS = 1, // this is importent for the next state packet
