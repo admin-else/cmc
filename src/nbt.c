@@ -20,3 +20,7 @@ void cmc_nbt_free(cmc_nbt *tree) {
   (void)tree;
   abort(); // unimplemented
 }
+
+cmc_nbt *cmc_nbt_parse(cmc_buff *buff) {
+  CMC_ERRB(CMC_ERR_NOT_IMPLEMENTED_YET, return NULL;);
+}
