@@ -15,29 +15,24 @@ struct cmc_packet_C2S_handshake_handshake_765 {
 };
 typedef struct cmc_packet_C2S_handshake_handshake_765
     cmc_packet_C2S_handshake_handshake_765;
-
 struct cmc_packet_S2C_status_response_765 {
   char *response;
 };
 typedef struct cmc_packet_S2C_status_response_765
     cmc_packet_S2C_status_response_765;
-
 struct cmc_packet_S2C_status_pong_765 {
   int64_t payload;
 };
 typedef struct cmc_packet_S2C_status_pong_765 cmc_packet_S2C_status_pong_765;
-
 struct cmc_packet_C2S_status_ping_765 {
   int64_t payload;
 };
 typedef struct cmc_packet_C2S_status_ping_765 cmc_packet_C2S_status_ping_765;
-
 struct cmc_packet_S2C_login_disconnect_765 {
   char *reason;
 };
 typedef struct cmc_packet_S2C_login_disconnect_765
     cmc_packet_S2C_login_disconnect_765;
-
 struct cmc_packet_S2C_login_encryption_request_765 {
   char *server_id;
   cmc_buff *public_key;
@@ -45,7 +40,6 @@ struct cmc_packet_S2C_login_encryption_request_765 {
 };
 typedef struct cmc_packet_S2C_login_encryption_request_765
     cmc_packet_S2C_login_encryption_request_765;
-
 struct cmc_packet_S2C_login_success_765 {
   cmc_uuid uuid;
   char *name;
@@ -53,91 +47,76 @@ struct cmc_packet_S2C_login_success_765 {
 };
 typedef struct cmc_packet_S2C_login_success_765
     cmc_packet_S2C_login_success_765;
-
 struct cmc_packet_S2C_login_set_compression_765 {
   int32_t threshold;
 };
 typedef struct cmc_packet_S2C_login_set_compression_765
     cmc_packet_S2C_login_set_compression_765;
-
 struct cmc_packet_C2S_login_start_765 {
   char *name;
   cmc_uuid uuid;
 };
 typedef struct cmc_packet_C2S_login_start_765 cmc_packet_C2S_login_start_765;
-
 struct cmc_packet_C2S_login_encryption_response_765 {
   cmc_buff *shared_secret;
   cmc_buff *verify_token;
 };
 typedef struct cmc_packet_C2S_login_encryption_response_765
     cmc_packet_C2S_login_encryption_response_765;
-
 struct cmc_packet_S2C_config_plugin_message_765 {
   char *channel;
   cmc_buff *data;
 };
 typedef struct cmc_packet_S2C_config_plugin_message_765
     cmc_packet_S2C_config_plugin_message_765;
-
 struct cmc_packet_S2C_config_disconnect_765 {
   char *reason;
 };
 typedef struct cmc_packet_S2C_config_disconnect_765
     cmc_packet_S2C_config_disconnect_765;
-
 struct cmc_packet_S2C_config_keep_alive_765 {
   int64_t keep_alive_id;
 };
 typedef struct cmc_packet_S2C_config_keep_alive_765
     cmc_packet_S2C_config_keep_alive_765;
-
 struct cmc_packet_S2C_config_ping_765 {
   int32_t id;
 };
 typedef struct cmc_packet_S2C_config_ping_765 cmc_packet_S2C_config_ping_765;
-
 struct cmc_packet_S2C_config_registry_data_765 {
   cmc_nbt *registry_codec;
 };
 typedef struct cmc_packet_S2C_config_registry_data_765
     cmc_packet_S2C_config_registry_data_765;
-
 struct cmc_packet_C2S_play_keep_alive_765 {
   int64_t keep_alive_id_long;
 };
 typedef struct cmc_packet_C2S_play_keep_alive_765
     cmc_packet_C2S_play_keep_alive_765;
-
 struct cmc_packet_S2C_play_keep_alive_765 {
   int64_t keep_alive_id_long;
 };
 typedef struct cmc_packet_S2C_play_keep_alive_765
     cmc_packet_S2C_play_keep_alive_765;
-
 struct cmc_packet_S2C_play_disconnect_765 {
   cmc_nbt *reason_nbt;
 };
 typedef struct cmc_packet_S2C_play_disconnect_765
     cmc_packet_S2C_play_disconnect_765;
-
 struct cmc_packet_S2C_login_success_47 {
   char *uuid_str;
   char *name;
 };
 typedef struct cmc_packet_S2C_login_success_47 cmc_packet_S2C_login_success_47;
-
 struct cmc_packet_C2S_login_start_47 {
   char *name;
 };
 typedef struct cmc_packet_C2S_login_start_47 cmc_packet_C2S_login_start_47;
-
 struct cmc_packet_S2C_play_keep_alive_47 {
   int32_t keep_alive_id;
 };
 typedef struct cmc_packet_S2C_play_keep_alive_47
     cmc_packet_S2C_play_keep_alive_47;
-
 struct cmc_packet_S2C_play_join_game_47 {
   int32_t entity_id;
   uint8_t gamemode;
@@ -149,21 +128,18 @@ struct cmc_packet_S2C_play_join_game_47 {
 };
 typedef struct cmc_packet_S2C_play_join_game_47
     cmc_packet_S2C_play_join_game_47;
-
 struct cmc_packet_S2C_play_chat_message_47 {
   char *message;
   int8_t position;
 };
 typedef struct cmc_packet_S2C_play_chat_message_47
     cmc_packet_S2C_play_chat_message_47;
-
 struct cmc_packet_S2C_play_time_update_47 {
   int64_t world_age;
   int64_t time_of_day;
 };
 typedef struct cmc_packet_S2C_play_time_update_47
     cmc_packet_S2C_play_time_update_47;
-
 struct cmc_packet_S2C_play_entity_equipment_47 {
   int32_t entity_id;
   int16_t slot;
@@ -171,13 +147,11 @@ struct cmc_packet_S2C_play_entity_equipment_47 {
 };
 typedef struct cmc_packet_S2C_play_entity_equipment_47
     cmc_packet_S2C_play_entity_equipment_47;
-
 struct cmc_packet_S2C_play_spawn_position_47 {
   cmc_block_pos location;
 };
 typedef struct cmc_packet_S2C_play_spawn_position_47
     cmc_packet_S2C_play_spawn_position_47;
-
 struct cmc_packet_S2C_play_update_health_47 {
   float health;
   int32_t food;
@@ -185,7 +159,6 @@ struct cmc_packet_S2C_play_update_health_47 {
 };
 typedef struct cmc_packet_S2C_play_update_health_47
     cmc_packet_S2C_play_update_health_47;
-
 struct cmc_packet_S2C_play_respawn_47 {
   int32_t dimesion;
   uint8_t difficulty;
@@ -193,7 +166,6 @@ struct cmc_packet_S2C_play_respawn_47 {
   char *level_type;
 };
 typedef struct cmc_packet_S2C_play_respawn_47 cmc_packet_S2C_play_respawn_47;
-
 struct cmc_packet_S2C_play_player_look_and_position_47 {
   double x;
   double y;
@@ -204,26 +176,22 @@ struct cmc_packet_S2C_play_player_look_and_position_47 {
 };
 typedef struct cmc_packet_S2C_play_player_look_and_position_47
     cmc_packet_S2C_play_player_look_and_position_47;
-
 struct cmc_packet_S2C_play_held_item_change_47 {
   int8_t slot;
 };
 typedef struct cmc_packet_S2C_play_held_item_change_47
     cmc_packet_S2C_play_held_item_change_47;
-
 struct cmc_packet_S2C_play_use_bed_47 {
   int32_t entity_id;
   cmc_block_pos location;
 };
 typedef struct cmc_packet_S2C_play_use_bed_47 cmc_packet_S2C_play_use_bed_47;
-
 struct cmc_packet_S2C_play_animation_47 {
   int32_t entity_id;
   uint8_t animation;
 };
 typedef struct cmc_packet_S2C_play_animation_47
     cmc_packet_S2C_play_animation_47;
-
 struct cmc_packet_S2C_play_spawn_player_47 {
   int32_t entity_id;
   cmc_uuid uuid;
@@ -237,14 +205,12 @@ struct cmc_packet_S2C_play_spawn_player_47 {
 };
 typedef struct cmc_packet_S2C_play_spawn_player_47
     cmc_packet_S2C_play_spawn_player_47;
-
 struct cmc_packet_S2C_play_collect_item_47 {
   int32_t collected_entity_id;
   int32_t collector_entity_id;
 };
 typedef struct cmc_packet_S2C_play_collect_item_47
     cmc_packet_S2C_play_collect_item_47;
-
 struct cmc_packet_S2C_play_spawn_mob_47 {
   int32_t entity_id;
   uint8_t type;
@@ -261,7 +227,6 @@ struct cmc_packet_S2C_play_spawn_mob_47 {
 };
 typedef struct cmc_packet_S2C_play_spawn_mob_47
     cmc_packet_S2C_play_spawn_mob_47;
-
 struct cmc_packet_S2C_play_spawn_painting_47 {
   int32_t entity_id;
   char *title;
@@ -270,7 +235,6 @@ struct cmc_packet_S2C_play_spawn_painting_47 {
 };
 typedef struct cmc_packet_S2C_play_spawn_painting_47
     cmc_packet_S2C_play_spawn_painting_47;
-
 struct cmc_packet_S2C_play_spawn_experience_orb_47 {
   int32_t entity_id;
   int32_t x;
@@ -280,7 +244,6 @@ struct cmc_packet_S2C_play_spawn_experience_orb_47 {
 };
 typedef struct cmc_packet_S2C_play_spawn_experience_orb_47
     cmc_packet_S2C_play_spawn_experience_orb_47;
-
 struct cmc_packet_S2C_play_entity_velocity_47 {
   int32_t entity_id;
   int16_t x_vel;
@@ -289,12 +252,10 @@ struct cmc_packet_S2C_play_entity_velocity_47 {
 };
 typedef struct cmc_packet_S2C_play_entity_velocity_47
     cmc_packet_S2C_play_entity_velocity_47;
-
 struct cmc_packet_S2C_play_entity_47 {
   int32_t entity_id;
 };
 typedef struct cmc_packet_S2C_play_entity_47 cmc_packet_S2C_play_entity_47;
-
 struct cmc_packet_S2C_play_entity_relative_move_47 {
   int32_t entity_id;
   int8_t delta_x;
@@ -304,7 +265,6 @@ struct cmc_packet_S2C_play_entity_relative_move_47 {
 };
 typedef struct cmc_packet_S2C_play_entity_relative_move_47
     cmc_packet_S2C_play_entity_relative_move_47;
-
 struct cmc_packet_S2C_play_entity_look_47 {
   int32_t entity_id;
   uint8_t yaw;
@@ -313,7 +273,6 @@ struct cmc_packet_S2C_play_entity_look_47 {
 };
 typedef struct cmc_packet_S2C_play_entity_look_47
     cmc_packet_S2C_play_entity_look_47;
-
 struct cmc_packet_S2C_play_entity_look_and_relative_move_47 {
   int32_t entity_id;
   int8_t delta_x;
@@ -325,7 +284,6 @@ struct cmc_packet_S2C_play_entity_look_and_relative_move_47 {
 };
 typedef struct cmc_packet_S2C_play_entity_look_and_relative_move_47
     cmc_packet_S2C_play_entity_look_and_relative_move_47;
-
 struct cmc_packet_S2C_play_entity_teleport_47 {
   int32_t entity_id;
   int32_t x;
@@ -337,21 +295,18 @@ struct cmc_packet_S2C_play_entity_teleport_47 {
 };
 typedef struct cmc_packet_S2C_play_entity_teleport_47
     cmc_packet_S2C_play_entity_teleport_47;
-
 struct cmc_packet_S2C_play_entity_head_look_47 {
   int32_t entity_id;
   uint8_t head_yaw;
 };
 typedef struct cmc_packet_S2C_play_entity_head_look_47
     cmc_packet_S2C_play_entity_head_look_47;
-
 struct cmc_packet_S2C_play_entity_status_47 {
   int32_t entity_id;
   int8_t entity_status;
 };
 typedef struct cmc_packet_S2C_play_entity_status_47
     cmc_packet_S2C_play_entity_status_47;
-
 struct cmc_packet_S2C_play_attach_entity_47 {
   int32_t entity_id;
   int32_t vehicle_id;
@@ -359,14 +314,12 @@ struct cmc_packet_S2C_play_attach_entity_47 {
 };
 typedef struct cmc_packet_S2C_play_attach_entity_47
     cmc_packet_S2C_play_attach_entity_47;
-
 struct cmc_packet_S2C_play_entity_metadata_47 {
   int32_t entity_id;
   cmc_entity_metadata meta_data;
 };
 typedef struct cmc_packet_S2C_play_entity_metadata_47
     cmc_packet_S2C_play_entity_metadata_47;
-
 struct cmc_packet_S2C_play_entity_effect_47 {
   int32_t entity_id;
   int8_t effect_id;
@@ -376,14 +329,12 @@ struct cmc_packet_S2C_play_entity_effect_47 {
 };
 typedef struct cmc_packet_S2C_play_entity_effect_47
     cmc_packet_S2C_play_entity_effect_47;
-
 struct cmc_packet_S2C_play_remove_entity_effect_47 {
   int32_t entity_id;
   int8_t effect_id;
 };
 typedef struct cmc_packet_S2C_play_remove_entity_effect_47
     cmc_packet_S2C_play_remove_entity_effect_47;
-
 struct cmc_packet_S2C_play_set_experience_47 {
   float experience_bar;
   int32_t level;
@@ -391,7 +342,6 @@ struct cmc_packet_S2C_play_set_experience_47 {
 };
 typedef struct cmc_packet_S2C_play_set_experience_47
     cmc_packet_S2C_play_set_experience_47;
-
 struct cmc_packet_S2C_play_entity_properties_47_properties_modifiers {
   double amount;
   int8_t operation;
@@ -402,16 +352,17 @@ struct cmc_packet_S2C_play_entity_properties_47_properties {
   char *key;
   double value;
   int32_t num_of_modifiers;
+  cmc_packet_S2C_play_entity_properties_47_properties_modifiers *modifiers;
 };
 typedef struct cmc_packet_S2C_play_entity_properties_47_properties
     cmc_packet_S2C_play_entity_properties_47_properties;
 struct cmc_packet_S2C_play_entity_properties_47 {
   int32_t entity_id;
   int32_t properties_count;
+  cmc_packet_S2C_play_entity_properties_47_properties *properties;
 };
 typedef struct cmc_packet_S2C_play_entity_properties_47
     cmc_packet_S2C_play_entity_properties_47;
-
 struct cmc_packet_S2C_play_chunk_data_47 {
   int32_t chunk_x;
   int32_t chunk_z;
@@ -421,7 +372,6 @@ struct cmc_packet_S2C_play_chunk_data_47 {
 };
 typedef struct cmc_packet_S2C_play_chunk_data_47
     cmc_packet_S2C_play_chunk_data_47;
-
 struct cmc_packet_S2C_play_multi_block_change_47_records {
   uint8_t horizontal_position;
   uint8_t vertical_position;
@@ -433,17 +383,16 @@ struct cmc_packet_S2C_play_multi_block_change_47 {
   int32_t chunk_x;
   int32_t chunk_z;
   int32_t record_count;
+  cmc_packet_S2C_play_multi_block_change_47_records *records;
 };
 typedef struct cmc_packet_S2C_play_multi_block_change_47
     cmc_packet_S2C_play_multi_block_change_47;
-
 struct cmc_packet_S2C_play_block_change_47 {
   cmc_block_pos location;
   int32_t block_id;
 };
 typedef struct cmc_packet_S2C_play_block_change_47
     cmc_packet_S2C_play_block_change_47;
-
 struct cmc_packet_S2C_play_block_action_47 {
   cmc_block_pos location;
   uint8_t block_data_1;
@@ -452,7 +401,6 @@ struct cmc_packet_S2C_play_block_action_47 {
 };
 typedef struct cmc_packet_S2C_play_block_action_47
     cmc_packet_S2C_play_block_action_47;
-
 struct cmc_packet_S2C_play_block_break_animation_47 {
   int32_t entity_id;
   cmc_block_pos location;
@@ -460,7 +408,6 @@ struct cmc_packet_S2C_play_block_break_animation_47 {
 };
 typedef struct cmc_packet_S2C_play_block_break_animation_47
     cmc_packet_S2C_play_block_break_animation_47;
-
 struct cmc_packet_S2C_play_map_chunk_bulk_47_chunk_columns {
   int32_t chunk_x;
   int32_t chunk_z;
@@ -471,11 +418,11 @@ typedef struct cmc_packet_S2C_play_map_chunk_bulk_47_chunk_columns
 struct cmc_packet_S2C_play_map_chunk_bulk_47 {
   bool sky_light_sent;
   int32_t chunk_column_count;
+  cmc_packet_S2C_play_map_chunk_bulk_47_chunk_columns *chunk_columns;
   cmc_buff *chunk;
 };
 typedef struct cmc_packet_S2C_play_map_chunk_bulk_47
     cmc_packet_S2C_play_map_chunk_bulk_47;
-
 struct cmc_packet_S2C_play_explosion_47_records {
   int8_t x_offset;
   int8_t y_offset;
@@ -489,13 +436,13 @@ struct cmc_packet_S2C_play_explosion_47 {
   float z;
   float radius;
   int32_t record_count;
+  cmc_packet_S2C_play_explosion_47_records *records;
   float x_player_vel;
   float y_player_vel;
   float z_player_vel;
 };
 typedef struct cmc_packet_S2C_play_explosion_47
     cmc_packet_S2C_play_explosion_47;
-
 struct cmc_packet_S2C_play_effect_47 {
   int32_t effect_id;
   cmc_block_pos location;
@@ -514,7 +461,6 @@ struct cmc_packet_S2C_play_effect_47 {
   int32_t sable_relative_volume;
 };
 typedef struct cmc_packet_S2C_play_effect_47 cmc_packet_S2C_play_effect_47;
-
 struct cmc_packet_S2C_play_sound_effect_47 {
   char *sound_name;
   int32_t x;
@@ -525,14 +471,12 @@ struct cmc_packet_S2C_play_sound_effect_47 {
 };
 typedef struct cmc_packet_S2C_play_sound_effect_47
     cmc_packet_S2C_play_sound_effect_47;
-
 struct cmc_packet_S2C_play_change_game_state_47 {
   uint8_t reason;
   float value;
 };
 typedef struct cmc_packet_S2C_play_change_game_state_47
     cmc_packet_S2C_play_change_game_state_47;
-
 struct cmc_packet_S2C_play_player_abilities_47 {
   int8_t flags;
   float flying_speed;
@@ -540,32 +484,27 @@ struct cmc_packet_S2C_play_player_abilities_47 {
 };
 typedef struct cmc_packet_S2C_play_player_abilities_47
     cmc_packet_S2C_play_player_abilities_47;
-
 struct cmc_packet_S2C_play_plugin_message_47 {
   char *channel;
   cmc_buff *data;
 };
 typedef struct cmc_packet_S2C_play_plugin_message_47
     cmc_packet_S2C_play_plugin_message_47;
-
 struct cmc_packet_S2C_play_disconnect_47 {
   char *reason;
 };
 typedef struct cmc_packet_S2C_play_disconnect_47
     cmc_packet_S2C_play_disconnect_47;
-
 struct cmc_packet_S2C_play_change_difficulty_47 {
   uint8_t difficulty;
 };
 typedef struct cmc_packet_S2C_play_change_difficulty_47
     cmc_packet_S2C_play_change_difficulty_47;
-
 struct cmc_packet_C2S_play_keep_alive_47 {
   int32_t keep_alive_id;
 };
 typedef struct cmc_packet_C2S_play_keep_alive_47
     cmc_packet_C2S_play_keep_alive_47;
-
 // CGSE: packet_types
 
 // CGSS: packet_ids
