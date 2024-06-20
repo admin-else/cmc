@@ -107,6 +107,7 @@ def replace_c_functions(tag, function, packets):
         generated_code = function(packet)
         if not generated_code[0]:
             continue
+        
         headers += f"{generated_code[1]};"
         code += f"{generated_code[1]} {{{generated_code[0]}}}"
 
@@ -156,11 +157,11 @@ def gather_packets():
                 info["version"] = vid
                 info["packet_id"] = packet_id
                 info["is_empty"] = not bool(fields) # dont generate type then and also disregard all would be needed methods
-                info["needs_free"] = False
                 
                 info["content"] = parse_exp_fields(fields)
-                out.append(info)
-                know_exp.append(exp)
+                info["needs_free"] = any([is_heap(f) for f in info["content"]]) # ohhh the python magic 
+                out.append(info)                                                # i dont know if its ugly
+                know_exp.append(exp)                                            # or modern art
     
     return out
 
@@ -273,12 +274,37 @@ def unpack_packet(packet):
     code = iterator_decls + code + "".join(err_handling)
     return (code, header)
 
+def free_packet(packet):
+    def free_content(content, to_free):
+        code = ""
+        for field in content:
+            if is_heap(field):
+                if field["type"] == "A":
+                    maybe_code = free_content(field["content"], f"{to_free}{field["name"]}[{to_free}{field["size_key"]}].")
+                    code += f"if({to_free}{field["size_key"]} > 0) {{"
+                    if maybe_code:
+                        code += f"for(;{to_free}{field["size_key"]}>0;--{to_free}{field["size_key"]}) {{"
+                        code += maybe_code
+                        code += "}"
+                    code += f"free({to_free}{field["name"]});"
+                    code += "}"
+                else:
+                    code += f"cmc_{type_func_name(field)}_free({to_free}{field["name"]});"
+
+        return code
+
+    code = free_content(packet["content"], "packet->")    
+            
+    return (code, f"void cmc_packet_free_{packet["type"]}({packet["type"]} *packet)")
+    
+
 def main():
     packets = gather_packets()
     
     replace_with_functions("packet_types", type_def, packets)
     replace_code_segments(packet_id_enums(packets), "packet_ids")
     replace_c_functions("unpack_methods", unpack_packet, packets)
+    replace_c_functions("free_methods", free_packet, packets)
     
 if __name__ == "__main__":
     main()

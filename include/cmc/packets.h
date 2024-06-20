@@ -140,3 +140,64 @@ cmc_packet_S2C_play_change_difficulty_47_unpack(cmc_buff *buff);
 cmc_packet_C2S_play_keep_alive_47
 cmc_packet_C2S_play_keep_alive_47_unpack(cmc_buff *buff);
 // CGSE: unpack_methods_h
+
+// CGSS: free_methods_h
+void cmc_packet_free_cmc_packet_C2S_handshake_handshake_765(
+    cmc_packet_C2S_handshake_handshake_765 *packet);
+void cmc_packet_free_cmc_packet_S2C_status_response_765(
+    cmc_packet_S2C_status_response_765 *packet);
+void cmc_packet_free_cmc_packet_S2C_login_disconnect_765(
+    cmc_packet_S2C_login_disconnect_765 *packet);
+void cmc_packet_free_cmc_packet_S2C_login_encryption_request_765(
+    cmc_packet_S2C_login_encryption_request_765 *packet);
+void cmc_packet_free_cmc_packet_S2C_login_success_765(
+    cmc_packet_S2C_login_success_765 *packet);
+void cmc_packet_free_cmc_packet_C2S_login_start_765(
+    cmc_packet_C2S_login_start_765 *packet);
+void cmc_packet_free_cmc_packet_C2S_login_encryption_response_765(
+    cmc_packet_C2S_login_encryption_response_765 *packet);
+void cmc_packet_free_cmc_packet_S2C_config_plugin_message_765(
+    cmc_packet_S2C_config_plugin_message_765 *packet);
+void cmc_packet_free_cmc_packet_S2C_config_disconnect_765(
+    cmc_packet_S2C_config_disconnect_765 *packet);
+void cmc_packet_free_cmc_packet_S2C_config_registry_data_765(
+    cmc_packet_S2C_config_registry_data_765 *packet);
+void cmc_packet_free_cmc_packet_S2C_play_disconnect_765(
+    cmc_packet_S2C_play_disconnect_765 *packet);
+void cmc_packet_free_cmc_packet_S2C_login_success_47(
+    cmc_packet_S2C_login_success_47 *packet);
+void cmc_packet_free_cmc_packet_C2S_login_start_47(
+    cmc_packet_C2S_login_start_47 *packet);
+void cmc_packet_free_cmc_packet_S2C_play_join_game_47(
+    cmc_packet_S2C_play_join_game_47 *packet);
+void cmc_packet_free_cmc_packet_S2C_play_chat_message_47(
+    cmc_packet_S2C_play_chat_message_47 *packet);
+void cmc_packet_free_cmc_packet_S2C_play_entity_equipment_47(
+    cmc_packet_S2C_play_entity_equipment_47 *packet);
+void cmc_packet_free_cmc_packet_S2C_play_respawn_47(
+    cmc_packet_S2C_play_respawn_47 *packet);
+void cmc_packet_free_cmc_packet_S2C_play_spawn_player_47(
+    cmc_packet_S2C_play_spawn_player_47 *packet);
+void cmc_packet_free_cmc_packet_S2C_play_spawn_mob_47(
+    cmc_packet_S2C_play_spawn_mob_47 *packet);
+void cmc_packet_free_cmc_packet_S2C_play_spawn_painting_47(
+    cmc_packet_S2C_play_spawn_painting_47 *packet);
+void cmc_packet_free_cmc_packet_S2C_play_entity_metadata_47(
+    cmc_packet_S2C_play_entity_metadata_47 *packet);
+void cmc_packet_free_cmc_packet_S2C_play_entity_properties_47(
+    cmc_packet_S2C_play_entity_properties_47 *packet);
+void cmc_packet_free_cmc_packet_S2C_play_chunk_data_47(
+    cmc_packet_S2C_play_chunk_data_47 *packet);
+void cmc_packet_free_cmc_packet_S2C_play_multi_block_change_47(
+    cmc_packet_S2C_play_multi_block_change_47 *packet);
+void cmc_packet_free_cmc_packet_S2C_play_map_chunk_bulk_47(
+    cmc_packet_S2C_play_map_chunk_bulk_47 *packet);
+void cmc_packet_free_cmc_packet_S2C_play_explosion_47(
+    cmc_packet_S2C_play_explosion_47 *packet);
+void cmc_packet_free_cmc_packet_S2C_play_sound_effect_47(
+    cmc_packet_S2C_play_sound_effect_47 *packet);
+void cmc_packet_free_cmc_packet_S2C_play_plugin_message_47(
+    cmc_packet_S2C_play_plugin_message_47 *packet);
+void cmc_packet_free_cmc_packet_S2C_play_disconnect_47(
+    cmc_packet_S2C_play_disconnect_47 *packet);
+// CGSE: free_methods_h

@@ -22,7 +22,7 @@ int main() {
       cmc_conn_connect(&conn, (struct sockaddr *)&serv_addr, sizeof(serv_addr)),
       goto err;);
 
-  C2S_handshake_handshake_packet handshake = {
+  cmc_packet_C2S_handshake_handshake_765 handshake = {
       .next_state = CMC_CONN_STATE_STATUS,
       .protocole_version = 47,
       .server_addr = strdup("127.0.0.1"),
