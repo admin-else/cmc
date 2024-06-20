@@ -219,9 +219,11 @@ def unpack_packet(packet):
     remove_last_err_handler = False
     def add_failiure_point(lable, code):
         nonlocal err_handling, on_err, remove_last_err_handler
-        on_err = f"goto {lable};"
         err_handling.insert(0, f"{f"{lable}:" if lable else ""} {code}")
-        remove_last_err_handler = True
+
+        if lable:        
+            on_err = f"goto {lable};"
+            remove_last_err_handler = True
     
     code = ""
     header = ""
@@ -233,23 +235,29 @@ def unpack_packet(packet):
     
     add_failiure_point("err", f"return ({packet["type"]}){{}};")
     
-    iterator_char = 'h'
+    iterator_char = 'h' # before i 
     
     def unpack_code(unpack_to, content, lable_prefixs):
-        nonlocal code, iterator_char, iterator_decls, err_handling, remove_last_err_handler
+        nonlocal code, iterator_char, iterator_decls, err_handling, remove_last_err_handler, on_err
         for field in content:
             if field["type"] == "A":
                 iterator_char = chr(ord(iterator_char) + 1)
                 code += f"if({unpack_to}{field["size_key"]} > 0) {{"
                 code += f"{unpack_to}{field["name"]} = CMC_ERRB_ABLE(cmc_malloc({unpack_to}{field["size_key"]} * sizeof(*{unpack_to}{field["name"]}), &buff->err), {on_err});"
+                add_failiure_point(None, "}")
+                add_failiure_point(None, "}")
+                add_failiure_point(lable_prefixs + "_" + field["name"], f"free({unpack_to}{field["name"]});")
                 code += f"for({iterator_char} = 0; {iterator_char} < {unpack_to}{field["size_key"]}; ++{iterator_char}) {{"
                 
+                on_err = f"goto {lable_prefixs + "_" + field["name"] + "_forloop"}"
                 iterator_decls += f"int {iterator_char} = 0;"
-                
                 unpack_code(f"{unpack_to}{field["name"]}[{iterator_char}].", field["content"], lable_prefixs + "_" + field["name"])
+                add_failiure_point(None, f"{lable_prefixs}_{field["name"]}_forloop:for(;{iterator_char}>0;--{iterator_char}) {{")
                 iterator_char = chr(ord(iterator_char) - 1)
+                code += "}"
                 
-                code += "}}"
+                add_failiure_point(None, f"if({unpack_to}{field["size_key"]} > 0) {{")
+                code += "}"
             else:
                 code += f"{unpack_to}{field["name"]} = CMC_ERRB_ABLE(cmc_buff_unpack_{type_func_name(field)}(buff), {on_err});"
                 remove_last_err_handler = False

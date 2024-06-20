@@ -561,8 +561,8 @@ cmc_packet_S2C_play_entity_properties_47_unpack(cmc_buff *buff) {
                    &buff->err),
         goto err;);
     for (i = 0; i < packet.properties_count; ++i) {
-      packet.properties[i].key =
-          CMC_ERRB_ABLE(cmc_buff_unpack_string(buff), goto err;);
+      packet.properties[i].key = CMC_ERRB_ABLE(cmc_buff_unpack_string(buff),
+                                               goto err_properties_forloop);
       packet.properties[i].value =
           CMC_ERRB_ABLE(cmc_buff_unpack_double(buff), goto err_properties_key;);
       packet.properties[i].num_of_modifiers =
@@ -574,17 +574,33 @@ cmc_packet_S2C_play_entity_properties_47_unpack(cmc_buff *buff) {
                        &buff->err),
             goto err_properties_key;);
         for (j = 0; j < packet.properties[i].num_of_modifiers; ++j) {
-          packet.properties[i].modifiers[j].amount = CMC_ERRB_ABLE(
-              cmc_buff_unpack_double(buff), goto err_properties_key;);
-          packet.properties[i].modifiers[j].operation = CMC_ERRB_ABLE(
-              cmc_buff_unpack_char(buff), goto err_properties_key;);
+          packet.properties[i].modifiers[j].amount =
+              CMC_ERRB_ABLE(cmc_buff_unpack_double(buff),
+                            goto err_properties_modifiers_forloop);
+          packet.properties[i].modifiers[j].operation =
+              CMC_ERRB_ABLE(cmc_buff_unpack_char(buff),
+                            goto err_properties_modifiers_forloop);
         }
       }
     }
   }
   return packet;
-err_properties_key:
-  cmc_string_free(packet.properties[i].key);
+  if (packet.properties_count > 0) {
+  err_properties_forloop:
+    for (; i > 0; --i) {
+      if (packet.properties[i].num_of_modifiers > 0) {
+      err_properties_modifiers_forloop:
+        for (; j > 0; --j) {
+        err_properties_modifiers:
+          free(packet.properties[i].modifiers);
+        }
+      }
+    err_properties_key:
+      cmc_string_free(packet.properties[i].key);
+    err_properties:
+      free(packet.properties);
+    }
+  }
 err:
   return (cmc_packet_S2C_play_entity_properties_47){};
 }
@@ -615,14 +631,21 @@ cmc_packet_S2C_play_multi_block_change_47_unpack(cmc_buff *buff) {
         goto err;);
     for (i = 0; i < packet.record_count; ++i) {
       packet.records[i].horizontal_position =
-          CMC_ERRB_ABLE(cmc_buff_unpack_byte(buff), goto err;);
+          CMC_ERRB_ABLE(cmc_buff_unpack_byte(buff), goto err_records_forloop);
       packet.records[i].vertical_position =
-          CMC_ERRB_ABLE(cmc_buff_unpack_byte(buff), goto err;);
+          CMC_ERRB_ABLE(cmc_buff_unpack_byte(buff), goto err_records_forloop);
       packet.records[i].block_id =
-          CMC_ERRB_ABLE(cmc_buff_unpack_varint(buff), goto err;);
+          CMC_ERRB_ABLE(cmc_buff_unpack_varint(buff), goto err_records_forloop);
     }
   }
   return packet;
+  if (packet.record_count > 0) {
+  err_records_forloop:
+    for (; i > 0; --i) {
+    err_records:
+      free(packet.records);
+    }
+  }
 err:
   return (cmc_packet_S2C_play_multi_block_change_47){};
 }
@@ -669,16 +692,24 @@ cmc_packet_S2C_play_map_chunk_bulk_47_unpack(cmc_buff *buff) {
                    &buff->err),
         goto err;);
     for (i = 0; i < packet.chunk_column_count; ++i) {
-      packet.chunk_columns[i].chunk_x =
-          CMC_ERRB_ABLE(cmc_buff_unpack_int(buff), goto err;);
-      packet.chunk_columns[i].chunk_z =
-          CMC_ERRB_ABLE(cmc_buff_unpack_int(buff), goto err;);
-      packet.chunk_columns[i].bit_mask =
-          CMC_ERRB_ABLE(cmc_buff_unpack_ushort(buff), goto err;);
+      packet.chunk_columns[i].chunk_x = CMC_ERRB_ABLE(
+          cmc_buff_unpack_int(buff), goto err_chunk_columns_forloop);
+      packet.chunk_columns[i].chunk_z = CMC_ERRB_ABLE(
+          cmc_buff_unpack_int(buff), goto err_chunk_columns_forloop);
+      packet.chunk_columns[i].bit_mask = CMC_ERRB_ABLE(
+          cmc_buff_unpack_ushort(buff), goto err_chunk_columns_forloop);
     }
   }
-  packet.chunk = CMC_ERRB_ABLE(cmc_buff_unpack_buff(buff), goto err;);
+  packet.chunk =
+      CMC_ERRB_ABLE(cmc_buff_unpack_buff(buff), goto err_chunk_columns_forloop);
   return packet;
+  if (packet.chunk_column_count > 0) {
+  err_chunk_columns_forloop:
+    for (; i > 0; --i) {
+    err_chunk_columns:
+      free(packet.chunk_columns);
+    }
+  }
 err:
   return (cmc_packet_S2C_play_map_chunk_bulk_47){};
 }
@@ -697,17 +728,27 @@ cmc_packet_S2C_play_explosion_47_unpack(cmc_buff *buff) {
         goto err;);
     for (i = 0; i < packet.record_count; ++i) {
       packet.records[i].x_offset =
-          CMC_ERRB_ABLE(cmc_buff_unpack_char(buff), goto err;);
+          CMC_ERRB_ABLE(cmc_buff_unpack_char(buff), goto err_records_forloop);
       packet.records[i].y_offset =
-          CMC_ERRB_ABLE(cmc_buff_unpack_char(buff), goto err;);
+          CMC_ERRB_ABLE(cmc_buff_unpack_char(buff), goto err_records_forloop);
       packet.records[i].z_offset =
-          CMC_ERRB_ABLE(cmc_buff_unpack_char(buff), goto err;);
+          CMC_ERRB_ABLE(cmc_buff_unpack_char(buff), goto err_records_forloop);
     }
   }
-  packet.x_player_vel = CMC_ERRB_ABLE(cmc_buff_unpack_float(buff), goto err;);
-  packet.y_player_vel = CMC_ERRB_ABLE(cmc_buff_unpack_float(buff), goto err;);
-  packet.z_player_vel = CMC_ERRB_ABLE(cmc_buff_unpack_float(buff), goto err;);
+  packet.x_player_vel =
+      CMC_ERRB_ABLE(cmc_buff_unpack_float(buff), goto err_records_forloop);
+  packet.y_player_vel =
+      CMC_ERRB_ABLE(cmc_buff_unpack_float(buff), goto err_records_forloop);
+  packet.z_player_vel =
+      CMC_ERRB_ABLE(cmc_buff_unpack_float(buff), goto err_records_forloop);
   return packet;
+  if (packet.record_count > 0) {
+  err_records_forloop:
+    for (; i > 0; --i) {
+    err_records:
+      free(packet.records);
+    }
+  }
 err:
   return (cmc_packet_S2C_play_explosion_47){};
 }
