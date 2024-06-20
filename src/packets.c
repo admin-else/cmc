@@ -847,3 +847,143 @@ err:
   return (cmc_packet_C2S_play_keep_alive_47){};
 }
 // CGSE: unpack_methods_c
+
+// CGSS: free_methods_c
+void cmc_packet_free_cmc_packet_C2S_handshake_handshake_765(
+    cmc_packet_C2S_handshake_handshake_765 *packet) {
+  cmc_string_free(packet->server_addr);
+}
+void cmc_packet_free_cmc_packet_S2C_status_response_765(
+    cmc_packet_S2C_status_response_765 *packet) {
+  cmc_string_free(packet->response);
+}
+void cmc_packet_free_cmc_packet_S2C_login_disconnect_765(
+    cmc_packet_S2C_login_disconnect_765 *packet) {
+  cmc_string_free(packet->reason);
+}
+void cmc_packet_free_cmc_packet_S2C_login_encryption_request_765(
+    cmc_packet_S2C_login_encryption_request_765 *packet) {
+  cmc_string_free(packet->server_id);
+  cmc_buff_free(packet->public_key);
+  cmc_buff_free(packet->verify_token);
+}
+void cmc_packet_free_cmc_packet_S2C_login_success_765(
+    cmc_packet_S2C_login_success_765 *packet) {
+  cmc_string_free(packet->name);
+}
+void cmc_packet_free_cmc_packet_C2S_login_start_765(
+    cmc_packet_C2S_login_start_765 *packet) {
+  cmc_string_free(packet->name);
+}
+void cmc_packet_free_cmc_packet_C2S_login_encryption_response_765(
+    cmc_packet_C2S_login_encryption_response_765 *packet) {
+  cmc_buff_free(packet->shared_secret);
+  cmc_buff_free(packet->verify_token);
+}
+void cmc_packet_free_cmc_packet_S2C_config_plugin_message_765(
+    cmc_packet_S2C_config_plugin_message_765 *packet) {
+  cmc_string_free(packet->channel);
+  cmc_buff_free(packet->data);
+}
+void cmc_packet_free_cmc_packet_S2C_config_disconnect_765(
+    cmc_packet_S2C_config_disconnect_765 *packet) {
+  cmc_string_free(packet->reason);
+}
+void cmc_packet_free_cmc_packet_S2C_config_registry_data_765(
+    cmc_packet_S2C_config_registry_data_765 *packet) {
+  cmc_nbt_free(packet->registry_codec);
+}
+void cmc_packet_free_cmc_packet_S2C_play_disconnect_765(
+    cmc_packet_S2C_play_disconnect_765 *packet) {
+  cmc_nbt_free(packet->reason_nbt);
+}
+void cmc_packet_free_cmc_packet_S2C_login_success_47(
+    cmc_packet_S2C_login_success_47 *packet) {
+  cmc_string_free(packet->uuid_str);
+  cmc_string_free(packet->name);
+}
+void cmc_packet_free_cmc_packet_C2S_login_start_47(
+    cmc_packet_C2S_login_start_47 *packet) {
+  cmc_string_free(packet->name);
+}
+void cmc_packet_free_cmc_packet_S2C_play_join_game_47(
+    cmc_packet_S2C_play_join_game_47 *packet) {
+  cmc_string_free(packet->level_type);
+}
+void cmc_packet_free_cmc_packet_S2C_play_chat_message_47(
+    cmc_packet_S2C_play_chat_message_47 *packet) {
+  cmc_string_free(packet->message);
+}
+void cmc_packet_free_cmc_packet_S2C_play_entity_equipment_47(
+    cmc_packet_S2C_play_entity_equipment_47 *packet) {
+  cmc_slot_free(packet->item);
+}
+void cmc_packet_free_cmc_packet_S2C_play_respawn_47(
+    cmc_packet_S2C_play_respawn_47 *packet) {
+  cmc_string_free(packet->level_type);
+}
+void cmc_packet_free_cmc_packet_S2C_play_spawn_player_47(
+    cmc_packet_S2C_play_spawn_player_47 *packet) {
+  cmc_entity_metadata_free(packet->meta_data);
+}
+void cmc_packet_free_cmc_packet_S2C_play_spawn_mob_47(
+    cmc_packet_S2C_play_spawn_mob_47 *packet) {
+  cmc_entity_metadata_free(packet->meta_data);
+}
+void cmc_packet_free_cmc_packet_S2C_play_spawn_painting_47(
+    cmc_packet_S2C_play_spawn_painting_47 *packet) {
+  cmc_string_free(packet->title);
+}
+void cmc_packet_free_cmc_packet_S2C_play_entity_metadata_47(
+    cmc_packet_S2C_play_entity_metadata_47 *packet) {
+  cmc_entity_metadata_free(packet->meta_data);
+}
+void cmc_packet_free_cmc_packet_S2C_play_entity_properties_47(
+    cmc_packet_S2C_play_entity_properties_47 *packet) {
+  if (packet->properties_count > 0) {
+    for (; packet->properties_count > 0; --packet->properties_count) {
+      cmc_string_free(packet->properties[packet->properties_count].key);
+      if (packet->properties[packet->properties_count].num_of_modifiers > 0) {
+        free(packet->properties[packet->properties_count].modifiers);
+      }
+    }
+    free(packet->properties);
+  }
+}
+void cmc_packet_free_cmc_packet_S2C_play_chunk_data_47(
+    cmc_packet_S2C_play_chunk_data_47 *packet) {
+  cmc_buff_free(packet->chunk);
+}
+void cmc_packet_free_cmc_packet_S2C_play_multi_block_change_47(
+    cmc_packet_S2C_play_multi_block_change_47 *packet) {
+  if (packet->record_count > 0) {
+    free(packet->records);
+  }
+}
+void cmc_packet_free_cmc_packet_S2C_play_map_chunk_bulk_47(
+    cmc_packet_S2C_play_map_chunk_bulk_47 *packet) {
+  if (packet->chunk_column_count > 0) {
+    free(packet->chunk_columns);
+  }
+  cmc_buff_free(packet->chunk);
+}
+void cmc_packet_free_cmc_packet_S2C_play_explosion_47(
+    cmc_packet_S2C_play_explosion_47 *packet) {
+  if (packet->record_count > 0) {
+    free(packet->records);
+  }
+}
+void cmc_packet_free_cmc_packet_S2C_play_sound_effect_47(
+    cmc_packet_S2C_play_sound_effect_47 *packet) {
+  cmc_string_free(packet->sound_name);
+}
+void cmc_packet_free_cmc_packet_S2C_play_plugin_message_47(
+    cmc_packet_S2C_play_plugin_message_47 *packet) {
+  cmc_string_free(packet->channel);
+  cmc_buff_free(packet->data);
+}
+void cmc_packet_free_cmc_packet_S2C_play_disconnect_47(
+    cmc_packet_S2C_play_disconnect_47 *packet) {
+  cmc_string_free(packet->reason);
+}
+// CGSE: free_methods_c
