@@ -294,7 +294,7 @@ def free_packet(packet):
 
         return code
 
-    return (free_content(packet["content"], "packet->"), f"void cmc_packet_free_{packet["type"]}({packet["type"]} *packet)")
+    return (free_content(packet["content"], "packet->"), f"void {packet["type"]}_free({packet["type"]} *packet)")
 
 def pack_packet(packet):
     def pack_content(content, to_pack, iterator_char):
@@ -309,7 +309,7 @@ def pack_packet(packet):
 
         return code
 
-    return (pack_content(packet["content"], "packet->", "i"), f"void cmc_packet_pack_{packet["type"]}(cmc_buff *buff, {packet["type"]} *packet)")
+    return (pack_content(packet["content"], "packet->", "i"), f"void {packet["type"]}_pack(cmc_buff *buff, {packet["type"]} *packet)")
     
 
 def main():
