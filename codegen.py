@@ -275,6 +275,7 @@ def unpack_packet(packet):
     return (code, header)
 
 def free_packet(packet):
+    # i love it no labels not error handling
     def free_content(content, to_free):
         code = ""
         for field in content:
@@ -293,9 +294,22 @@ def free_packet(packet):
 
         return code
 
-    code = free_content(packet["content"], "packet->")    
-            
-    return (code, f"void cmc_packet_free_{packet["type"]}({packet["type"]} *packet)")
+    return (free_content(packet["content"], "packet->"), f"void cmc_packet_free_{packet["type"]}({packet["type"]} *packet)")
+
+def pack_packet(packet):
+    def pack_content(content, to_pack, iterator_char):
+        code = ""
+        for field in content:
+            if field["type"] == "A":
+                code += f"for(int {iterator_char} = 0; {iterator_char}<{to_pack}{field["size_key"]}; ++{iterator_char}) {{"
+                code += pack_content(field["content"], f"{to_pack}{field["name"]}[{iterator_char}].", chr(ord(iterator_char) + 1))
+                code += "}"
+            else:
+                code += f"cmc_buff_pack_{type_func_name(field)}(buff, {to_pack}{field["name"]});"
+
+        return code
+
+    return (pack_content(packet["content"], "packet->", "i"), f"void cmc_packet_pack_{packet["type"]}(cmc_buff *buff, {packet["type"]} *packet)")
     
 
 def main():
@@ -305,6 +319,7 @@ def main():
     replace_code_segments(packet_id_enums(packets), "packet_ids")
     replace_c_functions("unpack_methods", unpack_packet, packets)
     replace_c_functions("free_methods", free_packet, packets)
+    replace_c_functions("pack_methods", pack_packet, packets)
     
 if __name__ == "__main__":
     main()

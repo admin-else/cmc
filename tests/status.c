@@ -1,6 +1,7 @@
 #include <arpa/inet.h>
 #include <cmc/conn.h>
 #include <cmc/err.h>
+#include <cmc/packet_macros.h>
 #include <cmc/packets.h>
 #include <stdio.h>
 #include <string.h>
@@ -28,9 +29,7 @@ int main() {
       .server_addr = strdup("127.0.0.1"),
       .server_port = 25565};
 
-  TRY_CATCH(cmc_send_C2S_handshake_handshake_packet(&conn, &handshake),
-            goto err2;);
-
+  
   cmc_free_C2S_handshake_handshake_packet(&handshake, &conn.err);
   TRY_CATCH(conn.err.err, goto err1;)
   TRY_CATCH(cmc_send_C2S_status_request_packet(&conn), goto err1;);
