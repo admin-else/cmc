@@ -849,96 +849,95 @@ err:
 // CGSE: unpack_methods_c
 
 // CGSS: free_methods_c
-void cmc_packet_free_cmc_packet_C2S_handshake_handshake_765(
+void cmc_packet_C2S_handshake_handshake_765_free(
     cmc_packet_C2S_handshake_handshake_765 *packet) {
   cmc_string_free(packet->server_addr);
 }
-void cmc_packet_free_cmc_packet_S2C_status_response_765(
+void cmc_packet_S2C_status_response_765_free(
     cmc_packet_S2C_status_response_765 *packet) {
   cmc_string_free(packet->response);
 }
-void cmc_packet_free_cmc_packet_S2C_login_disconnect_765(
+void cmc_packet_S2C_login_disconnect_765_free(
     cmc_packet_S2C_login_disconnect_765 *packet) {
   cmc_string_free(packet->reason);
 }
-void cmc_packet_free_cmc_packet_S2C_login_encryption_request_765(
+void cmc_packet_S2C_login_encryption_request_765_free(
     cmc_packet_S2C_login_encryption_request_765 *packet) {
   cmc_string_free(packet->server_id);
   cmc_buff_free(packet->public_key);
   cmc_buff_free(packet->verify_token);
 }
-void cmc_packet_free_cmc_packet_S2C_login_success_765(
+void cmc_packet_S2C_login_success_765_free(
     cmc_packet_S2C_login_success_765 *packet) {
   cmc_string_free(packet->name);
 }
-void cmc_packet_free_cmc_packet_C2S_login_start_765(
+void cmc_packet_C2S_login_start_765_free(
     cmc_packet_C2S_login_start_765 *packet) {
   cmc_string_free(packet->name);
 }
-void cmc_packet_free_cmc_packet_C2S_login_encryption_response_765(
+void cmc_packet_C2S_login_encryption_response_765_free(
     cmc_packet_C2S_login_encryption_response_765 *packet) {
   cmc_buff_free(packet->shared_secret);
   cmc_buff_free(packet->verify_token);
 }
-void cmc_packet_free_cmc_packet_S2C_config_plugin_message_765(
+void cmc_packet_S2C_config_plugin_message_765_free(
     cmc_packet_S2C_config_plugin_message_765 *packet) {
   cmc_string_free(packet->channel);
   cmc_buff_free(packet->data);
 }
-void cmc_packet_free_cmc_packet_S2C_config_disconnect_765(
+void cmc_packet_S2C_config_disconnect_765_free(
     cmc_packet_S2C_config_disconnect_765 *packet) {
   cmc_string_free(packet->reason);
 }
-void cmc_packet_free_cmc_packet_S2C_config_registry_data_765(
+void cmc_packet_S2C_config_registry_data_765_free(
     cmc_packet_S2C_config_registry_data_765 *packet) {
   cmc_nbt_free(packet->registry_codec);
 }
-void cmc_packet_free_cmc_packet_S2C_play_disconnect_765(
+void cmc_packet_S2C_play_disconnect_765_free(
     cmc_packet_S2C_play_disconnect_765 *packet) {
   cmc_nbt_free(packet->reason_nbt);
 }
-void cmc_packet_free_cmc_packet_S2C_login_success_47(
+void cmc_packet_S2C_login_success_47_free(
     cmc_packet_S2C_login_success_47 *packet) {
   cmc_string_free(packet->uuid_str);
   cmc_string_free(packet->name);
 }
-void cmc_packet_free_cmc_packet_C2S_login_start_47(
-    cmc_packet_C2S_login_start_47 *packet) {
+void cmc_packet_C2S_login_start_47_free(cmc_packet_C2S_login_start_47 *packet) {
   cmc_string_free(packet->name);
 }
-void cmc_packet_free_cmc_packet_S2C_play_join_game_47(
+void cmc_packet_S2C_play_join_game_47_free(
     cmc_packet_S2C_play_join_game_47 *packet) {
   cmc_string_free(packet->level_type);
 }
-void cmc_packet_free_cmc_packet_S2C_play_chat_message_47(
+void cmc_packet_S2C_play_chat_message_47_free(
     cmc_packet_S2C_play_chat_message_47 *packet) {
   cmc_string_free(packet->message);
 }
-void cmc_packet_free_cmc_packet_S2C_play_entity_equipment_47(
+void cmc_packet_S2C_play_entity_equipment_47_free(
     cmc_packet_S2C_play_entity_equipment_47 *packet) {
   cmc_slot_free(packet->item);
 }
-void cmc_packet_free_cmc_packet_S2C_play_respawn_47(
+void cmc_packet_S2C_play_respawn_47_free(
     cmc_packet_S2C_play_respawn_47 *packet) {
   cmc_string_free(packet->level_type);
 }
-void cmc_packet_free_cmc_packet_S2C_play_spawn_player_47(
+void cmc_packet_S2C_play_spawn_player_47_free(
     cmc_packet_S2C_play_spawn_player_47 *packet) {
   cmc_entity_metadata_free(packet->meta_data);
 }
-void cmc_packet_free_cmc_packet_S2C_play_spawn_mob_47(
+void cmc_packet_S2C_play_spawn_mob_47_free(
     cmc_packet_S2C_play_spawn_mob_47 *packet) {
   cmc_entity_metadata_free(packet->meta_data);
 }
-void cmc_packet_free_cmc_packet_S2C_play_spawn_painting_47(
+void cmc_packet_S2C_play_spawn_painting_47_free(
     cmc_packet_S2C_play_spawn_painting_47 *packet) {
   cmc_string_free(packet->title);
 }
-void cmc_packet_free_cmc_packet_S2C_play_entity_metadata_47(
+void cmc_packet_S2C_play_entity_metadata_47_free(
     cmc_packet_S2C_play_entity_metadata_47 *packet) {
   cmc_entity_metadata_free(packet->meta_data);
 }
-void cmc_packet_free_cmc_packet_S2C_play_entity_properties_47(
+void cmc_packet_S2C_play_entity_properties_47_free(
     cmc_packet_S2C_play_entity_properties_47 *packet) {
   if (packet->properties_count > 0) {
     for (; packet->properties_count > 0; --packet->properties_count) {
@@ -950,141 +949,141 @@ void cmc_packet_free_cmc_packet_S2C_play_entity_properties_47(
     free(packet->properties);
   }
 }
-void cmc_packet_free_cmc_packet_S2C_play_chunk_data_47(
+void cmc_packet_S2C_play_chunk_data_47_free(
     cmc_packet_S2C_play_chunk_data_47 *packet) {
   cmc_buff_free(packet->chunk);
 }
-void cmc_packet_free_cmc_packet_S2C_play_multi_block_change_47(
+void cmc_packet_S2C_play_multi_block_change_47_free(
     cmc_packet_S2C_play_multi_block_change_47 *packet) {
   if (packet->record_count > 0) {
     free(packet->records);
   }
 }
-void cmc_packet_free_cmc_packet_S2C_play_map_chunk_bulk_47(
+void cmc_packet_S2C_play_map_chunk_bulk_47_free(
     cmc_packet_S2C_play_map_chunk_bulk_47 *packet) {
   if (packet->chunk_column_count > 0) {
     free(packet->chunk_columns);
   }
   cmc_buff_free(packet->chunk);
 }
-void cmc_packet_free_cmc_packet_S2C_play_explosion_47(
+void cmc_packet_S2C_play_explosion_47_free(
     cmc_packet_S2C_play_explosion_47 *packet) {
   if (packet->record_count > 0) {
     free(packet->records);
   }
 }
-void cmc_packet_free_cmc_packet_S2C_play_sound_effect_47(
+void cmc_packet_S2C_play_sound_effect_47_free(
     cmc_packet_S2C_play_sound_effect_47 *packet) {
   cmc_string_free(packet->sound_name);
 }
-void cmc_packet_free_cmc_packet_S2C_play_plugin_message_47(
+void cmc_packet_S2C_play_plugin_message_47_free(
     cmc_packet_S2C_play_plugin_message_47 *packet) {
   cmc_string_free(packet->channel);
   cmc_buff_free(packet->data);
 }
-void cmc_packet_free_cmc_packet_S2C_play_disconnect_47(
+void cmc_packet_S2C_play_disconnect_47_free(
     cmc_packet_S2C_play_disconnect_47 *packet) {
   cmc_string_free(packet->reason);
 }
 // CGSE: free_methods_c
 
 // CGSS: pack_methods_c
-void cmc_packet_pack_cmc_packet_C2S_handshake_handshake_765(
+void cmc_packet_C2S_handshake_handshake_765_pack(
     cmc_buff *buff, cmc_packet_C2S_handshake_handshake_765 *packet) {
   cmc_buff_pack_varint(buff, packet->protocole_version);
   cmc_buff_pack_string(buff, packet->server_addr);
   cmc_buff_pack_ushort(buff, packet->server_port);
   cmc_buff_pack_varint(buff, packet->next_state);
 }
-void cmc_packet_pack_cmc_packet_S2C_status_response_765(
+void cmc_packet_S2C_status_response_765_pack(
     cmc_buff *buff, cmc_packet_S2C_status_response_765 *packet) {
   cmc_buff_pack_string(buff, packet->response);
 }
-void cmc_packet_pack_cmc_packet_S2C_status_pong_765(
+void cmc_packet_S2C_status_pong_765_pack(
     cmc_buff *buff, cmc_packet_S2C_status_pong_765 *packet) {
   cmc_buff_pack_long(buff, packet->payload);
 }
-void cmc_packet_pack_cmc_packet_C2S_status_ping_765(
+void cmc_packet_C2S_status_ping_765_pack(
     cmc_buff *buff, cmc_packet_C2S_status_ping_765 *packet) {
   cmc_buff_pack_long(buff, packet->payload);
 }
-void cmc_packet_pack_cmc_packet_S2C_login_disconnect_765(
+void cmc_packet_S2C_login_disconnect_765_pack(
     cmc_buff *buff, cmc_packet_S2C_login_disconnect_765 *packet) {
   cmc_buff_pack_string(buff, packet->reason);
 }
-void cmc_packet_pack_cmc_packet_S2C_login_encryption_request_765(
+void cmc_packet_S2C_login_encryption_request_765_pack(
     cmc_buff *buff, cmc_packet_S2C_login_encryption_request_765 *packet) {
   cmc_buff_pack_string(buff, packet->server_id);
   cmc_buff_pack_buff(buff, packet->public_key);
   cmc_buff_pack_buff(buff, packet->verify_token);
 }
-void cmc_packet_pack_cmc_packet_S2C_login_success_765(
+void cmc_packet_S2C_login_success_765_pack(
     cmc_buff *buff, cmc_packet_S2C_login_success_765 *packet) {
   cmc_buff_pack_uuid(buff, packet->uuid);
   cmc_buff_pack_string(buff, packet->name);
   cmc_buff_pack_varint(buff, packet->properties_count);
 }
-void cmc_packet_pack_cmc_packet_S2C_login_set_compression_765(
+void cmc_packet_S2C_login_set_compression_765_pack(
     cmc_buff *buff, cmc_packet_S2C_login_set_compression_765 *packet) {
   cmc_buff_pack_varint(buff, packet->threshold);
 }
-void cmc_packet_pack_cmc_packet_C2S_login_start_765(
+void cmc_packet_C2S_login_start_765_pack(
     cmc_buff *buff, cmc_packet_C2S_login_start_765 *packet) {
   cmc_buff_pack_string(buff, packet->name);
   cmc_buff_pack_uuid(buff, packet->uuid);
 }
-void cmc_packet_pack_cmc_packet_C2S_login_encryption_response_765(
+void cmc_packet_C2S_login_encryption_response_765_pack(
     cmc_buff *buff, cmc_packet_C2S_login_encryption_response_765 *packet) {
   cmc_buff_pack_buff(buff, packet->shared_secret);
   cmc_buff_pack_buff(buff, packet->verify_token);
 }
-void cmc_packet_pack_cmc_packet_S2C_config_plugin_message_765(
+void cmc_packet_S2C_config_plugin_message_765_pack(
     cmc_buff *buff, cmc_packet_S2C_config_plugin_message_765 *packet) {
   cmc_buff_pack_string(buff, packet->channel);
   cmc_buff_pack_buff(buff, packet->data);
 }
-void cmc_packet_pack_cmc_packet_S2C_config_disconnect_765(
+void cmc_packet_S2C_config_disconnect_765_pack(
     cmc_buff *buff, cmc_packet_S2C_config_disconnect_765 *packet) {
   cmc_buff_pack_string(buff, packet->reason);
 }
-void cmc_packet_pack_cmc_packet_S2C_config_keep_alive_765(
+void cmc_packet_S2C_config_keep_alive_765_pack(
     cmc_buff *buff, cmc_packet_S2C_config_keep_alive_765 *packet) {
   cmc_buff_pack_long(buff, packet->keep_alive_id);
 }
-void cmc_packet_pack_cmc_packet_S2C_config_ping_765(
+void cmc_packet_S2C_config_ping_765_pack(
     cmc_buff *buff, cmc_packet_S2C_config_ping_765 *packet) {
   cmc_buff_pack_int(buff, packet->id);
 }
-void cmc_packet_pack_cmc_packet_S2C_config_registry_data_765(
+void cmc_packet_S2C_config_registry_data_765_pack(
     cmc_buff *buff, cmc_packet_S2C_config_registry_data_765 *packet) {
   cmc_buff_pack_nbt(buff, packet->registry_codec);
 }
-void cmc_packet_pack_cmc_packet_C2S_play_keep_alive_765(
+void cmc_packet_C2S_play_keep_alive_765_pack(
     cmc_buff *buff, cmc_packet_C2S_play_keep_alive_765 *packet) {
   cmc_buff_pack_long(buff, packet->keep_alive_id_long);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_keep_alive_765(
+void cmc_packet_S2C_play_keep_alive_765_pack(
     cmc_buff *buff, cmc_packet_S2C_play_keep_alive_765 *packet) {
   cmc_buff_pack_long(buff, packet->keep_alive_id_long);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_disconnect_765(
+void cmc_packet_S2C_play_disconnect_765_pack(
     cmc_buff *buff, cmc_packet_S2C_play_disconnect_765 *packet) {
   cmc_buff_pack_nbt(buff, packet->reason_nbt);
 }
-void cmc_packet_pack_cmc_packet_S2C_login_success_47(
+void cmc_packet_S2C_login_success_47_pack(
     cmc_buff *buff, cmc_packet_S2C_login_success_47 *packet) {
   cmc_buff_pack_string(buff, packet->uuid_str);
   cmc_buff_pack_string(buff, packet->name);
 }
-void cmc_packet_pack_cmc_packet_C2S_login_start_47(
-    cmc_buff *buff, cmc_packet_C2S_login_start_47 *packet) {
+void cmc_packet_C2S_login_start_47_pack(cmc_buff *buff,
+                                        cmc_packet_C2S_login_start_47 *packet) {
   cmc_buff_pack_string(buff, packet->name);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_keep_alive_47(
+void cmc_packet_S2C_play_keep_alive_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_keep_alive_47 *packet) {
   cmc_buff_pack_varint(buff, packet->keep_alive_id);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_join_game_47(
+void cmc_packet_S2C_play_join_game_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_join_game_47 *packet) {
   cmc_buff_pack_int(buff, packet->entity_id);
   cmc_buff_pack_byte(buff, packet->gamemode);
@@ -1094,40 +1093,40 @@ void cmc_packet_pack_cmc_packet_S2C_play_join_game_47(
   cmc_buff_pack_string(buff, packet->level_type);
   cmc_buff_pack_bool(buff, packet->reduced_debug_info);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_chat_message_47(
+void cmc_packet_S2C_play_chat_message_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_chat_message_47 *packet) {
   cmc_buff_pack_string(buff, packet->message);
   cmc_buff_pack_char(buff, packet->position);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_time_update_47(
+void cmc_packet_S2C_play_time_update_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_time_update_47 *packet) {
   cmc_buff_pack_long(buff, packet->world_age);
   cmc_buff_pack_long(buff, packet->time_of_day);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_entity_equipment_47(
+void cmc_packet_S2C_play_entity_equipment_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_entity_equipment_47 *packet) {
   cmc_buff_pack_varint(buff, packet->entity_id);
   cmc_buff_pack_short(buff, packet->slot);
   cmc_buff_pack_slot(buff, packet->item);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_spawn_position_47(
+void cmc_packet_S2C_play_spawn_position_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_spawn_position_47 *packet) {
   cmc_buff_pack_position(buff, packet->location);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_update_health_47(
+void cmc_packet_S2C_play_update_health_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_update_health_47 *packet) {
   cmc_buff_pack_float(buff, packet->health);
   cmc_buff_pack_varint(buff, packet->food);
   cmc_buff_pack_float(buff, packet->food_saturation);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_respawn_47(
+void cmc_packet_S2C_play_respawn_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_respawn_47 *packet) {
   cmc_buff_pack_int(buff, packet->dimesion);
   cmc_buff_pack_byte(buff, packet->difficulty);
   cmc_buff_pack_byte(buff, packet->gamemode);
   cmc_buff_pack_string(buff, packet->level_type);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_player_look_and_position_47(
+void cmc_packet_S2C_play_player_look_and_position_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_player_look_and_position_47 *packet) {
   cmc_buff_pack_double(buff, packet->x);
   cmc_buff_pack_double(buff, packet->y);
@@ -1136,21 +1135,21 @@ void cmc_packet_pack_cmc_packet_S2C_play_player_look_and_position_47(
   cmc_buff_pack_float(buff, packet->pitch);
   cmc_buff_pack_byte(buff, packet->flags);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_held_item_change_47(
+void cmc_packet_S2C_play_held_item_change_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_held_item_change_47 *packet) {
   cmc_buff_pack_char(buff, packet->slot);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_use_bed_47(
+void cmc_packet_S2C_play_use_bed_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_use_bed_47 *packet) {
   cmc_buff_pack_varint(buff, packet->entity_id);
   cmc_buff_pack_position(buff, packet->location);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_animation_47(
+void cmc_packet_S2C_play_animation_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_animation_47 *packet) {
   cmc_buff_pack_varint(buff, packet->entity_id);
   cmc_buff_pack_byte(buff, packet->animation);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_spawn_player_47(
+void cmc_packet_S2C_play_spawn_player_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_spawn_player_47 *packet) {
   cmc_buff_pack_varint(buff, packet->entity_id);
   cmc_buff_pack_uuid(buff, packet->uuid);
@@ -1162,12 +1161,12 @@ void cmc_packet_pack_cmc_packet_S2C_play_spawn_player_47(
   cmc_buff_pack_short(buff, packet->current_item);
   cmc_buff_pack_entity_metadata(buff, packet->meta_data);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_collect_item_47(
+void cmc_packet_S2C_play_collect_item_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_collect_item_47 *packet) {
   cmc_buff_pack_varint(buff, packet->collected_entity_id);
   cmc_buff_pack_varint(buff, packet->collector_entity_id);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_spawn_mob_47(
+void cmc_packet_S2C_play_spawn_mob_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_spawn_mob_47 *packet) {
   cmc_buff_pack_varint(buff, packet->entity_id);
   cmc_buff_pack_byte(buff, packet->type);
@@ -1182,14 +1181,14 @@ void cmc_packet_pack_cmc_packet_S2C_play_spawn_mob_47(
   cmc_buff_pack_short(buff, packet->z_vel);
   cmc_buff_pack_entity_metadata(buff, packet->meta_data);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_spawn_painting_47(
+void cmc_packet_S2C_play_spawn_painting_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_spawn_painting_47 *packet) {
   cmc_buff_pack_varint(buff, packet->entity_id);
   cmc_buff_pack_string(buff, packet->title);
   cmc_buff_pack_position(buff, packet->location);
   cmc_buff_pack_byte(buff, packet->direction);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_spawn_experience_orb_47(
+void cmc_packet_S2C_play_spawn_experience_orb_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_spawn_experience_orb_47 *packet) {
   cmc_buff_pack_varint(buff, packet->entity_id);
   cmc_buff_pack_int(buff, packet->x);
@@ -1197,18 +1196,18 @@ void cmc_packet_pack_cmc_packet_S2C_play_spawn_experience_orb_47(
   cmc_buff_pack_int(buff, packet->z);
   cmc_buff_pack_short(buff, packet->count);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_entity_velocity_47(
+void cmc_packet_S2C_play_entity_velocity_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_entity_velocity_47 *packet) {
   cmc_buff_pack_varint(buff, packet->entity_id);
   cmc_buff_pack_short(buff, packet->x_vel);
   cmc_buff_pack_short(buff, packet->y_vel);
   cmc_buff_pack_short(buff, packet->z_vel);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_entity_47(
-    cmc_buff *buff, cmc_packet_S2C_play_entity_47 *packet) {
+void cmc_packet_S2C_play_entity_47_pack(cmc_buff *buff,
+                                        cmc_packet_S2C_play_entity_47 *packet) {
   cmc_buff_pack_varint(buff, packet->entity_id);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_entity_relative_move_47(
+void cmc_packet_S2C_play_entity_relative_move_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_entity_relative_move_47 *packet) {
   cmc_buff_pack_varint(buff, packet->entity_id);
   cmc_buff_pack_char(buff, packet->delta_x);
@@ -1216,14 +1215,14 @@ void cmc_packet_pack_cmc_packet_S2C_play_entity_relative_move_47(
   cmc_buff_pack_char(buff, packet->delta_z);
   cmc_buff_pack_bool(buff, packet->on_ground);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_entity_look_47(
+void cmc_packet_S2C_play_entity_look_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_entity_look_47 *packet) {
   cmc_buff_pack_varint(buff, packet->entity_id);
   cmc_buff_pack_byte(buff, packet->yaw);
   cmc_buff_pack_byte(buff, packet->pitch);
   cmc_buff_pack_bool(buff, packet->on_ground);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_entity_look_and_relative_move_47(
+void cmc_packet_S2C_play_entity_look_and_relative_move_47_pack(
     cmc_buff *buff,
     cmc_packet_S2C_play_entity_look_and_relative_move_47 *packet) {
   cmc_buff_pack_varint(buff, packet->entity_id);
@@ -1234,7 +1233,7 @@ void cmc_packet_pack_cmc_packet_S2C_play_entity_look_and_relative_move_47(
   cmc_buff_pack_byte(buff, packet->pitch);
   cmc_buff_pack_bool(buff, packet->on_ground);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_entity_teleport_47(
+void cmc_packet_S2C_play_entity_teleport_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_entity_teleport_47 *packet) {
   cmc_buff_pack_varint(buff, packet->entity_id);
   cmc_buff_pack_int(buff, packet->x);
@@ -1244,28 +1243,28 @@ void cmc_packet_pack_cmc_packet_S2C_play_entity_teleport_47(
   cmc_buff_pack_byte(buff, packet->pitch);
   cmc_buff_pack_bool(buff, packet->on_ground);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_entity_head_look_47(
+void cmc_packet_S2C_play_entity_head_look_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_entity_head_look_47 *packet) {
   cmc_buff_pack_varint(buff, packet->entity_id);
   cmc_buff_pack_byte(buff, packet->head_yaw);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_entity_status_47(
+void cmc_packet_S2C_play_entity_status_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_entity_status_47 *packet) {
   cmc_buff_pack_int(buff, packet->entity_id);
   cmc_buff_pack_char(buff, packet->entity_status);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_attach_entity_47(
+void cmc_packet_S2C_play_attach_entity_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_attach_entity_47 *packet) {
   cmc_buff_pack_int(buff, packet->entity_id);
   cmc_buff_pack_int(buff, packet->vehicle_id);
   cmc_buff_pack_bool(buff, packet->leash);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_entity_metadata_47(
+void cmc_packet_S2C_play_entity_metadata_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_entity_metadata_47 *packet) {
   cmc_buff_pack_varint(buff, packet->entity_id);
   cmc_buff_pack_entity_metadata(buff, packet->meta_data);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_entity_effect_47(
+void cmc_packet_S2C_play_entity_effect_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_entity_effect_47 *packet) {
   cmc_buff_pack_varint(buff, packet->entity_id);
   cmc_buff_pack_char(buff, packet->effect_id);
@@ -1273,18 +1272,18 @@ void cmc_packet_pack_cmc_packet_S2C_play_entity_effect_47(
   cmc_buff_pack_varint(buff, packet->duration);
   cmc_buff_pack_bool(buff, packet->hide_particles);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_remove_entity_effect_47(
+void cmc_packet_S2C_play_remove_entity_effect_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_remove_entity_effect_47 *packet) {
   cmc_buff_pack_varint(buff, packet->entity_id);
   cmc_buff_pack_char(buff, packet->effect_id);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_set_experience_47(
+void cmc_packet_S2C_play_set_experience_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_set_experience_47 *packet) {
   cmc_buff_pack_float(buff, packet->experience_bar);
   cmc_buff_pack_varint(buff, packet->level);
   cmc_buff_pack_varint(buff, packet->total_experience);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_entity_properties_47(
+void cmc_packet_S2C_play_entity_properties_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_entity_properties_47 *packet) {
   cmc_buff_pack_varint(buff, packet->entity_id);
   cmc_buff_pack_int(buff, packet->properties_count);
@@ -1298,7 +1297,7 @@ void cmc_packet_pack_cmc_packet_S2C_play_entity_properties_47(
     }
   }
 }
-void cmc_packet_pack_cmc_packet_S2C_play_chunk_data_47(
+void cmc_packet_S2C_play_chunk_data_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_chunk_data_47 *packet) {
   cmc_buff_pack_int(buff, packet->chunk_x);
   cmc_buff_pack_int(buff, packet->chunk_z);
@@ -1306,7 +1305,7 @@ void cmc_packet_pack_cmc_packet_S2C_play_chunk_data_47(
   cmc_buff_pack_ushort(buff, packet->primary_bitmask);
   cmc_buff_pack_buff(buff, packet->chunk);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_multi_block_change_47(
+void cmc_packet_S2C_play_multi_block_change_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_multi_block_change_47 *packet) {
   cmc_buff_pack_int(buff, packet->chunk_x);
   cmc_buff_pack_int(buff, packet->chunk_z);
@@ -1317,25 +1316,25 @@ void cmc_packet_pack_cmc_packet_S2C_play_multi_block_change_47(
     cmc_buff_pack_varint(buff, packet->records[i].block_id);
   }
 }
-void cmc_packet_pack_cmc_packet_S2C_play_block_change_47(
+void cmc_packet_S2C_play_block_change_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_block_change_47 *packet) {
   cmc_buff_pack_position(buff, packet->location);
   cmc_buff_pack_varint(buff, packet->block_id);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_block_action_47(
+void cmc_packet_S2C_play_block_action_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_block_action_47 *packet) {
   cmc_buff_pack_position(buff, packet->location);
   cmc_buff_pack_byte(buff, packet->block_data_1);
   cmc_buff_pack_byte(buff, packet->block_data_2);
   cmc_buff_pack_varint(buff, packet->block_type);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_block_break_animation_47(
+void cmc_packet_S2C_play_block_break_animation_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_block_break_animation_47 *packet) {
   cmc_buff_pack_varint(buff, packet->entity_id);
   cmc_buff_pack_position(buff, packet->location);
   cmc_buff_pack_char(buff, packet->destroy_stage);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_map_chunk_bulk_47(
+void cmc_packet_S2C_play_map_chunk_bulk_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_map_chunk_bulk_47 *packet) {
   cmc_buff_pack_bool(buff, packet->sky_light_sent);
   cmc_buff_pack_varint(buff, packet->chunk_column_count);
@@ -1346,7 +1345,7 @@ void cmc_packet_pack_cmc_packet_S2C_play_map_chunk_bulk_47(
   }
   cmc_buff_pack_buff(buff, packet->chunk);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_explosion_47(
+void cmc_packet_S2C_play_explosion_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_explosion_47 *packet) {
   cmc_buff_pack_float(buff, packet->x);
   cmc_buff_pack_float(buff, packet->y);
@@ -1362,8 +1361,8 @@ void cmc_packet_pack_cmc_packet_S2C_play_explosion_47(
   cmc_buff_pack_float(buff, packet->y_player_vel);
   cmc_buff_pack_float(buff, packet->z_player_vel);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_effect_47(
-    cmc_buff *buff, cmc_packet_S2C_play_effect_47 *packet) {
+void cmc_packet_S2C_play_effect_47_pack(cmc_buff *buff,
+                                        cmc_packet_S2C_play_effect_47 *packet) {
   cmc_buff_pack_int(buff, packet->effect_id);
   cmc_buff_pack_position(buff, packet->location);
   cmc_buff_pack_int(buff, packet->data);
@@ -1380,7 +1379,7 @@ void cmc_packet_pack_cmc_packet_S2C_play_effect_47(
   cmc_buff_pack_int(buff, packet->particle_count);
   cmc_buff_pack_int(buff, packet->sable_relative_volume);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_sound_effect_47(
+void cmc_packet_S2C_play_sound_effect_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_sound_effect_47 *packet) {
   cmc_buff_pack_string(buff, packet->sound_name);
   cmc_buff_pack_int(buff, packet->x);
@@ -1389,31 +1388,31 @@ void cmc_packet_pack_cmc_packet_S2C_play_sound_effect_47(
   cmc_buff_pack_float(buff, packet->volume);
   cmc_buff_pack_byte(buff, packet->pitch);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_change_game_state_47(
+void cmc_packet_S2C_play_change_game_state_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_change_game_state_47 *packet) {
   cmc_buff_pack_byte(buff, packet->reason);
   cmc_buff_pack_float(buff, packet->value);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_player_abilities_47(
+void cmc_packet_S2C_play_player_abilities_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_player_abilities_47 *packet) {
   cmc_buff_pack_char(buff, packet->flags);
   cmc_buff_pack_float(buff, packet->flying_speed);
   cmc_buff_pack_float(buff, packet->fov_modifier);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_plugin_message_47(
+void cmc_packet_S2C_play_plugin_message_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_plugin_message_47 *packet) {
   cmc_buff_pack_string(buff, packet->channel);
   cmc_buff_pack_buff(buff, packet->data);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_disconnect_47(
+void cmc_packet_S2C_play_disconnect_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_disconnect_47 *packet) {
   cmc_buff_pack_string(buff, packet->reason);
 }
-void cmc_packet_pack_cmc_packet_S2C_play_change_difficulty_47(
+void cmc_packet_S2C_play_change_difficulty_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_change_difficulty_47 *packet) {
   cmc_buff_pack_byte(buff, packet->difficulty);
 }
-void cmc_packet_pack_cmc_packet_C2S_play_keep_alive_47(
+void cmc_packet_C2S_play_keep_alive_47_pack(
     cmc_buff *buff, cmc_packet_C2S_play_keep_alive_47 *packet) {
   cmc_buff_pack_varint(buff, packet->keep_alive_id);
 }
