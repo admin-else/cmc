@@ -195,7 +195,7 @@ int32_t cmc_buff_unpack_varint(cmc_buff *buff) {
   int32_t number = 0;
   for (int i = 0; i < 5; i++) {
     uint8_t b = CMC_ERRB_ABLE(cmc_buff_unpack_byte(buff), return 0);
-    number |= (b & VARINT_SEGMENT_BITS) << (7 * i);
+    number |= (uint8_t)(b & VARINT_SEGMENT_BITS) << (7 * i);
     if (!(b & VARINT_CONTINUE_BIT))
       break;
   }
