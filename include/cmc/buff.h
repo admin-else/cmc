@@ -24,6 +24,7 @@ cmc_buff *cmc_buff_init(cmc_protocol_version protocol_version);
 void cmc_buff_print_info(cmc_buff *buff);
 void cmc_buff_free(cmc_buff *buff);
 cmc_buff *cmc_buff_combine(cmc_buff *buff, cmc_buff *tmp);
+bool cmc_buff_compare(cmc_buff *buff, cmc_buff *buff2);
 
 cmc_err cmc_buff_pack(cmc_buff *buff, const void *data, size_t data_size);
 void *cmc_buff_unpack(cmc_buff *buff, size_t n);
