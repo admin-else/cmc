@@ -1,12 +1,15 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.26)
 project(cmc_project C)
 
 # Use cmake generator expressions https://cmake.org/cmake/help/latest/manual/cmake-generator-expressions.7.html
+
+include(CMakeDependentOption)
 
 set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_STANDARD_REQUIRED TRUE)
 
 option(BUILD_SHARED_LIBS "Build shared libraries" ON)
+cmake_dependent_option(CMC_BUILD_FUZZER "Build fuzz test binaries" ON [[CMAKE_C_COMPILER_ID STREQUAL "Clang"]] OFF)
 
 find_package(ZLIB REQUIRED)
 find_package(OpenSSL REQUIRED)
@@ -54,6 +57,20 @@ if(BUILD_TESTING)
     target_link_libraries(varint_test PRIVATE cmc)
     add_test(NAME varint COMMAND varint_test)
 endif()
+
+#if(CMC_BUILD_FUZZER)
+    add_library(cmc_fuzzer INTERFACE)
+    if(CMAKE_C_COMPILER_FRONTEND_VARIANT STREQUAL "GNU")
+        target_link_options(cmc_fuzzer INTERFACE -fsanitize=fuzzer)
+    elseif(CMAKE_C_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
+        target_link_options(cmc_fuzzer INTERFACE /fsanitize=fuzzer)
+    else()
+        message(SEND_ERROR "Cannot enable libfuzzer for this compiler frontend")
+    endif()
+ 
+    add_executable(fuzz_packet tests/fuzz_packet.c)
+    target_link_libraries(fuzz_packet PRIVATE cmc cmc_fuzzer)
+#endif()
 
 include(GNUInstallDirs)
 
