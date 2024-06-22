@@ -20,8 +20,6 @@
 #define VARINT_SEGMENT_BITS 0x7F
 #define VARINT_CONTINUE_BIT 0x80
 #define DEFAULT_MAX_STRING_LENGTH INT16_MAX
-#define EMPTY_ENTITY_METADATA                                                  \
-  (cmc_entity_metadata) { 0, NULL }
 #define EMPTY_SLOT                                                             \
   (cmc_slot){                                                                  \
       .slot_size = 0, .meta_data = 0, .item_id = -1, .tag_compound = NULL};
@@ -373,11 +371,12 @@ cmc_err cmc_buff_pack_entity_metadata(cmc_buff *buff,
 }
 
 cmc_entity_metadata cmc_buff_unpack_entity_metadata(cmc_buff *buff) {
-  cmc_entity_metadata meta_data = EMPTY_ENTITY_METADATA;
+  cmc_entity_metadata meta_data = (cmc_entity_metadata){0};
+
 
   while (true) {
     int8_t type_and_index =
-        CMC_ERRB_ABLE(cmc_buff_unpack_char(buff), return EMPTY_ENTITY_METADATA);
+        CMC_ERRB_ABLE(cmc_buff_unpack_char(buff), return (cmc_entity_metadata){0});
 
     if (type_and_index == 127) {
       break;
@@ -390,43 +389,43 @@ cmc_entity_metadata cmc_buff_unpack_entity_metadata(cmc_buff *buff) {
     switch (meta_data_entry.type) {
     case ENTITY_METADATA_ENTRY_TYPE_BYTE:
       meta_data_entry.payload.byte_data = CMC_ERRB_ABLE(
-          cmc_buff_unpack_byte(buff), return EMPTY_ENTITY_METADATA);
+          cmc_buff_unpack_byte(buff), return (cmc_entity_metadata){0});
       break;
     case ENTITY_METADATA_ENTRY_TYPE_SHORT:
       meta_data_entry.payload.short_data = CMC_ERRB_ABLE(
-          cmc_buff_unpack_short(buff), return EMPTY_ENTITY_METADATA);
+          cmc_buff_unpack_short(buff), return (cmc_entity_metadata){0});
       break;
     case ENTITY_METADATA_ENTRY_TYPE_INT:
       meta_data_entry.payload.int_data = CMC_ERRB_ABLE(
-          cmc_buff_unpack_int(buff), return EMPTY_ENTITY_METADATA);
+          cmc_buff_unpack_int(buff), return (cmc_entity_metadata){0});
       break;
     case ENTITY_METADATA_ENTRY_TYPE_FLOAT:
       meta_data_entry.payload.float_data = CMC_ERRB_ABLE(
-          cmc_buff_unpack_float(buff), return EMPTY_ENTITY_METADATA);
+          cmc_buff_unpack_float(buff), return (cmc_entity_metadata){0});
       break;
     case ENTITY_METADATA_ENTRY_TYPE_STRING:
       meta_data_entry.payload.string_data = CMC_ERRB_ABLE(
-          cmc_buff_unpack_string(buff), return EMPTY_ENTITY_METADATA);
+          cmc_buff_unpack_string(buff), return (cmc_entity_metadata){0});
       break;
     case ENTITY_METADATA_ENTRY_TYPE_SLOT:
       meta_data_entry.payload.slot_data = CMC_ERRB_ABLE(
-          cmc_buff_unpack_slot(buff), return EMPTY_ENTITY_METADATA);
+          cmc_buff_unpack_slot(buff), return (cmc_entity_metadata){0});
       break;
     case ENTITY_METADATA_ENTRY_TYPE_POSITION:
       meta_data_entry.payload.position_data.x = CMC_ERRB_ABLE(
-          cmc_buff_unpack_int(buff), return EMPTY_ENTITY_METADATA);
+          cmc_buff_unpack_int(buff), return (cmc_entity_metadata){0});
       meta_data_entry.payload.position_data.y = CMC_ERRB_ABLE(
-          cmc_buff_unpack_int(buff), return EMPTY_ENTITY_METADATA);
+          cmc_buff_unpack_int(buff), return (cmc_entity_metadata){0});
       meta_data_entry.payload.position_data.z = CMC_ERRB_ABLE(
-          cmc_buff_unpack_int(buff), return EMPTY_ENTITY_METADATA);
+          cmc_buff_unpack_int(buff), return (cmc_entity_metadata){0});
       break;
     case ENTITY_METADATA_ENTRY_TYPE_ROTATION:
       meta_data_entry.payload.rotation_data.x = CMC_ERRB_ABLE(
-          cmc_buff_unpack_float(buff), return EMPTY_ENTITY_METADATA);
+          cmc_buff_unpack_float(buff), return (cmc_entity_metadata){0});
       meta_data_entry.payload.rotation_data.y = CMC_ERRB_ABLE(
-          cmc_buff_unpack_float(buff), return EMPTY_ENTITY_METADATA);
+          cmc_buff_unpack_float(buff), return (cmc_entity_metadata){0});
       meta_data_entry.payload.rotation_data.z = CMC_ERRB_ABLE(
-          cmc_buff_unpack_float(buff), return EMPTY_ENTITY_METADATA);
+          cmc_buff_unpack_float(buff), return (cmc_entity_metadata){0});
       break;
     }
 
@@ -434,7 +433,7 @@ cmc_entity_metadata cmc_buff_unpack_entity_metadata(cmc_buff *buff) {
         cmc_realloc(meta_data.entries,
                     (meta_data.size + 1) * sizeof(cmc_entity_metadata_entry),
                     &buff->err),
-        return EMPTY_ENTITY_METADATA);
+        return (cmc_entity_metadata){0});
     if (new_entries == NULL) {
       CMC_ERRB(CMC_ERR_MEM, goto on_error;);
     }
@@ -447,7 +446,7 @@ cmc_entity_metadata cmc_buff_unpack_entity_metadata(cmc_buff *buff) {
 
 on_error:
   CMC_ERRB_ABLE(cmc_entity_metadata_free(meta_data), );
-  return EMPTY_ENTITY_METADATA;
+  return (cmc_entity_metadata){0};
 }
 
 cmc_err cmc_entity_metadata_free(cmc_entity_metadata metadata) {
