@@ -13,7 +13,7 @@ int main() {
   // tf
   cmc_buff *buff = NULL;
   for (int32_t i; i < test_amount; ++i) {
-    cmc_buff *buff = cmc_buff_init(47);
+    buff = cmc_buff_init(47);
     int32_t num = rand() % INT32_MAX;
     cmc_buff_pack_varint(buff, num);
     TRY_CATCH(buff->err.err, goto err_print;);
