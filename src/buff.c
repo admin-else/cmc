@@ -74,6 +74,14 @@ cmc_buff *cmc_buff_combine(cmc_buff *buff, cmc_buff *tmp) {
   return buff;
 }
 
+bool cmc_buff_compare(cmc_buff *buff, cmc_buff *buff2) {
+  if (buff->length != buff2->length)
+    return false;
+  if (memcmp(buff->data, buff2->data, buff->length))
+    return false;
+  return true;
+}
+
 cmc_err cmc_buff_pack(cmc_buff *buff, const void *data, size_t data_size) {
   assert(data);
   assert(buff);
@@ -373,10 +381,9 @@ cmc_err cmc_buff_pack_entity_metadata(cmc_buff *buff,
 cmc_entity_metadata cmc_buff_unpack_entity_metadata(cmc_buff *buff) {
   cmc_entity_metadata meta_data = (cmc_entity_metadata){0};
 
-
   while (true) {
-    int8_t type_and_index =
-        CMC_ERRB_ABLE(cmc_buff_unpack_char(buff), return (cmc_entity_metadata){0});
+    int8_t type_and_index = CMC_ERRB_ABLE(cmc_buff_unpack_char(buff),
+                                          return (cmc_entity_metadata){0});
 
     if (type_and_index == 127) {
       break;
