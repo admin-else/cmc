@@ -58,7 +58,8 @@ cmc_buff *cmc_buff_init(cmc_protocol_version protocol_version) {
 }
 
 void cmc_buff_free(cmc_buff *buff) {
-  assert(buff);
+  if (!buff) // Nothin to do (:
+    return;
   if (buff->capacity) {
     free(buff->data);
   }
