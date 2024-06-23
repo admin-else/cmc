@@ -217,7 +217,9 @@ char *cmc_buff_unpack_string_w_max_len(cmc_buff *buff, int max_len) {
   if (n < 0)
     CMC_ERRB(CMC_ERR_NEGATIVE_STRING_LENGTH, return NULL;);
 
-  char *str = CMC_ERRB_ABLE(cmc_buff_unpack(buff, n), return NULL;);
+  char *str = NULL;
+  if (n > 0)
+    str = CMC_ERRB_ABLE(cmc_buff_unpack(buff, n), return NULL;);
 
   str = CMC_ERRB_ABLE(cmc_realloc(str, n + 1, &buff->err), goto err);
   str[n] = '\0';
