@@ -295,7 +295,13 @@ cmc_err cmc_buff_pack_buff(cmc_buff *buff, cmc_buff *buff2) {
 }
 
 cmc_buff *cmc_buff_unpack_buff(cmc_buff *buff) {
-  int ret_buff_len = CMC_ERRB_ABLE(cmc_buff_unpack_varint(buff), return NULL);
+  int32_t ret_buff_len =
+      CMC_ERRB_ABLE(cmc_buff_unpack_varint(buff), return NULL);
+
+  if (ret_buff_len == 0)
+    return NULL;
+  if (ret_buff_len < 0) // This should never happen
+    CMC_ERRB(CMC_ERR_NEGATIVE_BUFF_LEN, return NULL;);
 
   cmc_buff *ret =
       CMC_ERRB_ABLE(cmc_buff_init(buff->protocol_version), return NULL;);
