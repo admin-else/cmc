@@ -289,6 +289,8 @@ cmc_err cmc_buff_pack_nbt(cmc_buff *buff, cmc_nbt *nbt) {
 }
 
 cmc_err cmc_buff_pack_buff(cmc_buff *buff, cmc_buff *buff2) {
+  if (!buff2 || buff2->length <= 0) // Nothin to do if there is nothin
+    return CMC_ERR_NO;
   CMC_ERRRB_ABLE(cmc_buff_pack_varint(buff, buff2->length));
   CMC_ERRRB_ABLE(cmc_buff_pack(buff, buff2->data, buff2->length));
   return CMC_ERR_NO;
