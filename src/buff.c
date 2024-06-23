@@ -170,10 +170,13 @@ cmc_err cmc_buff_pack_bool(cmc_buff *buff, bool value) {
 
 bool cmc_buff_unpack_bool(cmc_buff *buff) {
   assert(buff);
-  unsigned char *data = cmc_buff_unpack(buff, 1);
+  unsigned char *data = CMC_ERRB_ABLE(cmc_buff_unpack(buff, 1), goto err;);
   unsigned char byte_val = *data;
   free(data);
   return byte_val;
+err:
+  free(data);
+  return false;
 }
 
 cmc_err cmc_buff_pack_varint(cmc_buff *buff, int n) {
