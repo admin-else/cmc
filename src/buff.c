@@ -44,7 +44,7 @@ void cmc_buff_print_info(cmc_buff *buff) {
   printf("'\n");
 }
 
-cmc_buff *cmc_buff_init(cmc_protocol_version protocol_version) {
+cmc_buff *cmc_buff_init(cmc_protocol_version protocol_version, cmc_err_extra *err) {
   cmc_buff *buff = malloc(sizeof(cmc_buff));
   if (!buff)
     return NULL;
@@ -53,7 +53,7 @@ cmc_buff *cmc_buff_init(cmc_protocol_version protocol_version) {
   buff->position = 0;
   buff->length = 0;
   buff->protocol_version = protocol_version;
-  buff->err = (cmc_err_extra){};
+  buff->err = err;
   return buff;
 }
 
@@ -90,7 +90,7 @@ cmc_err cmc_buff_pack(cmc_buff *buff, const void *data, size_t data_size) {
     return CMC_ERR_NO; // we dont have to do anything...
 
   if (buff->data == NULL) {
-    buff->data = CMC_ERRRB_ABLE(cmc_malloc(data_size, &buff->err));
+    buff->data = CMC_ERRRB_ABLE(cmc_malloc(data_size, buff->err));
     buff->capacity = data_size;
     buff->length = 0;
   } else if (buff->length + data_size > buff->capacity) {
@@ -100,7 +100,7 @@ cmc_err cmc_buff_pack(cmc_buff *buff, const void *data, size_t data_size) {
     }
 
     unsigned char *new_data =
-        CMC_ERRRB_ABLE(cmc_realloc(buff->data, new_capacity, &buff->err));
+        CMC_ERRRB_ABLE(cmc_realloc(buff->data, new_capacity, buff->err));
 
     buff->data = new_data;
     buff->capacity = new_capacity;
@@ -116,7 +116,7 @@ void *cmc_buff_unpack(cmc_buff *buff, size_t n) {
   if (buff->position + n > buff->length)
     CMC_ERRB(CMC_ERR_BUFF_OVERFLOW, return NULL;);
 
-  void *read_data = CMC_ERRB_ABLE(cmc_malloc(n, &buff->err), return NULL);
+  void *read_data = CMC_ERRB_ABLE(cmc_malloc(n, buff->err), return NULL);
   memcpy(read_data, buff->data + buff->position, n);
   buff->position += n;
   return read_data;
@@ -220,7 +220,7 @@ char *cmc_buff_unpack_string_w_max_len(cmc_buff *buff, int max_len) {
   if (n > 0)
     str = CMC_ERRB_ABLE(cmc_buff_unpack(buff, n), return NULL;);
 
-  str = CMC_ERRB_ABLE(cmc_realloc(str, n + 1, &buff->err), goto err);
+  str = CMC_ERRB_ABLE(cmc_realloc(str, n + 1, buff->err), goto err);
   str[n] = '\0';
 
   int utf_str_len = 0;
@@ -285,7 +285,7 @@ cmc_block_pos cmc_buff_unpack_position(cmc_buff *buff) {
 cmc_nbt *cmc_buff_unpack_nbt(cmc_buff *buff) { return cmc_nbt_parse(buff); }
 
 cmc_err cmc_buff_pack_nbt(cmc_buff *buff, cmc_nbt *nbt) {
-  cmc_buff *tmp_buff = CMC_ERRRB_ABLE(cmc_nbt_dump(nbt, &buff->err));
+  cmc_buff *tmp_buff = CMC_ERRRB_ABLE(cmc_nbt_dump(nbt, buff->err));
   cmc_buff_combine(buff, tmp_buff);
   return CMC_ERR_NO;
 }
@@ -308,7 +308,7 @@ cmc_buff *cmc_buff_unpack_buff(cmc_buff *buff) {
     CMC_ERRB(CMC_ERR_NEGATIVE_BUFF_LEN, return NULL;);
 
   cmc_buff *ret =
-      CMC_ERRB_ABLE(cmc_buff_init(buff->protocol_version), return NULL;);
+      CMC_ERRB_ABLE(cmc_buff_init(buff->protocol_version, buff->err), return NULL;);
   void *tmp = CMC_ERRB_ABLE(cmc_buff_unpack(buff, ret_buff_len), goto err;);
   CMC_ERRB_ABLE(cmc_buff_pack(ret, tmp, ret_buff_len), goto err1;);
   free(tmp);
@@ -339,7 +339,7 @@ cmc_slot *cmc_buff_unpack_slot(cmc_buff *buff) {
   if (item_id < 0)
     return NULL;
   cmc_slot *slot =
-      CMC_ERRB_ABLE(cmc_malloc(sizeof(cmc_slot), &buff->err), return NULL;);
+      CMC_ERRB_ABLE(cmc_malloc(sizeof(cmc_slot), buff->err), return NULL;);
   slot->item_id = item_id;
   slot->slot_size = CMC_ERRB_ABLE(cmc_buff_unpack_byte(buff), goto err;);
   slot->meta_data = CMC_ERRB_ABLE(cmc_buff_unpack_short(buff), goto err;);
@@ -452,7 +452,7 @@ cmc_entity_metadata cmc_buff_unpack_entity_metadata(cmc_buff *buff) {
     cmc_entity_metadata_entry *new_entries = CMC_ERRB_ABLE(
         cmc_realloc(meta_data.entries,
                     (meta_data.size + 1) * sizeof(cmc_entity_metadata_entry),
-                    &buff->err),
+                    buff->err),
         return (cmc_entity_metadata){0});
     if (new_entries == NULL) {
       CMC_ERRB(CMC_ERR_MEM, goto on_error;);

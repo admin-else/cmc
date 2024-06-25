@@ -68,7 +68,7 @@ inline const char *cmc_err_as_str(cmc_err err) {
   }
 
 #define CMC_ERRRB_ABLE(code)                                                   \
-  CMC_ERRA_ABLE(code, buff->err.err, return buff->err.err;)
-#define CMC_ERRB_ABLE(code, action) CMC_ERRA_ABLE(code, buff->err.err, action)
+  CMC_ERRA_ABLE(code, buff->err->err, return buff->err->err;)
+#define CMC_ERRB_ABLE(code, action) CMC_ERRA_ABLE(code, buff->err->err, action)
 #define CMC_ERRC_ABLE(code, action) CMC_ERRA_ABLE(code, conn->err.err, action)
 #define CMC_ERR_ABLE(code, action) CMC_ERRA_ABLE(code, err->err, action)

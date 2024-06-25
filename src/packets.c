@@ -10,8 +10,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "err_macros.h"
-
 // CGSS: unpack_methods_c
 cmc_packet_C2S_handshake_handshake_765
 cmc_packet_C2S_handshake_handshake_765_unpack(cmc_buff *buff) {

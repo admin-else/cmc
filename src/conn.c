@@ -85,7 +85,7 @@ cmc_buff *cmc_conn_recive_packet(cmc_conn *conn) {
 
   CMC_ERRC_IF(packet_len <= 0, CMC_ERR_INVALID_PACKET_LENGTH, return NULL;);
 
-  cmc_buff *buff = cmc_buff_init(conn->protocol_version);
+  cmc_buff *buff = cmc_buff_init(conn->protocol_version, &conn->err);
   unsigned char *tmp =
       CMC_ERRC_ABLE(cmc_malloc(packet_len, &conn->err), goto on_err1);
   CMC_ERRC_IF(recv_all(conn->sockfd, tmp, packet_len) == -1, CMC_ERR_RECV,
@@ -128,7 +128,7 @@ cmc_buff *cmc_conn_recive_packet(cmc_conn *conn) {
 
   cmc_buff_free(buff);
 
-  cmc_buff *decompressed_buff = cmc_buff_init(conn->protocol_version);
+  cmc_buff *decompressed_buff = cmc_buff_init(conn->protocol_version, &conn->err);
   decompressed_buff->data = decompressed_data;
   decompressed_buff->capacity = decompressed_length;
   decompressed_buff->length = decompressed_length;
@@ -146,13 +146,13 @@ on_err1:
 }
 
 void cmc_conn_send_packet(cmc_conn *conn, cmc_buff *buff) {
-  cmc_buff *compressed_buff = cmc_buff_init(conn->protocol_version);
+  cmc_buff *compressed_buff = cmc_buff_init(conn->protocol_version, &conn->err);
   if (conn->compression_threshold >= 0) {
     if (buff->length >= (size_t)conn->compression_threshold) {
       cmc_buff_pack_varint(compressed_buff, buff->length);
       uLong compressedSize = compressBound(buff->length);
       Bytef *compressedData =
-          CMC_ERRC_ABLE(cmc_malloc(compressedSize, &buff->err), goto on_error);
+          CMC_ERRC_ABLE(cmc_malloc(compressedSize, buff->err), goto on_error);
       CMC_ERRC_IF(compress(compressedData, &compressedSize, buff->data,
                            buff->length) != Z_OK,
                   CMC_ERR_ZLIB_COMPRESS, goto on_error;);
@@ -164,7 +164,7 @@ void cmc_conn_send_packet(cmc_conn *conn, cmc_buff *buff) {
     cmc_buff_pack(compressed_buff, buff->data, buff->length);
   }
 
-  cmc_buff *packet_size_buff = cmc_buff_init(conn->protocol_version);
+  cmc_buff *packet_size_buff = cmc_buff_init(conn->protocol_version, &conn->err);
   cmc_buff_pack_varint(packet_size_buff, compressed_buff->length);
 
   compressed_buff = cmc_buff_combine(packet_size_buff, compressed_buff);
