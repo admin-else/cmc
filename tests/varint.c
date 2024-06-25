@@ -10,7 +10,6 @@ enum { test_amount = 1000000 };
   }
 
 int main() {
-  // tf
   cmc_buff *buff = NULL;
   for (int32_t i; i < test_amount; ++i) {
     buff = cmc_buff_init(47);

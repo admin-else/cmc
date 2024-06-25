@@ -244,10 +244,10 @@ def unpack_packet(packet):
             if field["type"] == "A":
                 iterator_char = chr(ord(iterator_char) + 1)
                 code += f"if({unpack_to}{field["size_key"]} > 0) {{"
-                code += f"{unpack_to}{field["name"]} = CMC_ERRB_ABLE(cmc_malloc({unpack_to}{field["size_key"]} * sizeof(*{unpack_to}{field["name"]}), &buff->err), {on_err});"
-                add_failiure_point(None, "}")
+                code += f"{unpack_to}{field["name"]} = CMC_ERRB_ABLE(cmc_malloc_packet_array(buff, {unpack_to}{field["size_key"]} * sizeof(*{unpack_to}{field["name"]})), {on_err});"
                 add_failiure_point(None, "}")
                 add_failiure_point(lable_prefixs + "_" + field["name"], f"free({unpack_to}{field["name"]});")
+                add_failiure_point(None, "}")
                 code += f"for({iterator_char} = 0; {iterator_char} < {unpack_to}{field["size_key"]}; ++{iterator_char}) {{"
                 
                 on_err = f"goto {lable_prefixs + "_" + field["name"] + "_forloop"}"

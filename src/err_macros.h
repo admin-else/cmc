@@ -30,7 +30,8 @@ B(uff): like conn but into buffer
 
 #define CMC_ERRB(err_type, action) CMC_ERRA(err_type, action, buff->err)
 
-#define CMC_ERRB_IF(condition, err_type, action) CMC_ERRA_IF(condition, buff->err, err_type, action)
+#define CMC_ERRB_IF(condition, err_type, action)                               \
+  CMC_ERRA_IF(condition, buff->err, err_type, action)
 
 #define CMC_ERRRB(err_type) CMC_ERRA(err_type, return err_type;, buff->err)
 
