@@ -11,12 +11,13 @@
 #define PACKET_TO_FUZZ_VERS   47
 
 int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
-  cmc_buff *buff = cmc_buff_init(PACKET_TO_FUZZ_VERS);
+  cmc_err_extra err = {0};
+  cmc_buff *buff = cmc_buff_init(PACKET_TO_FUZZ_VERS, &err);
   CMC_ERRB_ABLE(cmc_buff_pack(buff, data, size), goto err_pre_packet;);
   PACKET_TO_FUZZ packet =
       CMC_ERRB_ABLE(PACKET_TO_FUZZ_UNPACK(buff), goto err_pre_packet;);
-  cmc_buff *tmp = cmc_buff_init(PACKET_TO_FUZZ_VERS);
-  CMC_ERRA_ABLE(PACKET_TO_FUZZ_PACK(tmp, &packet), tmp->err.err,
+  cmc_buff *tmp = cmc_buff_init(PACKET_TO_FUZZ_VERS, &err);
+  CMC_ERRA_ABLE(PACKET_TO_FUZZ_PACK(tmp, &packet), tmp->err->err,
                 goto err_after_tmp);
   if (!cmc_buff_compare(buff, tmp)) {
     puts("not eqal!");

@@ -28,12 +28,12 @@ B(uff): like conn but into buffer
 #define CMC_ERR(err_type, action) CMC_ERRA(err_type, action, *err)
 #define CMC_ERRR(err_type) CMC_ERR(err_type, return err_type)
 
-#define CMC_ERRB(err_type, action) CMC_ERRA(err_type, action, buff->err)
+#define CMC_ERRB(err_type, action) CMC_ERRA(err_type, action, *buff->err)
 
 #define CMC_ERRB_IF(condition, err_type, action)                               \
-  CMC_ERRA_IF(condition, buff->err, err_type, action)
+  CMC_ERRA_IF(condition, *buff->err, err_type, action)
 
-#define CMC_ERRRB(err_type) CMC_ERRA(err_type, return err_type;, buff->err)
+#define CMC_ERRRB(err_type) CMC_ERRA(err_type, return err_type;, *buff->err)
 
 #define CMC_ERRRC_IF(condition, err_type)                                      \
   CMC_ERRA_IF(condition, conn->err, err_type, return err_type)
