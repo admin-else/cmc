@@ -17,8 +17,8 @@
 
 #include "err_macros.h"
 
-#define VARINT_SEGMENT_BITS 0x7F
-#define VARINT_CONTINUE_BIT 0x80
+#define VARINT_SEGMENT_BITS (uint8_t)0x7F
+#define VARINT_CONTINUE_BIT (uint8_t)0x80
 #define DEFAULT_MAX_STRING_LENGTH INT16_MAX
 #define EMPTY_SLOT                                                             \
   (cmc_slot){                                                                  \
@@ -180,9 +180,8 @@ err:
   return false;
 }
 
-cmc_err cmc_buff_pack_varint(cmc_buff *buff, int n) {
+cmc_err cmc_buff_pack_varint(cmc_buff *buff, int32_t number) {
   assert(buff);
-  unsigned int number = (unsigned int)n;
   for (int i = 0; i < 5; i++) {
     uint8_t b = number & 0x7F;
     number >>= 7;
@@ -196,14 +195,14 @@ cmc_err cmc_buff_pack_varint(cmc_buff *buff, int n) {
 
 int32_t cmc_buff_unpack_varint(cmc_buff *buff) {
   assert(buff);
-  int32_t number = 0;
+  int64_t number = 0; // 64 to prevent ub by overflow
   for (int i = 0; i < 5; i++) {
     uint8_t b = CMC_ERRB_ABLE(cmc_buff_unpack_byte(buff), return 0);
-    number |= (uint8_t)(b & VARINT_SEGMENT_BITS) << (7 * i);
+    number |= (int64_t)(uint8_t)(b & VARINT_SEGMENT_BITS) << (7 * i);
     if (!(b & VARINT_CONTINUE_BIT))
       break;
   }
-  return number;
+  return (int32_t)number;
 }
 
 char *cmc_buff_unpack_string_w_max_len(cmc_buff *buff, int max_len) {

@@ -557,8 +557,8 @@ cmc_packet_S2C_play_entity_properties_47_unpack(cmc_buff *buff) {
   packet.properties_count = CMC_ERRB_ABLE(cmc_buff_unpack_int(buff), goto err;);
   if (packet.properties_count > 0) {
     packet.properties = CMC_ERRB_ABLE(
-        cmc_malloc(packet.properties_count * sizeof(*packet.properties),
-                   &buff->err),
+        cmc_malloc_packet_array(buff, packet.properties_count *
+                                          sizeof(*packet.properties)),
         goto err;);
     for (i = 0; i < packet.properties_count; ++i) {
       packet.properties[i].key = CMC_ERRB_ABLE(cmc_buff_unpack_string(buff),
@@ -569,9 +569,9 @@ cmc_packet_S2C_play_entity_properties_47_unpack(cmc_buff *buff) {
           CMC_ERRB_ABLE(cmc_buff_unpack_varint(buff), goto err_properties_key;);
       if (packet.properties[i].num_of_modifiers > 0) {
         packet.properties[i].modifiers = CMC_ERRB_ABLE(
-            cmc_malloc(packet.properties[i].num_of_modifiers *
-                           sizeof(*packet.properties[i].modifiers),
-                       &buff->err),
+            cmc_malloc_packet_array(
+                buff, packet.properties[i].num_of_modifiers *
+                          sizeof(*packet.properties[i].modifiers)),
             goto err_properties_key;);
         for (j = 0; j < packet.properties[i].num_of_modifiers; ++j) {
           packet.properties[i].modifiers[j].amount =
@@ -591,15 +591,15 @@ cmc_packet_S2C_play_entity_properties_47_unpack(cmc_buff *buff) {
       if (packet.properties[i].num_of_modifiers > 0) {
       err_properties_modifiers_forloop:
         for (; j > 0; --j) {
-        err_properties_modifiers:
-          free(packet.properties[i].modifiers);
         }
+      err_properties_modifiers:
+        free(packet.properties[i].modifiers);
       }
     err_properties_key:
       cmc_string_free(packet.properties[i].key);
-    err_properties:
-      free(packet.properties);
     }
+  err_properties:
+    free(packet.properties);
   }
 err:
   return (cmc_packet_S2C_play_entity_properties_47){};
@@ -626,9 +626,10 @@ cmc_packet_S2C_play_multi_block_change_47_unpack(cmc_buff *buff) {
   packet.chunk_z = CMC_ERRB_ABLE(cmc_buff_unpack_int(buff), goto err;);
   packet.record_count = CMC_ERRB_ABLE(cmc_buff_unpack_varint(buff), goto err;);
   if (packet.record_count > 0) {
-    packet.records = CMC_ERRB_ABLE(
-        cmc_malloc(packet.record_count * sizeof(*packet.records), &buff->err),
-        goto err;);
+    packet.records =
+        CMC_ERRB_ABLE(cmc_malloc_packet_array(
+                          buff, packet.record_count * sizeof(*packet.records)),
+                      goto err;);
     for (i = 0; i < packet.record_count; ++i) {
       packet.records[i].horizontal_position =
           CMC_ERRB_ABLE(cmc_buff_unpack_byte(buff), goto err_records_forloop);
@@ -642,9 +643,9 @@ cmc_packet_S2C_play_multi_block_change_47_unpack(cmc_buff *buff) {
   if (packet.record_count > 0) {
   err_records_forloop:
     for (; i > 0; --i) {
-    err_records:
-      free(packet.records);
     }
+  err_records:
+    free(packet.records);
   }
 err:
   return (cmc_packet_S2C_play_multi_block_change_47){};
@@ -688,8 +689,8 @@ cmc_packet_S2C_play_map_chunk_bulk_47_unpack(cmc_buff *buff) {
       CMC_ERRB_ABLE(cmc_buff_unpack_varint(buff), goto err;);
   if (packet.chunk_column_count > 0) {
     packet.chunk_columns = CMC_ERRB_ABLE(
-        cmc_malloc(packet.chunk_column_count * sizeof(*packet.chunk_columns),
-                   &buff->err),
+        cmc_malloc_packet_array(buff, packet.chunk_column_count *
+                                          sizeof(*packet.chunk_columns)),
         goto err;);
     for (i = 0; i < packet.chunk_column_count; ++i) {
       packet.chunk_columns[i].chunk_x = CMC_ERRB_ABLE(
@@ -706,9 +707,9 @@ cmc_packet_S2C_play_map_chunk_bulk_47_unpack(cmc_buff *buff) {
   if (packet.chunk_column_count > 0) {
   err_chunk_columns_forloop:
     for (; i > 0; --i) {
-    err_chunk_columns:
-      free(packet.chunk_columns);
     }
+  err_chunk_columns:
+    free(packet.chunk_columns);
   }
 err:
   return (cmc_packet_S2C_play_map_chunk_bulk_47){};
@@ -723,9 +724,10 @@ cmc_packet_S2C_play_explosion_47_unpack(cmc_buff *buff) {
   packet.radius = CMC_ERRB_ABLE(cmc_buff_unpack_float(buff), goto err;);
   packet.record_count = CMC_ERRB_ABLE(cmc_buff_unpack_int(buff), goto err;);
   if (packet.record_count > 0) {
-    packet.records = CMC_ERRB_ABLE(
-        cmc_malloc(packet.record_count * sizeof(*packet.records), &buff->err),
-        goto err;);
+    packet.records =
+        CMC_ERRB_ABLE(cmc_malloc_packet_array(
+                          buff, packet.record_count * sizeof(*packet.records)),
+                      goto err;);
     for (i = 0; i < packet.record_count; ++i) {
       packet.records[i].x_offset =
           CMC_ERRB_ABLE(cmc_buff_unpack_char(buff), goto err_records_forloop);
@@ -745,9 +747,9 @@ cmc_packet_S2C_play_explosion_47_unpack(cmc_buff *buff) {
   if (packet.record_count > 0) {
   err_records_forloop:
     for (; i > 0; --i) {
-    err_records:
-      free(packet.records);
     }
+  err_records:
+    free(packet.records);
   }
 err:
   return (cmc_packet_S2C_play_explosion_47){};
