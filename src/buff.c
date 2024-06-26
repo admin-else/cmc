@@ -44,7 +44,8 @@ void cmc_buff_print_info(cmc_buff *buff) {
   printf("'\n");
 }
 
-cmc_buff *cmc_buff_init(cmc_protocol_version protocol_version, cmc_err_extra *err) {
+cmc_buff *cmc_buff_init(cmc_protocol_version protocol_version,
+                        cmc_err_extra *err) {
   cmc_buff *buff = malloc(sizeof(cmc_buff));
   if (!buff)
     return NULL;
@@ -137,7 +138,7 @@ cmc_err cmc_buff_unpack_into(cmc_buff *buff, size_t n, void *write_to) {
 #define NUM_PACK_AND_UNPACK_FUNC_FACTORY(name, type)                           \
   type cmc_buff_unpack_##name(cmc_buff *buff) {                                \
     void *data = CMC_ERRB_ABLE(cmc_buff_unpack(buff, sizeof(type)), return 0); \
-    char result = *((type *)data);                                             \
+    type result = *((type *)data);                                             \
     free(data);                                                                \
     return result;                                                             \
   }                                                                            \
@@ -307,8 +308,8 @@ cmc_buff *cmc_buff_unpack_buff(cmc_buff *buff) {
   if (ret_buff_len < 0) // This should never happen
     CMC_ERRB(CMC_ERR_NEGATIVE_BUFF_LEN, return NULL;);
 
-  cmc_buff *ret =
-      CMC_ERRB_ABLE(cmc_buff_init(buff->protocol_version, buff->err), return NULL;);
+  cmc_buff *ret = CMC_ERRB_ABLE(
+      cmc_buff_init(buff->protocol_version, buff->err), return NULL;);
   void *tmp = CMC_ERRB_ABLE(cmc_buff_unpack(buff, ret_buff_len), goto err;);
   CMC_ERRB_ABLE(cmc_buff_pack(ret, tmp, ret_buff_len), goto err1;);
   free(tmp);

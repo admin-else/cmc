@@ -20,7 +20,8 @@ typedef struct {
 /*
 May return null if malloc failed.
 */
-cmc_buff *cmc_buff_init(cmc_protocol_version protocol_version, cmc_err_extra *err);
+cmc_buff *cmc_buff_init(cmc_protocol_version protocol_version,
+                        cmc_err_extra *err);
 void cmc_buff_print_info(cmc_buff *buff);
 void cmc_buff_free(cmc_buff *buff);
 cmc_buff *cmc_buff_combine(cmc_buff *buff, cmc_buff *tmp);
