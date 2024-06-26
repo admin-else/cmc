@@ -128,7 +128,8 @@ cmc_buff *cmc_conn_recive_packet(cmc_conn *conn) {
 
   cmc_buff_free(buff);
 
-  cmc_buff *decompressed_buff = cmc_buff_init(conn->protocol_version, &conn->err);
+  cmc_buff *decompressed_buff =
+      cmc_buff_init(conn->protocol_version, &conn->err);
   decompressed_buff->data = decompressed_data;
   decompressed_buff->capacity = decompressed_length;
   decompressed_buff->length = decompressed_length;
@@ -164,7 +165,8 @@ void cmc_conn_send_packet(cmc_conn *conn, cmc_buff *buff) {
     cmc_buff_pack(compressed_buff, buff->data, buff->length);
   }
 
-  cmc_buff *packet_size_buff = cmc_buff_init(conn->protocol_version, &conn->err);
+  cmc_buff *packet_size_buff =
+      cmc_buff_init(conn->protocol_version, &conn->err);
   cmc_buff_pack_varint(packet_size_buff, compressed_buff->length);
 
   compressed_buff = cmc_buff_combine(packet_size_buff, compressed_buff);
