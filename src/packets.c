@@ -940,10 +940,10 @@ void cmc_packet_S2C_play_entity_metadata_47_free(
 void cmc_packet_S2C_play_entity_properties_47_free(
     cmc_packet_S2C_play_entity_properties_47 *packet) {
   if (packet->properties_count > 0) {
-    for (; packet->properties_count > 0; --packet->properties_count) {
-      cmc_string_free(packet->properties[packet->properties_count].key);
-      if (packet->properties[packet->properties_count].num_of_modifiers > 0) {
-        free(packet->properties[packet->properties_count].modifiers);
+    for (int32_t i = 0; i < packet->properties_count; ++i) {
+      cmc_string_free(packet->properties[i].key);
+      if (packet->properties[i].num_of_modifiers > 0) {
+        free(packet->properties[i].modifiers);
       }
     }
     free(packet->properties);
@@ -1287,11 +1287,11 @@ void cmc_packet_S2C_play_entity_properties_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_entity_properties_47 *packet) {
   cmc_buff_pack_varint(buff, packet->entity_id);
   cmc_buff_pack_int(buff, packet->properties_count);
-  for (int i = 0; i < packet->properties_count; ++i) {
+  for (int32_t i = 0; i < packet->properties_count; ++i) {
     cmc_buff_pack_string(buff, packet->properties[i].key);
     cmc_buff_pack_double(buff, packet->properties[i].value);
     cmc_buff_pack_varint(buff, packet->properties[i].num_of_modifiers);
-    for (int j = 0; j < packet->properties[i].num_of_modifiers; ++j) {
+    for (int32_t j = 0; j < packet->properties[i].num_of_modifiers; ++j) {
       cmc_buff_pack_double(buff, packet->properties[i].modifiers[j].amount);
       cmc_buff_pack_char(buff, packet->properties[i].modifiers[j].operation);
     }
@@ -1310,7 +1310,7 @@ void cmc_packet_S2C_play_multi_block_change_47_pack(
   cmc_buff_pack_int(buff, packet->chunk_x);
   cmc_buff_pack_int(buff, packet->chunk_z);
   cmc_buff_pack_varint(buff, packet->record_count);
-  for (int i = 0; i < packet->record_count; ++i) {
+  for (int32_t i = 0; i < packet->record_count; ++i) {
     cmc_buff_pack_byte(buff, packet->records[i].horizontal_position);
     cmc_buff_pack_byte(buff, packet->records[i].vertical_position);
     cmc_buff_pack_varint(buff, packet->records[i].block_id);
@@ -1338,7 +1338,7 @@ void cmc_packet_S2C_play_map_chunk_bulk_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_map_chunk_bulk_47 *packet) {
   cmc_buff_pack_bool(buff, packet->sky_light_sent);
   cmc_buff_pack_varint(buff, packet->chunk_column_count);
-  for (int i = 0; i < packet->chunk_column_count; ++i) {
+  for (int32_t i = 0; i < packet->chunk_column_count; ++i) {
     cmc_buff_pack_int(buff, packet->chunk_columns[i].chunk_x);
     cmc_buff_pack_int(buff, packet->chunk_columns[i].chunk_z);
     cmc_buff_pack_ushort(buff, packet->chunk_columns[i].bit_mask);
@@ -1352,7 +1352,7 @@ void cmc_packet_S2C_play_explosion_47_pack(
   cmc_buff_pack_float(buff, packet->z);
   cmc_buff_pack_float(buff, packet->radius);
   cmc_buff_pack_int(buff, packet->record_count);
-  for (int i = 0; i < packet->record_count; ++i) {
+  for (int32_t i = 0; i < packet->record_count; ++i) {
     cmc_buff_pack_char(buff, packet->records[i].x_offset);
     cmc_buff_pack_char(buff, packet->records[i].y_offset);
     cmc_buff_pack_char(buff, packet->records[i].z_offset);
