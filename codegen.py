@@ -276,32 +276,34 @@ def unpack_packet(packet):
 
 def free_packet(packet):
     # i love it no labels not error handling
-    def free_content(content, to_free):
+    def free_content(content, to_free, iterator_char):
         code = ""
         for field in content:
             if is_heap(field):
                 if field["type"] == "A":
-                    maybe_code = free_content(field["content"], f"{to_free}{field["name"]}[{to_free}{field["size_key"]}].")
+                    iterator_char = chr(ord(iterator_char) + 1)
+                    maybe_code = free_content(field["content"], f"{to_free}{field["name"]}[{iterator_char}].", iterator_char)
                     code += f"if({to_free}{field["size_key"]} > 0) {{"
                     if maybe_code:
-                        code += f"for(;{to_free}{field["size_key"]}>0;--{to_free}{field["size_key"]}) {{"
+                        code += f"for(int32_t {iterator_char} = 0;{iterator_char}<{to_free}{field["size_key"]};++{iterator_char}) {{"
                         code += maybe_code
                         code += "}"
                     code += f"free({to_free}{field["name"]});"
                     code += "}"
+                    iterator_char = chr(ord(iterator_char) - 1)
                 else:
                     code += f"cmc_{type_func_name(field)}_free({to_free}{field["name"]});"
 
         return code
 
-    return (free_content(packet["content"], "packet->"), f"void {packet["type"]}_free({packet["type"]} *packet)")
+    return (free_content(packet["content"], "packet->", "h"), f"void {packet["type"]}_free({packet["type"]} *packet)")
 
 def pack_packet(packet):
     def pack_content(content, to_pack, iterator_char):
         code = ""
         for field in content:
             if field["type"] == "A":
-                code += f"for(int {iterator_char} = 0; {iterator_char}<{to_pack}{field["size_key"]}; ++{iterator_char}) {{"
+                code += f"for(int32_t {iterator_char} = 0; {iterator_char}<{to_pack}{field["size_key"]}; ++{iterator_char}) {{"
                 code += pack_content(field["content"], f"{to_pack}{field["name"]}[{iterator_char}].", chr(ord(iterator_char) + 1))
                 code += "}"
             else:
