@@ -43,10 +43,26 @@ cmc_packet_S2C_play_keep_alive_765
 cmc_packet_S2C_play_keep_alive_765_unpack(cmc_buff *buff);
 cmc_packet_S2C_play_disconnect_765
 cmc_packet_S2C_play_disconnect_765_unpack(cmc_buff *buff);
+cmc_packet_C2S_handshake_handshake_47
+cmc_packet_C2S_handshake_handshake_47_unpack(cmc_buff *buff);
+cmc_packet_S2C_status_response_47
+cmc_packet_S2C_status_response_47_unpack(cmc_buff *buff);
+cmc_packet_S2C_status_pong_47
+cmc_packet_S2C_status_pong_47_unpack(cmc_buff *buff);
+cmc_packet_C2S_status_ping_47
+cmc_packet_C2S_status_ping_47_unpack(cmc_buff *buff);
+cmc_packet_S2C_login_disconnect_47
+cmc_packet_S2C_login_disconnect_47_unpack(cmc_buff *buff);
+cmc_packet_S2C_login_encryption_request_47
+cmc_packet_S2C_login_encryption_request_47_unpack(cmc_buff *buff);
 cmc_packet_S2C_login_success_47
 cmc_packet_S2C_login_success_47_unpack(cmc_buff *buff);
+cmc_packet_S2C_login_set_compression_47
+cmc_packet_S2C_login_set_compression_47_unpack(cmc_buff *buff);
 cmc_packet_C2S_login_start_47
 cmc_packet_C2S_login_start_47_unpack(cmc_buff *buff);
+cmc_packet_C2S_login_encryption_response_47
+cmc_packet_C2S_login_encryption_response_47_unpack(cmc_buff *buff);
 cmc_packet_S2C_play_keep_alive_47
 cmc_packet_S2C_play_keep_alive_47_unpack(cmc_buff *buff);
 cmc_packet_S2C_play_join_game_47
@@ -164,9 +180,19 @@ void cmc_packet_S2C_config_registry_data_765_free(
     cmc_packet_S2C_config_registry_data_765 *packet);
 void cmc_packet_S2C_play_disconnect_765_free(
     cmc_packet_S2C_play_disconnect_765 *packet);
+void cmc_packet_C2S_handshake_handshake_47_free(
+    cmc_packet_C2S_handshake_handshake_47 *packet);
+void cmc_packet_S2C_status_response_47_free(
+    cmc_packet_S2C_status_response_47 *packet);
+void cmc_packet_S2C_login_disconnect_47_free(
+    cmc_packet_S2C_login_disconnect_47 *packet);
+void cmc_packet_S2C_login_encryption_request_47_free(
+    cmc_packet_S2C_login_encryption_request_47 *packet);
 void cmc_packet_S2C_login_success_47_free(
     cmc_packet_S2C_login_success_47 *packet);
 void cmc_packet_C2S_login_start_47_free(cmc_packet_C2S_login_start_47 *packet);
+void cmc_packet_C2S_login_encryption_response_47_free(
+    cmc_packet_C2S_login_encryption_response_47 *packet);
 void cmc_packet_S2C_play_join_game_47_free(
     cmc_packet_S2C_play_join_game_47 *packet);
 void cmc_packet_S2C_play_chat_message_47_free(
@@ -207,6 +233,7 @@ void cmc_packet_S2C_status_response_765_pack(
     cmc_buff *buff, cmc_packet_S2C_status_response_765 *packet);
 void cmc_packet_S2C_status_pong_765_pack(
     cmc_buff *buff, cmc_packet_S2C_status_pong_765 *packet);
+void cmc_packet_C2S_status_request_765_pack(cmc_buff *buff);
 void cmc_packet_C2S_status_ping_765_pack(
     cmc_buff *buff, cmc_packet_C2S_status_ping_765 *packet);
 void cmc_packet_S2C_login_disconnect_765_pack(
@@ -221,26 +248,47 @@ void cmc_packet_C2S_login_start_765_pack(
     cmc_buff *buff, cmc_packet_C2S_login_start_765 *packet);
 void cmc_packet_C2S_login_encryption_response_765_pack(
     cmc_buff *buff, cmc_packet_C2S_login_encryption_response_765 *packet);
+void cmc_packet_C2S_login_acknowledged_765_pack(cmc_buff *buff);
 void cmc_packet_S2C_config_plugin_message_765_pack(
     cmc_buff *buff, cmc_packet_S2C_config_plugin_message_765 *packet);
 void cmc_packet_S2C_config_disconnect_765_pack(
     cmc_buff *buff, cmc_packet_S2C_config_disconnect_765 *packet);
+void cmc_packet_S2C_config_finish_765_pack(cmc_buff *buff);
 void cmc_packet_S2C_config_keep_alive_765_pack(
     cmc_buff *buff, cmc_packet_S2C_config_keep_alive_765 *packet);
 void cmc_packet_S2C_config_ping_765_pack(
     cmc_buff *buff, cmc_packet_S2C_config_ping_765 *packet);
 void cmc_packet_S2C_config_registry_data_765_pack(
     cmc_buff *buff, cmc_packet_S2C_config_registry_data_765 *packet);
+void cmc_packet_S2C_config_remove_resource_pack_765_pack(cmc_buff *buff);
+void cmc_packet_S2C_config_add_resource_pack_765_pack(cmc_buff *buff);
 void cmc_packet_C2S_play_keep_alive_765_pack(
     cmc_buff *buff, cmc_packet_C2S_play_keep_alive_765 *packet);
 void cmc_packet_S2C_play_keep_alive_765_pack(
     cmc_buff *buff, cmc_packet_S2C_play_keep_alive_765 *packet);
 void cmc_packet_S2C_play_disconnect_765_pack(
     cmc_buff *buff, cmc_packet_S2C_play_disconnect_765 *packet);
+void cmc_packet_C2S_handshake_handshake_47_pack(
+    cmc_buff *buff, cmc_packet_C2S_handshake_handshake_47 *packet);
+void cmc_packet_S2C_status_response_47_pack(
+    cmc_buff *buff, cmc_packet_S2C_status_response_47 *packet);
+void cmc_packet_S2C_status_pong_47_pack(cmc_buff *buff,
+                                        cmc_packet_S2C_status_pong_47 *packet);
+void cmc_packet_C2S_status_request_47_pack(cmc_buff *buff);
+void cmc_packet_C2S_status_ping_47_pack(cmc_buff *buff,
+                                        cmc_packet_C2S_status_ping_47 *packet);
+void cmc_packet_S2C_login_disconnect_47_pack(
+    cmc_buff *buff, cmc_packet_S2C_login_disconnect_47 *packet);
+void cmc_packet_S2C_login_encryption_request_47_pack(
+    cmc_buff *buff, cmc_packet_S2C_login_encryption_request_47 *packet);
 void cmc_packet_S2C_login_success_47_pack(
     cmc_buff *buff, cmc_packet_S2C_login_success_47 *packet);
+void cmc_packet_S2C_login_set_compression_47_pack(
+    cmc_buff *buff, cmc_packet_S2C_login_set_compression_47 *packet);
 void cmc_packet_C2S_login_start_47_pack(cmc_buff *buff,
                                         cmc_packet_C2S_login_start_47 *packet);
+void cmc_packet_C2S_login_encryption_response_47_pack(
+    cmc_buff *buff, cmc_packet_C2S_login_encryption_response_47 *packet);
 void cmc_packet_S2C_play_keep_alive_47_pack(
     cmc_buff *buff, cmc_packet_S2C_play_keep_alive_47 *packet);
 void cmc_packet_S2C_play_join_game_47_pack(
