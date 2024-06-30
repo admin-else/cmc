@@ -212,14 +212,12 @@ def unpack_packet(packet):
     err_handling = [] # we populate this whenever a thing is created that needs to be cleaned up 
                       # and we append in front so it all runs reversed 
     on_err = ""
-    remove_last_err_handler = False
     def add_failiure_point(lable, code):
-        nonlocal err_handling, on_err, remove_last_err_handler
+        nonlocal err_handling, on_err
         err_handling.insert(0, f"{f"{lable}:" if lable else ""} {code}")
 
         if lable:        
             on_err = f"goto {lable};"
-            remove_last_err_handler = True
     
     code = ""
     header = ""
@@ -234,7 +232,7 @@ def unpack_packet(packet):
     iterator_char = 'h' # before i 
     
     def unpack_code(unpack_to, content, lable_prefixs):
-        nonlocal code, iterator_char, iterator_decls, err_handling, remove_last_err_handler, on_err
+        nonlocal code, iterator_char, iterator_decls, err_handling, on_err
         for field in content:
             if field["type"] == "A":
                 iterator_char = chr(ord(iterator_char) + 1)
@@ -262,9 +260,7 @@ def unpack_packet(packet):
                                        f"cmc_{type_func_name(field)}_free({unpack_to}{field["name"]});")
     
     unpack_code("packet.", packet["content"], "err")
-    code += "return packet;"
-    if remove_last_err_handler:
-        err_handling.pop(0)
+    code += f"CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW, {on_err});return packet;"
     
     code = iterator_decls + code + "".join(err_handling)
     return (code, header)
