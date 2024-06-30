@@ -1,0 +1,41 @@
+#include <cmc/err.h>
+#include <cmc/packet_types.h>
+#include <cmc/packets.h>
+#include <arpa/inet.h>
+#include <cmc/conn.h>
+#include <cmc/packet_macros.h>
+#include <stdio.h>
+
+int main(void) {
+  cmc_conn conn = cmc_conn_init(47);
+
+  struct sockaddr_in localhost = {0};
+  inet_pton(AF_INET, "127.0.0.1", &localhost);
+  localhost.sin_family = AF_INET;
+  localhost.sin_port = htons(25565);
+
+  CMC_ERRA_ABLE(
+      cmc_conn_connect(&conn, (struct sockaddr *)&localhost, sizeof(localhost)),
+      conn.err.err, goto err_connecting;);
+
+  cmc_packet_C2S_handshake_handshake_765 handshake = {
+      .next_state = CMC_CONN_STATE_STATUS,
+      .protocole_version = CMC_PROTOCOL_VERSION_47,
+      .server_addr = "127.0.0.1",
+      .server_port = 25565};
+
+  cmc_buff *buff = cmc_buff_init(47, &conn.err);
+  cmc_packet_C2S_handshake_handshake_765_pack(buff, &handshake);
+  cmc_conn_send_packet(&conn, buff);
+  cmc_buff_free(buff);
+
+  cmc_packet_C2S_status_ping_765_pack(cmc_buff *buff, cmc_packet_C2S_status_ping_765 *packet)
+
+  return 0;
+err_connecting:
+  if (conn.err.err) {
+    printf("error %s at %s:%i\n", cmc_err_as_str(conn.err.err), conn.err.file,
+           conn.err.line);
+  }
+  return 1;
+}

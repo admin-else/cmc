@@ -133,7 +133,6 @@ def parse_exp_fields(fields):
 
 def gather_packets():
     out = []
-    know_exp = []
     for fname in os.listdir("packets"):
         with open("packets/" + fname, "r") as f:
             vid = int(fname.split(".")[0])
@@ -142,9 +141,6 @@ def gather_packets():
                     exp = exp[:exp.find("#")]
                     
                 if not exp:
-                    continue
-                
-                if exp in know_exp:
                     continue
                 
                 info = {}
@@ -161,7 +157,6 @@ def gather_packets():
                 info["content"] = parse_exp_fields(fields)
                 info["needs_free"] = any([is_heap(f) for f in info["content"]]) # ohhh the python magic 
                 out.append(info)                                                # i dont know if its ugly
-                know_exp.append(exp)                                            # or modern art
     
     return out
 
@@ -206,7 +201,7 @@ def packet_id_enums(packets):
         state_name = "cmc_packet_ids_state_" + state
         code += f"enum {state_name} {{"
         for packet in states[state]:
-            code += f"cmc_packet_id_{packet['name_and_version']} = {packet["packet_id"]},"
+            code += f"{packet["type"]}_id = {packet["packet_id"]},"
         code += f"}}; typedef enum {state_name} {state_name};"
         
     return code
@@ -311,7 +306,10 @@ def pack_packet(packet):
 
         return code
 
-    return (pack_content(packet["content"], "packet->", "i"), f"void {packet["type"]}_pack(cmc_buff *buff, {packet["type"]} *packet)")
+    
+    pack_packet_id = f"cmc_buff_pack_varint(buff, {packet["type"]}_id);"
+    maybe_pack_code = pack_content(packet["content"], "packet->", "i")
+    return (pack_packet_id + maybe_pack_code, f"void {packet["type"]}_pack(cmc_buff *buff{f", {packet['type']} *packet" if maybe_pack_code else ""})")
     
 
 def main():
