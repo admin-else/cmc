@@ -7,6 +7,7 @@
 #include <cmc/nbt.h>
 #include <cmc/packet_types.h>
 
+#include "err_macros.h"
 #include <stdbool.h>
 #include <stdlib.h>
 
@@ -21,6 +22,8 @@ cmc_packet_C2S_handshake_handshake_765_unpack(cmc_buff *buff) {
       CMC_ERRB_ABLE(cmc_buff_unpack_ushort(buff), goto err_server_addr;);
   packet.next_state =
       CMC_ERRB_ABLE(cmc_buff_unpack_varint(buff), goto err_server_addr;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err_server_addr;);
   return packet;
 err_server_addr:
   cmc_string_free(packet.server_addr);
@@ -31,7 +34,11 @@ cmc_packet_S2C_status_response_765
 cmc_packet_S2C_status_response_765_unpack(cmc_buff *buff) {
   cmc_packet_S2C_status_response_765 packet = {};
   packet.response = CMC_ERRB_ABLE(cmc_buff_unpack_string(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err_response;);
   return packet;
+err_response:
+  cmc_string_free(packet.response);
 err:
   return (cmc_packet_S2C_status_response_765){};
 }
@@ -39,6 +46,8 @@ cmc_packet_S2C_status_pong_765
 cmc_packet_S2C_status_pong_765_unpack(cmc_buff *buff) {
   cmc_packet_S2C_status_pong_765 packet = {};
   packet.payload = CMC_ERRB_ABLE(cmc_buff_unpack_long(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err;);
   return packet;
 err:
   return (cmc_packet_S2C_status_pong_765){};
@@ -47,6 +56,8 @@ cmc_packet_C2S_status_ping_765
 cmc_packet_C2S_status_ping_765_unpack(cmc_buff *buff) {
   cmc_packet_C2S_status_ping_765 packet = {};
   packet.payload = CMC_ERRB_ABLE(cmc_buff_unpack_long(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err;);
   return packet;
 err:
   return (cmc_packet_C2S_status_ping_765){};
@@ -55,7 +66,11 @@ cmc_packet_S2C_login_disconnect_765
 cmc_packet_S2C_login_disconnect_765_unpack(cmc_buff *buff) {
   cmc_packet_S2C_login_disconnect_765 packet = {};
   packet.reason = CMC_ERRB_ABLE(cmc_buff_unpack_string(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err_reason;);
   return packet;
+err_reason:
+  cmc_string_free(packet.reason);
 err:
   return (cmc_packet_S2C_login_disconnect_765){};
 }
@@ -67,7 +82,11 @@ cmc_packet_S2C_login_encryption_request_765_unpack(cmc_buff *buff) {
       CMC_ERRB_ABLE(cmc_buff_unpack_buff(buff), goto err_server_id;);
   packet.verify_token =
       CMC_ERRB_ABLE(cmc_buff_unpack_buff(buff), goto err_public_key;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err_verify_token;);
   return packet;
+err_verify_token:
+  cmc_buff_free(packet.verify_token);
 err_public_key:
   cmc_buff_free(packet.public_key);
 err_server_id:
@@ -82,6 +101,8 @@ cmc_packet_S2C_login_success_765_unpack(cmc_buff *buff) {
   packet.name = CMC_ERRB_ABLE(cmc_buff_unpack_string(buff), goto err;);
   packet.properties_count =
       CMC_ERRB_ABLE(cmc_buff_unpack_varint(buff), goto err_name;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err_name;);
   return packet;
 err_name:
   cmc_string_free(packet.name);
@@ -92,6 +113,8 @@ cmc_packet_S2C_login_set_compression_765
 cmc_packet_S2C_login_set_compression_765_unpack(cmc_buff *buff) {
   cmc_packet_S2C_login_set_compression_765 packet = {};
   packet.threshold = CMC_ERRB_ABLE(cmc_buff_unpack_varint(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err;);
   return packet;
 err:
   return (cmc_packet_S2C_login_set_compression_765){};
@@ -101,6 +124,8 @@ cmc_packet_C2S_login_start_765_unpack(cmc_buff *buff) {
   cmc_packet_C2S_login_start_765 packet = {};
   packet.name = CMC_ERRB_ABLE(cmc_buff_unpack_string(buff), goto err;);
   packet.uuid = CMC_ERRB_ABLE(cmc_buff_unpack_uuid(buff), goto err_name;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err_name;);
   return packet;
 err_name:
   cmc_string_free(packet.name);
@@ -113,7 +138,11 @@ cmc_packet_C2S_login_encryption_response_765_unpack(cmc_buff *buff) {
   packet.shared_secret = CMC_ERRB_ABLE(cmc_buff_unpack_buff(buff), goto err;);
   packet.verify_token =
       CMC_ERRB_ABLE(cmc_buff_unpack_buff(buff), goto err_shared_secret;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err_verify_token;);
   return packet;
+err_verify_token:
+  cmc_buff_free(packet.verify_token);
 err_shared_secret:
   cmc_buff_free(packet.shared_secret);
 err:
@@ -124,7 +153,11 @@ cmc_packet_S2C_config_plugin_message_765_unpack(cmc_buff *buff) {
   cmc_packet_S2C_config_plugin_message_765 packet = {};
   packet.channel = CMC_ERRB_ABLE(cmc_buff_unpack_string(buff), goto err;);
   packet.data = CMC_ERRB_ABLE(cmc_buff_unpack_buff(buff), goto err_channel;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err_data;);
   return packet;
+err_data:
+  cmc_buff_free(packet.data);
 err_channel:
   cmc_string_free(packet.channel);
 err:
@@ -134,7 +167,11 @@ cmc_packet_S2C_config_disconnect_765
 cmc_packet_S2C_config_disconnect_765_unpack(cmc_buff *buff) {
   cmc_packet_S2C_config_disconnect_765 packet = {};
   packet.reason = CMC_ERRB_ABLE(cmc_buff_unpack_string(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err_reason;);
   return packet;
+err_reason:
+  cmc_string_free(packet.reason);
 err:
   return (cmc_packet_S2C_config_disconnect_765){};
 }
@@ -142,6 +179,8 @@ cmc_packet_S2C_config_keep_alive_765
 cmc_packet_S2C_config_keep_alive_765_unpack(cmc_buff *buff) {
   cmc_packet_S2C_config_keep_alive_765 packet = {};
   packet.keep_alive_id = CMC_ERRB_ABLE(cmc_buff_unpack_long(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err;);
   return packet;
 err:
   return (cmc_packet_S2C_config_keep_alive_765){};
@@ -150,6 +189,8 @@ cmc_packet_S2C_config_ping_765
 cmc_packet_S2C_config_ping_765_unpack(cmc_buff *buff) {
   cmc_packet_S2C_config_ping_765 packet = {};
   packet.id = CMC_ERRB_ABLE(cmc_buff_unpack_int(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err;);
   return packet;
 err:
   return (cmc_packet_S2C_config_ping_765){};
@@ -158,7 +199,11 @@ cmc_packet_S2C_config_registry_data_765
 cmc_packet_S2C_config_registry_data_765_unpack(cmc_buff *buff) {
   cmc_packet_S2C_config_registry_data_765 packet = {};
   packet.registry_codec = CMC_ERRB_ABLE(cmc_buff_unpack_nbt(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err_registry_codec;);
   return packet;
+err_registry_codec:
+  cmc_nbt_free(packet.registry_codec);
 err:
   return (cmc_packet_S2C_config_registry_data_765){};
 }
@@ -167,6 +212,8 @@ cmc_packet_C2S_play_keep_alive_765_unpack(cmc_buff *buff) {
   cmc_packet_C2S_play_keep_alive_765 packet = {};
   packet.keep_alive_id_long =
       CMC_ERRB_ABLE(cmc_buff_unpack_long(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err;);
   return packet;
 err:
   return (cmc_packet_C2S_play_keep_alive_765){};
@@ -176,6 +223,8 @@ cmc_packet_S2C_play_keep_alive_765_unpack(cmc_buff *buff) {
   cmc_packet_S2C_play_keep_alive_765 packet = {};
   packet.keep_alive_id_long =
       CMC_ERRB_ABLE(cmc_buff_unpack_long(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err;);
   return packet;
 err:
   return (cmc_packet_S2C_play_keep_alive_765){};
@@ -184,7 +233,11 @@ cmc_packet_S2C_play_disconnect_765
 cmc_packet_S2C_play_disconnect_765_unpack(cmc_buff *buff) {
   cmc_packet_S2C_play_disconnect_765 packet = {};
   packet.reason_nbt = CMC_ERRB_ABLE(cmc_buff_unpack_nbt(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err_reason_nbt;);
   return packet;
+err_reason_nbt:
+  cmc_nbt_free(packet.reason_nbt);
 err:
   return (cmc_packet_S2C_play_disconnect_765){};
 }
@@ -198,6 +251,8 @@ cmc_packet_C2S_handshake_handshake_47_unpack(cmc_buff *buff) {
       CMC_ERRB_ABLE(cmc_buff_unpack_ushort(buff), goto err_server_addr;);
   packet.next_state =
       CMC_ERRB_ABLE(cmc_buff_unpack_varint(buff), goto err_server_addr;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err_server_addr;);
   return packet;
 err_server_addr:
   cmc_string_free(packet.server_addr);
@@ -208,7 +263,11 @@ cmc_packet_S2C_status_response_47
 cmc_packet_S2C_status_response_47_unpack(cmc_buff *buff) {
   cmc_packet_S2C_status_response_47 packet = {};
   packet.response = CMC_ERRB_ABLE(cmc_buff_unpack_string(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err_response;);
   return packet;
+err_response:
+  cmc_string_free(packet.response);
 err:
   return (cmc_packet_S2C_status_response_47){};
 }
@@ -216,6 +275,8 @@ cmc_packet_S2C_status_pong_47
 cmc_packet_S2C_status_pong_47_unpack(cmc_buff *buff) {
   cmc_packet_S2C_status_pong_47 packet = {};
   packet.payload = CMC_ERRB_ABLE(cmc_buff_unpack_long(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err;);
   return packet;
 err:
   return (cmc_packet_S2C_status_pong_47){};
@@ -224,6 +285,8 @@ cmc_packet_C2S_status_ping_47
 cmc_packet_C2S_status_ping_47_unpack(cmc_buff *buff) {
   cmc_packet_C2S_status_ping_47 packet = {};
   packet.payload = CMC_ERRB_ABLE(cmc_buff_unpack_long(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err;);
   return packet;
 err:
   return (cmc_packet_C2S_status_ping_47){};
@@ -232,7 +295,11 @@ cmc_packet_S2C_login_disconnect_47
 cmc_packet_S2C_login_disconnect_47_unpack(cmc_buff *buff) {
   cmc_packet_S2C_login_disconnect_47 packet = {};
   packet.reason = CMC_ERRB_ABLE(cmc_buff_unpack_string(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err_reason;);
   return packet;
+err_reason:
+  cmc_string_free(packet.reason);
 err:
   return (cmc_packet_S2C_login_disconnect_47){};
 }
@@ -244,7 +311,11 @@ cmc_packet_S2C_login_encryption_request_47_unpack(cmc_buff *buff) {
       CMC_ERRB_ABLE(cmc_buff_unpack_buff(buff), goto err_server_id;);
   packet.verify_token =
       CMC_ERRB_ABLE(cmc_buff_unpack_buff(buff), goto err_public_key;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err_verify_token;);
   return packet;
+err_verify_token:
+  cmc_buff_free(packet.verify_token);
 err_public_key:
   cmc_buff_free(packet.public_key);
 err_server_id:
@@ -257,7 +328,11 @@ cmc_packet_S2C_login_success_47_unpack(cmc_buff *buff) {
   cmc_packet_S2C_login_success_47 packet = {};
   packet.uuid_str = CMC_ERRB_ABLE(cmc_buff_unpack_string(buff), goto err;);
   packet.name = CMC_ERRB_ABLE(cmc_buff_unpack_string(buff), goto err_uuid_str;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err_name;);
   return packet;
+err_name:
+  cmc_string_free(packet.name);
 err_uuid_str:
   cmc_string_free(packet.uuid_str);
 err:
@@ -267,6 +342,8 @@ cmc_packet_S2C_login_set_compression_47
 cmc_packet_S2C_login_set_compression_47_unpack(cmc_buff *buff) {
   cmc_packet_S2C_login_set_compression_47 packet = {};
   packet.threshold = CMC_ERRB_ABLE(cmc_buff_unpack_varint(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err;);
   return packet;
 err:
   return (cmc_packet_S2C_login_set_compression_47){};
@@ -275,7 +352,11 @@ cmc_packet_C2S_login_start_47
 cmc_packet_C2S_login_start_47_unpack(cmc_buff *buff) {
   cmc_packet_C2S_login_start_47 packet = {};
   packet.name = CMC_ERRB_ABLE(cmc_buff_unpack_string(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err_name;);
   return packet;
+err_name:
+  cmc_string_free(packet.name);
 err:
   return (cmc_packet_C2S_login_start_47){};
 }
@@ -285,7 +366,11 @@ cmc_packet_C2S_login_encryption_response_47_unpack(cmc_buff *buff) {
   packet.shared_secret = CMC_ERRB_ABLE(cmc_buff_unpack_buff(buff), goto err;);
   packet.verify_token =
       CMC_ERRB_ABLE(cmc_buff_unpack_buff(buff), goto err_shared_secret;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err_verify_token;);
   return packet;
+err_verify_token:
+  cmc_buff_free(packet.verify_token);
 err_shared_secret:
   cmc_buff_free(packet.shared_secret);
 err:
@@ -295,6 +380,8 @@ cmc_packet_S2C_play_keep_alive_47
 cmc_packet_S2C_play_keep_alive_47_unpack(cmc_buff *buff) {
   cmc_packet_S2C_play_keep_alive_47 packet = {};
   packet.keep_alive_id = CMC_ERRB_ABLE(cmc_buff_unpack_varint(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err;);
   return packet;
 err:
   return (cmc_packet_S2C_play_keep_alive_47){};
@@ -310,6 +397,8 @@ cmc_packet_S2C_play_join_game_47_unpack(cmc_buff *buff) {
   packet.level_type = CMC_ERRB_ABLE(cmc_buff_unpack_string(buff), goto err;);
   packet.reduced_debug_info =
       CMC_ERRB_ABLE(cmc_buff_unpack_bool(buff), goto err_level_type;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err_level_type;);
   return packet;
 err_level_type:
   cmc_string_free(packet.level_type);
@@ -322,6 +411,8 @@ cmc_packet_S2C_play_chat_message_47_unpack(cmc_buff *buff) {
   packet.message = CMC_ERRB_ABLE(cmc_buff_unpack_string(buff), goto err;);
   packet.position =
       CMC_ERRB_ABLE(cmc_buff_unpack_char(buff), goto err_message;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err_message;);
   return packet;
 err_message:
   cmc_string_free(packet.message);
@@ -333,6 +424,8 @@ cmc_packet_S2C_play_time_update_47_unpack(cmc_buff *buff) {
   cmc_packet_S2C_play_time_update_47 packet = {};
   packet.world_age = CMC_ERRB_ABLE(cmc_buff_unpack_long(buff), goto err;);
   packet.time_of_day = CMC_ERRB_ABLE(cmc_buff_unpack_long(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err;);
   return packet;
 err:
   return (cmc_packet_S2C_play_time_update_47){};
@@ -343,7 +436,11 @@ cmc_packet_S2C_play_entity_equipment_47_unpack(cmc_buff *buff) {
   packet.entity_id = CMC_ERRB_ABLE(cmc_buff_unpack_varint(buff), goto err;);
   packet.slot = CMC_ERRB_ABLE(cmc_buff_unpack_short(buff), goto err;);
   packet.item = CMC_ERRB_ABLE(cmc_buff_unpack_slot(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err_item;);
   return packet;
+err_item:
+  cmc_slot_free(packet.item);
 err:
   return (cmc_packet_S2C_play_entity_equipment_47){};
 }
@@ -351,6 +448,8 @@ cmc_packet_S2C_play_spawn_position_47
 cmc_packet_S2C_play_spawn_position_47_unpack(cmc_buff *buff) {
   cmc_packet_S2C_play_spawn_position_47 packet = {};
   packet.location = CMC_ERRB_ABLE(cmc_buff_unpack_position(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err;);
   return packet;
 err:
   return (cmc_packet_S2C_play_spawn_position_47){};
@@ -362,6 +461,8 @@ cmc_packet_S2C_play_update_health_47_unpack(cmc_buff *buff) {
   packet.food = CMC_ERRB_ABLE(cmc_buff_unpack_varint(buff), goto err;);
   packet.food_saturation =
       CMC_ERRB_ABLE(cmc_buff_unpack_float(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err;);
   return packet;
 err:
   return (cmc_packet_S2C_play_update_health_47){};
@@ -373,7 +474,11 @@ cmc_packet_S2C_play_respawn_47_unpack(cmc_buff *buff) {
   packet.difficulty = CMC_ERRB_ABLE(cmc_buff_unpack_byte(buff), goto err;);
   packet.gamemode = CMC_ERRB_ABLE(cmc_buff_unpack_byte(buff), goto err;);
   packet.level_type = CMC_ERRB_ABLE(cmc_buff_unpack_string(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err_level_type;);
   return packet;
+err_level_type:
+  cmc_string_free(packet.level_type);
 err:
   return (cmc_packet_S2C_play_respawn_47){};
 }
@@ -386,6 +491,8 @@ cmc_packet_S2C_play_player_look_and_position_47_unpack(cmc_buff *buff) {
   packet.yaw = CMC_ERRB_ABLE(cmc_buff_unpack_float(buff), goto err;);
   packet.pitch = CMC_ERRB_ABLE(cmc_buff_unpack_float(buff), goto err;);
   packet.flags = CMC_ERRB_ABLE(cmc_buff_unpack_byte(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err;);
   return packet;
 err:
   return (cmc_packet_S2C_play_player_look_and_position_47){};
@@ -394,6 +501,8 @@ cmc_packet_S2C_play_held_item_change_47
 cmc_packet_S2C_play_held_item_change_47_unpack(cmc_buff *buff) {
   cmc_packet_S2C_play_held_item_change_47 packet = {};
   packet.slot = CMC_ERRB_ABLE(cmc_buff_unpack_char(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err;);
   return packet;
 err:
   return (cmc_packet_S2C_play_held_item_change_47){};
@@ -403,6 +512,8 @@ cmc_packet_S2C_play_use_bed_47_unpack(cmc_buff *buff) {
   cmc_packet_S2C_play_use_bed_47 packet = {};
   packet.entity_id = CMC_ERRB_ABLE(cmc_buff_unpack_varint(buff), goto err;);
   packet.location = CMC_ERRB_ABLE(cmc_buff_unpack_position(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err;);
   return packet;
 err:
   return (cmc_packet_S2C_play_use_bed_47){};
@@ -412,6 +523,8 @@ cmc_packet_S2C_play_animation_47_unpack(cmc_buff *buff) {
   cmc_packet_S2C_play_animation_47 packet = {};
   packet.entity_id = CMC_ERRB_ABLE(cmc_buff_unpack_varint(buff), goto err;);
   packet.animation = CMC_ERRB_ABLE(cmc_buff_unpack_byte(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err;);
   return packet;
 err:
   return (cmc_packet_S2C_play_animation_47){};
@@ -429,7 +542,11 @@ cmc_packet_S2C_play_spawn_player_47_unpack(cmc_buff *buff) {
   packet.current_item = CMC_ERRB_ABLE(cmc_buff_unpack_short(buff), goto err;);
   packet.meta_data =
       CMC_ERRB_ABLE(cmc_buff_unpack_entity_metadata(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err_meta_data;);
   return packet;
+err_meta_data:
+  cmc_entity_metadata_free(packet.meta_data);
 err:
   return (cmc_packet_S2C_play_spawn_player_47){};
 }
@@ -440,6 +557,8 @@ cmc_packet_S2C_play_collect_item_47_unpack(cmc_buff *buff) {
       CMC_ERRB_ABLE(cmc_buff_unpack_varint(buff), goto err;);
   packet.collector_entity_id =
       CMC_ERRB_ABLE(cmc_buff_unpack_varint(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err;);
   return packet;
 err:
   return (cmc_packet_S2C_play_collect_item_47){};
@@ -460,7 +579,11 @@ cmc_packet_S2C_play_spawn_mob_47_unpack(cmc_buff *buff) {
   packet.z_vel = CMC_ERRB_ABLE(cmc_buff_unpack_short(buff), goto err;);
   packet.meta_data =
       CMC_ERRB_ABLE(cmc_buff_unpack_entity_metadata(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err_meta_data;);
   return packet;
+err_meta_data:
+  cmc_entity_metadata_free(packet.meta_data);
 err:
   return (cmc_packet_S2C_play_spawn_mob_47){};
 }
@@ -472,6 +595,8 @@ cmc_packet_S2C_play_spawn_painting_47_unpack(cmc_buff *buff) {
   packet.location =
       CMC_ERRB_ABLE(cmc_buff_unpack_position(buff), goto err_title;);
   packet.direction = CMC_ERRB_ABLE(cmc_buff_unpack_byte(buff), goto err_title;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err_title;);
   return packet;
 err_title:
   cmc_string_free(packet.title);
@@ -486,6 +611,8 @@ cmc_packet_S2C_play_spawn_experience_orb_47_unpack(cmc_buff *buff) {
   packet.y = CMC_ERRB_ABLE(cmc_buff_unpack_int(buff), goto err;);
   packet.z = CMC_ERRB_ABLE(cmc_buff_unpack_int(buff), goto err;);
   packet.count = CMC_ERRB_ABLE(cmc_buff_unpack_short(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err;);
   return packet;
 err:
   return (cmc_packet_S2C_play_spawn_experience_orb_47){};
@@ -497,6 +624,8 @@ cmc_packet_S2C_play_entity_velocity_47_unpack(cmc_buff *buff) {
   packet.x_vel = CMC_ERRB_ABLE(cmc_buff_unpack_short(buff), goto err;);
   packet.y_vel = CMC_ERRB_ABLE(cmc_buff_unpack_short(buff), goto err;);
   packet.z_vel = CMC_ERRB_ABLE(cmc_buff_unpack_short(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err;);
   return packet;
 err:
   return (cmc_packet_S2C_play_entity_velocity_47){};
@@ -505,6 +634,8 @@ cmc_packet_S2C_play_entity_47
 cmc_packet_S2C_play_entity_47_unpack(cmc_buff *buff) {
   cmc_packet_S2C_play_entity_47 packet = {};
   packet.entity_id = CMC_ERRB_ABLE(cmc_buff_unpack_varint(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err;);
   return packet;
 err:
   return (cmc_packet_S2C_play_entity_47){};
@@ -517,6 +648,8 @@ cmc_packet_S2C_play_entity_relative_move_47_unpack(cmc_buff *buff) {
   packet.delta_y = CMC_ERRB_ABLE(cmc_buff_unpack_char(buff), goto err;);
   packet.delta_z = CMC_ERRB_ABLE(cmc_buff_unpack_char(buff), goto err;);
   packet.on_ground = CMC_ERRB_ABLE(cmc_buff_unpack_bool(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err;);
   return packet;
 err:
   return (cmc_packet_S2C_play_entity_relative_move_47){};
@@ -528,6 +661,8 @@ cmc_packet_S2C_play_entity_look_47_unpack(cmc_buff *buff) {
   packet.yaw = CMC_ERRB_ABLE(cmc_buff_unpack_byte(buff), goto err;);
   packet.pitch = CMC_ERRB_ABLE(cmc_buff_unpack_byte(buff), goto err;);
   packet.on_ground = CMC_ERRB_ABLE(cmc_buff_unpack_bool(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err;);
   return packet;
 err:
   return (cmc_packet_S2C_play_entity_look_47){};
@@ -542,6 +677,8 @@ cmc_packet_S2C_play_entity_look_and_relative_move_47_unpack(cmc_buff *buff) {
   packet.yaw = CMC_ERRB_ABLE(cmc_buff_unpack_byte(buff), goto err;);
   packet.pitch = CMC_ERRB_ABLE(cmc_buff_unpack_byte(buff), goto err;);
   packet.on_ground = CMC_ERRB_ABLE(cmc_buff_unpack_bool(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err;);
   return packet;
 err:
   return (cmc_packet_S2C_play_entity_look_and_relative_move_47){};
@@ -556,6 +693,8 @@ cmc_packet_S2C_play_entity_teleport_47_unpack(cmc_buff *buff) {
   packet.yaw = CMC_ERRB_ABLE(cmc_buff_unpack_byte(buff), goto err;);
   packet.pitch = CMC_ERRB_ABLE(cmc_buff_unpack_byte(buff), goto err;);
   packet.on_ground = CMC_ERRB_ABLE(cmc_buff_unpack_bool(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err;);
   return packet;
 err:
   return (cmc_packet_S2C_play_entity_teleport_47){};
@@ -565,6 +704,8 @@ cmc_packet_S2C_play_entity_head_look_47_unpack(cmc_buff *buff) {
   cmc_packet_S2C_play_entity_head_look_47 packet = {};
   packet.entity_id = CMC_ERRB_ABLE(cmc_buff_unpack_varint(buff), goto err;);
   packet.head_yaw = CMC_ERRB_ABLE(cmc_buff_unpack_byte(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err;);
   return packet;
 err:
   return (cmc_packet_S2C_play_entity_head_look_47){};
@@ -574,6 +715,8 @@ cmc_packet_S2C_play_entity_status_47_unpack(cmc_buff *buff) {
   cmc_packet_S2C_play_entity_status_47 packet = {};
   packet.entity_id = CMC_ERRB_ABLE(cmc_buff_unpack_int(buff), goto err;);
   packet.entity_status = CMC_ERRB_ABLE(cmc_buff_unpack_char(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err;);
   return packet;
 err:
   return (cmc_packet_S2C_play_entity_status_47){};
@@ -584,6 +727,8 @@ cmc_packet_S2C_play_attach_entity_47_unpack(cmc_buff *buff) {
   packet.entity_id = CMC_ERRB_ABLE(cmc_buff_unpack_int(buff), goto err;);
   packet.vehicle_id = CMC_ERRB_ABLE(cmc_buff_unpack_int(buff), goto err;);
   packet.leash = CMC_ERRB_ABLE(cmc_buff_unpack_bool(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err;);
   return packet;
 err:
   return (cmc_packet_S2C_play_attach_entity_47){};
@@ -594,7 +739,11 @@ cmc_packet_S2C_play_entity_metadata_47_unpack(cmc_buff *buff) {
   packet.entity_id = CMC_ERRB_ABLE(cmc_buff_unpack_varint(buff), goto err;);
   packet.meta_data =
       CMC_ERRB_ABLE(cmc_buff_unpack_entity_metadata(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err_meta_data;);
   return packet;
+err_meta_data:
+  cmc_entity_metadata_free(packet.meta_data);
 err:
   return (cmc_packet_S2C_play_entity_metadata_47){};
 }
@@ -606,6 +755,8 @@ cmc_packet_S2C_play_entity_effect_47_unpack(cmc_buff *buff) {
   packet.amplifier = CMC_ERRB_ABLE(cmc_buff_unpack_char(buff), goto err;);
   packet.duration = CMC_ERRB_ABLE(cmc_buff_unpack_varint(buff), goto err;);
   packet.hide_particles = CMC_ERRB_ABLE(cmc_buff_unpack_bool(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err;);
   return packet;
 err:
   return (cmc_packet_S2C_play_entity_effect_47){};
@@ -615,6 +766,8 @@ cmc_packet_S2C_play_remove_entity_effect_47_unpack(cmc_buff *buff) {
   cmc_packet_S2C_play_remove_entity_effect_47 packet = {};
   packet.entity_id = CMC_ERRB_ABLE(cmc_buff_unpack_varint(buff), goto err;);
   packet.effect_id = CMC_ERRB_ABLE(cmc_buff_unpack_char(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err;);
   return packet;
 err:
   return (cmc_packet_S2C_play_remove_entity_effect_47){};
@@ -626,6 +779,8 @@ cmc_packet_S2C_play_set_experience_47_unpack(cmc_buff *buff) {
   packet.level = CMC_ERRB_ABLE(cmc_buff_unpack_varint(buff), goto err;);
   packet.total_experience =
       CMC_ERRB_ABLE(cmc_buff_unpack_varint(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err;);
   return packet;
 err:
   return (cmc_packet_S2C_play_set_experience_47){};
@@ -666,6 +821,8 @@ cmc_packet_S2C_play_entity_properties_47_unpack(cmc_buff *buff) {
       }
     }
   }
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err_properties_modifiers_forloop);
   return packet;
   if (packet.properties_count > 0) {
   err_properties_forloop:
@@ -696,7 +853,11 @@ cmc_packet_S2C_play_chunk_data_47_unpack(cmc_buff *buff) {
   packet.primary_bitmask =
       CMC_ERRB_ABLE(cmc_buff_unpack_ushort(buff), goto err;);
   packet.chunk = CMC_ERRB_ABLE(cmc_buff_unpack_buff(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err_chunk;);
   return packet;
+err_chunk:
+  cmc_buff_free(packet.chunk);
 err:
   return (cmc_packet_S2C_play_chunk_data_47){};
 }
@@ -721,6 +882,8 @@ cmc_packet_S2C_play_multi_block_change_47_unpack(cmc_buff *buff) {
           CMC_ERRB_ABLE(cmc_buff_unpack_varint(buff), goto err_records_forloop);
     }
   }
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err_records_forloop);
   return packet;
   if (packet.record_count > 0) {
   err_records_forloop:
@@ -737,6 +900,8 @@ cmc_packet_S2C_play_block_change_47_unpack(cmc_buff *buff) {
   cmc_packet_S2C_play_block_change_47 packet = {};
   packet.location = CMC_ERRB_ABLE(cmc_buff_unpack_position(buff), goto err;);
   packet.block_id = CMC_ERRB_ABLE(cmc_buff_unpack_varint(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err;);
   return packet;
 err:
   return (cmc_packet_S2C_play_block_change_47){};
@@ -748,6 +913,8 @@ cmc_packet_S2C_play_block_action_47_unpack(cmc_buff *buff) {
   packet.block_data_1 = CMC_ERRB_ABLE(cmc_buff_unpack_byte(buff), goto err;);
   packet.block_data_2 = CMC_ERRB_ABLE(cmc_buff_unpack_byte(buff), goto err;);
   packet.block_type = CMC_ERRB_ABLE(cmc_buff_unpack_varint(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err;);
   return packet;
 err:
   return (cmc_packet_S2C_play_block_action_47){};
@@ -758,6 +925,8 @@ cmc_packet_S2C_play_block_break_animation_47_unpack(cmc_buff *buff) {
   packet.entity_id = CMC_ERRB_ABLE(cmc_buff_unpack_varint(buff), goto err;);
   packet.location = CMC_ERRB_ABLE(cmc_buff_unpack_position(buff), goto err;);
   packet.destroy_stage = CMC_ERRB_ABLE(cmc_buff_unpack_char(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err;);
   return packet;
 err:
   return (cmc_packet_S2C_play_block_break_animation_47){};
@@ -785,7 +954,11 @@ cmc_packet_S2C_play_map_chunk_bulk_47_unpack(cmc_buff *buff) {
   }
   packet.chunk =
       CMC_ERRB_ABLE(cmc_buff_unpack_buff(buff), goto err_chunk_columns_forloop);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err_chunk;);
   return packet;
+err_chunk:
+  cmc_buff_free(packet.chunk);
   if (packet.chunk_column_count > 0) {
   err_chunk_columns_forloop:
     for (; i > 0; --i) {
@@ -825,6 +998,8 @@ cmc_packet_S2C_play_explosion_47_unpack(cmc_buff *buff) {
       CMC_ERRB_ABLE(cmc_buff_unpack_float(buff), goto err_records_forloop);
   packet.z_player_vel =
       CMC_ERRB_ABLE(cmc_buff_unpack_float(buff), goto err_records_forloop);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err_records_forloop);
   return packet;
   if (packet.record_count > 0) {
   err_records_forloop:
@@ -855,6 +1030,8 @@ cmc_packet_S2C_play_effect_47_unpack(cmc_buff *buff) {
   packet.particle_count = CMC_ERRB_ABLE(cmc_buff_unpack_int(buff), goto err;);
   packet.sable_relative_volume =
       CMC_ERRB_ABLE(cmc_buff_unpack_int(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err;);
   return packet;
 err:
   return (cmc_packet_S2C_play_effect_47){};
@@ -870,6 +1047,8 @@ cmc_packet_S2C_play_sound_effect_47_unpack(cmc_buff *buff) {
       CMC_ERRB_ABLE(cmc_buff_unpack_float(buff), goto err_sound_name;);
   packet.pitch =
       CMC_ERRB_ABLE(cmc_buff_unpack_byte(buff), goto err_sound_name;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err_sound_name;);
   return packet;
 err_sound_name:
   cmc_string_free(packet.sound_name);
@@ -881,6 +1060,8 @@ cmc_packet_S2C_play_change_game_state_47_unpack(cmc_buff *buff) {
   cmc_packet_S2C_play_change_game_state_47 packet = {};
   packet.reason = CMC_ERRB_ABLE(cmc_buff_unpack_byte(buff), goto err;);
   packet.value = CMC_ERRB_ABLE(cmc_buff_unpack_float(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err;);
   return packet;
 err:
   return (cmc_packet_S2C_play_change_game_state_47){};
@@ -891,6 +1072,8 @@ cmc_packet_S2C_play_player_abilities_47_unpack(cmc_buff *buff) {
   packet.flags = CMC_ERRB_ABLE(cmc_buff_unpack_char(buff), goto err;);
   packet.flying_speed = CMC_ERRB_ABLE(cmc_buff_unpack_float(buff), goto err;);
   packet.fov_modifier = CMC_ERRB_ABLE(cmc_buff_unpack_float(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err;);
   return packet;
 err:
   return (cmc_packet_S2C_play_player_abilities_47){};
@@ -900,7 +1083,11 @@ cmc_packet_S2C_play_plugin_message_47_unpack(cmc_buff *buff) {
   cmc_packet_S2C_play_plugin_message_47 packet = {};
   packet.channel = CMC_ERRB_ABLE(cmc_buff_unpack_string(buff), goto err;);
   packet.data = CMC_ERRB_ABLE(cmc_buff_unpack_buff(buff), goto err_channel;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err_data;);
   return packet;
+err_data:
+  cmc_buff_free(packet.data);
 err_channel:
   cmc_string_free(packet.channel);
 err:
@@ -910,7 +1097,11 @@ cmc_packet_S2C_play_disconnect_47
 cmc_packet_S2C_play_disconnect_47_unpack(cmc_buff *buff) {
   cmc_packet_S2C_play_disconnect_47 packet = {};
   packet.reason = CMC_ERRB_ABLE(cmc_buff_unpack_string(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err_reason;);
   return packet;
+err_reason:
+  cmc_string_free(packet.reason);
 err:
   return (cmc_packet_S2C_play_disconnect_47){};
 }
@@ -918,6 +1109,8 @@ cmc_packet_S2C_play_change_difficulty_47
 cmc_packet_S2C_play_change_difficulty_47_unpack(cmc_buff *buff) {
   cmc_packet_S2C_play_change_difficulty_47 packet = {};
   packet.difficulty = CMC_ERRB_ABLE(cmc_buff_unpack_byte(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err;);
   return packet;
 err:
   return (cmc_packet_S2C_play_change_difficulty_47){};
@@ -926,6 +1119,8 @@ cmc_packet_C2S_play_keep_alive_47
 cmc_packet_C2S_play_keep_alive_47_unpack(cmc_buff *buff) {
   cmc_packet_C2S_play_keep_alive_47 packet = {};
   packet.keep_alive_id = CMC_ERRB_ABLE(cmc_buff_unpack_varint(buff), goto err;);
+  CMC_ERRB_IF(buff->position != buff->length, CMC_ERR_BUFF_UNDERFLOW,
+              goto err;);
   return packet;
 err:
   return (cmc_packet_C2S_play_keep_alive_47){};
