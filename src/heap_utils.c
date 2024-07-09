@@ -40,6 +40,4 @@ void *cmc_malloc_packet_array(cmc_buff *buff, size_t size) {
   return cmc_malloc(size, buff->err);
 }
 
-void cmc_free(void *p) {
-  free(p);
-}
+void cmc_free(void *p) { free(p); }

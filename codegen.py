@@ -246,15 +246,14 @@ def unpack_packet(packet):
                 on_err = f"goto {lable_prefixs + "_" + field["name"] + "_forloop"}"
                 iterator_decls += f"int {iterator_char} = 0;"
                 unpack_code(f"{unpack_to}{field["name"]}[{iterator_char}].", field["content"], lable_prefixs + "_" + field["name"])
-                add_failiure_point(None, f"{lable_prefixs}_{field["name"]}_forloop:for(;{iterator_char}>0;--{iterator_char}) {{")
+                add_failiure_point(None, f"for(;{iterator_char}>0;--{iterator_char}) {{")
                 iterator_char = chr(ord(iterator_char) - 1)
                 code += "}"
                 
-                add_failiure_point(None, f"if({unpack_to}{field["size_key"]} > 0) {{")
+                add_failiure_point(None, f"{lable_prefixs}_{field["name"]}_forloop:if({unpack_to}{field["size_key"]} > 0) {{")
                 code += "}"
             else:
                 code += f"{unpack_to}{field["name"]} = CMC_ERRB_ABLE(cmc_buff_unpack_{type_func_name(field)}(buff), {on_err});"
-                remove_last_err_handler = False
                 if is_heap(field):
                     add_failiure_point(lable_prefixs + "_" + field["name"],
                                        f"cmc_{type_func_name(field)}_free({unpack_to}{field["name"]});")
@@ -307,13 +306,79 @@ def pack_packet(packet):
     maybe_pack_code = pack_content(packet["content"], "packet->", "i")
     return (pack_packet_id + maybe_pack_code, f"void {packet["type"]}_pack(cmc_buff *buff{f", {packet['type']} *packet" if maybe_pack_code else ""})")
     
+def unpack_packet2(packet):
+    used_labels = set()
+    iterator_def = ""
+    
+    if packet["is_empty"]:
+        return ("", "")
+    
+    def unpack_packet_content(content, lable_prefix, pvnp, iterator_char): # pvr short for packet_variable_name prefix
+        nonlocal used_labels, iterator_def
+        def l(lable): # short for lable
+            used_labels.add(lable_prefix + lable)
+            return lable_prefix + lable
+        
+        c = ""
+        for field in content:
+            if field["type"] == "A":
+                iterator_char = chr(ord(iterator_char)+1)
+                iterator_def += f"size_t {iterator_char} = 0;"
+                c += f"""
+                if({pvnp + field["size_key"]} > 0) {{
+                    {pvnp+field["name"]} = CMC_ERRB_ABLE(cmc_malloc_packet_array(buff, {pvnp + field["size_key"]} * sizeof(*{pvnp+field["name"]})), goto {l(field["name"])};);
+                for(;{iterator_char} < {pvnp + field["size_key"]};
+                    ++{iterator_char}) {{"""
+                c += unpack_packet_content(field["content"], lable_prefix+field["name"]+"_", pvnp+field["name"]+f"[{iterator_char}].", iterator_char)
+                c += "}}"
+                iterator_char = chr(ord(iterator_char)-1)
+            else:
+                c += f"""{pvnp + field["name"]} = CMC_ERRB_ABLE(
+                    cmc_buff_unpack_{type_func_name(field)}(buff);, 
+                    goto {l(field["name"])};);"""
+                    
+        return c
+    
+    def unpack_error_code(content, pvnp, lable_prefix, iterator_char):
+        nonlocal used_labels
+        c = ""
+        
+        def l(lable):
+            nonlocal c
+            c += lable_prefix+lable+":" if lable_prefix+lable in used_labels else ""
 
+        for field in content[::-1]:
+            if field["type"] == "A":
+                iterator_char = chr(ord(iterator_char)+1)
+                c += f"if({pvnp + field["size_key"]} > 0) {{"
+                c += unpack_error_code(field["content"], lable_prefix + field["name"] + "_", pvnp+field["name"]+"["+iterator_char+"].", iterator_char)
+                c += f"cmc_free({pvnp}{field["name"]});"
+                l(field["name"])
+                c += "}"
+                iterator_char = chr(ord(iterator_char)-1)
+            else:
+                if is_heap(field):
+                    c += f"cmc_{type_func_name(field)}_free({pvnp+field["name"]});"           
+                l(field["name"])
+            
+        return c
+    
+    define_packet = f"{packet["type"]} packet = {{0}};"
+    unpack_code = unpack_packet_content(packet["content"], "err_", "packet.", "h")
+    return_packet = "return packet;"
+    free_code = unpack_error_code(packet["content"], "packet.", "err_", "h")
+    return_packet_err = f"return ({packet["type"]}){{0}};"
+    
+    code = define_packet + iterator_def + unpack_code + return_packet + free_code + return_packet_err
+    
+    return (code, f"{packet["type"]} {packet["type"]}_unpack(cmc_buff *buff)")
+    
 def main():
     packets = gather_packets()
     
     replace_with_functions("packet_types", type_def, packets)
     replace_code_segments(packet_id_enums(packets), "packet_ids")
-    replace_c_functions("unpack_methods", unpack_packet, packets)
+    replace_c_functions("unpack_methods", unpack_packet2, packets)
     replace_c_functions("free_methods", free_packet, packets)
     replace_c_functions("pack_methods", pack_packet, packets)
     
