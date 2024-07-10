@@ -21,7 +21,7 @@ cmc_err cmc_buff_pack(cmc_buff_packing *buff, uint8_t *data, size_t len) {
     return CMC_ERR_NO;
   }
 
-  
+    
 
   return CMC_ERR_NO;
 }

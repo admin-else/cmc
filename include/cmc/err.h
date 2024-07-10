@@ -4,7 +4,9 @@
 #define CMC_ERR_ENUM_VALUES_X                                                  \
   X(CMC_ERR_NO)                                                                \
   X(CMC_ERR_MALLOC_ZERO)                                                       \
-  X(CMC_ERR_MALLOC_FAIL)
+  X(CMC_ERR_MALLOC_FAIL)                                                       \
+  X(CMC_ERR_RELLOC_FAIL)                                                       \
+  X(CMC_ERR_RELLOC_ZERO)
 
 typedef enum {
 #define X(ERR) ERR,
