@@ -3,7 +3,7 @@
 #include "heap_utils.h"
 #include <string.h>
 
-cmc_err cmc_buff_pack(cmc_buff_packing *buff, uint8_t *data, size_t len) {
+cmc_err cmc_buff_pack(cmc_buff_packing *buff, void *data, size_t len) {
   assert(buff);
   assert(data);
   if(len == 0) {
@@ -21,15 +21,15 @@ cmc_err cmc_buff_pack(cmc_buff_packing *buff, uint8_t *data, size_t len) {
     return CMC_ERR_NO;
   }
 
-  uint8_t *tmp = cmc_malloc(buff->length + len, &err);
-  if(err != CMC_ERR_NO) {
-    return err;
+  if(buff->length+len > buff->capacity) {
+    cmc_realloc(buff->data, (buff->length+len)*2, &err);
+    if(err != CMC_ERR_NO) {
+      return err;
+    }
   }
 
-  memcpy(tmp, buff->data, buff->length);
-  memcpy(&tmp[buff->length], data, len);
+  memcpy(&buff->data[buff->length], data, len);
   cmc_free(buff->data);
-  buff->data = tmp;
   buff->length += len;
 
   return CMC_ERR_NO;
