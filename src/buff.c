@@ -44,3 +44,10 @@ void *cmc_buff_unpack(cmc_buff_unpacking *buff, size_t len, cmc_err *err) {
   buff->position += len;
   return p;
 }
+
+void cmc_buff_free(cmc_buff_packing *buff) {
+  if(!buff) return;
+  if(buff->data) cmc_free(buff->data);
+  buff->capacity = 0;
+  buff->length = 0;
+}

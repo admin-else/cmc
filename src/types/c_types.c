@@ -6,7 +6,7 @@
     if (*err != CMC_ERR_NO) {                                                  \
       return 0;                                                                \
     }                                                                          \
-    return *(char *)p;                                                         \
+    return *(type *)p;                                                         \
   }                                                                            \
                                                                                \
   cmc_err cmc_pack_##name(cmc_buff_packing *buff, type data) {                 \
@@ -25,3 +25,6 @@ C_TYPES_PACK_UNPACK_FACTORY(u32, uint32_t)
 C_TYPES_PACK_UNPACK_FACTORY(u64, uint64_t)
 C_TYPES_PACK_UNPACK_FACTORY(f32, float)
 C_TYPES_PACK_UNPACK_FACTORY(f64, double)
+C_TYPES_PACK_UNPACK_FACTORY(bool, bool)
+
+#undef C_TYPES_PACK_UNPACK_FACTORY
