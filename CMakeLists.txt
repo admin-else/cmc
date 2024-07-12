@@ -19,7 +19,7 @@ endif()
 
 include(CTest)
 
-add_executable(simple_types_test tests/simple_types.c)
-target_link_libraries(simple_types_test PUBLIC cmc)
-target_include_directories(simple_types_test PUBLIC include)
-add_test(NAME simple_types_test COMMAND simple_types_test)
+add_executable(c_types_test tests/c_types.c)
+target_link_libraries(c_types_test PUBLIC cmc)
+target_include_directories(c_types_test PUBLIC include)
+add_test(NAME c_types_test COMMAND c_types_test)
