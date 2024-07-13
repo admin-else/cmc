@@ -25,18 +25,6 @@ C_TYPES_PACK_UNPACK_FACTORY(u32, uint32_t)
 C_TYPES_PACK_UNPACK_FACTORY(u64, uint64_t)
 C_TYPES_PACK_UNPACK_FACTORY(f32, float)
 C_TYPES_PACK_UNPACK_FACTORY(f64, double)
-//C_TYPES_PACK_UNPACK_FACTORY(bool, bool)
-bool cmc_unpack_bool(cmc_buff_unpacking *buff, cmc_err *err) {
-  void *p = cmc_buff_unpack(buff, sizeof(bool), err);
-  if (*err != CMC_ERR_NO) {
-    return 0;
-  }
-  return *(bool *)p;
-}
-cmc_err cmc_pack_bool(cmc_buff_packing *buff, bool data) {
-  cmc_err err = CMC_ERR_NO;
-  cmc_buff_pack(buff, &data, sizeof(bool));
-  return CMC_ERR_NO;
-}
+C_TYPES_PACK_UNPACK_FACTORY(bool, bool)
 
 #undef C_TYPES_PACK_UNPACK_FACTORY

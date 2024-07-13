@@ -13,6 +13,4 @@ def get_files():
 def get_proto(path):
   with open(PROTO_BASE_PATH + path + PROTO_SUFFIX, "r") as f:
     return json.load(f)
-
-def get_native_types():
-  get_files()
+  
