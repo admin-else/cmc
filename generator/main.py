@@ -14,4 +14,5 @@ def get_proto(path):
   with open(PROTO_BASE_PATH + path + PROTO_SUFFIX, "r") as f:
     return json.load(f)
 
-pprint(get_proto(get_files()["1.20.4"])["types"])
+def get_native_types():
+  get_files()
