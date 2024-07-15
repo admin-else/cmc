@@ -12,7 +12,8 @@ cmc_err cmc_buff_pack(cmc_buff_packing *buff, void *data, size_t len) {
 
   cmc_err err = CMC_ERR_NO;
   if (buff->length + len > buff->capacity) {
-    buff->data = cmc_realloc(buff->data, (buff->length + len) * 2, &err);
+    buff->capacity = (buff->length + len) * 2;
+    buff->data = cmc_realloc(buff->data, buff->capacity, &err);
     if (err != CMC_ERR_NO) {
       return err;
     }

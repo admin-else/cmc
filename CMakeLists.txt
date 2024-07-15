@@ -6,6 +6,7 @@ set(CMAKE_C_STANDARD_REQUIRED TRUE)
 
 add_library(cmc
   src/types/c_types.c
+  src/types/varnums.c
   src/buff.c
   src/err.c
   src/heap_utils.c
@@ -19,7 +20,9 @@ endif()
 
 include(CTest)
 
-add_executable(c_types_test tests/c_types.c)
-target_link_libraries(c_types_test PUBLIC cmc)
-target_include_directories(c_types_test PUBLIC include)
-add_test(NAME c_types_test COMMAND c_types_test)
+add_executable(types_test tests/types.c)
+target_compile_options(types_test PUBLIC -fsanitize=address,undefined)
+target_link_options(types_test PUBLIC -fsanitize=address,undefined)
+target_link_libraries(types_test PUBLIC cmc)
+target_include_directories(types_test PUBLIC include)
+add_test(NAME types_test COMMAND types_test)

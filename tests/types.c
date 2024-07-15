@@ -1,5 +1,6 @@
 
 #include "cmc/types/c_types.h"
+#include "cmc/types/varnums.h"
 #include "cmc/buff.h"
 #include <stdio.h>
 
@@ -10,7 +11,7 @@
     return 1;                                                                  \
   }
 
-#define C_TYPES_PACK_UNPACK_FACTORY(name, type)                                \
+#define TYPES_PACK_UNPACK_FACTORY(name, type)                                \
   cmc_err test_##name(type val) {                                              \
     cmc_buff_packing buff1 = {0};                                              \
     cmc_err err = cmc_pack_##name(&buff1, val);                                \
@@ -30,28 +31,28 @@
     return CMC_ERR_NO;                                                         \
   }
 
-C_TYPES_PACK_UNPACK_FACTORY(i8, int8_t)
-C_TYPES_PACK_UNPACK_FACTORY(i16, int16_t)
-C_TYPES_PACK_UNPACK_FACTORY(i32, int32_t)
-C_TYPES_PACK_UNPACK_FACTORY(i64, int64_t)
-C_TYPES_PACK_UNPACK_FACTORY(u8, uint8_t)
-C_TYPES_PACK_UNPACK_FACTORY(u16, uint16_t)
-C_TYPES_PACK_UNPACK_FACTORY(u32, uint32_t)
-C_TYPES_PACK_UNPACK_FACTORY(u64, uint64_t)
-C_TYPES_PACK_UNPACK_FACTORY(f32, float)
-C_TYPES_PACK_UNPACK_FACTORY(f64, double)
-
-#undef C_TYPES_PACK_UNPACK_FACTORY
-
-cmc_err test_bool(bool val) {
+TYPES_PACK_UNPACK_FACTORY(i8, int8_t)
+TYPES_PACK_UNPACK_FACTORY(i16, int16_t)
+TYPES_PACK_UNPACK_FACTORY(i32, int32_t)
+TYPES_PACK_UNPACK_FACTORY(i64, int64_t)
+TYPES_PACK_UNPACK_FACTORY(u8, uint8_t)
+TYPES_PACK_UNPACK_FACTORY(u16, uint16_t)
+TYPES_PACK_UNPACK_FACTORY(u32, uint32_t)
+TYPES_PACK_UNPACK_FACTORY(u64, uint64_t)
+TYPES_PACK_UNPACK_FACTORY(f32, float)
+TYPES_PACK_UNPACK_FACTORY(f64, double)
+TYPES_PACK_UNPACK_FACTORY(bool, bool)
+TYPES_PACK_UNPACK_FACTORY(varint, cmc_varint)
+//TYPES_PACK_UNPACK_FACTORY(varlong, cmc_varlong)
+cmc_err test_varlong(cmc_varlong val) {
   cmc_buff_packing buff1 = {0};
-  cmc_err err = cmc_pack_bool(&buff1, val);
+  cmc_err err = cmc_pack_varlong(&buff1, val);
   if (err != CMC_ERR_NO) {
     return err;
   }
   cmc_buff_unpacking buff2 = {
       .data = buff1.data, .length = buff1.length, .position = 0};
-  bool val2 = cmc_unpack_bool(&buff2, &err);
+  cmc_varlong val2 = cmc_unpack_varlong(&buff2, &err);
   if (err != CMC_ERR_NO) {
     return err;
   }
@@ -61,6 +62,9 @@ cmc_err test_bool(bool val) {
   }
   return CMC_ERR_NO;
 }
+
+#undef TYPES_PACK_UNPACK_FACTORY
+
 int main() {
   cmc_err err = CMC_ERR_NO;
   TEST(test_bool(true));
@@ -98,7 +102,16 @@ int main() {
   TEST(test_u64(UINT64_MAX));
   TEST(test_u64(0));
 
-#undef TEST
+  TEST(test_varint(INT32_MIN));
+  TEST(test_varint(INT32_MAX));
+  TEST(test_varint(0));
+  TEST(test_varint(-1));
 
+  TEST(test_varlong(INT64_MAX));
+  TEST(test_varlong(INT64_MIN));
+  TEST(test_varlong(0));
+  TEST(test_varlong(-1));
+
+#undef TEST
   return 0;
 }
