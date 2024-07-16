@@ -3,7 +3,7 @@
 #include "heap_utils.h"
 #include <string.h>
 
-cmc_err cmc_buff_pack(cmc_buff_packing *buff, void *data, size_t len) {
+cmc_err cmc_pack(cmc_buff_packing *buff, void *data, size_t len) {
   assert(buff);
   assert(data);
   if (len == 0) {
@@ -25,7 +25,7 @@ cmc_err cmc_buff_pack(cmc_buff_packing *buff, void *data, size_t len) {
   return CMC_ERR_NO;
 }
 
-void *cmc_buff_unpack(cmc_buff_unpacking *buff, size_t len, cmc_err *err) {
+void *cmc_unpack(cmc_buff_unpacking *buff, size_t len, cmc_err *err) {
   if (buff->position + len > buff->length) {
     *err = CMC_ERR_UNPACK_OUT_OF_RANGE;
     return NULL;
