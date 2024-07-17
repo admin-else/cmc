@@ -8,7 +8,8 @@
   X(CMC_ERR_RELLOC_FAIL)                                                       \
   X(CMC_ERR_RELLOC_ZERO)                                                       \
   X(CMC_ERR_UNPACK_OUT_OF_RANGE)                                               \
-  X(CMC_ERR_NO_MATCH)
+  X(CMC_ERR_NO_MATCH)                                                          \
+  X(CMC_ERR_PSTRING_TOO_LONG)
 
 typedef enum {
 #define X(ERR) ERR,
