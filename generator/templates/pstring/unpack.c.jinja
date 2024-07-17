@@ -1,0 +1,9 @@
+size_t len = cmc_unpack_{{ count_type }}(buff, err);
+if(*err != CMC_ERR_NO) {
+  return NULL;
+}
+{{ret_type}} ret = cmc_unpack_pstring(buff, len, err);
+if(*err != CMC_ERR_NO) {
+  return NULL;
+}
+return ret;
