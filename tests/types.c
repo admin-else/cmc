@@ -1,7 +1,7 @@
 
+#include "cmc/buff.h"
 #include "cmc/types/c_types.h"
 #include "cmc/types/varnums.h"
-#include "cmc/buff.h"
 #include <stdio.h>
 
 #define TEST(code)                                                             \
@@ -11,16 +11,16 @@
     return 1;                                                                  \
   }
 
-#define TYPES_PACK_UNPACK_FACTORY(name, type)                                \
+#define TYPES_PACK_UNPACK_FACTORY(name, type)                                  \
   cmc_err test_##name(type val) {                                              \
     cmc_buff_packing buff1 = {0};                                              \
-    cmc_err err = cmc_pack_##name(&buff1, val);                                \
+    cmc_err err = cmc_##name##_pack(&buff1, val);                              \
     if (err != CMC_ERR_NO) {                                                   \
       return err;                                                              \
     }                                                                          \
     cmc_buff_unpacking buff2 = {                                               \
         .data = buff1.data, .length = buff1.length, .position = 0};            \
-    type val2 = cmc_unpack_##name(&buff2, &err);                               \
+    type val2 = cmc_##name##_unpack(&buff2, &err);                             \
     if (err != CMC_ERR_NO) {                                                   \
       return err;                                                              \
     }                                                                          \
@@ -43,16 +43,16 @@ TYPES_PACK_UNPACK_FACTORY(f32, float)
 TYPES_PACK_UNPACK_FACTORY(f64, double)
 TYPES_PACK_UNPACK_FACTORY(bool, bool)
 TYPES_PACK_UNPACK_FACTORY(varint, cmc_varint)
-//TYPES_PACK_UNPACK_FACTORY(varlong, cmc_varlong)
+// TYPES_PACK_UNPACK_FACTORY(varlong, cmc_varlong)
 cmc_err test_varlong(cmc_varlong val) {
   cmc_buff_packing buff1 = {0};
-  cmc_err err = cmc_pack_varlong(&buff1, val);
+  cmc_err err = cmc_varlong_pack(&buff1, val);
   if (err != CMC_ERR_NO) {
     return err;
   }
   cmc_buff_unpacking buff2 = {
       .data = buff1.data, .length = buff1.length, .position = 0};
-  cmc_varlong val2 = cmc_unpack_varlong(&buff2, &err);
+  cmc_varlong val2 = cmc_varlong_unpack(&buff2, &err);
   if (err != CMC_ERR_NO) {
     return err;
   }

@@ -2,8 +2,8 @@
 #include <stdint.h>
 
 #define C_TYPES_PACK_UNPACK_FACTORY_H(name, type)                              \
-  type cmc_unpack_##name(cmc_buff_unpacking *buff, cmc_err *err);              \
-  cmc_err cmc_pack_##name(cmc_buff_packing *buff, type data);
+  type cmc_##name##_unpack(cmc_buff_unpacking *buff, cmc_err *err);            \
+  cmc_err cmc_##name##_pack(cmc_buff_packing *buff, type data);
 
 C_TYPES_PACK_UNPACK_FACTORY_H(i8, int8_t)
 C_TYPES_PACK_UNPACK_FACTORY_H(i16, int16_t)
