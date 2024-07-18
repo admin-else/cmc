@@ -11,7 +11,7 @@
   }                                                                            \
                                                                                \
   cmc_err cmc_pack_##name(cmc_buff_packing *buff, type data) {                 \
-    return htole##bits(cmc_pack(buff, &data, sizeof(type)));                                                         \
+    return htole##bits(cmc_pack(buff, &data, sizeof(type)));                   \
   }
 
 #define C_TYPES_PACK_UNPACK_FACTORY(name, type)                                \
@@ -38,7 +38,8 @@ C_TYPES_PACK_UNPACK_FACTORY_ENDIAN(u64, uint64_t, 64)
 C_TYPES_PACK_UNPACK_FACTORY(f32, float)
 C_TYPES_PACK_UNPACK_FACTORY(f64, double)
 
-// This has to be custom becouse the len may not be one byte https://en.cppreference.com/w/cpp/language/types
+// This has to be custom becouse the len may not be one byte
+// https://en.cppreference.com/w/cpp/language/types
 bool cmc_unpack_bool(cmc_buff_unpacking *buff, cmc_err *err) {
   void *p = cmc_unpack(buff, 1, err);
   if (*err != CMC_ERR_NO) {

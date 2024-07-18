@@ -1,0 +1,23 @@
+{% block includes %}
+{% endblock %}
+
+
+ cmc_69_string_unpack(cmc_buff_unpacking *buff, cmc_err *err) {
+  size_t len = cmc_unpack_varint(buff, err);
+  if(*err != CMC_ERR_NO) {
+    return NULL;
+  }
+  char *str = cmc_unpack_pstring(buff, len, err);
+  if(*err != CMC_ERR_NO) {
+    return NULL;
+  }
+  return str;
+}
+
+cmc_err cmc_69_string_pack(cmc_buff_packing *buff, cmc_69_string data) {
+  return cmc_pack_pstring(buff, data, strlen(data));
+}
+
+void cmc_69_string_free(cmc_69_string data) {
+  cmc_free(data);
+}

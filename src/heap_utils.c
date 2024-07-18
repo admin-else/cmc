@@ -16,7 +16,8 @@ void *cmc_malloc(unsigned long len, cmc_err *err) {
 
 void *cmc_realloc(void *in_p, unsigned long len, cmc_err *err) {
   if (len == 0) {
-    *err = CMC_ERR_RELLOC_ZERO; // althought this is inteded behaivior most likey you should have just used free
+    *err = CMC_ERR_RELLOC_ZERO; // althought this is inteded behaivior most
+                                // likey you should have just used free
     return NULL;
   }
   void *p = realloc(in_p, len);
@@ -27,6 +28,4 @@ void *cmc_realloc(void *in_p, unsigned long len, cmc_err *err) {
   return p;
 }
 
-void cmc_free(void *p) {
-  free(p);
-}
+void cmc_free(void *p) { free(p); }

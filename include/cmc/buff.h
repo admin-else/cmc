@@ -1,8 +1,8 @@
 #pragma once
 
 #include "cmc/err.h"
-#include <stdint.h>
 #include <stddef.h>
+#include <stdint.h>
 
 // used in unpack functions
 typedef struct {

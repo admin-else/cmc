@@ -16,4 +16,3 @@ cmc_uuid cmc_unpack_uuid(cmc_buff_unpacking *buff, cmc_err *err) {
   memcpy(uuid.uuid, uuid_raw, UUID_SIZE);
   return uuid;
 }
-

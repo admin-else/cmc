@@ -9,6 +9,5 @@ typedef struct {
   uuid_t uuid;
 } cmc_uuid;
 
-
 cmc_err cmc_pack_uuid(cmc_buff_packing *buff, cmc_uuid data);
 cmc_uuid cmc_unpack_uuid(cmc_buff_unpacking *buff, cmc_err *err);
