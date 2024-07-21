@@ -7,6 +7,8 @@ set(CMAKE_C_STANDARD_REQUIRED TRUE)
 add_library(cmc
   src/types/c_types.c
   src/types/varnums.c
+  src/types/pstring.c
+  src/types/uuid.c
   src/buff.c
   src/err.c
   src/heap_utils.c

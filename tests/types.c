@@ -13,12 +13,12 @@
 
 #define TYPES_PACK_UNPACK_FACTORY(name, type)                                  \
   cmc_err test_##name(type val) {                                              \
-    cmc_buff_packing buff1 = {0};                                              \
+    cmc_buff buff1 = {0};                                                      \
     cmc_err err = cmc_##name##_pack(&buff1, val);                              \
     if (err != CMC_ERR_NO) {                                                   \
       return err;                                                              \
     }                                                                          \
-    cmc_buff_unpacking buff2 = {                                               \
+    cmc_span buff2 = {                                                         \
         .data = buff1.data, .length = buff1.length, .position = 0};            \
     type val2 = cmc_##name##_unpack(&buff2, &err);                             \
     if (err != CMC_ERR_NO) {                                                   \
@@ -45,18 +45,17 @@ TYPES_PACK_UNPACK_FACTORY(bool, bool)
 TYPES_PACK_UNPACK_FACTORY(varint, cmc_varint)
 // TYPES_PACK_UNPACK_FACTORY(varlong, cmc_varlong)
 cmc_err test_varlong(cmc_varlong val) {
-  cmc_buff_packing buff1 = {0};
-  cmc_err err = cmc_varlong_pack(&buff1, val);
+  cmc_buff buff = {0};
+  cmc_err err = cmc_varlong_pack(&buff, val);
   if (err != CMC_ERR_NO) {
     return err;
   }
-  cmc_buff_unpacking buff2 = {
-      .data = buff1.data, .length = buff1.length, .position = 0};
-  cmc_varlong val2 = cmc_varlong_unpack(&buff2, &err);
+  cmc_span span = cmc_span_of(&buff);
+  cmc_varlong val2 = cmc_varlong_unpack(&span, &err);
   if (err != CMC_ERR_NO) {
     return err;
   }
-  cmc_buff_free(&buff1);
+  cmc_buff_free(&buff);
   if (val != val2) {
     return CMC_ERR_NO_MATCH;
   }
@@ -107,10 +106,10 @@ int main() {
   TEST(test_varint(0));
   TEST(test_varint(-1));
 
-  TEST(test_varlong(INT64_MAX));
-  TEST(test_varlong(INT64_MIN));
   TEST(test_varlong(0));
   TEST(test_varlong(-1));
+  TEST(test_varlong(INT64_MAX));
+  TEST(test_varlong(INT64_MIN));
 
 #undef TEST
   return 0;
