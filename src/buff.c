@@ -35,10 +35,12 @@ void *cmc_unpack(cmc_span *buff, size_t len, cmc_err *err) {
 }
 
 void cmc_buff_free(cmc_buff *buff) {
-  if (!buff)
+  if (!buff) {
     return;
-  if (buff->data)
+  }
+  if (buff->data) {
     cmc_free(buff->data);
+  }
   buff->capacity = 0;
   buff->length = 0;
 }

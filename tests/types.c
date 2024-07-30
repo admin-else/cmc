@@ -64,7 +64,8 @@ cmc_err test_varlong(cmc_varlong val) {
 
 #undef TYPES_PACK_UNPACK_FACTORY
 
-int main() {
+int main(void) { // NOLINT(readability-function-cognitive-complexity) this is
+                 // justifyable
   cmc_err err = CMC_ERR_NO;
   TEST(test_bool(true));
   TEST(test_bool(false));

@@ -14,15 +14,16 @@ cmc_err cmc_varint_pack(cmc_buff *buff, cmc_varint number) {
   uint32_t number_u = number;
   cmc_err err = CMC_ERR_NO;
   for (int i = 0; i < MAX_VARINT_SIZE_BYTES; ++i) {
-    uint8_t b = number_u & VARNUM_DATA_BITMASK;
+    uint8_t byte = number_u & VARNUM_DATA_BITMASK;
     number_u >>= VARNUM_DATA_BITS_LEN;
-    b |= number_u > 0 ? VARNUM_SIGNAL_BIT : 0;
-    err = cmc_u8_pack(buff, b);
+    byte |= number_u > 0 ? VARNUM_SIGNAL_BIT : 0;
+    err = cmc_u8_pack(buff, byte);
     if (err != CMC_ERR_NO) {
       return err;
     }
-    if (number_u == 0)
+    if (number_u == 0) {
       break;
+    }
   }
   return CMC_ERR_NO;
 }
@@ -30,13 +31,14 @@ cmc_err cmc_varint_pack(cmc_buff *buff, cmc_varint number) {
 cmc_varint cmc_varint_unpack(cmc_span *buff, cmc_err *err) {
   cmc_varint ret = 0;
   for (int i = 0; i < MAX_VARINT_SIZE_BYTES; ++i) {
-    uint8_t b = cmc_u8_unpack(buff, err);
+    uint8_t byte = cmc_u8_unpack(buff, err);
     if (*err != CMC_ERR_NO) {
       return 0;
     }
-    ret |= (b & VARNUM_DATA_BITMASK) << i * VARNUM_DATA_BITS_LEN;
-    if (!(b & VARNUM_SIGNAL_BIT))
+    ret |= (byte & VARNUM_DATA_BITMASK) << i * VARNUM_DATA_BITS_LEN;
+    if (!(byte & VARNUM_SIGNAL_BIT)) {
       break;
+    }
   }
   return ret;
 }
@@ -47,15 +49,16 @@ cmc_err cmc_varlong_pack(cmc_buff *buff, cmc_varlong number) {
 
   cmc_err err = CMC_ERR_NO;
   for (int i = 0; i < MAX_VARLONG_SIZE_BYTES; ++i) {
-    uint8_t b = number_u & VARNUM_DATA_BITMASK;
+    uint8_t byte = number_u & VARNUM_DATA_BITMASK;
     number_u >>= VARNUM_DATA_BITS_LEN;
-    b |= number_u > 0 ? VARNUM_SIGNAL_BIT : 0;
-    err = cmc_u8_pack(buff, b);
+    byte |= number_u > 0 ? VARNUM_SIGNAL_BIT : 0;
+    err = cmc_u8_pack(buff, byte);
     if (err != CMC_ERR_NO) {
       return err;
     }
-    if (number_u == 0)
+    if (number_u == 0) {
       break;
+    }
   }
   return CMC_ERR_NO;
 }
@@ -63,13 +66,15 @@ cmc_err cmc_varlong_pack(cmc_buff *buff, cmc_varlong number) {
 cmc_varlong cmc_varlong_unpack(cmc_span *buff, cmc_err *err) {
   cmc_varlong ret = 0;
   for (int i = 0; i < MAX_VARLONG_SIZE_BYTES; ++i) {
-    uint8_t b = cmc_u8_unpack(buff, err);
+    uint8_t byte = cmc_u8_unpack(buff, err);
     if (*err != CMC_ERR_NO) {
       return 0;
     }
-    ret |= ((uint64_t)(b & VARNUM_DATA_BITMASK)) << (i * VARNUM_DATA_BITS_LEN);
-    if (!(b & VARNUM_SIGNAL_BIT))
+    ret |= ((cmc_varlong)(byte & VARNUM_DATA_BITMASK))
+           << (i * VARNUM_DATA_BITS_LEN);
+    if (!(byte & VARNUM_SIGNAL_BIT)) {
       break;
+    }
   }
   return ret;
 }
