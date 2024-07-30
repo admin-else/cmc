@@ -1,7 +1,11 @@
 cmc_err {{t}}_pack(cmc_buff *buff, {{t}} data) {
-  {{ get_bo("unpack", data)}}
+  cmc_err err = CMC_ERR_NO;
+  {{ g("on_err", "return err;")}}
+  {{ get_bo("pack", data)}}
 }
 
 {{t}} {{t}}_unpack(cmc_span *span, cmc_err *err) {
-  {{ get_bo("unpack", data)}}
+  {{t}} data;
+  {{ get_bo("unpack", data, {"dest": "data"}) }}
+  return data;
 }

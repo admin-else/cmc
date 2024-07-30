@@ -6,6 +6,12 @@ BASE_TEMPLATES_PATH = "templates"
 ATTRIBUTE_FILE_SUFFIX = ".c.jinja"
 env = jinja2.Environment()
 types = {}
+template_globals = {}
+
+
+def set_template_global(k: str, v):
+    global template_globals
+    template_globals[k] = v
 
 
 def json_loadf(fname):
@@ -24,7 +30,7 @@ def get_bo(attribute, data, *args, **kwargs):
 
 
 def get(attribute, type_name, *args, **kwargs):
-    contex = {"get": get, "get_bo": get_bo}
+    contex = {"get": get, "get_bo": get_bo, "g": set_template_global}
     if type_name not in types:
         raise FileNotFoundError(f"Type {type_name} was not found.")
     if attribute not in types[type_name]:
@@ -33,6 +39,8 @@ def get(attribute, type_name, *args, **kwargs):
 
     data = kwargs
     data.update(contex)
+    data.update(template_globals)
+
     for arg in args:
         data.update(arg)
 
@@ -55,7 +63,9 @@ def main():
     for name in types["types"]:
         rawdata = types["types"][name]
         if rawdata == "native":
-            continue
+            if name not in types:
+                print(f"native undfined! {name}")
+                exit(1)
         # t short for type will be used VERY much so a short name is nice
         d = get(
             "code",

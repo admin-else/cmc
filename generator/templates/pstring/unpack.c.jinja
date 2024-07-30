@@ -3,5 +3,5 @@
   if(*err != CMC_ERR_NO) {
     {{ on_err }}
   }
-  {{dest}} = cmc_unpack_pstring(buff, err, len);
+  {{ dest }} = cmc_unpack_pstring(buff, err, len);
 }
