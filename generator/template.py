@@ -7,13 +7,30 @@ ATTRIBUTE_FILE_SUFFIX = ".c.jinja"
 env = jinja2.Environment()
 types = {}
 
-contex = {}
+
+def json_loadf(fname):
+    with open(fname, "r") as f:
+        return json.load(f)
 
 
-def get(type_name, attribute, *args, **kwargs):
-    if not types[type_name][attribute]:
+# get by object
+def get_bo(attribute, data, *args, **kwargs):
+    if type(data) is str:
+        type_name = data
+    else:
+        type_name = data[0]
+        # args += tuple(data[1])
+    return get(attribute, type_name, *args, **kwargs)
+
+
+def get(attribute, type_name, *args, **kwargs):
+    contex = {"get": get, "get_bo": get_bo}
+    if type_name not in types:
+        raise FileNotFoundError(f"Type {type_name} was not found.")
+    if attribute not in types[type_name]:
         raise FileNotFoundError(f"Attribute {attribute} was not found in {type_name}.")
-    template = env.from_string(types[type_name][attribute] + ATTRIBUTE_FILE_SUFFIX)
+    template = env.from_string(types[type_name][attribute])
+
     data = kwargs
     data.update(contex)
     for arg in args:
@@ -33,14 +50,24 @@ def load_native_types():
 
 
 def main():
-    with open("minecraft-data/data/pc/1.20.3/protocol.json", "r") as f:
-        types = json.load(f)
-        for name in types["types"]:
-            rawdata = types["types"][name]
-            if rawdata == "native":
-                continue  # TODO: Check if type is in types array
-
-            get("type", "code", rawdata)
+    protocol_version = 765  # TODO: parse this
+    types = json_loadf("minecraft-data/data/pc/1.20.3/protocol.json")
+    for name in types["types"]:
+        rawdata = types["types"][name]
+        if rawdata == "native":
+            continue
+        # t short for type will be used VERY much so a short name is nice
+        d = get(
+            "code",
+            "type",
+            {
+                "data": rawdata,
+                "name": name,
+                "t": f"cmc_{protocol_version}_{name}",
+            },
+        )  # type: ignore
+        print(d)
+        # print(rawdata)
 
 
 load_native_types()

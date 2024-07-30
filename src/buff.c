@@ -12,7 +12,7 @@ cmc_err cmc_pack(cmc_buff *buff, void *data, size_t len) {
 
   cmc_err err = CMC_ERR_NO;
   if (buff->length + len > buff->capacity) {
-    buff->capacity = (buff->length + len) * 2;
+    buff->capacity *= 2;
     buff->data = cmc_realloc(buff->data, buff->capacity, &err);
     if (err != CMC_ERR_NO) {
       return err;
@@ -30,9 +30,8 @@ void *cmc_unpack(cmc_span *buff, size_t len, cmc_err *err) {
     *err = CMC_ERR_UNPACK_OUT_OF_RANGE;
     return NULL;
   }
-  void *p = &buff->data[buff->position];
   buff->position += len;
-  return p;
+  return &buff->data[buff->position];
 }
 
 void cmc_buff_free(cmc_buff *buff) {

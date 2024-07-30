@@ -43,7 +43,7 @@ C_TYPES_PACK_UNPACK_FACTORY(f64, double)
 bool cmc_bool_unpack(cmc_span *buff, cmc_err *err) {
   void *p = cmc_unpack(buff, 1, err);
   if (*err != CMC_ERR_NO) {
-    return 0;
+    return false;
   }
   return *(bool *)p;
 }

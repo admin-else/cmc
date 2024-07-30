@@ -1,0 +1,7 @@
+{
+  size_t len = cmc_{{ count_type }}_unpack(buff, err);
+  if(*err != CMC_ERR_NO) {
+    {{ on_err }}
+  }
+  {{dest}} = cmc_unpack_pstring(buff, err, len);
+}

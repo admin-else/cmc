@@ -7,6 +7,6 @@
 // but prismarine calls it that so ok ig
 typedef char *cmc_pstring;
 
-cmc_err cmc_pack_pstring(cmc_buff *buff, cmc_pstring str, size_t len);
+cmc_err cmc_pstring_pack(cmc_buff *buff, cmc_pstring str, size_t len);
 
-cmc_pstring cmc_unpack_pstring(cmc_span *buff, size_t len, cmc_err *err);
+cmc_pstring cmc_pstring_unpack(cmc_span *buff, size_t len, cmc_err *err);
