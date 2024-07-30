@@ -1,1 +1,4 @@
 [project]
+name = "cmc-codegen"
+authors = [{ name = "Admin Else", email = "admin.else@gmail.com" }]
+description = "Generates C code for use in cmc."
