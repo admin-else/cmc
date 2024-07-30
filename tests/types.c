@@ -43,29 +43,12 @@ TYPES_PACK_UNPACK_FACTORY(f32, float)
 TYPES_PACK_UNPACK_FACTORY(f64, double)
 TYPES_PACK_UNPACK_FACTORY(bool, bool)
 TYPES_PACK_UNPACK_FACTORY(varint, cmc_varint)
-// TYPES_PACK_UNPACK_FACTORY(varlong, cmc_varlong)
-cmc_err test_varlong(cmc_varlong val) {
-  cmc_buff buff = {0};
-  cmc_err err = cmc_varlong_pack(&buff, val);
-  if (err != CMC_ERR_NO) {
-    return err;
-  }
-  cmc_span span = cmc_span_of(&buff);
-  cmc_varlong val2 = cmc_varlong_unpack(&span, &err);
-  if (err != CMC_ERR_NO) {
-    return err;
-  }
-  cmc_buff_free(&buff);
-  if (val != val2) {
-    return CMC_ERR_NO_MATCH;
-  }
-  return CMC_ERR_NO;
-}
+TYPES_PACK_UNPACK_FACTORY(varlong, cmc_varlong)
 
 #undef TYPES_PACK_UNPACK_FACTORY
 
-int main(void) { // NOLINT(readability-function-cognitive-complexity) this is
-                 // justifyable
+int main(void) { // NOLINT(readability-function-cognitive-complexity)
+                 // this is justifyable
   cmc_err err = CMC_ERR_NO;
   TEST(test_bool(true));
   TEST(test_bool(false));
