@@ -5,6 +5,7 @@ cmc_err {{t}}_pack(cmc_buff *buff, {{t}} data) {
 }
 
 {{t}} {{t}}_unpack(cmc_span *span, cmc_err *err) {
+  {{ g("on_err", "return ({"+t+"}){0};") }}
   {{t}} data;
   {{ get_bo("unpack", data, {"dest": "data"}) }}
   return data;
