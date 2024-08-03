@@ -1,4 +1,4 @@
 {{ get_bo("includes", data) }}
 
-typedef cmc_{{ name }} {{get_ctype(type)}};
+typedef {{get_bo("c_type", data)}} cmc_{{ name }};
 

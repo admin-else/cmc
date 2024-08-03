@@ -1,13 +1,30 @@
 import os
 import jinja2
 import json
+import clang_format
 
-BASE_TEMPLATES_PATH = "templates"
+
+BASE_TEMPLATES_PATH = "generator/templates"
 ATTRIBUTE_FILE_SUFFIX = ".c.jinja"
+HPATH = "include/cmc/types/"
+CPATH = "src/types/"
 env = jinja2.Environment()
 types = {}
 template_globals = {}
+includes = ()
 
+def include(h):
+    global includes
+    includes += h
+
+def render_includes():
+    global includes
+    return "\n".join([f"#include<{include}.h>"for include in includes])
+
+def write(path, data):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w") as f:
+        f.write(data)
 
 def set_template_global(k: str, v):
     global template_globals
@@ -49,6 +66,7 @@ def get(attribute, type_name, *args, **kwargs):
 
     return template.render(data)
 
+def clear_get
 
 def load_native_types():
     for type_name in os.scandir(BASE_TEMPLATES_PATH):
@@ -63,7 +81,7 @@ def load_native_types():
 
 def main():
     protocol_version = 765  # TODO: parse this
-    proto = json_loadf("minecraft-data/data/pc/1.20.3/protocol.json")
+    proto = json_loadf("generator/minecraft-data/data/pc/1.20.3/protocol.json")
     for name in proto["types"]:
         rawdata = proto["types"][name]
         if rawdata == "native":
@@ -83,14 +101,9 @@ def main():
         code = get("code", "type", extra_data)
         header = get("header", "type", extra_data)
 
-        path = f"gened/{protocol_version}/{name}"
-        os.makedirs(os.path.dirname(path), exist_ok=True)
-
-        with open(path + ".c", "w") as f:
-            f.write(code)
-
-        with open(path + ".h", "w") as f:
-            f.write(header)
+        path = f"{protocol_version}/{name}"
+        write(CPATH + path + ".c", code)
+        write(HPATH + path + ".h", header)
 
         # print(rawdata)
 
