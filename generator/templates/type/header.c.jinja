@@ -1,4 +1,5 @@
-{{ get_bo("includes", data) }}
+{{ get_bo("include", data) }}
+{{ render_includes() }}
 
-typedef {{get_bo("c_type", data)}} cmc_{{ name }};
+typedef {{get_bo("c_type", data)}} {{t}};
 

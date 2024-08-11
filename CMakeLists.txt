@@ -5,10 +5,10 @@ set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_STANDARD_REQUIRED TRUE)
 
 add_library(cmc
-  src/types/c_types.c
-  src/types/varnums.c
-  src/types/pstring.c
-  src/types/uuid.c
+  src/type/c_types.c
+  src/type/varnums.c
+  src/type/pstring.c
+  src/type/uuid.c
   src/buff.c
   src/err.c
   src/heap_utils.c

@@ -1,0 +1,3 @@
+{% for field in data %}
+    {{ get_bo("include", field["type"]) }}
+{% endfor %}

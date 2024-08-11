@@ -3,3 +3,4 @@ IndentWidth: 2
 UseTab: Never
 TabWidth: 2
 PointerAlignment: Right
+SeparateDefinitionBlocks: Always

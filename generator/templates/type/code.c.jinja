@@ -1,7 +1,13 @@
+{{ get_bo("include", data) }}
+{{ include("cmc/err") }}
+{{ include(sformat("cmc/type/{}/{}", protvers, name))}}
+{{ render_includes() }}
+
 cmc_err {{t}}_pack(cmc_buff *buff, {{t}} data) {
   cmc_err err = CMC_ERR_NO;
   {{ g("on_err", "return err;")}}
-  {{ get_bo("pack", data)}}
+  {{ get_bo("pack", data, {"from": "data"})}}
+  return err;
 }
 
 {{t}} {{t}}_unpack(cmc_span *span, cmc_err *err) {

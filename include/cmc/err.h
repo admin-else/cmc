@@ -12,13 +12,16 @@
   X(CMC_ERR_PSTRING_TOO_LONG)
 
 typedef enum {
+
 #define X(ERR) ERR,
   CMC_ERR_ENUM_VALUES_X
 #undef X
 } cmc_err;
 
 #define X(ERR) +1 // NOLINT(bugprone-macro-parentheses)
+
 enum { cmc_err_enum_size = 0 CMC_ERR_ENUM_VALUES_X };
+
 #undef X
 
 extern const char *const cmc_err_strings[cmc_err_enum_size];

@@ -1,0 +1,3 @@
+{% for field in data %}
+{{get("pack", field["type"], {"from": from+"."+field["name"]})}}
+{% endfor %}

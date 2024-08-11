@@ -1,3 +1,4 @@
-#include <cmc/types/pstring.h>
 
-typedef cmc_pstring cmc_string;
+#include <cmc/type/pstring.h>
+
+typedef cmc_pstring cmc_765_string;

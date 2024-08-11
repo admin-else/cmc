@@ -1,3 +1,4 @@
 
+#include <cmc/type/varnums.h>
 
-typedef cmc_varint cmc_optvarint;
+typedef cmc_varint cmc_765_optvarint;

@@ -1,4 +1,4 @@
-#include "cmc/buff.h"
+#include <cmc/buff.h>
 #include <stdint.h>
 
 #define C_TYPES_PACK_UNPACK_FACTORY_H(name, type)                              \

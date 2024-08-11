@@ -1,5 +1,0 @@
-struct {
-  {% for field in data%}
-    {{ get_ctype(field["type"]) }} {{field["name"]}};
-  {% endfor %}
-} cmc_{protvers}_{name}
