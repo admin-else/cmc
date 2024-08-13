@@ -1,8 +1,1 @@
-size_t len = cmc_{{count_type}}_unpack(buff, err);
-if(*err != CMC_ERR_NO) {
-  {{on_err}}
-}
-{{dest}} = cmc_pstring_unpack(buff, err);
-if(*err != CMC_ERR_NO) {
-  {{on_err}}
-}
+CMC_ERR_ABLE(cmc_pstring_pack(buff, {{from}}, strlen({{from}})), {{on_error}});

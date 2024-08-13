@@ -1,1 +1,3 @@
- 
+{% for field in data %}
+{{get("unpack", field["type"], {"to": to+"."+field["name"]})}}
+{% endfor %}

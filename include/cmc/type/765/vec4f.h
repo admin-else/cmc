@@ -1,13 +1,18 @@
 
     
 
-    
 
     
 
+
     
+
+
+    
+
 
 #include<cmc/type/c_types.h>
+#include<cmc/err_macros.h>
 
 typedef struct {
   

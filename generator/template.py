@@ -3,6 +3,7 @@ import re
 import jinja2
 import json
 import shutil
+import inspect
 
 BASE_TEMPLATES_PATH = "generator/templates"
 ATTRIBUTE_FILE_SUFFIX = ".c.jinja"
@@ -49,7 +50,6 @@ def sformat(format: str, *args):
 # get by object
 def get_bo(attribute, inp, *args, **kwargs):
     data = None
-    print(inp)
     if type(inp) is str:
         type_name = inp
     else:
@@ -59,7 +59,7 @@ def get_bo(attribute, inp, *args, **kwargs):
 
 
 def get(attribute, type_name, *args, **kwargs):
-    contex = {"get": get, "get_bo": get_bo, "g": set_template_global, "include": include, "render_includes": render_includes, "sformat": lambda format, *args: format.format(*args)}
+    contex = {"get": get, "get_bo": get_bo, "g": set_template_global, "include": include, "render_includes": render_includes, "sformat": lambda format, *args: format.format(*args), "break": input}
     data = kwargs
     data.update(contex)
     data.update(template_globals)
@@ -72,7 +72,9 @@ def get(attribute, type_name, *args, **kwargs):
     if attribute not in types[type_name]:
         raise FileNotFoundError(f"Attribute {attribute} was not found in {type_name} data {data}.")
     template = env.from_string(types[type_name][attribute])
-    print(f"Renderin {type_name}::{attribute}!")
+    
+    pretty_data = {k: v for k, v in data.items() if not inspect.isfunction(v)}
+    print(f"{type_name}.{attribute}({pretty_data})")
 
 
     return template.render(data)
@@ -91,7 +93,7 @@ def load_native_types():
             with open(type_attribute) as f:
                 types[type_name.name][
                     type_attribute.name.removesuffix(ATTRIBUTE_FILE_SUFFIX)
-                ] = f.read().strip("\n").strip()
+                ] = f.read().strip()
 
 
 def generate(name, rawdata, protocol_version):

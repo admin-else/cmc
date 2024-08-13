@@ -1,13 +1,17 @@
 
     
 
-    
 
     
+
+
+    
+
 
 
 
 #include<cmc/type/c_types.h>
+#include<cmc/err_macros.h>
 #include<cmc/err.h>
 #include<cmc/type/765/vec3f.h>
 
@@ -37,5 +41,11 @@ cmc_765_vec3f cmc_765_vec3f_unpack(cmc_span *span, cmc_err *err) {
   
   cmc_765_vec3f data;
   
+data.x = CMC_ERR_ABLE(cmc_f32_unpack(span, err), return ({cmc_765_vec3f}){0};);
+
+data.y = CMC_ERR_ABLE(cmc_f32_unpack(span, err), return ({cmc_765_vec3f}){0};);
+
+data.z = CMC_ERR_ABLE(cmc_f32_unpack(span, err), return ({cmc_765_vec3f}){0};);
+
   return data;
 }

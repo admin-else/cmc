@@ -20,5 +20,7 @@ cmc_765_minecraft_simple_recipe_format cmc_765_minecraft_simple_recipe_format_un
   
   cmc_765_minecraft_simple_recipe_format data;
   
+data.category = cmc_varint_unpack(span, err);
+
   return data;
 }
