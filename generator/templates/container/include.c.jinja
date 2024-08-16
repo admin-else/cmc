@@ -1,3 +1,4 @@
+{{ include("cmc/err_macros") }}
 {% for field in data %}
-    {{ get_bo("include", field["type"]) }}
+{{ get_bo("include", field["type"]) }}
 {% endfor %}

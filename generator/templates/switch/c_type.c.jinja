@@ -1,5 +1,0 @@
-union {
-    {% for item in data["fields"] %}
-    {{ get_bo("c_type", data["fields"][item]) }} {{ item }};
-    {% endfor %}
-}

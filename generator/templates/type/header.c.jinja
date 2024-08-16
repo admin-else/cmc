@@ -1,5 +1,10 @@
+#pragma once
 {{ get_bo("include", data) }}
+{{ include("cmc/err") }}
 {{ render_includes() }}
 
-typedef {{get_bo("c_type", data)}} {{t}};
+typedef {{ get_bo("type", data) }} {{t}};
 
+{{t}} {{t}}_unpack(cmc_span *span, cmc_err *err);
+
+cmc_err {{t}}_pack(cmc_buff *buff, {{t}} data);

@@ -1,6 +1,7 @@
-#include "cmc/types/uuid.h"
-#include "cmc/buff.h"
-#include "cmc/err.h"
+#include <cmc/type/uuid.h>
+#include <cmc/buff.h>
+#include <cmc/err.h>
+#include <cmc/err_macros.h>
 #include <string.h>
 
 cmc_err cmc_pack_uuid(cmc_buff *buff, cmc_uuid data) {
@@ -8,10 +9,7 @@ cmc_err cmc_pack_uuid(cmc_buff *buff, cmc_uuid data) {
 }
 
 cmc_uuid cmc_unpack_uuid(cmc_span *buff, cmc_err *err) {
-  void *uuid_raw = cmc_unpack(buff, UUID_SIZE, err);
-  if (*err != CMC_ERR_NO) {
-    return (cmc_uuid){0};
-  }
+  void *uuid_raw = CMC_ERRP_ABLE(cmc_unpack(buff, UUID_SIZE, err), return (cmc_uuid){0})
   cmc_uuid uuid = {0};
   memcpy(uuid.uuid, uuid_raw, UUID_SIZE);
   return uuid;

@@ -1,7 +1,7 @@
 
-#include "cmc/buff.h"
-#include "cmc/types/c_types.h"
-#include "cmc/types/varnums.h"
+#include <cmc/buff.h>
+#include <cmc/type/c_types.h>
+#include <cmc/type/varnums.h>
 #include <stdio.h>
 
 #define TEST(code)                                                             \

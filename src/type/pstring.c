@@ -1,4 +1,4 @@
-#include "cmc/types/pstring.h"
+#include <cmc/type/pstring.h>
 #include "../heap_utils.h"
 #include "cmc/buff.h"
 #include "cmc/err.h"
@@ -31,7 +31,7 @@ cmc_pstring cmc_pstring_unpack(cmc_span *buff, size_t len, cmc_err *err) {
     return NULL;
   }
 
-  str[len] = '\0';
+  str[len] = '\0'; // I dont like this and i should change this but i probably never will :( i mean null terminator
   memcpy(str, addr, len);
   return str;
 }

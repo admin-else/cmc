@@ -1,13 +1,14 @@
-#include "cmc/buff.h"
+#include <cmc/buff.h>
+#include <cmc/err_macros.h>
 #include <endian.h>
+#include <sys/types.h>
 
 #define C_TYPES_PACK_UNPACK_FACTORY_ENDIAN(name, type, bits)                   \
   type cmc_##name##_unpack(cmc_span *buff, cmc_err *err) {                     \
-    void *p_data = cmc_unpack(buff, sizeof(type), err);                        \
-    if (*err != CMC_ERR_NO) {                                                  \
-      return 0;                                                                \
-    }                                                                          \
-    return le##bits##toh(*(type *)p_data);                                     \
+    void *p_data =                                                             \
+        CMC_ERRP_ABLE(cmc_unpack(buff, sizeof(type), err), return 0)           \
+                                                                               \
+            return le##bits##toh(*(type *)p_data);                             \
   }                                                                            \
                                                                                \
   cmc_err cmc_##name##_pack(cmc_buff *buff, type data) {                       \
@@ -16,11 +17,8 @@
 
 #define C_TYPES_PACK_UNPACK_FACTORY(name, type)                                \
   type cmc_##name##_unpack(cmc_span *buff, cmc_err *err) {                     \
-    void *p_data = cmc_unpack(buff, sizeof(type), err);                        \
-    if (*err != CMC_ERR_NO) {                                                  \
-      return 0;                                                                \
-    }                                                                          \
-    return *(type *)p_data;                                                    \
+    void *p_data = CMC_ERRP_ABLE(cmc_unpack(buff, sizeof(type), err),          \
+                                 return 0) return *(type *)p_data;             \
   }                                                                            \
                                                                                \
   cmc_err cmc_##name##_pack(cmc_buff *buff, type data) {                       \
@@ -41,10 +39,7 @@ C_TYPES_PACK_UNPACK_FACTORY(f64, double)
 // This has to be custom becouse the len may not be one byte
 // https://en.cppreference.com/w/cpp/language/types
 bool cmc_bool_unpack(cmc_span *buff, cmc_err *err) {
-  void *p_data = cmc_unpack(buff, 1, err);
-  if (*err != CMC_ERR_NO) {
-    return false;
-  }
+  void *p_data = CMC_ERRP_ABLE(cmc_unpack(buff, 1, err), return false);
   return *(bool *)p_data;
 }
 

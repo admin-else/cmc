@@ -14,6 +14,10 @@ types = {}
 template_globals = {}
 includes = []
 
+def break_debug():
+    input()
+    return ""
+
 def del_number_folders(path):
     for item in os.scandir(path):
         if item.is_dir and bool(re.match(r'^-?\d+(\.\d+)?$', item.name)):
@@ -59,30 +63,31 @@ def get_bo(attribute, inp, *args, **kwargs):
 
 
 def get(attribute, type_name, *args, **kwargs):
-    contex = {"get": get, "get_bo": get_bo, "g": set_template_global, "include": include, "render_includes": render_includes, "sformat": lambda format, *args: format.format(*args), "break": input}
+    global template_globals
+    
+    contex = {"get": get, "get_bo": get_bo, "g": set_template_global, "include": include, "render_includes": render_includes, "sformat": sformat, "break": break_debug, "curdir": type_name}
     data = kwargs
     data.update(contex)
     data.update(template_globals)
 
     for arg in args:
         data.update(arg)
-
-    if type_name not in types:
-        raise FileNotFoundError(f"Type {type_name} was not found.")
-    if attribute not in types[type_name]:
-        raise FileNotFoundError(f"Attribute {attribute} was not found in {type_name} data {data}.")
-    template = env.from_string(types[type_name][attribute])
     
     pretty_data = {k: v for k, v in data.items() if not inspect.isfunction(v)}
     print(f"{type_name}.{attribute}({pretty_data})")
 
-
+    if type_name not in types:
+        raise FileNotFoundError(f"Type {type_name} was not found.")
+    if attribute not in types[type_name]:
+        raise FileNotFoundError(f"Attribute {attribute} was not found in {type_name}.")
+    
+    template = env.from_string(types[type_name][attribute])
     return template.render(data)
 
 def clear_get(attribute, type_name, *args, **kwargs):
-    global includes, globals
+    global includes
     includes = []
-    globals = {}
+
     return get(attribute, type_name, *args, **kwargs)
 
 def load_native_types():
@@ -97,11 +102,15 @@ def load_native_types():
 
 
 def generate(name, rawdata, protocol_version):
+    global types
+
+    types_tmp = types.copy() # store all actions in tmp that only get applied when the entire function succsesfully runs
+
     if rawdata == "native":
-        if name not in types:
-            print(f"native undfined! {name}")
-            exit(1)
-        print(name)
+        #if name not in types:
+        #    print(f"native undfined! {name}")
+        #    exit(1)
+        #print(name)
         return
     
     extra_data = {
@@ -110,27 +119,35 @@ def generate(name, rawdata, protocol_version):
         "protvers": protocol_version,
         "t": f"cmc_{protocol_version}_{name}",
     }
-    for attribute in types["type"]:
+    for attribute in types_tmp["type"]:
         if not attribute.startswith("export_"):
             continue
         export = attribute.removeprefix("export_")
-        types.setdefault(name, {})
-        types[name][export] = clear_get(attribute, "type", extra_data)
+        types_tmp.setdefault(name, {})
+        with open(BASE_TEMPLATES_PATH + "/type/" + attribute + ATTRIBUTE_FILE_SUFFIX, "r") as f:
+            types_tmp[name][export] = clear_get(attribute, "type", extra_data)
+    
     # t short for type will be used VERY much so a short name is nice
     code = clear_get("code", "type", extra_data)
     header = clear_get("header", "type", extra_data)
+
     path = f"{protocol_version}/{name}"
+    
     write(CODE_PATH_TYPES + path + ".c", code)
     write(HEAD_PATH_TYPES + path + ".h", header)
+
+    types = types_tmp
 
 def main():
     del_number_folders(CODE_PATH_TYPES)
     del_number_folders(HEAD_PATH_TYPES)
+    
+    load_native_types()
 
     protocol_version = 765  # TODO: parse this
     proto = json_loadf("generator/minecraft-data/data/pc/1.20.3/protocol.json")
     left_types: list = list(proto["types"])
-    no_repeat = []
+    no_repeat = [] # the json does not come in a senseable format
     
     i = 0
     while left_types[i]:
@@ -143,7 +160,5 @@ def main():
                 raise e
             left_types.append(t)
             no_repeat.append(t)
-            
 
-load_native_types()
 main()

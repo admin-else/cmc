@@ -1,5 +1,0 @@
-struct {
-  {% for field in data %}
-    {{ get_bo("c_type", field["type"]) }} {{field["name"]}};
-  {% endfor %}
-} {{t}}

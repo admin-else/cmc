@@ -3,7 +3,7 @@
 
 void *cmc_malloc(unsigned long len, cmc_err *err) {
   if (len == 0) {
-    *err = CMC_ERR_MALLOC_FAIL;
+    *err = CMC_ERR_MALLOC_ZERO;
     return NULL;
   }
   void *p_data = malloc(len);
