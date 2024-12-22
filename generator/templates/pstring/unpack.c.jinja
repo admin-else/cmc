@@ -1,5 +1,0 @@
-{
-{{ get("type", data["countType"]) }} len = 0;
-{{ get("unpack", data["countType"], {"to": "len"}) }}
-{{ loc }} = CMC_ERRP_ABLE(cmc_pstring_unpack(buff, len, err), {{ on_err }})
-}

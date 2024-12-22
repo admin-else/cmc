@@ -1,7 +1,3 @@
-
-
-
-
 #include<cmc/type/varnums.h>
 #include<cmc/err_macros.h>
 #include<cmc/err.h>

@@ -1,3 +1,0 @@
-{% for field in data %}
-{{ get_bo("pack", field["type"], {"loc": sformat("{}.{}", loc, field["name"])}) }}
-{% endfor %}
